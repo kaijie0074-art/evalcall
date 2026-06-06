@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalCall · 三层质量闭环 · 外呼对话指令遵循自动评测系统</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e;
+    --accent: #ffd100; --accent2: #58a6ff; --green: #3fb950; --red: #f85149; --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.7; }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 48px 24px 80px; }
+  .hero { text-align: center; padding: 40px 0 28px; }
+  .logo { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 16px; background: var(--accent); color: #1a1a1a; font-size: 36px; font-weight: 800; margin-bottom: 20px; }
+  h1 { font-size: 34px; letter-spacing: 1px; }
+  .sub { color: var(--muted); font-size: 17px; margin-top: 8px; }
+  .loop-banner { display: flex; gap: 0; justify-content: center; align-items: center; margin: 26px auto 8px; flex-wrap: wrap; }
+  .loop-item { padding: 10px 22px; border-radius: 10px; font-weight: 700; font-size: 17px; }
+  .loop-item.m { background: rgba(88,166,255,.12); color: var(--accent2); border: 1px solid rgba(88,166,255,.4); }
+  .loop-item.i { background: rgba(255,209,0,.10); color: var(--accent); border: 1px solid rgba(255,209,0,.4); }
+  .loop-item.j { background: rgba(188,140,255,.10); color: var(--purple); border: 1px solid rgba(188,140,255,.4); }
+  .loop-arrow { color: var(--muted); padding: 0 12px; font-size: 20px; }
+  .badges { margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: 13px; padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); }
+  .badge.hl { border-color: var(--accent); color: var(--accent); }
+  .cta { display: flex; gap: 16px; justify-content: center; margin: 30px 0 8px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 14px 26px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; transition: transform .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--accent); color: #1a1a1a; }
+  .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  h2 { font-size: 22px; margin: 56px 0 18px; padding-left: 12px; border-left: 4px solid var(--accent); }
+  h2 .tag { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 12px; vertical-align: 4px; margin-left: 10px; }
+  .tag.m { background: rgba(88,166,255,.12); color: var(--accent2); }
+  .tag.i { background: rgba(255,209,0,.10); color: var(--accent); }
+  .tag.j { background: rgba(188,140,255,.10); color: var(--purple); }
+  h3.sub-h { margin: 24px 0 12px; font-size: 17px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+  .card h3 { font-size: 16px; margin-bottom: 10px; color: var(--accent2); }
+  .card p { font-size: 14px; color: var(--muted); }
+  .pipeline { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .step { flex: 1; min-width: 120px; text-align: center; }
+  .step .num { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,209,0,.15); color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+  .step .name { font-size: 14px; font-weight: 600; }
+  .step .desc { font-size: 12px; color: var(--muted); }
+  .arrow { color: var(--muted); font-size: 18px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  th, td { padding: 12px 16px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; background: rgba(255,255,255,.02); }
+  .good { color: var(--green); font-weight: 700; }
+  .bad { color: var(--red); font-weight: 700; }
+  .warn { color: var(--accent); font-weight: 700; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .finding { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-top: 12px; }
+  .finding .dim { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 10px; margin-right: 8px; }
+  .dim.conflict { background: rgba(248,81,73,.12); color: var(--red); }
+  .dim.missing { background: rgba(255,209,0,.10); color: var(--accent); }
+  .dim.ambiguous { background: rgba(88,166,255,.12); color: var(--accent2); }
+  .finding h4 { display: inline; font-size: 15px; }
+  .finding p { font-size: 14px; color: var(--muted); margin-top: 8px; }
+  .finding .fix { margin-top: 8px; font-size: 13px; color: var(--green); }
+  .story { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 12px; padding: 20px 22px; margin-top: 14px; }
+  .story h4 { font-size: 15px; margin-bottom: 6px; }
+  .story p { font-size: 14px; color: var(--muted); }
+  .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); }
+  code { background: rgba(110,118,129,.2); border-radius: 4px; padding: 2px 6px; font-size: 13px; }
+  html, body { overflow-x: hidden; }
+  @media (max-width: 480px) {
+    .wrap { padding: 28px 14px 60px; }
+    h1 { font-size: 26px; }
+    .sub { font-size: 14px; }
+    .loop-item { padding: 8px 12px; font-size: 14px; }
+    .loop-arrow { padding: 0 6px; }
+    .btn { padding: 12px 16px; font-size: 14px; }
+    th, td { padding: 8px 8px; font-size: 12.5px; }
+    table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="logo">E</div>
+    <h1>EvalCall</h1>
+    <div class="sub">外呼对话指令遵循自动评测——<strong style="color:var(--text)">别人交打分器，我们交一套能证明自己可信的评测基础设施</strong></div>
+    <div class="loop-banner">
+      <span class="loop-item m">评模型</span><span class="loop-arrow">→</span>
+      <span class="loop-item i">审指令</span><span class="loop-arrow">→</span>
+      <span class="loop-item j">校裁判</span><span class="loop-arrow">↺</span>
+    </div>
+    <div class="badges">
+      <span class="badge hl">美团 AI Hackathon 2026 · 命题二</span>
+      <span class="badge">官方脱敏数据实测</span>
+      <span class="badge">评测结果自带误差棒</span>
+      <span class="badge">测试充分性可量化</span>
+    </div>
+    <div class="cta">
+      <a class="btn btn-primary" href="report-official.html">📊 官方任务一报告 · 看 0 分如何自动归因到指令</a>
+      <a class="btn btn-primary" href="report-official2.html">📊 官方任务二实测报告</a>
+      <a class="btn btn-secondary" href="report-demo.html">🧪 满规模演示（5任务×5persona）</a>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:8px 0 0">
+    <div style="background:var(--card);border:1px solid var(--accent);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--accent)">三层闭环</div>
+      <div style="font-size:13px;color:var(--muted)">评模型 · 审指令 · 校裁判<br>别人交打分器，我们交质量基础设施</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--green);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--green)">92.1%</div>
+      <div style="font-size:13px;color:var(--muted)">裁判校准主口径（32例全量集）<br>盲标独立集 94.7% 未崩盘佐证</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--accent2);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--accent2)">22 处</div>
+      <div style="font-size:13px;color:var(--muted)">官方指令缺陷被体检器自主查出<br>0 分归因指令而非模型</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--red);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--red)">−17%</div>
+      <div style="font-size:13px;color:var(--muted)">一次会上线的坏迭代被预注册拦截<br>升级有预测 · 倒退有闸 · 每步留档</div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:13px;color:var(--muted);margin-top:12px">
+    39 次提交 · 16 组实验落盘 · 259 个校准真值 · 43 条单测全绿 · 本页每个数字都能在仓库 <code>runs/</code> 下找到产物文件逐一复核
+  </div>
+
+  <h2>为什么这个问题难</h2>
+  <p style="color:var(--muted); font-size:15px;">
+    美团履约数字人每天产生大规模外呼。指令包含复杂流程分支和多重合规约束，人工抽听无法全量覆盖、标准因人而异。但「做一个自动评测器」不是难点——<strong style="color:var(--text)">难的是凭什么信它</strong>：
+    裁判自己会误判，谁来评测评测系统？模型分数低，是模型差还是指令本身写得自相矛盾？模拟器说「测得充分」，充分到什么程度？<br><br>
+    <strong style="color:var(--text)">EvalCall 的回答是三层质量闭环：不仅评测模型，还审计指令本身，并量化校准自己的裁判。</strong>每一层都在官方脱敏数据上实测落地。
+  </p>
+
+  <p style="color:var(--muted);font-size:14px;margin-top:28px">下面三层依次回答三个问题：模型守不守指令（评模型）→ 指令本身可不可信（审指令）→ 我凭什么信自己的裁判（校裁判）。</p>
+
+  <h2>第一层 · 评模型<span class="tag m">对抗式模拟 + 双轨判定</span></h2>
+  <div class="pipeline">
+    <div class="step"><div class="num">1</div><div class="name">指令编译</div><div class="desc">自然语言指令 → 结构化检查点<br>每条可溯源 source_quote</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="num">2</div><div class="name">对抗模拟</div><div class="desc">6 维策略空间加权组合的 persona<br>打断 / 跑题 / 质疑 / 沉默</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="num">3</div><div class="name">双轨判定</div><div class="desc">规则轨 + LLM 轨（带指令原文）<br>3 票多数决</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="num">4</div><div class="name">量化报告</div><div class="desc">四维画像 / 热力图<br>逐检查点证据引用</div></div>
+  </div>
+
+  <h3 class="sub-h">官方脱敏数据实测（每 persona 3 条独立轨迹 · 跨模型裁判团 · 含 pass^k 可靠性口径）</h3>
+  <table>
+    <tr><th>任务（官方指令）</th><th>Persona</th><th>原始分（n=3，均值±标准差）</th><th>pass^3</th><th>结论</th></tr>
+    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td>50.6 ± 6.8</td><td rowspan="2"><span class="bad">0.00</span></td><td rowspan="4">两任务全部轨迹均触发 critical 否决，pass^3=0。注：pass^3=0 表示无一条轨迹做到零 critical 完美通过——是结论，不是 bug（详见报告）。<strong style="color:var(--text)">体检器给出归因：任务一开场白塞 5 项信息必丢项、任务二字数与信息量物理冲突</strong>——低分主因在指令，报告自动挂归因警示</td></tr>
+    <tr><td>不耐烦型</td><td>41.2 ± 12.1</td></tr>
+    <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td>58.7 ± 3.3</td><td rowspan="2"><span class="bad">0.00</span></td></tr>
+    <tr><td>不耐烦型</td><td>60.5 ± 2.9</td></tr>
+  </table>
+  <p class="note">分数为否决前原始分（critical 否决后计 0 分另列）；±为 3 条独立轨迹的标准差——<strong style="color:var(--text)">单样本是观测值，带方差才是测量</strong>。每条 fail 附对话原文证据与指令原文引用，点开报告逐条可审计。（产物：<code>runs/official01_n3/</code> <code>runs/official02_n3/</code>）</p>
+
+  <h3 class="sub-h">消融演示（sanity check，每组 2 条轨迹）：评测系统能否检出行为差异？</h3>
+  <p style="color:var(--muted); font-size:15px;">
+    受控消融实验：同一被测模型、同一任务（体检修复版指令）、<strong style="color:var(--text)">同一把固化的检查点尺子</strong>，唯一变量是被测模型「看得见 vs 看不见」指令中的约束段。规模声明：每组 2 条轨迹，属可行性演示而非统计结论——分离方向清晰（71/63 个百分点），置信区间未估。
+  </p>
+  <table>
+    <tr><th>维度</th><th>看得见约束</th><th>看不见约束</th><th>解读</th></tr>
+    <tr><td>约束遵循（constraint）</td><td><span class="good">100%</span></td><td><span class="bad">28.6%</span></td><td rowspan="2">看得见约束的模型严格守住了约束与话术——<strong style="color:var(--text)">+71 / +63 个百分点的分离度</strong>，评测系统精确检测到了行为差异</td></tr>
+    <tr><td>话术合规（style）</td><td><span class="good">62.5%</span></td><td><span class="bad">0%</span></td></tr>
+    <tr><td>流程完整（flow）</td><td><span class="bad">26.3%</span></td><td><span class="good">83.3%</span></td><td>守约束的代价：短句+频繁暂停挤掉了流程信息量——指令的「字数 vs 信息量」张力仍残留（体检→修复→实测是迭代循环）</td></tr>
+    <tr><td>标量总分</td><td>0（critical 否决）</td><td>68.2</td><td><strong style="color:var(--text)">标量分会撒谎</strong>：只看总分会得出「守约束的模型更差」的荒谬结论——这正是报告必须输出分维度画像、不依赖单一分数的原因</td></tr>
+  </table>
+  <p class="note">（产物：<code>runs/discriminant_constraints_on|off/</code>）实验另一收获：首跑时两组各自重新编译检查点导致「不同尺」（LLM 编译器非确定性），结论无效——已修复为 <code>--checklist</code> 固化复用机制并重判。<strong style="color:var(--text)">比较实验必须同尺</strong>，这条工程教训已产品化进 CLI。</p>
+
+  <h3 class="sub-h">真实模型对比：能力榜单 ≠ 指令遵循（模型选型实测）</h3>
+  <p style="color:var(--muted); font-size:15px;">
+    同任务、同固化尺子、同跨模型裁判团，被测模型换成两个真实档位：
+  </p>
+  <table>
+    <tr><th>维度</th><th>Sonnet（大模型）被测</th><th>Haiku（小模型）被测</th><th>解读</th></tr>
+    <tr><td>约束遵循（constraint）</td><td><span class="warn">66.7%</span></td><td><span class="good">100%</span></td><td rowspan="3"><strong style="color:var(--text)">反直觉但机制清晰</strong>：强字数约束的外呼场景下，小模型天然简短的输出更守「极简话术」，大模型信息越丰富越易超限——<strong style="color:var(--text)">能力越强 ≠ 越守指令</strong></td></tr>
+    <tr><td>话术合规（style）</td><td><span class="warn">50.0%</span></td><td><span class="good">87.5%</span></td></tr>
+    <tr><td>违规率 / 百判定</td><td>47.0</td><td><span class="good">38.5</span></td></tr>
+  </table>
+  <p class="note">（产物：<code>runs/modelcmp_sonnet|haiku/</code>）<strong style="color:var(--text)">这正是美团需要这类评测的原因</strong>：外呼模型选型若按通用能力榜单挑最大的模型，约束遵循反而可能更差——必须用任务指令实测。EvalCall 的模型对比报告直接服务选型决策，每个差异都附逐检查点证据。</p>
+
+  <h2>第二层 · 审指令<span class="tag i">Instruction Lint · 评测的不只是模型</span></h2>
+  <p style="color:var(--muted); font-size:15px;">
+    实测中任务二被一票否决——深挖发现根因不在模型。EvalCall 内置指令体检器，自动检测指令的<strong style="color:var(--text)">自相矛盾 / 不可行约束 / 歧义表述 / 缺失分支</strong>，并给出可直接照改的修订建议。以下全部是体检器在两条官方指令上的<strong style="color:var(--text)">自主发现</strong>（提示词只教方法论，无任何硬编码结论）：
+  </p>
+  <div class="finding">
+    <span class="dim conflict">冲突 · high</span><h4>任务二：字数上限 vs 信息量，物理不可行</h4>
+    <p>指令要求「每次回复极简——最多15-20个字」，但 Step1 参考话术约 43 字、Step2 询问语约 38 字——官方提供的参考话术自己就是上限的两倍以上。任何模型都无法同时满足，实测被一票否决归零。</p>
+    <p class="fix">✏️ 建议：字数上限改为「单句不超过20字、单轮可多句」，或将参考话术拆为 ≤20 字短句分轮发出。</p>
+  </div>
+  <div class="finding">
+    <span class="dim conflict">冲突 · high</span><h4>任务一：业务规则自相矛盾</h4>
+    <p>Call Flow 第 2 步说「单日合同需要连续 Y 天完成配送」，Knowledge Points 却写「单日合同在生效当天完成 X 单即可」——同一合同类型的履约周期在指令内部互相打架，模型说哪个都算错。</p>
+    <p class="fix">✏️ 建议：确认业务实际规则后统一表述；若是笔误，将 Call Flow 第 2 步改为「多日合同需连续 Y 天」。</p>
+  </div>
+  <div class="finding">
+    <span class="dim missing">缺失分支 · high</span><h4>任务二：没有「请勿再来电」退出分支（合规风险）</h4>
+    <p>整个流程没有商家明确拒绝（「不需要了解」「以后别打了」）时的退出路径。执行者无脚本可循，可能继续硬推，直接引发客诉与合规风险。同时缺失：负责人不在场、说「就1分钟」后仍被拒等路径。</p>
+    <p class="fix">✏️ 建议：补通用退出规则——商家明确拒绝时立即致歉挂断，不得再说任何产品内容。</p>
+  </div>
+  <div class="finding">
+    <span class="dim ambiguous">歧义 · high</span><h4>任务一：占位符未注入 + 同名变量两种语义</h4>
+    <p>X/Y/Z/W/$ 全部是未填充的占位符且无注入说明，模型只能照念「X单」；其中 Y 在开场白指「每日单数」、在第 2 步又指「连续天数」——同一个变量两种语义。</p>
+    <p class="fix">✏️ 建议：指令顶部增加「系统变量注入」区块，逐一注明变量含义与来源。</p>
+  </div>
+  <p class="note">两条官方指令各检出 11 条问题，指令可行性分均为 0（确定性公式计算，可复现）。<strong style="color:var(--text)">具体到美团运营的工位：写完一条新外呼指令，提交前跑一遍 <code>lint_instruction.py</code>，几十秒拿到「3 处冲突、1 个缺失退出分支」和照改建议——把一次潜在的全量客诉挡在上线之前。先治指令，再评模型，质检数据才有意义。</strong></p>
+
+  <h2>第三层 · 校裁判<span class="tag j">已知答案注入 · 评测结果自带误差棒</span></h2>
+  <p style="color:var(--muted); font-size:15px;">
+    审完指令、评完模型，最后一个问题反噬自己——上面所有结论都依赖 LLM 裁判，可裁判自己也会错。谁来评测评测者？EvalCall 用「已知答案注入」校准自己：向系统投放人工构造、真值已知的合成对话（埋好各类违规、补救、未触发分支等难判情形），跑完整裁判流程，输出裁判的查准率/查全率/混淆矩阵。<strong style="color:var(--text)">我们把自己裁判的准确率印在报告上</strong>——这是评测结果可以被信任的前提。
+  </p>
+  <h3 class="sub-h">校准主口径（投稿版 v3 裁判 · 32 例 / 165 真值全量集）：准确率 92.1%、宏 F1 0.892、违规查全 91.7%、违规查准 76.7%——对照「全判 pass」平凡基线 72.1%</h3>
+  <p class="note" style="margin-top:0">所有标题数字统一用全量集口径；fail 查准 76.7%（误报偏多）原样披露。下表为跨模型机制的小样本探索记录（12 例），仅证方向：</p>
+  <table>
+    <tr><th>指标</th><th>同模型 3 票（12 例探索性小样本）</th><th>跨模型裁判团（同 12 例；样本小、差异未做显著性检验，结论为方向性而非定论）</th><th>含义</th></tr>
+    <tr><td>整体准确率</td><td>86.5%</td><td>94.2%（宏 F1 0.887→0.947；12 例小样本，方向性参考）</td><td>裁判与已知真值的一致程度</td></tr>
+    <tr><td>违规查全率（fail Recall）</td><td>100%</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检底线两种配置下都守住</td></tr>
+    <tr><td>违规查准率（fail Precision）</td><td><span class="warn">61.1%</span>（7 误报）</td><td><span class="good">78.6%</span>（3 误报）</td><td><strong style="color:var(--text)">不好看的数字我们直接印出来</strong>，然后用实验修它：偏严误报近乎减半</td></tr>
+    <tr><td>pass 查全率</td><td>82.1%</td><td><span class="good">92.3%</span></td><td>flow 类「偏严误杀」显著缓解</td></tr>
+    <tr><td>置信度校准</td><td>判对 0.953 vs 判错 0.876（gap +0.077，<span class="good">有效</span>）</td><td>判对 0.951 vs 判错 0.950（gap ≈0，<span class="warn">失效</span>）</td><td><strong style="color:var(--text)">跨模型混投的副作用，我们主动披露</strong>：不同模型的置信度不在同一刻度，混在一起即失去分层能力。结论：准确率用跨模型投票，可信度分层需按模型分别校准（路线图）</td></tr>
+  </table>
+  <h3 class="sub-h">压力升级：黄金集扩容至 32 例 / 165 真值（含对抗陷阱）后的成绩</h3>
+  <table>
+    <tr><th>指标</th><th>12 例基础集（跨模型裁判团）</th><th>32 例对抗集（同为跨模型裁判团；难度 3 倍：引用脏话陷阱 / 违规后自纠 / 方言+ASR噪声多违规并发 / 流程乱序）</th></tr>
+    <tr><td>整体准确率</td><td>94.2%</td><td><span class="good">90.3%</span>（165 判定，fail support 11→36）</td></tr>
+    <tr><td>违规查全率</td><td>100%</td><td><span class="warn">88.9%</span>（4 个刁钻违规漏判：自纠洗白、噪声掩护类）</td></tr>
+    <tr><td>分类型</td><td>—</td><td>constraint 100% · flow 90.4% · style 80% · forbidden 62.5%</td></tr>
+  </table>
+  <p class="note"><strong style="color:var(--text)">我们主动把考题加难、把回落的数字原样印出来</strong>：扩容集专门设计了「引用用户脏话钓关键词误判」「违规后立即自纠诱导洗白」这类陷阱，钓到裁判 4 次漏判——每次漏判都有逐条真值对照可审计（<code>runs/calibration/</code>）。同源声明（最重要的局限，我们自己先说）：①真值为作者标注，属 known-answer self-check 而非独立 held-out 验证；②裁判判定准则与黄金集陷阱同源迭代——准确率应理解为「同源考题上的上界」。治理方案见仓库 GOVERNANCE.md。</p>
+
+  <h3 class="sub-h">Held-out 独立验证：回答「凭什么相信不是过拟合自己出的题」</h3>
+  <div style="display:flex;gap:18px;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--green);border-radius:14px;padding:16px 22px;margin:10px 0;flex-wrap:wrap">
+    <div style="text-align:center"><div style="font-size:26px;font-weight:800">90.3%</div><div style="font-size:12px;color:var(--muted)">同源考题</div></div>
+    <div style="font-size:22px;color:var(--muted)">→</div>
+    <div style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--green)">94.7%</div><div style="font-size:12px;color:var(--muted)">盲标独立集 · 未崩盘</div></div>
+    <div style="font-size:13px;color:var(--muted);max-width:320px">标注者与裁判调优链严格隔离；20 个违规零漏判（含 8 种禁语规避话术）</div>
+  </div>
+  <p style="color:var(--muted); font-size:15px;">
+    针对「真值自标注+准则同源迭代」这一根本性质疑，我们构造了<strong style="color:var(--text)">盲标注 held-out 集</strong>：标注者与裁判调优链严格隔离（不接触既有考题与裁判提示词），22 例 / 94 真值，专门埋入 <strong style="color:var(--text)">8 种「绕过禁语」对抗手法</strong>（不说"验证码"改说"短信里那串6位数字"、反讽式贬损、利诱念码…）和 4 条反向陷阱（字面像违规实则合规：引用、否定句式、培训例句）。
+  </p>
+  <table>
+    <tr><th>指标</th><th>同源集（32例）</th><th>Held-out 盲标注集（22例）</th><th>含义</th></tr>
+    <tr><td>整体准确率</td><td>90.3%</td><td>94.7%（宏F1 0.845；本集「全判pass」平凡基线 74.5%；95% CI [88.0, 98.3]）</td><td>独立集未崩盘且量级一致——<strong style="color:var(--text)">初步缓解同源过拟合担忧</strong>。同集对照已补：v1 与 v3 在 held-out 上完全持平（94.7%=94.7%，逐类一致）——v3 准则的收益集中在同源对抗难例（92.1 vs 90.3），不损害泛化；「v3 更泛化」的说法不成立，我们如实不说</td></tr>
+    <tr><td>违规查全率</td><td>88.9%</td><td><span class="good">100%</span></td><td>本集 20 个违规检查点 0 漏判，含 8 种禁语规避手法（每种 1-3 例，n 小：100% 召回的 95% CI 下界约 83%）——双判合议对规避话术的有效性获初步验证，非鲁棒性证明</td></tr>
+    <tr><td>反向陷阱误杀</td><td>—</td><td><span class="good">0</span>（pass 查准率 1.0）</td><td>引用/否定句式/培训例句不被冤枉——归属判定准则起效</td></tr>
+    <tr><td>forbidden / style 类准确率</td><td>62.5% / 80%</td><td><span class="good">100% / 100%</span></td><td>合规质检最关键的两类在独立集上满分</td></tr>
+    <tr><td>残余弱点</td><td>—</td><td><span class="warn">na 类 n=4</span>（召回 2/4，95% CI [7%,93%]——样本不足以评估）、fail 查准率 0.80</td><td>na 维度本集无法下结论；误报仍需复核——原样披露</td></tr>
+  </table>
+  <p class="note">完整产物：<code>runs/calibration/heldout_v3.json</code>（meta 含裁判团配置自证）、<code>data/calibration/heldout_set.json</code>（22 例全文+标注理由可审计）。诚实边界：盲标注者是与裁判调优链隔离的 AI 二次标注（同属 Claude 家族——共享先验可能系统性抬高一致率，94.7% 应视为上界）；人类标注一致率（Cohen's Kappa）与异源家族交叉标注是生产前必做项。</p>
+
+  <h3 class="sub-h">预注册拦截了一次坏迭代：负结果也原样公布</h3>
+  <table>
+    <tr><th>裁判提示词版本</th><th>32 例对抗集成绩</th><th>说明</th></tr>
+    <tr><td>v1（基础版）</td><td>90.3%</td><td>原基线</td></tr>
+    <tr><td>v2（加 4 条防误判准则）</td><td><span class="bad">73.3%</span>（崩盘）</td><td>改动前按预注册协议落盘了预测（fail 查全 ≥94%）——实测全面失败：谨慎准则诱发「na 逃避」（na 查准率仅 0.238，裁判拿不准就弃权）。<strong style="color:var(--text)">预注册机制按设计拦截了这次倒退，它没有上线</strong></td></tr>
+    <tr><td>v3（4 准则 + na 纪律 + 双判合议）</td><td><span class="good">92.1%</span>（宏F1 0.892；forbidden 类 62.5%→100%）</td><td><strong style="color:#e6edf3">按预注册决策规则正式采用为投稿版</strong>——升级有预测、倒退有拦截、采纳有数据，每一步留档可查</td></tr>
+  </table>
+  <p class="note">意外收获：v2 配置下置信度校准 gap 从 0.043 暴涨至 0.67（按模型分别校准：haiku 0.64 / sonnet 0.69 / <strong style="color:var(--text)">opus 0.81</strong>）——裁判弃权或犯错时置信度显著更低，<strong style="color:var(--text)">置信度过滤从「失效」变为「可用」</strong>，且 per-model 校准数据证实了「跨模型置信度必须分别校准」的判断。完整预测-对账记录见 <code>runs/calibration/PREREGISTRATION_v2.md</code>（预测原文未改，错在哪如实写）。</p>
+  <p class="note"><strong style="color:var(--text)">这组对照本身就是方法论结论：同一个模型连投 3 票只能消随机噪声，错会 3:0 一起错（实测 7 个误判全是全票一致地错）；换 3 个不同模型投票才消得掉系统性偏见——准确率 +7.7 个百分点，误报近乎减半，漏判保持为零。</strong>剩余误判集中在「合理转述的开场白该不该算合规」这类口径分歧——正是校准要暴露给质检负责人拍板的。完整混淆矩阵见 <code>runs/calibration/calibration.json</code>（基线留档 <code>calibration_samemodel_baseline.json</code>）。</p>
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h3>判定有据：指令原文喂给裁判</h3><p>裁判提示词携带每条检查点的 source_quote 指令原文。开发中实测：不带原文时裁判对「应当以指定开场白开启」类检查点只能臆测（3 票 2:1 分裂）；带原文后 3 票全对，整体投票一致率 88.9%。</p></div>
+    <div class="card"><h3>三票多数决 + 分歧率透明</h3><p>每条 LLM 判定投 3 票取多数，报告同时公布一致率与分裂条目——分裂项自动标记建议人工复核，评测结论自带可信度分层。</p></div>
+    <div class="card"><h3>上下文隔离</h3><p>被测模型与模拟器在干净上下文中运行，杜绝宿主环境信息泄入对话轨迹。开发中实测抓到一例轨迹污染（模拟模型拒演并泄露宿主信息），已通过隔离机制根除。</p></div>
+    <div class="card"><h3>鲁棒 JSON 解析</h3><p>官方指令含英文引号时，小模型输出 JSON 必带未转义裸引号。内置裸引号修复器（实测失败样本单测覆盖），编译/判定链路对脏输出免疫。</p></div>
+  </div>
+
+  <h2>测试充分性量化 · 覆盖率驱动</h2>
+  <p style="color:var(--muted); font-size:15px;">
+    「模拟器测得充分」不能靠形容词。EvalCall 把每个检查点是否被轨迹实际检验（pass/fail vs na）汇总成<strong style="color:var(--text)">触达率</strong>，并列出测试盲区清单：
+  </p>
+  <table style="margin-top:12px">
+    <tr><th>任务</th><th>无反馈环（被动统计）</th><th>coverage-guided 反馈环开启后</th></tr>
+    <tr><td>任务一 · 骑手合同通知</td><td>94.4%（1 个盲区）</td><td><span class="good">100%（0 盲区）</span></td></tr>
+    <tr><td>任务二 · 低延迟直播</td><td><span class="warn">77.8%（6 个盲区）</span></td><td><span class="good">100%（0 盲区）</span></td></tr>
+  </table>
+  <p class="note"><strong style="color:var(--text)">反馈环已实现且实证有效（任务二 +22.2 个百分点、盲区清零）</strong>：每条轨迹判定完成后，仍未触达的检查点被标记为「优先攻击目标」注入下一条轨迹的对抗模拟器，主动制造触发场景——商家开车要挂断、Web控制台兜底引导这些此前测不到的分支被逐一逼出（绝对量：两任务合计补上 7 个盲区检查点——演示规模下绝对量小，机制价值在检查点数百条的生产规模显现；机制对标 coverage-guided behavioral fuzzing，<code>evalcall/cli.py</code> 主循环可查证）。触达口径已收紧：fail 须附原文证据才计触达，收紧后两任务仍保持 100%。评测系统不仅打分，还告诉你测试差什么、并主动补上。</p>
+
+  <h2>真实战绩：这套系统在开发中抓出的问题</h2>
+  <div class="story">
+    <h4>🎯 抓出指令缺陷（第二层）</h4>
+    <p>官方任务二的字数约束 vs 参考话术冲突、任务一的业务规则自相矛盾——若直接上线，质检数据全失真。指令体检在评测前就能拦下。</p>
+  </div>
+  <div class="story">
+    <h4>🎯 抓出裁判误判（第三层）</h4>
+    <p>被测模型一字不差说出指定开场白，单票裁判却判 fail——根因是裁判没拿到指令原文只能臆测。修复后 3 票全对。这正是「校裁判」层存在的意义。</p>
+  </div>
+  <div class="story">
+    <h4>🎯 抓出测试盲区，并主动补上（覆盖率反馈环）</h4>
+    <p>被动统计模式下任务一有 1 个、任务二有 6 个条件分支从未被触达；开启 coverage-guided 反馈环后两任务触达率均达 100%、盲区清零——发现盲区到消灭盲区，闭环实证有效。</p>
+  </div>
+  <div class="story">
+    <h4>🎯 抓出「比较实验不同尺」的设计缺陷（工程纪律）</h4>
+    <p>判别力实验首跑时两组各自重新编译检查点（LLM 编译器非确定性），对照失效——已产品化为 <code>--checklist</code> 固化复用机制并同尺重判。比较实验必须同尺，这条教训写进了 CLI。</p>
+  </div>
+
+  <h2>量化指标体系</h2>
+  <table>
+    <tr><th>指标</th><th>说明</th></tr>
+    <tr><td>约束违反数 / 百次对话</td><td>核心量化产出，可按 task / persona / severity 三维切片</td></tr>
+    <tr><td>四维能力画像</td><td>流程完整度 · 约束遵循率 · 异常处理 · 话术合规</td></tr>
+    <tr><td>检查点触达率 + 盲区清单</td><td>测试充分性的量化表达，反哺模拟器调度</td></tr>
+    <tr><td>裁判查准率 / 查全率 / 混淆矩阵</td><td>已知答案注入校准，评测结果自带误差棒</td></tr>
+    <tr><td>投票一致率 / 双轨冲突率</td><td>逐条结论的可信度分层，分裂项标记人工复核</td></tr>
+    <tr><td>指令可行性分 + 缺陷清单</td><td>指令体检产出，附可直接照改的修订建议</td></tr>
+  </table>
+
+  <h2>学术对标 · 我们站在哪、新在哪</h2>
+  <table>
+    <tr><th>EvalCall 设计</th><th>对应研究脉络</th><th>对照结论</th></tr>
+    <tr><td>指令→检查点编译</td><td>TICK（ICLR'25）的 checklist 分解评测</td><td>同范式，但我们<strong style="color:var(--text)">自动从指令编译</strong>且用对抗模拟器动态触发，而非静态评既有文本</td></tr>
+    <tr><td>规则+LLM 双轨</td><td>IFEval（可程序化验证约束）+ MT-Bench 系 LLM-judge</td><td>IFEval 只覆盖可正则验证的约束，我们把语义约束一并纳入</td></tr>
+    <tr><td>对抗式用户模拟器</td><td>τ-bench / τ²-bench（NeurIPS'24，Sierra）的 LLM 用户模拟</td><td>τ 系列追求「像真人」（fidelity），我们追求「专挑指令崩溃路径」（adversarial coverage）</td></tr>
+    <tr><td>裁判自校准</td><td>JudgeBench（ICLR'25）的 meta-evaluation with verifiable ground truth</td><td>同方法论，落到外呼质检场景</td></tr>
+    <tr><td>覆盖率反馈环</td><td>FLARE 的 coverage-guided behavioral fuzzing（此前只用于代码/MAS 测试）</td><td>此前公开应用集中在代码/MAS 测试，<strong style="color:var(--text)">对话指令遵循质检方向未检索到先例</strong></td></tr>
+    <tr><td>指令体检器</td><td>——</td><td><strong style="color:var(--text)">公开文献空白</strong>：IFEval/ComplexBench/FollowBench 都假设指令是好的、只测模型；没有公开工作检测「指令本身是否自相矛盾/不可行/缺分支」</td></tr>
+  </table>
+  <p class="note">一句话定位：把 IFEval 的可验证约束、τ-bench 的用户模拟、JudgeBench 的裁判元评测，首次合成一个面向外呼 agent 的<strong style="color:var(--text)">上线前主动压测闭环</strong>——并新增「指令体检」这个文献空白维度。「对抗式 × 覆盖率引导 × 外呼指令遵循」三元交集在我们的检索范围内未见公开先例（检索截至 2026-06，欢迎指正）。</p>
+
+  <h2>生产 ROI · 带算术的账，不是「规模越大越省」的口号</h2>
+  <table>
+    <tr><th>测算项</th><th>数字与依据</th></tr>
+    <tr><td>质检单通调用量（评既有录音转写，无需模拟）</td><td>32 检查点 ÷ 6/批 × 3 票 ≈ 18 次裁判调用 ≈ 4.5 万 token；规则轨前置零成本过滤可再省 30%</td></tr>
+    <tr><td>质检单通成本（生产后端 qwen/deepseek 档 ≈¥0.002/千token）</td><td><strong style="color:var(--text)">≈ ¥0.1–0.2 / 通</strong></td></tr>
+    <tr><td>人工抽听对照</td><td>听录音+填质检表 10–15 分钟 ≈ ¥7–12 / 通（含人力综合成本）</td></tr>
+    <tr><td rowspan="2">百万通/天规模的两种方案对账</td><td>现状·人工抽检 3%：3 万通 × ¥10 = <strong style="color:var(--text)">¥30 万/天，覆盖率 3%</strong></td></tr>
+    <tr><td>EvalCall 全量：100 万通 × ¥0.15 = ¥15 万 ＋ fail 标记复核（标记率按14%、附证据复核 1-2 分钟/条 ≈¥1.5）14 万 × ¥1.5 = ¥21 万 → <strong style="color:var(--text)">¥36 万/天，覆盖率 100%</strong></td></tr>
+    <tr><td>结论</td><td><strong style="color:var(--text)">同量级预算下覆盖率 3% → 100%（33 倍）</strong>；且复核不用重听录音——报告附对话原文+指令原文双重证据，单条复核从 10 分钟降到 1-2 分钟。fail 查准率（当前 76.7%）每提升 10 个百分点，复核账单再降约 ¥3 万/天——这正是「校裁判」层持续迭代的直接金钱价值</td></tr>
+    <tr><td>延迟与扩展性</td><td>演示通道 claude-cli 单案 165s 是本地子进程的限制；生产为批量 API——单通质检各自独立、可无限水平并行，墙钟由并发度决定而非架构。裁判升级后用重判工具从既有轨迹回溯，无需重跑对话</td></tr>
+  </table>
+
+  <h2>已知局限与路线图 · 我们自己先说</h2>
+  <div class="grid">
+    <div class="card"><h3>同家族裁判的自我偏袒</h3><p>当前被测与裁判同为 Claude 家族，存在 self-enhancement bias。已实现跨档位裁判团（haiku/sonnet/opus 每票不同模型），生产部署将换异构家族（GPT/Qwen/Claude 交叉）+ 人工抽检锚点。</p></div>
+    <div class="card"><h3>编译器本身尚未校准</h3><p>检查点编译靠 source_quote 溯源兜底，但「抽得全不全、severity 标得准不准」无金标准校验。路线图：把校准黄金集扩展到编译层（人工标注的标准检查点清单）。</p></div>
+    <div class="card"><h3>样本规模与统计置信</h3><p>演示规模下分数为观测值而非统计估计。已支持多轨迹 + pass^k 可靠性口径（对标 τ-bench），生产建议每 persona ≥20 条轨迹。</p></div>
+    <div class="card"><h3>生态效度</h3><p>被测模型为通用 LLM 扮演（官方未提供真实外呼模型，所有参赛队同此约束）；persona 为手工设计+盲区驱动补充。真实脱敏轨迹接入有现成格式适配层。</p></div>
+  </div>
+
+  <h2>使用方式</h2>
+  <div class="card">
+    <p style="font-size:14px; color:var(--text)">
+      <code>evalcall run --task task.yaml --personas all</code>　编译指令 → 对抗模拟 → 双轨判定<br><br>
+      <code>evalcall report --run runs/xxx</code>　生成可交互 HTML 报告<br><br>
+      <code>python3 lint_instruction.py task.yaml</code>　指令体检：冲突 / 不可行 / 歧义 / 缺失分支<br><br>
+      <code>python3 calibrate.py</code>　裁判自校准：已知答案注入 → 查准率 / 查全率<br><br>
+      <code>python3 rejudge_checkpoint.py runs/xxx all 3</code>　裁判升级后从既有轨迹全量重判（无需重跑对话）
+    </p>
+  </div>
+
+  <div class="footer">
+    EvalCall · 美团 AI Hackathon 2026 命题二「复杂指令下的多轮对话评测系统」参赛作品<br>
+    三层质量闭环：评模型 · 审指令 · 校裁判 —— 指令编译器、双轨判定引擎、体检器、校准器均为通用组件
+  </div>
+
+</div>
+</body>
+</html>

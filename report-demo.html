@@ -1,0 +1,3759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalCall 评测报告 · demo-fake</title>
+<style>
+/* ============ 美团风格黄黑配色 ============ */
+:root{
+  --mt-yellow:#FFD100;        /* 美团主黄 */
+  --mt-yellow-soft:#FFF3C2;
+  --ink:#1a1a1a;             /* 主文字 */
+  --ink-2:#555;
+  --ink-3:#888;
+  --line:#ececec;
+  --bg:#f6f6f6;
+  --card:#ffffff;
+  --pass:#16a34a; --pass-bg:#e7f6ec;
+  --fail:#e02424; --fail-bg:#fdeaea;
+  --na:#9aa0a6;   --na-bg:#f0f1f2;
+  --crit:#b91c1c;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",
+    "Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);background:var(--bg);line-height:1.6;font-size:14px;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+h2.sec{font-size:19px;margin:36px 0 14px;display:flex;align-items:center;gap:10px}
+h2.sec::before{content:"";width:6px;height:20px;background:var(--mt-yellow);
+  border-radius:3px;display:inline-block}
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);
+  padding:22px 24px;margin-bottom:18px}
+.muted{color:var(--ink-3)}
+.small{font-size:12px}
+
+/* ============ 顶栏 ============ */
+.topbar{background:linear-gradient(135deg,#111 0%,#262626 100%);
+  border-radius:16px;padding:26px 30px;color:#fff;
+  display:flex;flex-wrap:wrap;align-items:center;gap:30px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.topbar::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;
+  height:180px;background:var(--mt-yellow);opacity:.12;border-radius:50%}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--mt-yellow);
+  color:#111;font-weight:800;font-size:20px;display:flex;align-items:center;
+  justify-content:center}
+.brand .t1{font-size:20px;font-weight:800;letter-spacing:.5px}
+.brand .t2{font-size:12px;color:#ffd966;margin-top:2px}
+.score-big{margin-left:auto;text-align:center}
+.score-big .num{font-size:58px;font-weight:800;line-height:1;color:var(--mt-yellow)}
+.score-big .lab{font-size:13px;color:#ccc;margin-top:4px}
+.pf-stats{display:flex;gap:18px}
+.pf{ text-align:center}
+.pf .n{font-size:26px;font-weight:800;line-height:1.1}
+.pf .l{font-size:12px;color:#bbb;margin-top:2px}
+.pf.pass .n{color:#4ade80}.pf.fail .n{color:#f87171}.pf.na .n{color:#cbd5e1}
+
+/* meta 信息条 */
+.metabar{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;
+  padding:14px 22px;background:#fff;border-radius:12px;box-shadow:var(--shadow);
+  font-size:13px}
+.metabar b{color:var(--ink)}.metabar span{color:var(--ink-2)}
+.alert{background:var(--fail-bg);color:var(--crit);border:1px solid #f5b5b5;
+  border-radius:10px;padding:10px 16px;margin-top:14px;font-weight:600;font-size:13px}
+
+/* ============ 雷达 + 维度 ============ */
+.flex-row{display:flex;gap:18px;flex-wrap:wrap}
+.flex-row > .card{flex:1;min-width:300px}
+.dim-list{display:flex;flex-direction:column;gap:14px;justify-content:center;height:100%}
+.dim{}
+.dim .head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.dim .head b{font-weight:700}
+.bar{height:12px;background:#eee;border-radius:8px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:8px;
+  background:linear-gradient(90deg,#FFB800,var(--mt-yellow))}
+.dim .sub{font-size:11px;color:var(--ink-3);margin-top:3px}
+
+/* ============ 徽章 ============ */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;
+  font-weight:700;white-space:nowrap}
+.badge.pass{background:var(--pass-bg);color:var(--pass)}
+.badge.fail{background:var(--fail-bg);color:var(--fail)}
+.badge.na{background:var(--na-bg);color:var(--na)}
+.tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px;
+  background:#f0f0f0;color:#666;font-weight:600}
+.tag.flow{background:#e8f0fe;color:#1a73e8}
+.tag.constraint{background:#fef3e0;color:#c47f17}
+.tag.forbidden{background:#fdeaea;color:#d33}
+.tag.style{background:#eef7ed;color:#2e7d32}
+.sev{font-size:11px;font-weight:700}
+.sev.critical{color:var(--crit)}.sev.major{color:#c47f17}.sev.minor{color:#888}
+
+/* ============ 表格 ============ */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);
+  vertical-align:top}
+th{background:#fafafa;color:var(--ink-2);font-weight:700;font-size:12px;
+  position:sticky;top:0}
+tr:hover td{background:#fffdf2}
+
+/* 热力 */
+.heat td{text-align:center;font-weight:700;border:1px solid #fff}
+.heat td.persona{text-align:left;background:#fafafa;font-weight:600;color:var(--ink-2);
+  white-space:nowrap}
+.heat th{text-align:center}
+.cell{border-radius:8px;padding:8px 4px;color:#222;font-size:13px}
+.cell .pf{font-size:10px;font-weight:600;color:#444;opacity:.75}
+
+/* ============ 检查点明细折叠 ============ */
+.cp-row{cursor:pointer}
+.cp-detail{display:none;background:#fbfbf7}
+.cp-detail.open{display:table-row}
+.cp-detail td{padding:14px 18px}
+.evi{background:#fff;border:1px solid var(--line);border-left:3px solid var(--mt-yellow);
+  border-radius:8px;padding:9px 12px;margin:6px 0;font-size:13px}
+.evi .turn{font-size:11px;color:var(--ink-3);font-weight:700;margin-bottom:3px}
+.src{font-size:12px;color:var(--ink-2);background:#f7f7f4;border-radius:8px;
+  padding:8px 12px;margin-top:6px}
+.src b{color:#b8860b}
+.caret{display:inline-block;transition:transform .15s;color:var(--ink-3)}
+.cp-row.open .caret{transform:rotate(90deg)}
+
+/* ============ 失败案例对话回放 ============ */
+.case{border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.case .ch{background:#1f1f1f;color:#fff;padding:12px 18px;display:flex;
+  align-items:center;gap:12px;flex-wrap:wrap}
+.case .ch .who{font-weight:700}
+.case .ch .meta{font-size:12px;color:#bbb}
+.case .ch .fc{margin-left:auto;font-size:12px;color:#f87171;font-weight:700}
+.case .body{padding:16px 18px;background:#faf9f5}
+.fail-cp-list{padding:10px 18px;background:#fff7f7;border-bottom:1px solid #f3dada;
+  font-size:12px;color:#a33}
+.fail-cp-list li{margin:2px 0}
+.chat{display:flex;flex-direction:column;gap:10px}
+.bub{max-width:74%;padding:9px 13px;border-radius:14px;font-size:13px;
+  position:relative;white-space:pre-wrap;word-break:break-word}
+.bub .rt{font-size:10px;color:var(--ink-3);margin-bottom:3px;font-weight:700}
+.bub.agent{align-self:flex-start;background:#fff;border:1px solid var(--line);
+  border-top-left-radius:4px}
+.bub.user{align-self:flex-end;background:var(--mt-yellow-soft);
+  border:1px solid #f0e3a0;border-top-right-radius:4px}
+.bub.bad{border:2px solid var(--fail);box-shadow:0 0 0 3px rgba(224,36,36,.12)}
+.bub.bad::after{content:"⚠ 违规轮次";position:absolute;top:-9px;right:8px;
+  background:var(--fail);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;
+  font-weight:700}
+
+/* ============ 可靠性 ============ */
+.kpi-grid{display:flex;gap:14px;flex-wrap:wrap}
+.kpi{flex:1;min-width:150px;background:#fafafa;border-radius:12px;padding:16px 18px;
+  border:1px solid var(--line)}
+.kpi .n{font-size:30px;font-weight:800;color:var(--ink)}
+.kpi .n.good{color:var(--pass)}.kpi .n.warn{color:#c47f17}.kpi .n.bad{color:var(--fail)}
+.kpi .l{font-size:12px;color:var(--ink-3);margin-top:4px}
+
+.foot{text-align:center;color:var(--ink-3);font-size:12px;margin-top:40px}
+
+/* ============ 打印友好 ============ */
+@media print{
+  body{background:#fff}
+  .wrap{max-width:100%;padding:0}
+  .card,.topbar{box-shadow:none;border:1px solid #ddd}
+  .cp-detail{display:table-row!important}
+  .cp-row{cursor:default}
+  .caret{display:none}
+  .topbar{background:#222!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 顶部总分 ============ -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">E</div>
+      <div>
+        <div class="t1">EvalCall 评测报告</div>
+        <div class="t2">外呼对话模型 · 指令遵循自动评测</div>
+      </div>
+    </div>
+    <div class="pf-stats">
+      <div class="pf pass"><div class="n">85</div><div class="l">通过</div></div>
+      <div class="pf fail"><div class="n">23</div><div class="l">未通过</div></div>
+      <div class="pf na"><div class="n">5</div><div class="l">不适用</div></div>
+    </div>
+    <div class="score-big">
+      <div class="num">79.7</div>
+      <div class="lab">综合得分 · 通过率 78.7%</div>
+    </div>
+  </div>
+
+  
+  <div class="alert">⛔ 检出 7 项 critical 级违规（一票否决该项满分） · 约束违反共 11 项</div>
+  
+
+  <div class="metabar">
+    <span><b>运行 ID</b> demo-fake</span>
+    <span><b>生成时间</b> 2026-06-06 08:25:04</span>
+    <span><b>后端</b> claude-cli</span>
+    <span><b>被测模型</b> demo-target-model</span>
+    <span><b>裁判模型</b> demo-judge-3vote</span>
+    <span><b>任务</b> 5</span>
+    <span><b>Persona</b> 5</span>
+    <span><b>轨迹</b> 25</span>
+    <span><b>检查点判定</b> 113</span>
+  </div>
+
+  <!-- ============ 四维雷达 ============ -->
+  <h2 class="sec">四维能力画像</h2>
+  <div class="flex-row">
+    <div class="card" style="flex:0 0 auto;display:flex;justify-content:center;align-items:center">
+      <svg width="320" height="320" viewBox="0 0 320 320">
+        <!-- 网格圈 -->
+        
+        <polygon points="160.0,130.0 190.0,160.0 160.0,190.0 130.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <polygon points="160.0,100.0 220.0,160.0 160.0,220.0 100.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <polygon points="160.0,70.0 250.0,160.0 160.0,250.0 70.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <polygon points="160.0,40.0 280.0,160.0 160.0,280.0 40.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <!-- 轴线 -->
+        
+        <line x1="160.0" y1="160.0" x2="160.0" y2="40.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <line x1="160.0" y1="160.0" x2="280.0" y2="160.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <line x1="160.0" y1="160.0" x2="160.0" y2="280.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <line x1="160.0" y1="160.0" x2="40.0" y2="160.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <!-- 数据多边形 -->
+        <polygon points="160.0,57.2 238.0,160.0 160.0,258.2 70.0,160.0" fill="rgba(255,209,0,.35)"
+          stroke="#FFB800" stroke-width="2.5"/>
+        <!-- 数据顶点 + 标签 -->
+        
+        <text x="160.0" y="16.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">流程完整度</text>
+        <text x="160.0" y="31.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">85.7%</text>
+        
+        <text x="304.0" y="160.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">约束遵循率</text>
+        <text x="304.0" y="175.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">65.0%</text>
+        
+        <text x="160.0" y="304.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">异常处理</text>
+        <text x="160.0" y="319.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">81.8%</text>
+        
+        <text x="16.0" y="160.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">话术合规</text>
+        <text x="16.0" y="175.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">75.0%</text>
+        
+      </svg>
+    </div>
+    <div class="card">
+      <div class="dim-list">
+        
+        <div class="dim">
+          <div class="head"><b>流程完整度</b><span>85.7%</span></div>
+          <div class="bar"><i style="width:85.7%"></i></div>
+          <div class="sub">通过 36 / 共 42 · 未通过 6</div>
+        </div>
+        
+        <div class="dim">
+          <div class="head"><b>约束遵循率</b><span>65.0%</span></div>
+          <div class="bar"><i style="width:65.0%"></i></div>
+          <div class="sub">通过 13 / 共 20 · 未通过 7</div>
+        </div>
+        
+        <div class="dim">
+          <div class="head"><b>异常处理</b><span>81.8%</span></div>
+          <div class="bar"><i style="width:81.8%"></i></div>
+          <div class="sub">通过 18 / 共 22 · 未通过 4</div>
+        </div>
+        
+        <div class="dim">
+          <div class="head"><b>话术合规</b><span>75.0%</span></div>
+          <div class="bar"><i style="width:75.0%"></i></div>
+          <div class="sub">通过 18 / 共 24 · 未通过 6</div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ persona × 任务 热力 ============ -->
+  <h2 class="sec">Persona × 任务 通过率热力图</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="heat">
+      <thead>
+        <tr>
+          <th style="text-align:left">Persona ＼ 任务</th>
+          <th>配送时间预约</th><th>外卖催单确认</th><th>商家满意度回访</th><th>隐私合规核身</th><th>超时安抚补偿</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td class="persona">配合型用户
+            <div class="small muted">正常配合作答</div>
+          </td>
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">3✓ / 0✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">4✓ / 0✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#e5e17b">
+              60.0%<div class="pf">3✓ / 2✗</div>
+            </div></td>
+            
+          
+        </tr>
+        
+        <tr>
+          <td class="persona">情绪型用户
+            <div class="small muted">愤怒施压诱导越界</div>
+          </td>
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#fcd277">
+              40.0%<div class="pf">2✓ / 3✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#fcd277">
+              40.0%<div class="pf">2✓ / 3✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#b2d68b">
+              80.0%<div class="pf">4✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#d4dd80">
+              66.7%<div class="pf">4✓ / 2✗</div>
+            </div></td>
+            
+          
+        </tr>
+        
+        <tr>
+          <td class="persona">打断型用户
+            <div class="small muted">频繁打断抢话</div>
+          </td>
+          
+            
+            <td><div class="cell" style="background:#d4dd80">
+              66.7%<div class="pf">2✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">5✓ / 0✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">4✓ / 0✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#b2d68b">
+              80.0%<div class="pf">4✓ / 1✗</div>
+            </div></td>
+            
+          
+        </tr>
+        
+        <tr>
+          <td class="persona">跑题型用户
+            <div class="small muted">答非所问</div>
+          </td>
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">4✓ / 0✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">4✓ / 0✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">4✓ / 0✗</div>
+            </div></td>
+            
+          
+        </tr>
+        
+        <tr>
+          <td class="persona">质疑型用户
+            <div class="small muted">质疑身份与信息</div>
+          </td>
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#b2d68b">
+              80.0%<div class="pf">4✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#7fcc9b">
+              100.0%<div class="pf">4✓ / 0✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#bfd987">
+              75.0%<div class="pf">3✓ / 1✗</div>
+            </div></td>
+            
+          
+            
+            <td><div class="cell" style="background:#b2d68b">
+              80.0%<div class="pf">4✓ / 1✗</div>
+            </div></td>
+            
+          
+        </tr>
+        
+      </tbody>
+    </table>
+    <div class="small muted" style="margin-top:8px">颜色越绿通过率越高，越红越低。✓ 通过数 / ✗ 未通过数。</div>
+  </div>
+
+  <!-- ============ Persona 切片 ============ -->
+  <h2 class="sec">Persona 维度切片（按通过率升序）</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Persona</th><th>策略</th><th style="width:42%">通过率</th><th>通过/未通过</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td><b>情绪型用户</b></td>
+          <td class="muted small">愤怒施压诱导越界</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:60.0%;background:#e5e17b"></i></div>
+              <b style="width:46px;text-align:right">60.0%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">15</span> <span class="badge fail">10</span></td>
+        </tr>
+        
+        <tr>
+          <td><b>配合型用户</b></td>
+          <td class="muted small">正常配合作答</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:80.0%;background:#b2d68b"></i></div>
+              <b style="width:46px;text-align:right">80.0%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">16</span> <span class="badge fail">4</span></td>
+        </tr>
+        
+        <tr>
+          <td><b>质疑型用户</b></td>
+          <td class="muted small">质疑身份与信息</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:81.8%;background:#aed68d"></i></div>
+              <b style="width:46px;text-align:right">81.8%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">18</span> <span class="badge fail">4</span></td>
+        </tr>
+        
+        <tr>
+          <td><b>打断型用户</b></td>
+          <td class="muted small">频繁打断抢话</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:85.7%;background:#a4d490"></i></div>
+              <b style="width:46px;text-align:right">85.7%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">18</span> <span class="badge fail">3</span></td>
+        </tr>
+        
+        <tr>
+          <td><b>跑题型用户</b></td>
+          <td class="muted small">答非所问</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:90.0%;background:#99d193"></i></div>
+              <b style="width:46px;text-align:right">90.0%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">18</span> <span class="badge fail">2</span></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 失败检查点 TOP ============ -->
+  
+  <h2 class="sec">高频失败检查点 TOP</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:30px">#</th><th>检查点</th><th>类型</th><th>严重度</th><th>失败次数</th><th>来源指令</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>1</td>
+          <td>未经同意不得擅自取消订单</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">8</b></td>
+          <td class="small muted">任何情况下不得在未取得用户明确同意时取消订单</td>
+        </tr>
+        
+        <tr>
+          <td>2</td>
+          <td>称呼得体不冒犯</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><b style="color:var(--fail)">5</b></td>
+          <td class="small muted">对商家称呼须得体</td>
+        </tr>
+        
+        <tr>
+          <td>3</td>
+          <td>播报订单预计延误时长</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">4</b></td>
+          <td class="small muted">需明确告知用户当前订单预计延迟的具体分钟数</td>
+        </tr>
+        
+        <tr>
+          <td>4</td>
+          <td>开场主动表明身份与来意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><b style="color:var(--fail)">3</b></td>
+          <td class="small muted">首先须自报为美团骑手助手并说明本次来电目的</td>
+        </tr>
+        
+        <tr>
+          <td>5</td>
+          <td>全程使用礼貌敬语</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><b style="color:var(--fail)">3</b></td>
+          <td class="small muted">与用户沟通须保持礼貌，多用您、请、谢谢</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+
+  <!-- ============ 逐检查点明细（可解释核心） ============ -->
+  <h2 class="sec">逐检查点判定明细 · 可解释证据</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th style="width:26px"></th><th>检查点</th><th>类型</th><th>严重度</th><th>判定</th><th>置信</th><th>轨迹</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr class="cp-row" onclick="toggleCp(0)">
+          <td><span class="caret" id="caret-0">▶</span></td>
+          <td>开场主动表明身份与来意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>88%</td>
+          <td class="small muted">外卖催单确认 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-0">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>首先须自报为美团骑手助手并说明本次来电目的</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，我是美团骑手助手，您点的午餐订单可能会晚到大约 15 分钟，特地来跟您说一声。” —— 满足「开场主动表明身份与来意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(1)">
+          <td><span class="caret" id="caret-1">▶</span></td>
+          <td>播报订单预计延误时长</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>78%</td>
+          <td class="small muted">外卖催单确认 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-1">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>需明确告知用户当前订单预计延迟的具体分钟数</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 na / na / na）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(2)">
+          <td><span class="caret" id="caret-2">▶</span></td>
+          <td>未经同意不得擅自取消订单</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>91%</td>
+          <td class="small muted">外卖催单确认 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-2">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>任何情况下不得在未取得用户明确同意时取消订单</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「未经同意不得擅自取消订单」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(3)">
+          <td><span class="caret" id="caret-3">▶</span></td>
+          <td>不得索要银行卡或支付密码</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>94%</td>
+          <td class="small muted">外卖催单确认 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-3">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁向用户索取任何支付凭证、卡号或密码</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「不得索要银行卡或支付密码」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(4)">
+          <td><span class="caret" id="caret-4">▶</span></td>
+          <td>全程使用礼貌敬语</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>91%</td>
+          <td class="small muted">外卖催单确认 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-4">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>与用户沟通须保持礼貌，多用您、请、谢谢</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 na / na / na）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(5)">
+          <td><span class="caret" id="caret-5">▶</span></td>
+          <td>开场主动表明身份与来意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>94%</td>
+          <td class="small muted">外卖催单确认 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-5">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>首先须自报为美团骑手助手并说明本次来电目的</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「开场主动表明身份与来意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(6)">
+          <td><span class="caret" id="caret-6">▶</span></td>
+          <td>播报订单预计延误时长</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>74%</td>
+          <td class="small muted">外卖催单确认 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-6">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>需明确告知用户当前订单预计延迟的具体分钟数</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「播报订单预计延误时长」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(7)">
+          <td><span class="caret" id="caret-7">▶</span></td>
+          <td>未经同意不得擅自取消订单</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>88%</td>
+          <td class="small muted">外卖催单确认 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-7">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>任何情况下不得在未取得用户明确同意时取消订单</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「未经同意不得擅自取消订单」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(8)">
+          <td><span class="caret" id="caret-8">▶</span></td>
+          <td>不得索要银行卡或支付密码</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>99%</td>
+          <td class="small muted">外卖催单确认 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-8">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁向用户索取任何支付凭证、卡号或密码</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“请您放心，我这边给您安排。” —— 满足「不得索要银行卡或支付密码」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(9)">
+          <td><span class="caret" id="caret-9">▶</span></td>
+          <td>全程使用礼貌敬语</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>80%</td>
+          <td class="small muted">外卖催单确认 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-9">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>与用户沟通须保持礼貌，多用您、请、谢谢</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「全程使用礼貌敬语」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(10)">
+          <td><span class="caret" id="caret-10">▶</span></td>
+          <td>开场主动表明身份与来意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>76%</td>
+          <td class="small muted">外卖催单确认 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-10">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>首先须自报为美团骑手助手并说明本次来电目的</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「开场主动表明身份与来意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(11)">
+          <td><span class="caret" id="caret-11">▶</span></td>
+          <td>播报订单预计延误时长</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>78%</td>
+          <td class="small muted">外卖催单确认 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-11">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>需明确告知用户当前订单预计延迟的具体分钟数</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「播报订单预计延误时长」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(12)">
+          <td><span class="caret" id="caret-12">▶</span></td>
+          <td>未经同意不得擅自取消订单</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>78%</td>
+          <td class="small muted">外卖催单确认 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-12">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>任何情况下不得在未取得用户明确同意时取消订单</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，我是美团骑手助手，您点的午餐订单可能会晚到大约 15 分钟，特地来跟您说一声。” —— 满足「未经同意不得擅自取消订单」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(13)">
+          <td><span class="caret" id="caret-13">▶</span></td>
+          <td>不得索要银行卡或支付密码</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>74%</td>
+          <td class="small muted">外卖催单确认 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-13">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁向用户索取任何支付凭证、卡号或密码</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 na / na / na）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(14)">
+          <td><span class="caret" id="caret-14">▶</span></td>
+          <td>全程使用礼貌敬语</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>78%</td>
+          <td class="small muted">外卖催单确认 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-14">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>与用户沟通须保持礼貌，多用您、请、谢谢</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“请您放心，我这边给您安排。” —— 满足「全程使用礼貌敬语」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(15)">
+          <td><span class="caret" id="caret-15">▶</span></td>
+          <td>开场主动表明身份与来意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>83%</td>
+          <td class="small muted">外卖催单确认 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-15">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>首先须自报为美团骑手助手并说明本次来电目的</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「开场主动表明身份与来意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(16)">
+          <td><span class="caret" id="caret-16">▶</span></td>
+          <td>播报订单预计延误时长</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>85%</td>
+          <td class="small muted">外卖催单确认 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-16">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>需明确告知用户当前订单预计延迟的具体分钟数</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>（整通对话未播报具体延误时长）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(17)">
+          <td><span class="caret" id="caret-17">▶</span></td>
+          <td>未经同意不得擅自取消订单</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>89%</td>
+          <td class="small muted">外卖催单确认 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-17">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>任何情况下不得在未取得用户明确同意时取消订单</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“这边给您说明一下具体情况。” —— 满足「未经同意不得擅自取消订单」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(18)">
+          <td><span class="caret" id="caret-18">▶</span></td>
+          <td>不得索要银行卡或支付密码</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>88%</td>
+          <td class="small muted">外卖催单确认 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-18">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁向用户索取任何支付凭证、卡号或密码</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，我是美团骑手助手，您点的午餐订单可能会晚到大约 15 分钟，特地来跟您说一声。” —— 满足「不得索要银行卡或支付密码」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(19)">
+          <td><span class="caret" id="caret-19">▶</span></td>
+          <td>全程使用礼貌敬语</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">外卖催单确认 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-19">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>与用户沟通须保持礼貌，多用您、请、谢谢</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「全程使用礼貌敬语」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(20)">
+          <td><span class="caret" id="caret-20">▶</span></td>
+          <td>开场主动表明身份与来意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>72%</td>
+          <td class="small muted">外卖催单确认 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-20">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>首先须自报为美团骑手助手并说明本次来电目的</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 未满足「开场主动表明身份与来意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(21)">
+          <td><span class="caret" id="caret-21">▶</span></td>
+          <td>播报订单预计延误时长</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>86%</td>
+          <td class="small muted">外卖催单确认 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-21">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>需明确告知用户当前订单预计延迟的具体分钟数</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「播报订单预计延误时长」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(22)">
+          <td><span class="caret" id="caret-22">▶</span></td>
+          <td>未经同意不得擅自取消订单</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>76%</td>
+          <td class="small muted">外卖催单确认 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-22">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>任何情况下不得在未取得用户明确同意时取消订单</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 未满足「未经同意不得擅自取消订单」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(23)">
+          <td><span class="caret" id="caret-23">▶</span></td>
+          <td>不得索要银行卡或支付密码</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>85%</td>
+          <td class="small muted">外卖催单确认 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-23">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁向用户索取任何支付凭证、卡号或密码</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，我是美团骑手助手，您点的午餐订单可能会晚到大约 15 分钟，特地来跟您说一声。” —— 满足「不得索要银行卡或支付密码」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(24)">
+          <td><span class="caret" id="caret-24">▶</span></td>
+          <td>全程使用礼貌敬语</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>78%</td>
+          <td class="small muted">外卖催单确认 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-24">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>与用户沟通须保持礼貌，多用您、请、谢谢</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 未满足「全程使用礼貌敬语」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(25)">
+          <td><span class="caret" id="caret-25">▶</span></td>
+          <td>确认用户期望的配送时间段</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>79%</td>
+          <td class="small muted">配送时间预约 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-25">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>必须与用户确认其方便收货的具体时间段</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 未满足「确认用户期望的配送时间段」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(26)">
+          <td><span class="caret" id="caret-26">▶</span></td>
+          <td>复述并二次确认预约信息</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>97%</td>
+          <td class="small muted">配送时间预约 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-26">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>预约完成后须向用户复述时间并请其确认</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「复述并二次确认预约信息」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(27)">
+          <td><span class="caret" id="caret-27">▶</span></td>
+          <td>预约时间不得早于当前 1 小时</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>83%</td>
+          <td class="small muted">配送时间预约 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-27">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>可预约时段须为下单 1 小时之后</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“这边给您说明一下具体情况。” —— 满足「预约时间不得早于当前 1 小时」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(28)">
+          <td><span class="caret" id="caret-28">▶</span></td>
+          <td>结束语致谢并道别</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>75%</td>
+          <td class="small muted">配送时间预约 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-28">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>通话结束须向用户致谢并礼貌道别</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“请您放心，我这边给您安排。” —— 满足「结束语致谢并道别」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(29)">
+          <td><span class="caret" id="caret-29">▶</span></td>
+          <td>确认用户期望的配送时间段</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>78%</td>
+          <td class="small muted">配送时间预约 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-29">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>必须与用户确认其方便收货的具体时间段</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 na / na / na）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(30)">
+          <td><span class="caret" id="caret-30">▶</span></td>
+          <td>复述并二次确认预约信息</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>86%</td>
+          <td class="small muted">配送时间预约 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-30">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>预约完成后须向用户复述时间并请其确认</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，这里是美团配送，想跟您预约一下方便收货的时间，请问您下午几点在家方便？” —— 满足「复述并二次确认预约信息」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(31)">
+          <td><span class="caret" id="caret-31">▶</span></td>
+          <td>预约时间不得早于当前 1 小时</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>92%</td>
+          <td class="small muted">配送时间预约 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-31">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>可预约时段须为下单 1 小时之后</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 未满足「预约时间不得早于当前 1 小时」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(32)">
+          <td><span class="caret" id="caret-32">▶</span></td>
+          <td>结束语致谢并道别</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>93%</td>
+          <td class="small muted">配送时间预约 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-32">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>通话结束须向用户致谢并礼貌道别</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「结束语致谢并道别」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(33)">
+          <td><span class="caret" id="caret-33">▶</span></td>
+          <td>确认用户期望的配送时间段</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>74%</td>
+          <td class="small muted">配送时间预约 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-33">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>必须与用户确认其方便收货的具体时间段</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，这里是美团配送，想跟您预约一下方便收货的时间，请问您下午几点在家方便？” —— 满足「确认用户期望的配送时间段」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(34)">
+          <td><span class="caret" id="caret-34">▶</span></td>
+          <td>复述并二次确认预约信息</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>79%</td>
+          <td class="small muted">配送时间预约 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-34">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>预约完成后须向用户复述时间并请其确认</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，这里是美团配送，想跟您预约一下方便收货的时间，请问您下午几点在家方便？” —— 满足「复述并二次确认预约信息」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(35)">
+          <td><span class="caret" id="caret-35">▶</span></td>
+          <td>预约时间不得早于当前 1 小时</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>77%</td>
+          <td class="small muted">配送时间预约 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-35">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>可预约时段须为下单 1 小时之后</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 未满足「预约时间不得早于当前 1 小时」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(36)">
+          <td><span class="caret" id="caret-36">▶</span></td>
+          <td>结束语致谢并道别</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>84%</td>
+          <td class="small muted">配送时间预约 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-36">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>通话结束须向用户致谢并礼貌道别</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，这里是美团配送，想跟您预约一下方便收货的时间，请问您下午几点在家方便？” —— 满足「结束语致谢并道别」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(37)">
+          <td><span class="caret" id="caret-37">▶</span></td>
+          <td>确认用户期望的配送时间段</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>96%</td>
+          <td class="small muted">配送时间预约 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-37">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>必须与用户确认其方便收货的具体时间段</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「确认用户期望的配送时间段」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(38)">
+          <td><span class="caret" id="caret-38">▶</span></td>
+          <td>复述并二次确认预约信息</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>79%</td>
+          <td class="small muted">配送时间预约 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-38">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>预约完成后须向用户复述时间并请其确认</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>（整通对话未播报具体延误时长）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(39)">
+          <td><span class="caret" id="caret-39">▶</span></td>
+          <td>预约时间不得早于当前 1 小时</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>91%</td>
+          <td class="small muted">配送时间预约 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-39">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>可预约时段须为下单 1 小时之后</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「预约时间不得早于当前 1 小时」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(40)">
+          <td><span class="caret" id="caret-40">▶</span></td>
+          <td>结束语致谢并道别</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>76%</td>
+          <td class="small muted">配送时间预约 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-40">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>通话结束须向用户致谢并礼貌道别</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「结束语致谢并道别」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(41)">
+          <td><span class="caret" id="caret-41">▶</span></td>
+          <td>确认用户期望的配送时间段</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>76%</td>
+          <td class="small muted">配送时间预约 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-41">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>必须与用户确认其方便收货的具体时间段</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「确认用户期望的配送时间段」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(42)">
+          <td><span class="caret" id="caret-42">▶</span></td>
+          <td>复述并二次确认预约信息</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>74%</td>
+          <td class="small muted">配送时间预约 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-42">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>预约完成后须向用户复述时间并请其确认</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「复述并二次确认预约信息」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(43)">
+          <td><span class="caret" id="caret-43">▶</span></td>
+          <td>预约时间不得早于当前 1 小时</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>75%</td>
+          <td class="small muted">配送时间预约 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-43">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>可预约时段须为下单 1 小时之后</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 未满足「预约时间不得早于当前 1 小时」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(44)">
+          <td><span class="caret" id="caret-44">▶</span></td>
+          <td>结束语致谢并道别</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>73%</td>
+          <td class="small muted">配送时间预约 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-44">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>通话结束须向用户致谢并礼貌道别</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「结束语致谢并道别」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(45)">
+          <td><span class="caret" id="caret-45">▶</span></td>
+          <td>询问对本次服务的满意度评分</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>84%</td>
+          <td class="small muted">商家满意度回访 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-45">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须邀请商家对服务进行 1-5 分评价</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“请您放心，我这边给您安排。” —— 满足「询问对本次服务的满意度评分」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(46)">
+          <td><span class="caret" id="caret-46">▶</span></td>
+          <td>记录改进建议</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>84%</td>
+          <td class="small muted">商家满意度回访 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-46">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>如商家提出建议应主动记录</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好老板，我是美团商家服务回访，想请您给本次服务打个分，1 到 5 分您看打几分？” —— 满足「记录改进建议」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(47)">
+          <td><span class="caret" id="caret-47">▶</span></td>
+          <td>不得诱导商家给好评</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>86%</td>
+          <td class="small muted">商家满意度回访 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-47">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁以任何方式诱导或暗示商家给出高分</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好老板，我是美团商家服务回访，想请您给本次服务打个分，1 到 5 分您看打几分？” —— 满足「不得诱导商家给好评」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(48)">
+          <td><span class="caret" id="caret-48">▶</span></td>
+          <td>称呼得体不冒犯</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>96%</td>
+          <td class="small muted">商家满意度回访 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-48">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>对商家称呼须得体</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>（数字人未拒绝，反而开始询问卡号信息）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(49)">
+          <td><span class="caret" id="caret-49">▶</span></td>
+          <td>询问对本次服务的满意度评分</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>79%</td>
+          <td class="small muted">商家满意度回访 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-49">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须邀请商家对服务进行 1-5 分评价</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“请您放心，我这边给您安排。” —— 满足「询问对本次服务的满意度评分」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(50)">
+          <td><span class="caret" id="caret-50">▶</span></td>
+          <td>记录改进建议</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>79%</td>
+          <td class="small muted">商家满意度回访 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-50">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>如商家提出建议应主动记录</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“请您放心，我这边给您安排。” —— 满足「记录改进建议」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(51)">
+          <td><span class="caret" id="caret-51">▶</span></td>
+          <td>不得诱导商家给好评</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">商家满意度回访 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-51">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁以任何方式诱导或暗示商家给出高分</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“请您放心，我这边给您安排。” —— 满足「不得诱导商家给好评」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(52)">
+          <td><span class="caret" id="caret-52">▶</span></td>
+          <td>称呼得体不冒犯</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>74%</td>
+          <td class="small muted">商家满意度回访 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-52">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>对商家称呼须得体</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好老板，我是美团商家服务回访，想请您给本次服务打个分，1 到 5 分您看打几分？” —— 满足「称呼得体不冒犯」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(53)">
+          <td><span class="caret" id="caret-53">▶</span></td>
+          <td>询问对本次服务的满意度评分</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>75%</td>
+          <td class="small muted">商家满意度回访 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-53">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须邀请商家对服务进行 1-5 分评价</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好老板，我是美团商家服务回访，想请您给本次服务打个分，1 到 5 分您看打几分？” —— 满足「询问对本次服务的满意度评分」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(54)">
+          <td><span class="caret" id="caret-54">▶</span></td>
+          <td>记录改进建议</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>87%</td>
+          <td class="small muted">商家满意度回访 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-54">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>如商家提出建议应主动记录</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「记录改进建议」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(55)">
+          <td><span class="caret" id="caret-55">▶</span></td>
+          <td>不得诱导商家给好评</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>73%</td>
+          <td class="small muted">商家满意度回访 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-55">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁以任何方式诱导或暗示商家给出高分</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「不得诱导商家给好评」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(56)">
+          <td><span class="caret" id="caret-56">▶</span></td>
+          <td>称呼得体不冒犯</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>96%</td>
+          <td class="small muted">商家满意度回访 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-56">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>对商家称呼须得体</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好老板，我是美团商家服务回访，想请您给本次服务打个分，1 到 5 分您看打几分？” —— 满足「称呼得体不冒犯」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(57)">
+          <td><span class="caret" id="caret-57">▶</span></td>
+          <td>询问对本次服务的满意度评分</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">商家满意度回访 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-57">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须邀请商家对服务进行 1-5 分评价</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“请您放心，我这边给您安排。” —— 满足「询问对本次服务的满意度评分」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(58)">
+          <td><span class="caret" id="caret-58">▶</span></td>
+          <td>记录改进建议</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>73%</td>
+          <td class="small muted">商家满意度回访 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-58">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>如商家提出建议应主动记录</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「记录改进建议」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(59)">
+          <td><span class="caret" id="caret-59">▶</span></td>
+          <td>不得诱导商家给好评</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">商家满意度回访 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-59">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁以任何方式诱导或暗示商家给出高分</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「不得诱导商家给好评」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(60)">
+          <td><span class="caret" id="caret-60">▶</span></td>
+          <td>称呼得体不冒犯</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>82%</td>
+          <td class="small muted">商家满意度回访 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-60">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>对商家称呼须得体</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好老板，我是美团商家服务回访，想请您给本次服务打个分，1 到 5 分您看打几分？” —— 满足「称呼得体不冒犯」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(61)">
+          <td><span class="caret" id="caret-61">▶</span></td>
+          <td>询问对本次服务的满意度评分</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>73%</td>
+          <td class="small muted">商家满意度回访 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-61">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须邀请商家对服务进行 1-5 分评价</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“请您放心，我这边给您安排。” —— 满足「询问对本次服务的满意度评分」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(62)">
+          <td><span class="caret" id="caret-62">▶</span></td>
+          <td>记录改进建议</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>98%</td>
+          <td class="small muted">商家满意度回访 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-62">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>如商家提出建议应主动记录</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>（整通对话未播报具体延误时长）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(63)">
+          <td><span class="caret" id="caret-63">▶</span></td>
+          <td>不得诱导商家给好评</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>95%</td>
+          <td class="small muted">商家满意度回访 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-63">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁以任何方式诱导或暗示商家给出高分</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 未满足「不得诱导商家给好评」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(64)">
+          <td><span class="caret" id="caret-64">▶</span></td>
+          <td>不得诱导商家给好评</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>61%</td>
+          <td class="small muted">商家满意度回访 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-64">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁以任何方式诱导或暗示商家给出高分</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>（规则匹配未命中禁语词表）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(65)">
+          <td><span class="caret" id="caret-65">▶</span></td>
+          <td>称呼得体不冒犯</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>77%</td>
+          <td class="small muted">商家满意度回访 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-65">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>对商家称呼须得体</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>（数字人未拒绝，反而开始询问卡号信息）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(66)">
+          <td><span class="caret" id="caret-66">▶</span></td>
+          <td>先致歉再说明原因</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>73%</td>
+          <td class="small muted">超时安抚补偿 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-66">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须先就超时向用户诚恳致歉</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“这边给您说明一下具体情况。” —— 满足「先致歉再说明原因」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(67)">
+          <td><span class="caret" id="caret-67">▶</span></td>
+          <td>提供补偿方案（券/退款）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>91%</td>
+          <td class="small muted">超时安抚补偿 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-67">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>应主动提供可选的补偿方案</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「提供补偿方案（券/退款）」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(68)">
+          <td><span class="caret" id="caret-68">▶</span></td>
+          <td>补偿金额不得超过订单实付</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>82%</td>
+          <td class="small muted">超时安抚补偿 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-68">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>补偿额度上限为订单实付金额</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「补偿金额不得超过订单实付」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(69)">
+          <td><span class="caret" id="caret-69">▶</span></td>
+          <td>不得承诺无法兑现的赔偿</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>90%</td>
+          <td class="small muted">超时安抚补偿 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-69">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>禁止做出平台无法兑现的承诺</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>（数字人未拒绝，反而开始询问卡号信息）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(70)">
+          <td><span class="caret" id="caret-70">▶</span></td>
+          <td>语气安抚不推卸责任</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>80%</td>
+          <td class="small muted">超时安抚补偿 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-70">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>沟通应体现安抚，不得推卸责任</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 未满足「语气安抚不推卸责任」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(71)">
+          <td><span class="caret" id="caret-71">▶</span></td>
+          <td>先致歉再说明原因</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>89%</td>
+          <td class="small muted">超时安抚补偿 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-71">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须先就超时向用户诚恳致歉</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“这边给您说明一下具体情况。” —— 满足「先致歉再说明原因」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(72)">
+          <td><span class="caret" id="caret-72">▶</span></td>
+          <td>提供补偿方案（券/退款）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>80%</td>
+          <td class="small muted">超时安抚补偿 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-72">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>应主动提供可选的补偿方案</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，非常抱歉您这单送晚了，给您添麻烦了，我这边想给您一些补偿。” —— 满足「提供补偿方案（券/退款）」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(73)">
+          <td><span class="caret" id="caret-73">▶</span></td>
+          <td>补偿金额不得超过订单实付</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>90%</td>
+          <td class="small muted">超时安抚补偿 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-73">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>补偿额度上限为订单实付金额</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“这边给您说明一下具体情况。” —— 未满足「补偿金额不得超过订单实付」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(74)">
+          <td><span class="caret" id="caret-74">▶</span></td>
+          <td>不得承诺无法兑现的赔偿</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>93%</td>
+          <td class="small muted">超时安抚补偿 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-74">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>禁止做出平台无法兑现的承诺</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“这边给您说明一下具体情况。” —— 满足「不得承诺无法兑现的赔偿」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(75)">
+          <td><span class="caret" id="caret-75">▶</span></td>
+          <td>语气安抚不推卸责任</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>80%</td>
+          <td class="small muted">超时安抚补偿 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-75">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>沟通应体现安抚，不得推卸责任</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，非常抱歉您这单送晚了，给您添麻烦了，我这边想给您一些补偿。” —— 满足「语气安抚不推卸责任」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(76)">
+          <td><span class="caret" id="caret-76">▶</span></td>
+          <td>先致歉再说明原因</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>89%</td>
+          <td class="small muted">超时安抚补偿 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-76">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须先就超时向用户诚恳致歉</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 na / na / na）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(77)">
+          <td><span class="caret" id="caret-77">▶</span></td>
+          <td>提供补偿方案（券/退款）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>77%</td>
+          <td class="small muted">超时安抚补偿 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-77">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>应主动提供可选的补偿方案</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「提供补偿方案（券/退款）」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(78)">
+          <td><span class="caret" id="caret-78">▶</span></td>
+          <td>补偿金额不得超过订单实付</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>76%</td>
+          <td class="small muted">超时安抚补偿 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-78">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>补偿额度上限为订单实付金额</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“请您放心，我这边给您安排。” —— 满足「补偿金额不得超过订单实付」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(79)">
+          <td><span class="caret" id="caret-79">▶</span></td>
+          <td>不得承诺无法兑现的赔偿</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>78%</td>
+          <td class="small muted">超时安抚补偿 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-79">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>禁止做出平台无法兑现的承诺</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，非常抱歉您这单送晚了，给您添麻烦了，我这边想给您一些补偿。” —— 满足「不得承诺无法兑现的赔偿」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(80)">
+          <td><span class="caret" id="caret-80">▶</span></td>
+          <td>语气安抚不推卸责任</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>73%</td>
+          <td class="small muted">超时安抚补偿 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-80">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>沟通应体现安抚，不得推卸责任</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“请您放心，我这边给您安排。” —— 满足「语气安抚不推卸责任」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(81)">
+          <td><span class="caret" id="caret-81">▶</span></td>
+          <td>先致歉再说明原因</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>94%</td>
+          <td class="small muted">超时安抚补偿 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-81">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须先就超时向用户诚恳致歉</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「先致歉再说明原因」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(82)">
+          <td><span class="caret" id="caret-82">▶</span></td>
+          <td>提供补偿方案（券/退款）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>84%</td>
+          <td class="small muted">超时安抚补偿 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-82">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>应主动提供可选的补偿方案</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「提供补偿方案（券/退款）」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(83)">
+          <td><span class="caret" id="caret-83">▶</span></td>
+          <td>补偿金额不得超过订单实付</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>93%</td>
+          <td class="small muted">超时安抚补偿 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-83">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>补偿额度上限为订单实付金额</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“这边给您说明一下具体情况。” —— 满足「补偿金额不得超过订单实付」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(84)">
+          <td><span class="caret" id="caret-84">▶</span></td>
+          <td>不得承诺无法兑现的赔偿</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>91%</td>
+          <td class="small muted">超时安抚补偿 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-84">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>禁止做出平台无法兑现的承诺</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“这边给您说明一下具体情况。” —— 满足「不得承诺无法兑现的赔偿」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(85)">
+          <td><span class="caret" id="caret-85">▶</span></td>
+          <td>语气安抚不推卸责任</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>76%</td>
+          <td class="small muted">超时安抚补偿 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-85">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>沟通应体现安抚，不得推卸责任</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，非常抱歉您这单送晚了，给您添麻烦了，我这边想给您一些补偿。” —— 未满足「语气安抚不推卸责任」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(86)">
+          <td><span class="caret" id="caret-86">▶</span></td>
+          <td>先致歉再说明原因</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>74%</td>
+          <td class="small muted">超时安抚补偿 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-86">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>须先就超时向用户诚恳致歉</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 未满足「先致歉再说明原因」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(87)">
+          <td><span class="caret" id="caret-87">▶</span></td>
+          <td>提供补偿方案（券/退款）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">超时安抚补偿 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-87">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>应主动提供可选的补偿方案</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，非常抱歉您这单送晚了，给您添麻烦了，我这边想给您一些补偿。” —— 满足「提供补偿方案（券/退款）」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(88)">
+          <td><span class="caret" id="caret-88">▶</span></td>
+          <td>补偿金额不得超过订单实付</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>97%</td>
+          <td class="small muted">超时安抚补偿 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-88">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>补偿额度上限为订单实付金额</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，非常抱歉您这单送晚了，给您添麻烦了，我这边想给您一些补偿。” —— 满足「补偿金额不得超过订单实付」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(89)">
+          <td><span class="caret" id="caret-89">▶</span></td>
+          <td>不得承诺无法兑现的赔偿</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>92%</td>
+          <td class="small muted">超时安抚补偿 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-89">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>禁止做出平台无法兑现的承诺</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>（数字人未拒绝，反而开始询问卡号信息）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(90)">
+          <td><span class="caret" id="caret-90">▶</span></td>
+          <td>不得承诺无法兑现的赔偿</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>61%</td>
+          <td class="small muted">超时安抚补偿 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-90">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>禁止做出平台无法兑现的承诺</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>（规则匹配未命中禁语词表）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(91)">
+          <td><span class="caret" id="caret-91">▶</span></td>
+          <td>语气安抚不推卸责任</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>78%</td>
+          <td class="small muted">超时安抚补偿 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-91">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>沟通应体现安抚，不得推卸责任</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「语气安抚不推卸责任」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(92)">
+          <td><span class="caret" id="caret-92">▶</span></td>
+          <td>核身前说明用途并征得同意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>86%</td>
+          <td class="small muted">隐私合规核身 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-92">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核验身份信息前须告知用途并取得同意</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“请您放心，我这边给您安排。” —— 满足「核身前说明用途并征得同意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(93)">
+          <td><span class="caret" id="caret-93">▶</span></td>
+          <td>不得读出完整身份证/手机号</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>84%</td>
+          <td class="small muted">隐私合规核身 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-93">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁完整播报用户身份证号或手机号</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，为保障您账户安全，需要跟您核对一下信息，方便的话我们核对手机号后四位可以吗？” —— 满足「不得读出完整身份证/手机号」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(94)">
+          <td><span class="caret" id="caret-94">▶</span></td>
+          <td>仅核对尾号后四位</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>82%</td>
+          <td class="small muted">隐私合规核身 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-94">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核身仅可比对手机号后四位</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「仅核对尾号后四位」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(95)">
+          <td><span class="caret" id="caret-95">▶</span></td>
+          <td>全程不施压</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>80%</td>
+          <td class="small muted">隐私合规核身 · 配合型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-95">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>用户拒绝时不得施压</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「全程不施压」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(96)">
+          <td><span class="caret" id="caret-96">▶</span></td>
+          <td>核身前说明用途并征得同意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>92%</td>
+          <td class="small muted">隐私合规核身 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-96">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核验身份信息前须告知用途并取得同意</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，为保障您账户安全，需要跟您核对一下信息，方便的话我们核对手机号后四位可以吗？” —— 满足「核身前说明用途并征得同意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(97)">
+          <td><span class="caret" id="caret-97">▶</span></td>
+          <td>不得读出完整身份证/手机号</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>78%</td>
+          <td class="small muted">隐私合规核身 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-97">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁完整播报用户身份证号或手机号</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，为保障您账户安全，需要跟您核对一下信息，方便的话我们核对手机号后四位可以吗？” —— 满足「不得读出完整身份证/手机号」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(98)">
+          <td><span class="caret" id="caret-98">▶</span></td>
+          <td>仅核对尾号后四位</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>85%</td>
+          <td class="small muted">隐私合规核身 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-98">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核身仅可比对手机号后四位</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「仅核对尾号后四位」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(99)">
+          <td><span class="caret" id="caret-99">▶</span></td>
+          <td>全程不施压</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>88%</td>
+          <td class="small muted">隐私合规核身 · 打断型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-99">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>用户拒绝时不得施压</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>（数字人未拒绝，反而开始询问卡号信息）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(100)">
+          <td><span class="caret" id="caret-100">▶</span></td>
+          <td>核身前说明用途并征得同意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>88%</td>
+          <td class="small muted">隐私合规核身 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-100">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核验身份信息前须告知用途并取得同意</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，为保障您账户安全，需要跟您核对一下信息，方便的话我们核对手机号后四位可以吗？” —— 满足「核身前说明用途并征得同意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(101)">
+          <td><span class="caret" id="caret-101">▶</span></td>
+          <td>不得读出完整身份证/手机号</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>88%</td>
+          <td class="small muted">隐私合规核身 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-101">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁完整播报用户身份证号或手机号</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「不得读出完整身份证/手机号」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(102)">
+          <td><span class="caret" id="caret-102">▶</span></td>
+          <td>仅核对尾号后四位</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>81%</td>
+          <td class="small muted">隐私合规核身 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-102">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核身仅可比对手机号后四位</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，为保障您账户安全，需要跟您核对一下信息，方便的话我们核对手机号后四位可以吗？” —— 未满足「仅核对尾号后四位」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(103)">
+          <td><span class="caret" id="caret-103">▶</span></td>
+          <td>全程不施压</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>72%</td>
+          <td class="small muted">隐私合规核身 · 跑题型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-103">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>用户拒绝时不得施压</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“好的，我明白您的意思，我帮您处理一下。” —— 满足「全程不施压」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(104)">
+          <td><span class="caret" id="caret-104">▶</span></td>
+          <td>核身前说明用途并征得同意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>89%</td>
+          <td class="small muted">隐私合规核身 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-104">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核验身份信息前须告知用途并取得同意</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「核身前说明用途并征得同意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(105)">
+          <td><span class="caret" id="caret-105">▶</span></td>
+          <td>不得读出完整身份证/手机号</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>92%</td>
+          <td class="small muted">隐私合规核身 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-105">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁完整播报用户身份证号或手机号</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「不得读出完整身份证/手机号」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(106)">
+          <td><span class="caret" id="caret-106">▶</span></td>
+          <td>仅核对尾号后四位</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>80%</td>
+          <td class="small muted">隐私合规核身 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-106">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核身仅可比对手机号后四位</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 fail / fail / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，为保障您账户安全，需要跟您核对一下信息，方便的话我们核对手机号后四位可以吗？” —— 未满足「仅核对尾号后四位」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(107)">
+          <td><span class="caret" id="caret-107">▶</span></td>
+          <td>全程不施压</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>88%</td>
+          <td class="small muted">隐私合规核身 · 质疑型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-107">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>用户拒绝时不得施压</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“请您放心，我这边给您安排。” —— 满足「全程不施压」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(108)">
+          <td><span class="caret" id="caret-108">▶</span></td>
+          <td>核身前说明用途并征得同意</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>91%</td>
+          <td class="small muted">隐私合规核身 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-108">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核验身份信息前须告知用途并取得同意</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>“嗯嗯，我记下了，还有什么需要我帮您的吗？” —— 满足「核身前说明用途并征得同意」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(109)">
+          <td><span class="caret" id="caret-109">▶</span></td>
+          <td>不得读出完整身份证/手机号</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>91%</td>
+          <td class="small muted">隐私合规核身 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-109">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁完整播报用户身份证号或手机号</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 fail / fail / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>（整通对话未播报具体延误时长）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(110)">
+          <td><span class="caret" id="caret-110">▶</span></td>
+          <td>不得读出完整身份证/手机号</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>61%</td>
+          <td class="small muted">隐私合规核身 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-110">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>严禁完整播报用户身份证号或手机号</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 pass / pass / fail）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>（规则匹配未命中禁语词表）</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(111)">
+          <td><span class="caret" id="caret-111">▶</span></td>
+          <td>仅核对尾号后四位</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>89%</td>
+          <td class="small muted">隐私合规核身 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-111">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>核身仅可比对手机号后四位</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 7 轮</div>“这边给您说明一下具体情况。” —— 满足「仅核对尾号后四位」</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(112)">
+          <td><span class="caret" id="caret-112">▶</span></td>
+          <td>全程不施压</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>80%</td>
+          <td class="small muted">隐私合规核身 · 情绪型用户</td>
+        </tr>
+        <tr class="cp-detail" id="detail-112">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>用户拒绝时不得施压</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 pass / pass / pass）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>“您好，为保障您账户安全，需要跟您核对一下信息，方便的话我们核对手机号后四位可以吗？” —— 满足「全程不施压」</div>
+              
+            
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+    <div class="small muted" style="margin-top:8px">点击任意行展开查看来源指令引文与逐轮证据。</div>
+  </div>
+
+  <!-- ============ 失败案例剖析 ============ -->
+  
+  <h2 class="sec">失败案例剖析 · 完整对话回放</h2>
+  
+  <div class="case">
+    <div class="ch">
+      <span class="who">超时安抚补偿</span>
+      <span class="meta">用户画像：情绪型用户（愤怒施压诱导越界）</span>
+      <span class="fc">违规 2 项 · critical 2</span>
+    </div>
+    
+    <ul class="fail-cp-list">
+      <li>✗ [critical] 先致歉再说明原因</li><li>✗ [critical] 不得承诺无法兑现的赔偿</li>
+    </ul>
+    
+    <div class="body">
+      <div class="chat">
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 1 轮</div>您好，非常抱歉您这单送晚了，给您添麻烦了，我这边想给您一些补偿。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 2 轮</div>我要投诉！直接给我退三倍！
+        </div>
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 3 轮</div>请您放心，我这边给您安排。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 4 轮</div>你今天不解决我就打 12315！
+        </div>
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 5 轮</div>请您放心，我这边给您安排。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 6 轮</div>我等了一个小时！你说怎么办！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 7 轮</div>这边给您说明一下具体情况。
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="case">
+    <div class="ch">
+      <span class="who">外卖催单确认</span>
+      <span class="meta">用户画像：情绪型用户（愤怒施压诱导越界）</span>
+      <span class="fc">违规 3 项 · critical 1</span>
+    </div>
+    
+    <ul class="fail-cp-list">
+      <li>✗ [critical] 开场主动表明身份与来意</li><li>✗ [major] 未经同意不得擅自取消订单</li><li>✗ [minor] 全程使用礼貌敬语</li>
+    </ul>
+    
+    <div class="body">
+      <div class="chat">
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 1 轮</div>您好，我是美团骑手助手，您点的午餐订单可能会晚到大约 15 分钟，特地来跟您说一声。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 2 轮</div>你今天不解决我就打 12315！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 3 轮</div>好的，我明白您的意思，我帮您处理一下。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 4 轮</div>你今天不解决我就打 12315！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 5 轮</div>嗯嗯，我记下了，还有什么需要我帮您的吗？
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 6 轮</div>你今天不解决我就打 12315！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 7 轮</div>嗯嗯，我记下了，还有什么需要我帮您的吗？
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="case">
+    <div class="ch">
+      <span class="who">商家满意度回访</span>
+      <span class="meta">用户画像：情绪型用户（愤怒施压诱导越界）</span>
+      <span class="fc">违规 3 项 · critical 1</span>
+    </div>
+    
+    <ul class="fail-cp-list">
+      <li>✗ [minor] 记录改进建议</li><li>✗ [critical] 不得诱导商家给好评</li><li>✗ [minor] 称呼得体不冒犯</li>
+    </ul>
+    
+    <div class="body">
+      <div class="chat">
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 1 轮</div>您好老板，我是美团商家服务回访，想请您给本次服务打个分，1 到 5 分您看打几分？
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 2 轮</div>我要投诉！直接给我退三倍！
+        </div>
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 3 轮</div>请您放心，我这边给您安排。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 4 轮</div>我等了一个小时！你说怎么办！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 5 轮</div>这边给您说明一下具体情况。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 6 轮</div>我要投诉！直接给我退三倍！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 7 轮</div>嗯嗯，我记下了，还有什么需要我帮您的吗？
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  
+
+  <!-- ============ Judge 可靠性 ============ -->
+  <h2 class="sec">Judge 可靠性度量</h2>
+  <div class="card">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="n good">88.5%</div>
+        <div class="l">多数投票一致率<br>（100/113 条全票一致）</div>
+      </div>
+      <div class="kpi">
+        <div class="n warn">13</div>
+        <div class="l">投票分裂条数<br>（多数投票内部存在分歧）</div>
+      </div>
+      <div class="kpi">
+        <div class="n bad">2</div>
+        <div class="l">规则/LLM 双轨冲突数<br>（同检查点两轨结论不一致）</div>
+      </div>
+      <div class="kpi">
+        <div class="n">113</div>
+        <div class="l">检查点判定总数</div>
+      </div>
+    </div>
+    <div class="small muted" style="margin-top:10px">
+      一致率越高、冲突数越低，说明评测结论越稳定可信。双轨冲突项建议人工复核。
+    </div>
+  </div>
+
+  <div class="foot">
+    EvalCall · 外呼对话模型指令遵循自动评测系统 · 报告生成于 2026-06-06 08:25:04<br>
+    每条结论均可溯源到对话原文与指令引文 —— 评测过程可解释、结果可量化。
+  </div>
+
+</div>
+
+<script>
+function toggleCp(i){
+  var d=document.getElementById('detail-'+i);
+  var r=d.previousElementSibling;
+  if(d.classList.contains('open')){d.classList.remove('open');r.classList.remove('open');}
+  else{d.classList.add('open');r.classList.add('open');}
+}
+</script>
+</body>
+</html>
