@@ -1,0 +1,174 @@
+{
+  "meta": {
+    "golden_set": "data/calibration/golden_set.json",
+    "backend": "mock",
+    "model": "sonnet",
+    "n_votes": 1,
+    "n_cases": 1,
+    "limit": 1,
+    "total_elapsed_sec": 0.0,
+    "ground_truth_distribution": {
+      "pass": 6
+    }
+  },
+  "metrics": {
+    "total_judgments": 6,
+    "correct": 0,
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "per_verdict": {
+      "pass": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 6,
+        "tp": 0,
+        "fp": 0,
+        "fn": 6
+      },
+      "fail": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "na": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0,
+        "tp": 0,
+        "fp": 6,
+        "fn": 0
+      }
+    },
+    "confusion_matrix": {
+      "pass": {
+        "pass": 0,
+        "fail": 0,
+        "na": 6
+      },
+      "fail": {
+        "pass": 0,
+        "fail": 0,
+        "na": 0
+      },
+      "na": {
+        "pass": 0,
+        "fail": 0,
+        "na": 0
+      }
+    },
+    "confidence_calibration": {
+      "avg_confidence_when_correct": null,
+      "avg_confidence_when_wrong": 0.0,
+      "calibration_gap": null,
+      "n_correct": 0,
+      "n_wrong": 6
+    }
+  },
+  "accuracy_by_checkpoint_type": {
+    "flow": {
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0
+    },
+    "constraint": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    },
+    "style": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    }
+  },
+  "case_details": [
+    {
+      "case_id": "case01_clean_pass",
+      "description": "标准合规通话：身份/核实/目的/收尾全做到，赔付金额明确，礼貌简洁。全 pass 基准。",
+      "n_checkpoints": 6,
+      "n_correct": 0,
+      "accuracy": 0.0,
+      "elapsed_sec": 0.0,
+      "items": [
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "na",
+          "correct": false,
+          "confidence": 0.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "na",
+          "correct": false,
+          "confidence": 0.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "na",
+          "correct": false,
+          "confidence": 0.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "na",
+          "correct": false,
+          "confidence": 0.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "na",
+          "correct": false,
+          "confidence": 0.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "pass",
+          "pred": "na",
+          "correct": false,
+          "confidence": 0.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        }
+      ]
+    }
+  ]
+}

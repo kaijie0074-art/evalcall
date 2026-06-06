@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalCall 评测报告 · {{ meta.run_id }}</title>
+<style>
+/* ============ 美团风格黄黑配色 ============ */
+:root{
+  --mt-yellow:#FFD100;        /* 美团主黄 */
+  --mt-yellow-soft:#FFF3C2;
+  --ink:#1a1a1a;             /* 主文字 */
+  --ink-2:#555;
+  --ink-3:#888;
+  --line:#ececec;
+  --bg:#f6f6f6;
+  --card:#ffffff;
+  --pass:#16a34a; --pass-bg:#e7f6ec;
+  --fail:#e02424; --fail-bg:#fdeaea;
+  --na:#9aa0a6;   --na-bg:#f0f1f2;
+  --crit:#b91c1c;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",
+    "Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);background:var(--bg);line-height:1.6;font-size:14px;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+h2.sec{font-size:19px;margin:36px 0 14px;display:flex;align-items:center;gap:10px}
+h2.sec::before{content:"";width:6px;height:20px;background:var(--mt-yellow);
+  border-radius:3px;display:inline-block}
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);
+  padding:22px 24px;margin-bottom:18px}
+.muted{color:var(--ink-3)}
+.small{font-size:12px}
+
+/* ============ 顶栏 ============ */
+.topbar{background:linear-gradient(135deg,#111 0%,#262626 100%);
+  border-radius:16px;padding:26px 30px;color:#fff;
+  display:flex;flex-wrap:wrap;align-items:center;gap:30px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.topbar::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;
+  height:180px;background:var(--mt-yellow);opacity:.12;border-radius:50%}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--mt-yellow);
+  color:#111;font-weight:800;font-size:20px;display:flex;align-items:center;
+  justify-content:center}
+.brand .t1{font-size:20px;font-weight:800;letter-spacing:.5px}
+.brand .t2{font-size:12px;color:#ffd966;margin-top:2px}
+.score-big{margin-left:auto;text-align:center}
+.score-big .num{font-size:58px;font-weight:800;line-height:1;color:var(--mt-yellow)}
+.score-big .lab{font-size:13px;color:#ccc;margin-top:4px}
+.pf-stats{display:flex;gap:18px}
+.pf{ text-align:center}
+.pf .n{font-size:26px;font-weight:800;line-height:1.1}
+.pf .l{font-size:12px;color:#bbb;margin-top:2px}
+.pf.pass .n{color:#4ade80}.pf.fail .n{color:#f87171}.pf.na .n{color:#cbd5e1}
+
+/* meta 信息条 */
+.metabar{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;
+  padding:14px 22px;background:#fff;border-radius:12px;box-shadow:var(--shadow);
+  font-size:13px}
+.metabar b{color:var(--ink)}.metabar span{color:var(--ink-2)}
+.alert{background:var(--fail-bg);color:var(--crit);border:1px solid #f5b5b5;
+  border-radius:10px;padding:10px 16px;margin-top:14px;font-weight:600;font-size:13px}
+
+/* ============ 雷达 + 维度 ============ */
+.flex-row{display:flex;gap:18px;flex-wrap:wrap}
+.flex-row > .card{flex:1;min-width:300px}
+.dim-list{display:flex;flex-direction:column;gap:14px;justify-content:center;height:100%}
+.dim{}
+.dim .head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.dim .head b{font-weight:700}
+.bar{height:12px;background:#eee;border-radius:8px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:8px;
+  background:linear-gradient(90deg,#FFB800,var(--mt-yellow))}
+.dim .sub{font-size:11px;color:var(--ink-3);margin-top:3px}
+
+/* ============ 徽章 ============ */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;
+  font-weight:700;white-space:nowrap}
+.badge.pass{background:var(--pass-bg);color:var(--pass)}
+.badge.fail{background:var(--fail-bg);color:var(--fail)}
+.badge.na{background:var(--na-bg);color:var(--na)}
+.tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px;
+  background:#f0f0f0;color:#666;font-weight:600}
+.tag.flow{background:#e8f0fe;color:#1a73e8}
+.tag.constraint{background:#fef3e0;color:#c47f17}
+.tag.forbidden{background:#fdeaea;color:#d33}
+.tag.style{background:#eef7ed;color:#2e7d32}
+.sev{font-size:11px;font-weight:700}
+.sev.critical{color:var(--crit)}.sev.major{color:#c47f17}.sev.minor{color:#888}
+
+/* ============ 表格 ============ */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);
+  vertical-align:top}
+th{background:#fafafa;color:var(--ink-2);font-weight:700;font-size:12px;
+  position:sticky;top:0}
+tr:hover td{background:#fffdf2}
+
+/* 热力 */
+.heat td{text-align:center;font-weight:700;border:1px solid #fff}
+.heat td.persona{text-align:left;background:#fafafa;font-weight:600;color:var(--ink-2);
+  white-space:nowrap}
+.heat th{text-align:center}
+.cell{border-radius:8px;padding:8px 4px;color:#222;font-size:13px}
+.cell .pf{font-size:10px;font-weight:600;color:#444;opacity:.75}
+
+/* ============ 检查点明细折叠 ============ */
+.cp-row{cursor:pointer}
+.cp-detail{display:none;background:#fbfbf7}
+.cp-detail.open{display:table-row}
+.cp-detail td{padding:14px 18px}
+.evi{background:#fff;border:1px solid var(--line);border-left:3px solid var(--mt-yellow);
+  border-radius:8px;padding:9px 12px;margin:6px 0;font-size:13px}
+.evi .turn{font-size:11px;color:var(--ink-3);font-weight:700;margin-bottom:3px}
+.src{font-size:12px;color:var(--ink-2);background:#f7f7f4;border-radius:8px;
+  padding:8px 12px;margin-top:6px}
+.src b{color:#b8860b}
+.caret{display:inline-block;transition:transform .15s;color:var(--ink-3)}
+.cp-row.open .caret{transform:rotate(90deg)}
+
+/* ============ 失败案例对话回放 ============ */
+.case{border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.case .ch{background:#1f1f1f;color:#fff;padding:12px 18px;display:flex;
+  align-items:center;gap:12px;flex-wrap:wrap}
+.case .ch .who{font-weight:700}
+.case .ch .meta{font-size:12px;color:#bbb}
+.case .ch .fc{margin-left:auto;font-size:12px;color:#f87171;font-weight:700}
+.case .body{padding:16px 18px;background:#faf9f5}
+.fail-cp-list{padding:10px 18px;background:#fff7f7;border-bottom:1px solid #f3dada;
+  font-size:12px;color:#a33}
+.fail-cp-list li{margin:2px 0}
+.chat{display:flex;flex-direction:column;gap:10px}
+.bub{max-width:74%;padding:9px 13px;border-radius:14px;font-size:13px;
+  position:relative;white-space:pre-wrap;word-break:break-word}
+.bub .rt{font-size:10px;color:var(--ink-3);margin-bottom:3px;font-weight:700}
+.bub.agent{align-self:flex-start;background:#fff;border:1px solid var(--line);
+  border-top-left-radius:4px}
+.bub.user{align-self:flex-end;background:var(--mt-yellow-soft);
+  border:1px solid #f0e3a0;border-top-right-radius:4px}
+.bub.bad{border:2px solid var(--fail);box-shadow:0 0 0 3px rgba(224,36,36,.12)}
+.bub.bad::after{content:"⚠ 违规轮次";position:absolute;top:-9px;right:8px;
+  background:var(--fail);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;
+  font-weight:700}
+
+/* ============ 可靠性 ============ */
+.kpi-grid{display:flex;gap:14px;flex-wrap:wrap}
+.kpi{flex:1;min-width:150px;background:#fafafa;border-radius:12px;padding:16px 18px;
+  border:1px solid var(--line)}
+.kpi .n{font-size:30px;font-weight:800;color:var(--ink)}
+.kpi .n.good{color:var(--pass)}.kpi .n.warn{color:#c47f17}.kpi .n.bad{color:var(--fail)}
+.kpi .l{font-size:12px;color:var(--ink-3);margin-top:4px}
+
+.foot{text-align:center;color:var(--ink-3);font-size:12px;margin-top:40px}
+
+/* ============ 打印友好 ============ */
+@media print{
+  body{background:#fff}
+  .wrap{max-width:100%;padding:0}
+  .card,.topbar{box-shadow:none;border:1px solid #ddd}
+  .cp-detail{display:table-row!important}
+  .cp-row{cursor:default}
+  .caret{display:none}
+  .topbar{background:#222!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 顶部总分 ============ -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">E</div>
+      <div>
+        <div class="t1">EvalCall 评测报告</div>
+        <div class="t2">外呼对话模型 · 指令遵循自动评测</div>
+      </div>
+    </div>
+    <div class="pf-stats">
+      <div class="pf pass"><div class="n">{{ verdict_counts.pass }}</div><div class="l">通过</div></div>
+      <div class="pf fail"><div class="n">{{ verdict_counts.fail }}</div><div class="l">未通过</div></div>
+      <div class="pf na"><div class="n">{{ verdict_counts.na }}</div><div class="l">不适用</div></div>
+    </div>
+    <div class="score-big">
+      <div class="num">{{ overall_score }}</div>
+      <div class="lab">综合得分 · 通过率 {{ pass_rate }}%</div>
+    </div>
+  </div>
+
+  {% if critical_fail > 0 %}
+  <div class="alert">⛔ 检出 {{ critical_fail }} 项 critical 级违规（一票否决该项满分） · 约束违反共 {{ constraint_violations }} 项</div>
+  {% endif %}
+
+  <div class="metabar">
+    <span><b>运行 ID</b> {{ meta.run_id }}</span>
+    <span><b>生成时间</b> {{ meta.generated_at }}</span>
+    {% if meta.backend %}<span><b>后端</b> {{ meta.backend }}</span>{% endif %}
+    {% if meta.target_model %}<span><b>被测模型</b> {{ meta.target_model }}</span>{% endif %}
+    {% if meta.judge_model %}<span><b>裁判模型</b> {{ meta.judge_model }}</span>{% endif %}
+    <span><b>任务</b> {{ meta.n_tasks }}</span>
+    <span><b>Persona</b> {{ meta.n_personas }}</span>
+    <span><b>轨迹</b> {{ meta.n_trajectories }}</span>
+    <span><b>检查点判定</b> {{ meta.n_checkpoints }}</span>
+  </div>
+
+  <!-- ============ 四维雷达 ============ -->
+  <h2 class="sec">四维能力画像</h2>
+  <div class="flex-row">
+    <div class="card" style="flex:0 0 auto;display:flex;justify-content:center;align-items:center">
+      <svg width="320" height="320" viewBox="0 0 320 320">
+        <!-- 网格圈 -->
+        {% for g in radar.grids %}
+        <polygon points="{{ g }}" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        {% endfor %}
+        <!-- 轴线 -->
+        {% for a in radar.axes %}
+        <line x1="{{ radar.cx }}" y1="{{ radar.cy }}" x2="{{ a.ax }}" y2="{{ a.ay }}"
+          stroke="#dcdcdc" stroke-width="1"/>
+        {% endfor %}
+        <!-- 数据多边形 -->
+        <polygon points="{{ radar.polygon }}" fill="rgba(255,209,0,.35)"
+          stroke="#FFB800" stroke-width="2.5"/>
+        <!-- 数据顶点 + 标签 -->
+        {% for a in radar.axes %}
+        <text x="{{ a.lx }}" y="{{ a.ly }}" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">{{ a.label }}</text>
+        <text x="{{ a.lx }}" y="{{ a.ly + 15 }}" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">{{ a.rate }}%</text>
+        {% endfor %}
+      </svg>
+    </div>
+    <div class="card">
+      <div class="dim-list">
+        {% for d in dimensions %}
+        <div class="dim">
+          <div class="head"><b>{{ d.label }}</b><span>{{ d.rate }}%</span></div>
+          <div class="bar"><i style="width:{{ d.rate }}%"></i></div>
+          <div class="sub">通过 {{ d.pass }} / 共 {{ d.total }}{% if d.fail %} · 未通过 {{ d.fail }}{% endif %}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ persona × 任务 热力 ============ -->
+  <h2 class="sec">Persona × 任务 通过率热力图</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="heat">
+      <thead>
+        <tr>
+          <th style="text-align:left">Persona ＼ 任务</th>
+          {% for t in heatmap.tasks %}<th>{{ t.label }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in heatmap.rows %}
+        <tr>
+          <td class="persona">{{ row.persona.label }}
+            {% if row.persona.strategy %}<div class="small muted">{{ row.persona.strategy }}</div>{% endif %}
+          </td>
+          {% for c in row.cells %}
+            {% if c.has %}
+            <td><div class="cell" style="background:{{ heat_color(c.rate) }}">
+              {{ c.rate }}%<div class="pf">{{ c.pass }}✓ / {{ c.fail }}✗</div>
+            </div></td>
+            {% else %}
+            <td><div class="cell" style="background:#f4f4f4;color:#bbb">—</div></td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="small muted" style="margin-top:8px">颜色越绿通过率越高，越红越低。✓ 通过数 / ✗ 未通过数。</div>
+  </div>
+
+  <!-- ============ Persona 切片 ============ -->
+  <h2 class="sec">Persona 维度切片（按通过率升序）</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Persona</th><th>策略</th><th style="width:42%">通过率</th><th>通过/未通过</th></tr></thead>
+      <tbody>
+        {% for s in persona_slices %}
+        <tr>
+          <td><b>{{ s.persona.label }}</b></td>
+          <td class="muted small">{{ s.persona.strategy or "—" }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:{{ s.rate }}%;background:{{ heat_color(s.rate) }}"></i></div>
+              <b style="width:46px;text-align:right">{{ s.rate }}%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">{{ s.pass }}</span> <span class="badge fail">{{ s.fail }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 失败检查点 TOP ============ -->
+  {% if fail_top %}
+  <h2 class="sec">高频失败检查点 TOP</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:30px">#</th><th>检查点</th><th>类型</th><th>严重度</th><th>失败次数</th><th>来源指令</th></tr></thead>
+      <tbody>
+        {% for f in fail_top[:12] %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ f.text }}</td>
+          <td><span class="tag {{ f.type }}">{{ f.type }}</span></td>
+          <td><span class="sev {{ f.severity }}">{{ f.severity }}</span></td>
+          <td><b style="color:var(--fail)">{{ f.count }}</b></td>
+          <td class="small muted">{{ f.source_quote or "—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- ============ 逐检查点明细（可解释核心） ============ -->
+  <h2 class="sec">逐检查点判定明细 · 可解释证据</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th style="width:26px"></th><th>检查点</th><th>类型</th><th>严重度</th><th>判定</th><th>置信</th><th>轨迹</th></tr>
+      </thead>
+      <tbody>
+        {% for r in detail_rows %}
+        <tr class="cp-row" onclick="toggleCp({{ loop.index0 }})">
+          <td><span class="caret" id="caret-{{ loop.index0 }}">▶</span></td>
+          <td>{{ r.text }}</td>
+          <td><span class="tag {{ r.type }}">{{ r.type }}</span></td>
+          <td><span class="sev {{ r.severity }}">{{ r.severity }}</span></td>
+          <td><span class="badge {{ r.verdict }}">{{ r.verdict_label }}</span></td>
+          <td>{% if r.confidence_pct is not none %}{{ r.confidence_pct }}%{% else %}—{% endif %}</td>
+          <td class="small muted">{{ r.task_label }} · {{ r.persona_label }}</td>
+        </tr>
+        <tr class="cp-detail" id="detail-{{ loop.index0 }}">
+          <td></td>
+          <td colspan="6">
+            {% if r.source_quote %}
+            <div class="src"><b>来源指令引文：</b>{{ r.source_quote }}</div>
+            {% endif %}
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：{{ r.method }}{% if r.votes %} · 投票 {{ r.votes|join(" / ") }}{% endif %}）
+            </div>
+            {% if r.evidence %}
+              {% for e in r.evidence %}
+              <div class="evi"><div class="turn">第 {{ e.turn }} 轮</div>{{ e.quote }}</div>
+              {% endfor %}
+            {% else %}
+              <div class="small muted">（无引述证据）</div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="small muted" style="margin-top:8px">点击任意行展开查看来源指令引文与逐轮证据。</div>
+  </div>
+
+  <!-- ============ 失败案例剖析 ============ -->
+  {% if case_studies %}
+  <h2 class="sec">失败案例剖析 · 完整对话回放</h2>
+  {% for c in case_studies %}
+  <div class="case">
+    <div class="ch">
+      <span class="who">{{ c.task_label }}</span>
+      <span class="meta">用户画像：{{ c.persona.label }}{% if c.persona.strategy %}（{{ c.persona.strategy }}）{% endif %}</span>
+      <span class="fc">违规 {{ c.fails }} 项{% if c.critical %} · critical {{ c.critical }}{% endif %}</span>
+    </div>
+    {% if c.fail_cps %}
+    <ul class="fail-cp-list">
+      {% for fc in c.fail_cps %}<li>✗ [{{ fc.severity }}] {{ fc.text }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    <div class="body">
+      <div class="chat">
+        {% for t in c.turns %}
+        <div class="bub {{ 'user' if t.role == 'user' else 'agent' }}{% if t.bad %} bad{% endif %}">
+          <div class="rt">{{ '用户' if t.role == 'user' else '数字人' }} · 第 {{ t.turn }} 轮</div>{{ t.content }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ============ 模拟器覆盖率 ============ -->
+  <h2 class="sec">模拟器覆盖率 · 测试充分性量化</h2>
+  <div class="card">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="n {{ 'good' if coverage.unique_rate >= 80 else 'warn' }}">{{ coverage.unique_rate }}%</div>
+        <div class="l">检查点触达率<br>（{{ coverage.n_covered_unique }}/{{ coverage.n_unique }} 个检查点被至少一条轨迹实际检验）</div>
+      </div>
+      {% for rc in coverage.per_run %}
+      <div class="kpi">
+        <div class="n {{ 'good' if rc.rate >= 80 else 'warn' }}">{{ rc.rate }}%</div>
+        <div class="l">{{ rc.persona_label }}<br>（{{ rc.covered }}/{{ rc.total }} 触达）</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if coverage.never_covered %}
+    <div class="small" style="margin-top:14px"><strong>测试盲区（所有轨迹均未触达，建议补充对应场景的 persona / 策略）：</strong></div>
+    <table style="margin-top:8px">
+      <thead><tr><th>检查点</th><th>类型</th><th>严重度</th><th>指令原文</th></tr></thead>
+      <tbody>
+      {% for c in coverage.never_covered %}
+      <tr>
+        <td>{{ c.text }}</td>
+        <td>{{ c.type }}</td>
+        <td>{{ c.severity }}</td>
+        <td class="small muted">{{ c.source_quote }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="small muted" style="margin-top:10px">无测试盲区：全部检查点均被至少一条轨迹触达。</div>
+    {% endif %}
+    <div class="small muted" style="margin-top:10px">
+      「测得充分」不靠形容词：触达率 = 被实际检验（pass/fail）的检查点 / 全部检查点；na 即该轨迹未触达。覆盖率驱动的模拟器会优先制造尚未触达的场景。
+    </div>
+  </div>
+
+  <!-- ============ Judge 可靠性 ============ -->
+  <h2 class="sec">Judge 可靠性度量</h2>
+  <div class="card">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="n {{ 'good' if reliability.unanimous_rate >= 80 else 'warn' }}">{{ reliability.unanimous_rate }}%</div>
+        <div class="l">多数投票一致率<br>（{{ reliability.vote_unanimous }}/{{ reliability.vote_total }} 条全票一致）</div>
+      </div>
+      <div class="kpi">
+        <div class="n {{ 'warn' if reliability.vote_split else 'good' }}">{{ reliability.vote_split }}</div>
+        <div class="l">投票分裂条数<br>（多数投票内部存在分歧）</div>
+      </div>
+      <div class="kpi">
+        <div class="n {{ 'bad' if reliability.rule_llm_conflict else 'good' }}">{{ reliability.rule_llm_conflict }}</div>
+        <div class="l">规则/LLM 双轨冲突数<br>（同检查点两轨结论不一致）</div>
+      </div>
+      <div class="kpi">
+        <div class="n">{{ reliability.total_judgments }}</div>
+        <div class="l">检查点判定总数</div>
+      </div>
+    </div>
+    <div class="small muted" style="margin-top:10px">
+      一致率越高、冲突数越低，说明评测结论越稳定可信。双轨冲突项建议人工复核。
+    </div>
+  </div>
+
+  <div class="foot">
+    EvalCall · 外呼对话模型指令遵循自动评测系统 · 报告生成于 {{ meta.generated_at }}<br>
+    每条结论均可溯源到对话原文与指令引文 —— 评测过程可解释、结果可量化。
+  </div>
+
+</div>
+
+<script>
+function toggleCp(i){
+  var d=document.getElementById('detail-'+i);
+  var r=d.previousElementSibling;
+  if(d.classList.contains('open')){d.classList.remove('open');r.classList.remove('open');}
+  else{d.classList.add('open');r.classList.add('open');}
+}
+</script>
+</body>
+</html>

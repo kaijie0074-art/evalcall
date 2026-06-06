@@ -1,0 +1,3 @@
+[lint] 正在体检 data/tasks_official/official_01_feimaotui.yaml …（2 次 LLM 调用，可能需要数分钟）
+
+[lint] 完整结果已写入：runs/lint/official_01_lint.json

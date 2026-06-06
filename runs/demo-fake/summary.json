@@ -1,0 +1,10 @@
+{
+  "run_id": "demo-fake",
+  "started_at": "2026-06-06 09:00:00",
+  "backend": "claude-cli",
+  "target_model": "demo-target-model",
+  "judge_model": "demo-judge-3vote",
+  "n_tasks": 5,
+  "n_personas": 5,
+  "n_trajectories": 25
+}

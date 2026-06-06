@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.playwright-mcp/
+site-*.png
+site-*.txt
+*.log
+verify.log
+feishu-auth*.png
+# 官方脱敏数据原件不公开传播
+data/官方脱敏数据-命题二外呼任务指令示例.xlsx
+data/official_instructions.json
+.claude/
+cdp.js
+scrape-site.js
+scrape-track2.js
+# 开发调试产物 / 含污染轨迹的旧 run 不公开
+runs/live/
+runs/verify/
+runs/smoke/
+runs/t1/
+runs/official01/
+rejudge_checkpoint.py.orig

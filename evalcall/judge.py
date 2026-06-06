@@ -1,0 +1,369 @@
+"""双轨评测引擎 Judge。
+
+输入：检查点清单（list[Checkpoint] 或 list[dict]） + 一条对话轨迹（trajectory dict）
+输出：判定列表 + 汇总分。
+
+两条轨道：
+- 规则轨（rule）：forbidden 类检查点用关键词/正则直接判（确定性、零成本）
+- LLM 轨（llm）：其余检查点逐条判，批量打包（一次 prompt 判 5-8 条）减少调用；
+  要求 verdict + confidence + evidence（必须引用轮次 + 原文引述）；
+  N_VOTES 默认 1，可配 3 做多数投票，并统计投票分歧率（一致性指标）。
+
+判定 schema（SPEC 第 4 节）：
+    {checkpoint_id, verdict: pass|fail|na, confidence, evidence:[{turn, quote}], judge_votes, method: rule|llm}
+"""
+
+from __future__ import annotations
+
+import os
+import re
+from collections import Counter
+from typing import Any, Optional
+
+from . import llm
+
+# 严重度权重，用于加权总分
+_SEVERITY_WEIGHT = {"critical": 5.0, "major": 3.0, "minor": 1.0}
+
+# 一次 LLM prompt 打包判定的检查点数量上限
+_BATCH_SIZE = 6
+
+
+# ----------------------------------------------------------------------------- #
+# 工具：归一化检查点 / 轨迹
+# ----------------------------------------------------------------------------- #
+def _cp_to_dict(cp: Any) -> dict[str, Any]:
+    """把 Checkpoint 对象或 dict 统一成 dict。"""
+    if isinstance(cp, dict):
+        return cp
+    if hasattr(cp, "to_dict"):
+        return cp.to_dict()
+    # 退化：尝试读取属性
+    return {
+        "id": getattr(cp, "id", ""),
+        "type": getattr(cp, "type", "constraint"),
+        "text": getattr(cp, "text", ""),
+        "source_quote": getattr(cp, "source_quote", ""),
+        "severity": getattr(cp, "severity", "major"),
+        "keywords": getattr(cp, "keywords", []),
+    }
+
+
+def _turns_of(trajectory: dict) -> list[dict]:
+    """从轨迹中取出 turns 列表，兼容字段缺失。"""
+    turns = trajectory.get("turns")
+    return turns if isinstance(turns, list) else []
+
+
+def _format_transcript(turns: list[dict]) -> str:
+    """把轨迹格式化成带轮次编号的可读文本，供 LLM 判定时引用。"""
+    lines: list[str] = []
+    for t in turns:
+        turn_no = t.get("turn", "?")
+        role = t.get("role", "?")
+        role_cn = {"agent": "客服(被测)", "user": "用户(模拟)"}.get(role, role)
+        content = (t.get("content") or "").replace("\n", " ").strip()
+        lines.append(f"[第{turn_no}轮][{role_cn}] {content}")
+    return "\n".join(lines)
+
+
+# ----------------------------------------------------------------------------- #
+# 规则轨：forbidden 关键词/正则直接判
+# ----------------------------------------------------------------------------- #
+def _judge_forbidden_rule(cp: dict, turns: list[dict]) -> Optional[dict]:
+    """对 forbidden 检查点做规则判定。
+
+    在所有【客服(被测)】发言中扫描关键词/正则；命中即 fail（并给出证据轮次+引述），
+    未命中则 pass。若无 keywords 则返回 None，交给 LLM 轨兜底。
+    """
+    keywords = cp.get("keywords") or []
+    if not keywords:
+        return None
+    agent_turns = [t for t in turns if t.get("role") == "agent"]
+    for t in agent_turns:
+        content = t.get("content") or ""
+        for kw in keywords:
+            kw = str(kw).strip()
+            if not kw:
+                continue
+            hit_quote: Optional[str] = None
+            # 先当普通子串，失败再当正则（容错正则语法错误）
+            if kw in content:
+                hit_quote = kw
+            else:
+                try:
+                    m = re.search(kw, content)
+                    if m:
+                        hit_quote = m.group(0)
+                except re.error:
+                    hit_quote = None
+            if hit_quote is not None:
+                return {
+                    "checkpoint_id": cp["id"],
+                    "verdict": "fail",  # 出现了禁止内容
+                    "confidence": 1.0,
+                    "evidence": [{"turn": t.get("turn"), "quote": content[:120]}],
+                    "judge_votes": [{"verdict": "fail", "method": "rule", "matched": hit_quote}],
+                    "method": "rule",
+                }
+    # 全程未命中禁语
+    return {
+        "checkpoint_id": cp["id"],
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [{"verdict": "pass", "method": "rule"}],
+        "method": "rule",
+    }
+
+
+# ----------------------------------------------------------------------------- #
+# LLM 轨：批量判定
+# ----------------------------------------------------------------------------- #
+_LLM_SYS = """\
+你是严格、客观的对话质检员。给你一份外呼对话记录和若干检查点，逐条判定被测客服是否满足该检查点。
+判定规则：
+- pass：被测客服满足了该检查点（流程做到了 / 约束遵守了 / 禁止项没出现 / 话术合规）
+- fail：被测客服违反了该检查点
+- na：本次对话场景未触及该检查点，无法判定（例如该流程节点根本没机会发生）
+必须基于对话原文，证据要引用具体轮次编号和原文引述，不得臆测。"""
+
+
+def _batch_schema_hint(batch: list[dict]) -> str:
+    ids = ", ".join(cp["id"] for cp in batch)
+    return (
+        '输出 JSON 对象，含字段 "results"，值为数组，每个元素对应一个检查点：\n'
+        "- checkpoint_id: 字符串，必须是给定检查点的 id 之一（本批为：" + ids + "）\n"
+        "- verdict: pass | fail | na\n"
+        "- confidence: 0~1 浮点，表示判定把握\n"
+        '- evidence: 数组，每项 {"turn": 轮次编号(整数), "quote": "原文引述"}；na 可为空数组\n'
+        '示例：{"results":[{"checkpoint_id":"flow_1","verdict":"pass","confidence":0.9,'
+        '"evidence":[{"turn":1,"quote":"您好，我是XX客服"}]}]}'
+    )
+
+
+def _judge_batch_llm(
+    batch: list[dict],
+    transcript_text: str,
+    model: Optional[str],
+) -> dict[str, dict]:
+    """对一批检查点做一次 LLM 判定，返回 {checkpoint_id: 判定子结果}。
+
+    判定子结果含 verdict / confidence / evidence。调用失败时该批全部退化为 na。
+    """
+    cp_lines = []
+    for cp in batch:
+        line = (
+            f"- id={cp['id']} | 类型={cp.get('type')} | 严重度={cp.get('severity')} | 要求：{cp.get('text')}"
+        )
+        # 关键：附上指令原文，否则裁判不知道"指定开场白/规定话术"具体指什么，只能臆测
+        quote = (cp.get("source_quote") or "").strip()
+        if quote:
+            line += f" | 指令原文：{quote}"
+        cp_lines.append(line)
+    user_msg = (
+        "对话记录：\n" + transcript_text + "\n\n"
+        "需要判定的检查点：\n" + "\n".join(cp_lines)
+    )
+    messages = [
+        {"role": "system", "content": _LLM_SYS},
+        {"role": "user", "content": user_msg},
+    ]
+    out: dict[str, dict] = {}
+    try:
+        data = llm.chat_json(messages, schema_hint=_batch_schema_hint(batch), model=model)
+        results = data.get("results") if isinstance(data, dict) else data
+        if not isinstance(results, list):
+            results = []
+        for r in results:
+            if not isinstance(r, dict):
+                continue
+            cid = str(r.get("checkpoint_id") or "").strip()
+            if not cid:
+                continue
+            verdict = str(r.get("verdict") or "na").strip().lower()
+            if verdict not in ("pass", "fail", "na"):
+                verdict = "na"
+            try:
+                conf = float(r.get("confidence", 0.5))
+            except (TypeError, ValueError):
+                conf = 0.5
+            conf = max(0.0, min(1.0, conf))
+            evidence = r.get("evidence") or []
+            clean_ev = []
+            if isinstance(evidence, list):
+                for e in evidence:
+                    if isinstance(e, dict):
+                        clean_ev.append({"turn": e.get("turn"), "quote": str(e.get("quote", ""))[:200]})
+            out[cid] = {"verdict": verdict, "confidence": conf, "evidence": clean_ev}
+    except Exception as exc:  # noqa: BLE001  —— 一批失败不拖垮整体
+        import sys
+
+        print(f"[judge] LLM 批判定失败，退化为 na：{exc}", file=sys.stderr)
+    # 对本批中没拿到结果的检查点补 na
+    for cp in batch:
+        out.setdefault(cp["id"], {"verdict": "na", "confidence": 0.0, "evidence": []})
+    return out
+
+
+def _majority_vote(votes: list[dict]) -> tuple[str, float]:
+    """多数投票：返回 (最终 verdict, 该 verdict 占比作为分歧度参考)。
+
+    平票时优先级 fail > pass > na（质检从严）。
+    """
+    counts = Counter(v["verdict"] for v in votes)
+    if not counts:
+        return "na", 0.0
+    top = counts.most_common()
+    best_n = top[0][1]
+    tied = [v for v, n in top if n == best_n]
+    priority = {"fail": 0, "pass": 1, "na": 2}
+    final = sorted(tied, key=lambda v: priority.get(v, 3))[0]
+    agreement = best_n / len(votes)
+    return final, agreement
+
+
+# ----------------------------------------------------------------------------- #
+# 主入口
+# ----------------------------------------------------------------------------- #
+def judge_trajectory(
+    checkpoints: list[Any],
+    trajectory: dict,
+    model: Optional[str] = None,
+    n_votes: Optional[int] = None,
+) -> list[dict[str, Any]]:
+    """对一条轨迹按全部检查点做双轨评测，返回判定列表。
+
+    n_votes 默认读环境变量 N_VOTES（缺省 1）；>1 时 LLM 轨多次判定取多数。
+    """
+    if n_votes is None:
+        try:
+            n_votes = int(os.getenv("N_VOTES", "1"))
+        except ValueError:
+            n_votes = 1
+    n_votes = max(1, n_votes)
+
+    cps = [_cp_to_dict(cp) for cp in checkpoints]
+    turns = _turns_of(trajectory)
+    transcript_text = _format_transcript(turns)
+
+    judgments: list[dict[str, Any]] = []
+
+    # 1) 规则轨：处理带 keywords 的 forbidden
+    llm_cps: list[dict] = []
+    for cp in cps:
+        if cp.get("type") == "forbidden":
+            rule_res = _judge_forbidden_rule(cp, turns)
+            if rule_res is not None:
+                judgments.append(rule_res)
+                continue
+        llm_cps.append(cp)
+
+    # 2) LLM 轨：分批，每批投票 n_votes 次
+    # 先把每批每票的结果收集起来，再聚合
+    per_cp_votes: dict[str, list[dict]] = {cp["id"]: [] for cp in llm_cps}
+
+    for start in range(0, len(llm_cps), _BATCH_SIZE):
+        batch = llm_cps[start : start + _BATCH_SIZE]
+        for _ in range(n_votes):
+            batch_out = _judge_batch_llm(batch, transcript_text, model)
+            for cp in batch:
+                sub = batch_out.get(cp["id"], {"verdict": "na", "confidence": 0.0, "evidence": []})
+                per_cp_votes[cp["id"]].append(sub)
+
+    for cp in llm_cps:
+        votes = per_cp_votes[cp["id"]]
+        final_verdict, agreement = _majority_vote(votes)
+        # 选一个与最终 verdict 一致、置信度最高的票作为代表证据
+        rep = max(
+            (v for v in votes if v["verdict"] == final_verdict),
+            key=lambda v: v.get("confidence", 0.0),
+            default=votes[0] if votes else {"confidence": 0.0, "evidence": []},
+        )
+        judgments.append(
+            {
+                "checkpoint_id": cp["id"],
+                "verdict": final_verdict,
+                "confidence": round(rep.get("confidence", 0.0), 3),
+                "evidence": rep.get("evidence", []),
+                "judge_votes": [{"verdict": v["verdict"], "confidence": v.get("confidence")} for v in votes],
+                "vote_agreement": round(agreement, 3),  # 一致率：1.0 全票一致，越低分歧越大
+                "method": "llm",
+            }
+        )
+
+    return judgments
+
+
+# ----------------------------------------------------------------------------- #
+# 汇总打分
+# ----------------------------------------------------------------------------- #
+def summarize(
+    checkpoints: list[Any],
+    judgments: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """根据判定结果计算汇总指标。
+
+    返回：
+    - score: 0~100 加权总分（按 severity 权重，pass 得满、fail 得 0、na 不计入分母）
+    - critical_failed: bool，是否存在 critical 项 fail（一票否决标志）
+    - counts: 各 verdict 计数
+    - by_severity: 各严重度 pass/fail/na 计数
+    - violation_count / violation_rate_per_100: 约束违反数 与 每百次对话违反率（此处按检查点维度）
+    - judge_disagreement_rate: LLM 轨投票分歧率（1 - 平均一致率）
+    """
+    cp_index = {_cp_to_dict(cp)["id"]: _cp_to_dict(cp) for cp in checkpoints}
+
+    counts = {"pass": 0, "fail": 0, "na": 0}
+    by_severity: dict[str, dict[str, int]] = {
+        s: {"pass": 0, "fail": 0, "na": 0} for s in _SEVERITY_WEIGHT
+    }
+
+    earned = 0.0
+    possible = 0.0
+    critical_failed = False
+    violation_count = 0
+    agreements: list[float] = []
+
+    for j in judgments:
+        cp = cp_index.get(j["checkpoint_id"], {})
+        severity = cp.get("severity", "major")
+        weight = _SEVERITY_WEIGHT.get(severity, _SEVERITY_WEIGHT["major"])
+        verdict = j.get("verdict", "na")
+
+        counts[verdict] = counts.get(verdict, 0) + 1
+        if severity in by_severity:
+            by_severity[severity][verdict] = by_severity[severity].get(verdict, 0) + 1
+
+        if "vote_agreement" in j:
+            agreements.append(float(j["vote_agreement"]))
+
+        if verdict == "na":
+            continue  # na 不计入分母
+        possible += weight
+        if verdict == "pass":
+            earned += weight
+        else:  # fail
+            violation_count += 1
+            if severity == "critical":
+                critical_failed = True
+
+    raw_score = (earned / possible * 100.0) if possible > 0 else 0.0
+    # critical fail 一票否决：总分直接归 0（但保留 raw_score 供报告对照）
+    final_score = 0.0 if critical_failed else round(raw_score, 1)
+
+    judged_n = counts["pass"] + counts["fail"]
+    violation_rate_per_100 = round((violation_count / judged_n * 100.0), 1) if judged_n else 0.0
+    disagreement = round(1.0 - (sum(agreements) / len(agreements)), 3) if agreements else 0.0
+
+    return {
+        "score": final_score,
+        "raw_score": round(raw_score, 1),
+        "critical_failed": critical_failed,
+        "counts": counts,
+        "by_severity": by_severity,
+        "violation_count": violation_count,
+        "violation_rate_per_100": violation_rate_per_100,
+        "judge_disagreement_rate": disagreement,
+        "total_checkpoints": len(judgments),
+    }

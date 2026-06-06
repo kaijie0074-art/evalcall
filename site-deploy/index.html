@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalCall · 外呼对话模型指令遵循自动评测系统</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e;
+    --accent: #ffd100; --accent2: #58a6ff; --green: #3fb950; --red: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.7; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+  .hero { text-align: center; padding: 40px 0 32px; }
+  .logo { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 16px; background: var(--accent); color: #1a1a1a; font-size: 36px; font-weight: 800; margin-bottom: 20px; }
+  h1 { font-size: 34px; letter-spacing: 1px; }
+  .sub { color: var(--muted); font-size: 17px; margin-top: 8px; }
+  .badges { margin-top: 18px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: 13px; padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); }
+  .badge.hl { border-color: var(--accent); color: var(--accent); }
+  .cta { display: flex; gap: 16px; justify-content: center; margin: 36px 0 12px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none; transition: transform .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--accent); color: #1a1a1a; }
+  .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  h2 { font-size: 22px; margin: 56px 0 20px; padding-left: 12px; border-left: 4px solid var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+  .card h3 { font-size: 16px; margin-bottom: 10px; color: var(--accent2); }
+  .card p { font-size: 14px; color: var(--muted); }
+  .pipeline { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .step { flex: 1; min-width: 120px; text-align: center; }
+  .step .num { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,209,0,.15); color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+  .step .name { font-size: 14px; font-weight: 600; }
+  .step .desc { font-size: 12px; color: var(--muted); }
+  .arrow { color: var(--muted); font-size: 18px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  th, td { padding: 12px 16px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; background: rgba(255,255,255,.02); }
+  td .good { color: var(--green); font-weight: 700; }
+  td .bad { color: var(--red); font-weight: 700; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); }
+  code { background: rgba(110,118,129,.2); border-radius: 4px; padding: 2px 6px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="logo">E</div>
+    <h1>EvalCall</h1>
+    <div class="sub">外呼对话模型 · 复杂指令遵循 · 可解释可量化自动评测系统</div>
+    <div class="badges">
+      <span class="badge hl">美团 AI Hackathon 2026 · 命题二</span>
+      <span class="badge">官方脱敏数据实测</span>
+      <span class="badge">对抗式用户模拟器</span>
+      <span class="badge">双轨判定 + 3 票多数决</span>
+    </div>
+    <div class="cta">
+      <a class="btn btn-primary" href="report-official.html">📊 查看官方数据评测报告</a>
+      <a class="btn btn-secondary" href="report-demo.html">🧪 满规模演示报告（5任务×5persona）</a>
+    </div>
+  </div>
+
+  <h2>它解决什么问题</h2>
+  <p style="color:var(--muted); font-size:15px;">
+    美团履约数字人每天产生大规模外呼对话。任务指令包含复杂流程分支和多重合规约束——关键信息播报顺序、禁止话术、隐私保护、情绪处理规范。人工抽听质检：全量覆盖成本不可承受、问题发现滞后、评分因人而异。<br><br>
+    <strong style="color:var(--text)">EvalCall 把「人工看对话有没有按指令来」变成可量化、可重复、可审计的自动化流程。</strong>
+  </p>
+
+  <h2>评测流水线</h2>
+  <div class="pipeline">
+    <div class="step"><div class="num">1</div><div class="name">指令编译</div><div class="desc">自然语言指令 → 结构化检查点<br>每条可溯源 source_quote</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="num">2</div><div class="name">对抗模拟</div><div class="desc">6 种 persona 定向诱导违规<br>覆盖率驱动选场景</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="num">3</div><div class="name">双轨判定</div><div class="desc">规则轨 + LLM 轨<br>3 票多数决 + 自一致率</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="num">4</div><div class="name">量化报告</div><div class="desc">四维画像 / 热力图<br>逐检查点证据引用</div></div>
+  </div>
+
+  <h2>官方脱敏数据实测结果</h2>
+  <table>
+    <tr><th>任务（官方指令）</th><th>Persona</th><th>检查点通过率</th><th>说明</th></tr>
+    <tr><td rowspan="2">骑手合同到期外呼通知</td><td>配合型用户</td><td><span class="good">68.4%</span>（13✓/6✗）</td><td>主流程基本完成，部分话术约束违规</td></tr>
+    <tr><td>不耐烦型用户</td><td><span class="bad">33.3%</span>（1✓/2✗）</td><td>被打断后流程严重丢失</td></tr>
+  </table>
+  <p class="note">
+    同一模型在不同用户行为下的指令遵循率差距达 35 个百分点——这正是 EvalCall 对抗式模拟器的价值：<strong style="color:var(--text)">不制造压力场景，就测不出真实短板。</strong>
+    每条失败结论都附对话原文证据，点开报告即可逐条审计。
+  </p>
+
+  <h2>核心创新</h2>
+  <div class="grid">
+    <div class="card"><h3>① 指令 → 检查点编译</h3><p>评测结论不是「大模型觉得还行」，而是逐条对应指令原文的通过/失败。每条检查点带 source_quote 可溯源，可审计、可复现。</p></div>
+    <div class="card"><h3>② 对抗式模拟器</h3><p>模拟器主动针对约束项「定向诱导」被测模型违规，追踪检查点覆盖率，优先制造尚未触发的场景。6 种 persona 覆盖真实用户行为。</p></div>
+    <div class="card"><h3>③ 双轨判定 + 多数投票</h3><p>规则轨处理确定性判断，LLM 轨处理语义场景且必须引用对话原文为证。3 票多数决降低误判，自一致率让结果自带可靠性度量。</p></div>
+    <div class="card"><h3>④ 数据即插即用</h3><p>格式适配层把外部脱敏数据映射到内部 schema，评测逻辑与数据格式解耦。本次官方 xlsx 数据零改造直接接入。</p></div>
+  </div>
+
+  <h2>量化指标体系</h2>
+  <table>
+    <tr><th>指标</th><th>说明</th></tr>
+    <tr><td>约束违反数 / 百次对话</td><td>核心量化产出，可按 task / persona / severity 三维切片</td></tr>
+    <tr><td>四维能力画像</td><td>流程完整度 · 约束遵循率 · 异常处理 · 话术合规</td></tr>
+    <tr><td>可解释证据覆盖率</td><td>每条 fail 必须附对话原文引用，目标 &gt; 95%</td></tr>
+    <tr><td>judge 自一致率 / 双轨冲突率</td><td>评测结果自带可靠性度量</td></tr>
+  </table>
+
+  <h2>使用方式</h2>
+  <div class="card">
+    <p style="font-size:14px; color:var(--text)">
+      两条命令覆盖全流程：<br><br>
+      <code>evalcall run --task data/tasks_official/official_01.yaml --personas all</code>　编译指令 → 多轨迹模拟 → 批量判定<br><br>
+      <code>evalcall report --run runs/official01</code>　生成可交互 HTML 报告
+    </p>
+  </div>
+
+  <div class="footer">
+    EvalCall · 美团 AI Hackathon 2026 命题二「复杂指令下的多轮对话评测系统」参赛作品<br>
+    指令编译器与双轨判定引擎为通用组件，可接入任何基于任务指令的对话系统质检场景
+  </div>
+
+</div>
+</body>
+</html>
