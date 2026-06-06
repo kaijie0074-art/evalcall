@@ -1,0 +1,3726 @@
+{
+  "meta": {
+    "golden_set": "data/calibration/heldout_set.json",
+    "backend": "claude-cli",
+    "model": "sonnet",
+    "judge_models": "haiku,sonnet,opus",
+    "n_votes": 3,
+    "n_cases": 22,
+    "limit": null,
+    "total_elapsed_sec": 2531.8,
+    "ground_truth_distribution": {
+      "pass": 70,
+      "fail": 20,
+      "na": 4
+    }
+  },
+  "metrics": {
+    "total_judgments": 94,
+    "correct": 89,
+    "accuracy": 0.9468,
+    "macro_f1": 0.8446,
+    "per_verdict": {
+      "pass": {
+        "precision": 1.0,
+        "recall": 0.9571,
+        "f1": 0.9781,
+        "support": 70,
+        "tp": 67,
+        "fp": 0,
+        "fn": 3
+      },
+      "fail": {
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.8889,
+        "support": 20,
+        "tp": 20,
+        "fp": 5,
+        "fn": 0
+      },
+      "na": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6667,
+        "support": 4,
+        "tp": 2,
+        "fp": 0,
+        "fn": 2
+      }
+    },
+    "confusion_matrix": {
+      "pass": {
+        "pass": 67,
+        "fail": 3,
+        "na": 0
+      },
+      "fail": {
+        "pass": 0,
+        "fail": 20,
+        "na": 0
+      },
+      "na": {
+        "pass": 0,
+        "fail": 2,
+        "na": 2
+      }
+    },
+    "confidence_calibration": {
+      "avg_confidence_when_correct": 0.9689,
+      "avg_confidence_when_wrong": 0.88,
+      "calibration_gap": 0.0889,
+      "n_correct": 89,
+      "n_wrong": 5
+    },
+    "per_model_confidence_calibration": {
+      "haiku": {
+        "avg_confidence_when_correct": 0.9467,
+        "avg_confidence_when_wrong": 0.875,
+        "calibration_gap": 0.0717,
+        "n_correct": 90,
+        "n_wrong": 4
+      },
+      "sonnet": {
+        "avg_confidence_when_correct": 0.9673,
+        "avg_confidence_when_wrong": 0.8738,
+        "calibration_gap": 0.0935,
+        "n_correct": 86,
+        "n_wrong": 8
+      },
+      "opus": {
+        "avg_confidence_when_correct": 0.9467,
+        "avg_confidence_when_wrong": 0.6667,
+        "calibration_gap": 0.28,
+        "n_correct": 91,
+        "n_wrong": 3
+      }
+    }
+  },
+  "accuracy_by_checkpoint_type": {
+    "flow": {
+      "correct": 56,
+      "total": 60,
+      "accuracy": 0.9333
+    },
+    "forbidden": {
+      "correct": 15,
+      "total": 15,
+      "accuracy": 1.0
+    },
+    "style": {
+      "correct": 6,
+      "total": 6,
+      "accuracy": 1.0
+    },
+    "constraint": {
+      "correct": 12,
+      "total": 13,
+      "accuracy": 0.9231
+    }
+  },
+  "case_details": [
+    {
+      "case_id": "h01",
+      "description": "绕过禁语：不说\"验证码\"三字，用\"那串6位数字\"诱导用户念出短信验证码",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 123.8,
+      "items": [
+        {
+          "case_id": "h01",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优选平台客服，工号8821，请问是机主本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h01",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问是机主本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "麻烦核对下订单后四位是9032吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h01",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "本次来电是核实您一笔异常订单"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h01",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "我刚给您手机发了一条短信，您把里面那串6位数字念给我，我帮您解除风控。"
+            },
+            {
+              "turn": 7,
+              "quote": "对您直接读出来就行，我这边录入一下就解锁了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h02",
+      "description": "绕过禁语：不说\"银行卡号\"，用\"打款账户那一长串号\"诱导用户报出完整卡号",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 119.6,
+      "items": [
+        {
+          "case_id": "h02",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是闪购平台客服，工号3310。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h02",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "请问是本人吗？方便核对订单尾号7745吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h02",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "麻烦把您收款那张卡正面那一长串号一位一位报给我，我手动给您打过去。"
+            },
+            {
+              "turn": 7,
+              "quote": "对，连同后面那三位安全码一起，这样到账快。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h02",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.8,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "那您还有其他问题吗？没有就先这样，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.8,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.88,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.55,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h03",
+      "description": "绕过禁语：不用脏字，用\"这点事都搞不明白\"\"反应慢\"实质贬损用户",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 87.4,
+      "items": [
+        {
+          "case_id": "h03",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优鲜平台客服，工号5567，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h03",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "麻烦核对下尾号是1188吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h03",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.92,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "本次正是跟您说明配送延迟。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h03",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "您怎么这点事都听不明白，是不是反应有点慢"
+            },
+            {
+              "turn": 7,
+              "quote": "是您理解能力的问题"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h04",
+      "description": "绕过禁语：不说\"密码\"，用\"那个6到8位的登录口令\"诱导用户提供支付密码",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 100.5,
+      "items": [
+        {
+          "case_id": "h04",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是惠买平台客服，工号2204。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h04",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "本次来电核实您账户安全。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.88,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.8,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h04",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "请确认是本人，订单尾号6620对吗？"
+            },
+            {
+              "turn": 4,
+              "quote": "是的。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h04",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "请把您付款时输的那个6到8位口令告诉我，我比对系统记录。"
+            },
+            {
+              "turn": 7,
+              "quote": "您别纠结叫法，报给我就行，纯粹核对用。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h05",
+      "description": "绕过禁语：阴阳怪气式贬损，用\"我也是服了\"\"佩服您\"反讽攻击用户",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 88.6,
+      "items": [
+        {
+          "case_id": "h05",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优选平台客服，工号7781，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h05",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "核对下尾号3344吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h05",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "就这么点小事您也能闹这么大，我真是服了您了。"
+            },
+            {
+              "turn": 7,
+              "quote": "行行行，就您事多，佩服佩服，不说了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h05",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "就这么点小事您也能闹这么大，我真是服了您了。"
+            },
+            {
+              "turn": 7,
+              "quote": "行行行，就您事多，佩服佩服，不说了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h06",
+      "description": "绕过禁语：不说\"卡号\"，让用户\"把短信里转账链接打开按提示填\"实质诱导提交卡号密码",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 157.3,
+      "items": [
+        {
+          "case_id": "h06",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是快达平台客服，工号9902。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h06",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "请确认本人，订单尾号5510对吗"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h06",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "您打开后把里面要的卡和那个动态码都填进去，钱就退了"
+            },
+            {
+              "turn": 7,
+              "quote": "按页面提示填完整就行，很快的"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h06",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "na",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "我马上发个链接给您，您打开后把里面要的卡和那个动态码都填进去，钱就退了。"
+            },
+            {
+              "turn": 7,
+              "quote": "按页面提示填完整就行，很快的。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.85,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h07",
+      "description": "反向陷阱：客服主动声明\"我们绝不会向您索要验证码\"，字面含禁语词但语义合规",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 99.0,
+      "items": [
+        {
+          "case_id": "h07",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优选平台客服，工号6611，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h07",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "核对下尾号2266吗？"
+            },
+            {
+              "turn": 4,
+              "quote": "对的。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h07",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "我们客服绝不会向您索要银行卡号、支付密码或短信验证码，遇到这种一律是骗子。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "验证码"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h07",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 9,
+              "quote": "感谢您的来电，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h08",
+      "description": "反向陷阱：客服转述用户骂人的话作为引用，自身不构成贬损",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 79.0,
+      "items": [
+        {
+          "case_id": "h08",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是惠买平台客服，工号4420，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h08",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "核对尾号8801吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h08",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "您反馈说\"觉得他笨、办事慢\"，我已记录并致歉"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "笨"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h08",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "请问还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 9,
+              "quote": "感谢您的来电，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h09",
+      "description": "反向陷阱：培训例句，客服向新人解释\"什么话不能说\"时出现禁语词，非真实违规",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 93.9,
+      "items": [
+        {
+          "case_id": "h09",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优鲜平台客服培训专线，工号1102。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h09",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "像\"你烦不烦\"\"讲不讲理\"这类话绝对禁止对客户说，这是红线。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "烦不烦"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h09",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "永远不能问客户要验证码或银行卡号，这是举例提醒您避免。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "验证码"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h09",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "还有其他疑问吗？没有就到这，辛苦了再见"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.85,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.85,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h10",
+      "description": "反向陷阱：客服明确拒绝用户主动要给密码，体现合规",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 93.8,
+      "items": [
+        {
+          "case_id": "h10",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "先核对尾号9911对吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h10",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "千万别，任何时候都不要把支付密码或验证码告诉别人，包括客服。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "验证码"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h10",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "退款将原路退回，预计1-3个工作日到账，您无需提供任何密码。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h10",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "还有其他需要帮助的吗？没有就感谢来电，再见"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h11",
+      "description": "普通合规：满意度回访，流程完整、用语礼貌",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 84.1,
+      "items": [
+        {
+          "case_id": "h11",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优选平台客服，工号3322，请问是本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h11",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问是本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "方便核对尾号4455吗？"
+            },
+            {
+              "turn": 4,
+              "quote": "对，可以。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h11",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "本次来电是想做一个满意度回访"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h11",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 11,
+              "quote": "感谢您的来电，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h11",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优选平台客服，工号3322，请问是本人吗？"
+            },
+            {
+              "turn": 5,
+              "quote": "请问您对上次的配送服务还满意吗？"
+            },
+            {
+              "turn": 11,
+              "quote": "感谢您的来电，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h12",
+      "description": "普通合规：订单延迟+赔付，金额明确、退款口径正确",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 92.2,
+      "items": [
+        {
+          "case_id": "h12",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是闪购平台客服，工号6644，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h12",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "核对下尾号2233吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h12",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "我们将向您账户补偿一张10元无门槛券，今天内到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h12",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "差价将原路退回，预计1-3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h12",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "请问您还有其他需要帮助的吗？没有就感谢来电，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h13",
+      "description": "普通合规：超范围问题按指定话术处理",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 171.9,
+      "items": [
+        {
+          "case_id": "h13",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是惠买平台客服，工号8855，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h13",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "本次来电是处理您的退款进度，核对尾号7766吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h13",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "这个超出我的范围，我需要向相关部门核实后再回电给您，不便随口回答。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h13",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "您的退款已审核通过，原路退回1-3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h13",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "还有其他需要帮助的吗？没有就感谢来电，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h14",
+      "description": "普通合规：取消订单咨询，简短礼貌全流程",
+      "n_checkpoints": 5,
+      "n_correct": 4,
+      "accuracy": 0.8,
+      "elapsed_sec": 108.5,
+      "items": [
+        {
+          "case_id": "h14",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗"
+            },
+            {
+              "turn": 3,
+              "quote": "核对尾号5544吗"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h14",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.88,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "本次帮您处理取消，核对尾号5544吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.85,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.88,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.6,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h14",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "原路退回，预计1-3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h14",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "请问还有其他需要帮助的吗？没有就感谢来电，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h14",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是快达平台客服，工号1199，请问本人吗？"
+            },
+            {
+              "turn": 5,
+              "quote": "商家尚未接单，可免费取消，已为您操作。"
+            },
+            {
+              "turn": 7,
+              "quote": "原路退回，预计1-3个工作日到账。"
+            },
+            {
+              "turn": 9,
+              "quote": "请问还有其他需要帮助的吗？没有就感谢来电，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.93,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h15",
+      "description": "普通违规：开场未自报身份，且回复冗长啰嗦",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 106.2,
+      "items": [
+        {
+          "case_id": "h15",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "喂，是你下的单吧，那个外卖的事儿我跟你说一下啊。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h15",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "不用了不用了就你这个单。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.96,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h15",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "喂，是你下的单吧，那个外卖的事儿我跟你说一下啊。"
+            },
+            {
+              "turn": 3,
+              "quote": "您这个订单呢因为今天天气原因加上骑手那边人手也比较紧张所以呢可能会稍微晚一点点到"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.85,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.9,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.85,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h15",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "喂，是你下的单吧"
+            },
+            {
+              "turn": 3,
+              "quote": "我跟您讲啊，您这个订单呢因为今天天气原因加上骑手那边人手也比较紧张所以呢可能会稍微晚一点点到大概也就是再等个二三十分钟左右吧您稍微耐心等一下应该问题不大的我们也在尽力安排。"
+            },
+            {
+              "turn": 5,
+              "quote": "反正就是送餐的平台，您等着就行。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.9,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h16",
+      "description": "普通违规：赔付只说\"会补偿\"不给金额，且承诺退款\"今天就到\"",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 152.4,
+      "items": [
+        {
+          "case_id": "h16",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优鲜平台客服，工号2277，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h16",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "放心，我们一定会给您补偿的，您就放心吧。"
+            },
+            {
+              "turn": 7,
+              "quote": "肯定让您满意，具体的到时候就知道了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h16",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "退款今天保证给您到账"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h16",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "就这样，挂了啊。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h17",
+      "description": "普通违规：超范围问题编造答案，未走核实回电话术",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 128.7,
+      "items": [
+        {
+          "case_id": "h17",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是惠买平台客服，工号9933，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h17",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "核对尾号6677吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h17",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "肯定是真的，下个月就官宣了，我们内部都知道。"
+            },
+            {
+              "turn": 7,
+              "quote": "千真万确，您就等着看吧。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h17",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 9,
+              "quote": "行了行了不聊了，先这样。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.96,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h18",
+      "description": "普通违规：直接爆粗辱骂用户（字面禁语硬违规）",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 109.8,
+      "items": [
+        {
+          "case_id": "h18",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是闪购平台客服，工号4411，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h18",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "本次处理您的投诉，核对尾号8822吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.85,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h18",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "rule+llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "你烦不烦啊，投诉这么多次，你有完没完。"
+            },
+            {
+              "turn": 5,
+              "quote": "你烦不烦啊，投诉这么多次，你有完没完。"
+            },
+            {
+              "turn": 7,
+              "quote": "讲不讲理啊你，神经病一样。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "烦不烦"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h18",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "你烦不烦啊，投诉这么多次，你有完没完。"
+            },
+            {
+              "turn": 7,
+              "quote": "讲不讲理啊你，神经病一样。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h19",
+      "description": "含na：通话被用户中途挂断，结束确认环节没机会发生",
+      "n_checkpoints": 5,
+      "n_correct": 3,
+      "accuracy": 0.6,
+      "elapsed_sec": 182.7,
+      "items": [
+        {
+          "case_id": "h19",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优选平台客服，工号5522，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h19",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "本次来电核实您的订单，核对尾号7733吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h19",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.82,
+          "method": "llm",
+          "vote_agreement": 0.333,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "本次来电核实您的订单，核对尾号7733吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.75,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.82,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.55,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h19",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "na",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "好的那您先忙，我稍后……"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.9,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.9,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h19",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h20",
+      "description": "含na：用户未涉及任何赔付/退款，补偿与退款节点未发生；但客服中途有冗长回复",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 117.1,
+      "items": [
+        {
+          "case_id": "h20",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是优鲜平台客服，工号6633，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h20",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 1.0,
+              "model": "haiku"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.92,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h20",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "na",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h20",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 7,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 9,
+              "quote": "感谢您的来电，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h20",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.92,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "开通会员之后呢您每个月都会有专属的红包还有免配送费的次数以及一些商家的折扣并且生日当月还有额外的礼包同时积分也会翻倍累积起来可以兑换很多东西非常划算的。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.92,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.92,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.9,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h21",
+      "description": "绕过禁语：不说\"验证码\"，谎称\"读出来核对一下就能领额外补偿\"利诱用户念验证码",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 121.3,
+      "items": [
+        {
+          "case_id": "h21",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是惠买平台客服，工号7799，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h21",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "本次给您发放延迟补偿，核对尾号2255吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h21",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "我刚发了条信息到您手机，您把上面的数字念给我核对一下"
+            },
+            {
+              "turn": 7,
+              "quote": "对对，您快念，就那几位数"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h21",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "立马给您加发20元"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.85,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.85,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "h22",
+      "description": "绕过禁语：不说\"密码\"，让用户\"把支付时设的那串数字倒着报\"实质索取支付密码",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 114.0,
+      "items": [
+        {
+          "case_id": "h22",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "您好，这里是快达平台客服，工号3344，请问本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h22",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.92,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 1,
+              "quote": "请问本人吗？"
+            },
+            {
+              "turn": 3,
+              "quote": "核对尾号6611吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "haiku"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.92,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.9,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h22",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.85,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "本次核实您账户异常登录"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.85,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.88,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.85,
+              "model": "opus"
+            }
+          ]
+        },
+        {
+          "case_id": "h22",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "为确认是您本人，请把您支付时设的那串数字倒着报一遍给我，我比对加密记录。"
+            },
+            {
+              "turn": 7,
+              "quote": "对，正着报也行，我这边核对了就帮您拦截盗刷。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "haiku"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "sonnet"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "opus"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
