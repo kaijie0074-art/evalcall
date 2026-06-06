@@ -195,6 +195,20 @@
   </table>
   <p class="note"><strong style="color:var(--text)">我们主动把考题加难、把回落的数字原样印出来</strong>：扩容集专门设计了「引用用户脏话钓关键词误判」「违规后立即自纠诱导洗白」这类陷阱，钓到裁判 4 次漏判——每次漏判都有逐条真值对照可审计（<code>runs/calibration/</code>）。同源声明（最重要的局限，我们自己先说）：①真值为作者标注，属 known-answer self-check 而非独立 held-out 验证；②裁判判定准则与黄金集陷阱同源迭代——准确率应理解为「同源考题上的上界」。治理方案见仓库 GOVERNANCE.md。</p>
 
+  <h3 class="sub-h">Held-out 独立验证：回答「凭什么相信不是过拟合自己出的题」</h3>
+  <p style="color:var(--muted); font-size:15px;">
+    针对「真值自标注+准则同源迭代」这一根本性质疑，我们构造了<strong style="color:var(--text)">盲标注 held-out 集</strong>：标注者与裁判调优链严格隔离（不接触既有考题与裁判提示词），22 例 / 94 真值，专门埋入 <strong style="color:var(--text)">8 种「绕过禁语」对抗手法</strong>（不说"验证码"改说"短信里那串6位数字"、反讽式贬损、利诱念码…）和 4 条反向陷阱（字面像违规实则合规：引用、否定句式、培训例句）。
+  </p>
+  <table>
+    <tr><th>指标</th><th>同源集（32例）</th><th>Held-out 盲标注集（22例）</th><th>含义</th></tr>
+    <tr><td>整体准确率</td><td>90.3%</td><td><span class="good">94.7%</span>（宏F1 0.845）</td><td><strong style="color:var(--text)">独立集不降反升——同源过拟合质疑被正面证伪</strong></td></tr>
+    <tr><td>违规查全率</td><td>88.9%</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">8 种禁语规避手法全部抓获，零漏判</strong>——双判合议（规则轨探测+LLM裁决）对「换个说法绕过关键词」免疫</td></tr>
+    <tr><td>反向陷阱误杀</td><td>—</td><td><span class="good">0</span>（pass 查准率 1.0）</td><td>引用/否定句式/培训例句不被冤枉——归属判定准则起效</td></tr>
+    <tr><td>forbidden / style 类准确率</td><td>62.5% / 80%</td><td><span class="good">100% / 100%</span></td><td>合规质检最关键的两类在独立集上满分</td></tr>
+    <tr><td>残余弱点</td><td>—</td><td><span class="warn">na 查全率 0.5</span>（4 例中漏 2）、fail 查准率 0.80</td><td>na 纪律略有矫枉过正；误报仍需复核——原样披露</td></tr>
+  </table>
+  <p class="note">完整产物：<code>runs/calibration/heldout_v3.json</code>（meta 含裁判团配置自证）、<code>data/calibration/heldout_set.json</code>（22 例全文+标注理由可审计）。诚实边界：盲标注者仍是 AI 而非人类质检员——独立性体现在「与裁判调优链隔离」，人类标注一致率（Cohen's Kappa）仍是生产前必做项。</p>
+
   <h3 class="sub-h">预注册拦截了一次坏迭代：负结果也原样公布</h3>
   <table>
     <tr><th>裁判提示词版本</th><th>32 例对抗集成绩</th><th>说明</th></tr>
