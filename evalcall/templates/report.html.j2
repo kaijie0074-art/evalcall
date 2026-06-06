@@ -190,7 +190,7 @@ tr:hover td{background:#fffdf2}
     </div>
     <div class="score-big">
       <div class="num">{{ overall_score }}</div>
-      <div class="lab">综合得分 · 通过率 {{ pass_rate }}%</div>
+      <div class="lab">综合得分{% if critical_fail > 0 %}（critical 一票否决；否决前原始分 {{ raw_score }}）{% endif %} · 通过率 {{ pass_rate }}%</div>
     </div>
   </div>
 

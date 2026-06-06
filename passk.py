@@ -43,7 +43,8 @@ for pid, runs in sorted(per_persona.items()):
     c = sum(1 for r in runs if r["pass"])
     scores = [r["raw_score"] for r in runs]
     mean = sum(scores) / n
-    std = (sum((x - mean) ** 2 for x in scores) / n) ** 0.5 if n > 1 else 0.0
+    # 样本标准差（n-1，Bessel 校正）——总体口径在 n=3 时低估约 18%
+    std = (sum((x - mean) ** 2 for x in scores) / (n - 1)) ** 0.5 if n > 1 else 0.0
     print(f"{pid:<28}{n:>3}{f'{mean:.1f}±{std:.1f}':>18}", end="")
     row = {"persona_id": pid, "n": n, "mean_raw": round(mean, 1), "std_raw": round(std, 1)}
     for k in range(1, k_max + 1):

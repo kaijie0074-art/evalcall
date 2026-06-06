@@ -23,7 +23,7 @@ import json
 import os
 from collections import defaultdict
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 try:
     from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -46,12 +46,11 @@ DIMENSIONS: list[dict[str, str]] = [
     {"key": "style", "label": "话术合规", "types": "style"},
 ]
 
-# severity 加权（用于总分）。critical fail 一票否决该项满分（得 0）。
-SEVERITY_WEIGHT: dict[str, float] = {
-    "critical": 3.0,
-    "major": 2.0,
-    "minor": 1.0,
-}
+# severity 加权（用于总分）。
+# 单一事实来源：与 judge._SEVERITY_WEIGHT 同一张表——曾因 report/judge 各持
+# 一张权重表（3/2/1 vs 5/3/1）+ 否决语义不一致，导致同一 run 的报告 HTML
+# 与 summary.json 给出两个互相矛盾的总分（红队实测 51.6 vs 38.2）。
+from evalcall.judge import _SEVERITY_WEIGHT as SEVERITY_WEIGHT  # noqa: E402
 
 VERDICT_LABEL: dict[str, str] = {
     "pass": "通过",
@@ -290,7 +289,9 @@ def _aggregate(
         cov["total_runs"] += 1
         run_cov = coverage_by_run[(pid, tid)]
         run_cov["total"] += 1
-        if verdict in ("pass", "fail"):
+        # 触达口径：pass 即触达；fail 必须带原文证据才算触达——
+        # 无证据的 fail 可能是裁判在场景未发生时的误判，计入会让覆盖率虚高
+        if verdict == "pass" or (verdict == "fail" and evidence):
             cov["covered_runs"] += 1
             run_cov["covered"] += 1
 
@@ -357,11 +358,12 @@ def _aggregate(
             }
         )
 
-    # --- 总分：severity 加权通过率，critical fail 时封顶降级 ---
+    # --- 总分：与 judge.summarize 同一套语义 ---
+    # raw_score = severity 加权通过率（否决前）；存在 critical fail 时
+    # final 总分按一票否决归 0（与 summary.json 口径一致），raw 保留供对照。
     base_score = _pct(score_earned, score_total)
-    # critical fail 一票否决：每个 critical fail 让总分按比例已扣除（score 中已为 0），
-    # 这里额外标注存在 critical fail 的事实。
-    overall_score = base_score
+    raw_score = base_score
+    overall_score = 0.0 if critical_fail > 0 else base_score
 
     # --- persona × task 热力 ---
     persona_ids = sorted(persona_meta.keys())
@@ -474,6 +476,7 @@ def _aggregate(
     return {
         "meta": meta,
         "overall_score": overall_score,
+        "raw_score": raw_score,
         "critical_fail": critical_fail,
         "constraint_violations": constraint_violations,
         "verdict_counts": verdict_counts,

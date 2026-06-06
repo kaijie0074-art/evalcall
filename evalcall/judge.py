@@ -71,10 +71,11 @@ def _format_transcript(turns: list[dict]) -> str:
 # 规则轨：forbidden 关键词/正则直接判
 # ----------------------------------------------------------------------------- #
 def _judge_forbidden_rule(cp: dict, turns: list[dict]) -> Optional[dict]:
-    """对 forbidden 检查点做规则判定。
+    """对 forbidden 检查点做规则判定（只做高置信命中短路，不做未命中放行）。
 
-    在所有【客服(被测)】发言中扫描关键词/正则；命中即 fail（并给出证据轮次+引述），
-    未命中则 pass。若无 keywords 则返回 None，交给 LLM 轨兜底。
+    在所有【客服(被测)】发言中扫描关键词/正则；命中即 fail（证据轮次+引述，置信 1.0）。
+    未命中或无 keywords 均返回 None 交 LLM 轨复核——静态关键词表对动态话术
+    攻防不对称，"未命中"不能等于"没违规"。
     """
     keywords = cp.get("keywords") or []
     if not keywords:
@@ -106,15 +107,10 @@ def _judge_forbidden_rule(cp: dict, turns: list[dict]) -> Optional[dict]:
                     "judge_votes": [{"verdict": "fail", "method": "rule", "matched": hit_quote}],
                     "method": "rule",
                 }
-    # 全程未命中禁语
-    return {
-        "checkpoint_id": cp["id"],
-        "verdict": "pass",
-        "confidence": 1.0,
-        "evidence": [],
-        "judge_votes": [{"verdict": "pass", "method": "rule"}],
-        "method": "rule",
-    }
+    # 全程未命中禁语：不能给满置信度 pass——静态关键词表对动态话术
+    # 攻防不对称（换个说法就绕过），漏报风险全在"未命中"这边。
+    # 返回 None 让该检查点落入 LLM 轨复核（规则轨只负责高置信命中=fail 的短路）。
+    return None
 
 
 # ----------------------------------------------------------------------------- #
@@ -166,6 +162,9 @@ def _judge_batch_llm(
         quote = (cp.get("source_quote") or "").strip()
         if quote:
             line += f" | 指令原文：{quote}"
+        # 规则轨线索（双判合议）：提示 LLM 核实命中是否为误杀
+        if cp.get("_rule_hint"):
+            line += f" | {cp['_rule_hint']}"
         cp_lines.append(line)
     user_msg = (
         "对话记录：\n" + transcript_text + "\n\n"
@@ -255,14 +254,27 @@ def judge_trajectory(
 
     judgments: list[dict[str, Any]] = []
 
-    # 1) 规则轨：处理带 keywords 的 forbidden
+    # 1) 规则轨：探测器而非独裁者。命中只产生"线索"，最终裁决交 LLM 轨——
+    #    裸子串匹配会把「不太好的话」误命中禁语「好的」，确定性死刑通道
+    #    曾导致高频礼貌用语被系统性误杀（红队实测）。双判合议：
+    #    规则命中 + LLM 确认 → fail（method=rule+llm，置信 1.0）
+    #    规则命中 + LLM 否决 → 以 LLM 为准，标记 rule_conflict 供人工复核
+    rule_hits: dict[str, dict] = {}
     llm_cps: list[dict] = []
     for cp in cps:
         if cp.get("type") == "forbidden":
             rule_res = _judge_forbidden_rule(cp, turns)
             if rule_res is not None:
-                judgments.append(rule_res)
-                continue
+                rule_hits[cp["id"]] = rule_res
+                # 把规则线索注入 LLM 判定提示（提醒核实说话人与子串误命中）
+                hit_kw = rule_res["judge_votes"][0].get("matched", "")
+                hit_ev = rule_res.get("evidence") or [{}]
+                cp = dict(cp)
+                cp["_rule_hint"] = (
+                    f"规则轨在客服第{hit_ev[0].get('turn','?')}轮命中疑似禁语「{hit_kw}」，"
+                    "请核实：①是否为子串误命中（如『不太好的话』含『好的』）"
+                    "②是否客服引用用户的话 ③是否真实违规"
+                )
         llm_cps.append(cp)
 
     # 2) LLM 轨：分批，每批投票 n_votes 次
@@ -293,21 +305,32 @@ def judge_trajectory(
             key=lambda v: v.get("confidence", 0.0),
             default=votes[0] if votes else {"confidence": 0.0, "evidence": []},
         )
-        judgments.append(
-            {
-                "checkpoint_id": cp["id"],
-                "verdict": final_verdict,
-                "confidence": round(rep.get("confidence", 0.0), 3),
-                "evidence": rep.get("evidence", []),
-                "judge_votes": [
-                    {"verdict": v["verdict"], "confidence": v.get("confidence"),
-                     **({"model": v["model"]} if "model" in v else {})}
-                    for v in votes
-                ],
-                "vote_agreement": round(agreement, 3),  # 一致率：1.0 全票一致，越低分歧越大
-                "method": "llm",
-            }
-        )
+        j = {
+            "checkpoint_id": cp["id"],
+            "verdict": final_verdict,
+            "confidence": round(rep.get("confidence", 0.0), 3),
+            "evidence": rep.get("evidence", []),
+            "judge_votes": [
+                {"verdict": v["verdict"], "confidence": v.get("confidence"),
+                 **({"model": v["model"]} if "model" in v else {})}
+                for v in votes
+            ],
+            "vote_agreement": round(agreement, 3),  # 一致率：1.0 全票一致，越低分歧越大
+            "method": "llm",
+        }
+        # 双判合议：规则轨命中线索与 LLM 裁决合并
+        hit = rule_hits.get(cp["id"])
+        if hit is not None:
+            j["judge_votes"] = hit["judge_votes"] + j["judge_votes"]
+            if final_verdict == "fail":
+                # 规则 + LLM 双确认：最高可信等级
+                j["method"] = "rule+llm"
+                j["confidence"] = 1.0
+                j["evidence"] = (hit.get("evidence") or []) + (j["evidence"] or [])
+            else:
+                # 规则命中但 LLM 否决（子串误命中/引用用户的话）——标记供人工复核
+                j["rule_conflict"] = True
+        judgments.append(j)
 
     return judgments
 
