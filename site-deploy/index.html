@@ -67,6 +67,17 @@
   .story p { font-size: 14px; color: var(--muted); }
   .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); }
   code { background: rgba(110,118,129,.2); border-radius: 4px; padding: 2px 6px; font-size: 13px; }
+  html, body { overflow-x: hidden; }
+  @media (max-width: 480px) {
+    .wrap { padding: 28px 14px 60px; }
+    h1 { font-size: 26px; }
+    .sub { font-size: 14px; }
+    .loop-item { padding: 8px 12px; font-size: 14px; }
+    .loop-arrow { padding: 0 6px; }
+    .btn { padding: 12px 16px; font-size: 14px; }
+    th, td { padding: 8px 8px; font-size: 12.5px; }
+    table { display: block; overflow-x: auto; }
+  }
 </style>
 </head>
 <body>
@@ -75,7 +86,7 @@
   <div class="hero">
     <div class="logo">E</div>
     <h1>EvalCall</h1>
-    <div class="sub">外呼对话模型 · 复杂指令遵循 · 可解释可量化自动评测系统</div>
+    <div class="sub">外呼对话指令遵循自动评测——<strong style="color:var(--text)">别人交打分器，我们交一套能证明自己可信的评测基础设施</strong></div>
     <div class="loop-banner">
       <span class="loop-item m">评模型</span><span class="loop-arrow">→</span>
       <span class="loop-item i">审指令</span><span class="loop-arrow">→</span>
@@ -88,7 +99,7 @@
       <span class="badge">测试充分性可量化</span>
     </div>
     <div class="cta">
-      <a class="btn btn-primary" href="report-official.html">📊 官方任务一实测报告</a>
+      <a class="btn btn-primary" href="report-official.html">📊 官方任务一报告 · 看 0 分如何自动归因到指令</a>
       <a class="btn btn-primary" href="report-official2.html">📊 官方任务二实测报告</a>
       <a class="btn btn-secondary" href="report-demo.html">🧪 满规模演示（5任务×5persona）</a>
     </div>
@@ -107,6 +118,13 @@
       <div style="font-size:30px;font-weight:800;color:var(--accent2)">22 处</div>
       <div style="font-size:13px;color:var(--muted)">官方指令缺陷被体检器自主查出<br>0 分归因指令而非模型</div>
     </div>
+    <div style="background:var(--card);border:1px solid var(--red);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--red)">−17%</div>
+      <div style="font-size:13px;color:var(--muted)">一次会上线的坏迭代被预注册拦截<br>升级有预测 · 倒退有闸 · 每步留档</div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:13px;color:var(--muted);margin-top:12px">
+    39 次提交 · 16 组实验落盘 · 259 个校准真值 · 43 条单测全绿 · 本页每个数字都能在仓库 <code>runs/</code> 下找到产物文件逐一复核
   </div>
 
   <h2>为什么这个问题难</h2>
@@ -115,6 +133,8 @@
     裁判自己会误判，谁来评测评测系统？模型分数低，是模型差还是指令本身写得自相矛盾？模拟器说「测得充分」，充分到什么程度？<br><br>
     <strong style="color:var(--text)">EvalCall 的回答是三层质量闭环：不仅评测模型，还审计指令本身，并量化校准自己的裁判。</strong>每一层都在官方脱敏数据上实测落地。
   </p>
+
+  <p style="color:var(--muted);font-size:14px;margin-top:28px">下面三层依次回答三个问题：模型守不守指令（评模型）→ 指令本身可不可信（审指令）→ 我凭什么信自己的裁判（校裁判）。</p>
 
   <h2>第一层 · 评模型<span class="tag m">对抗式模拟 + 双轨判定</span></h2>
   <div class="pipeline">
@@ -135,7 +155,7 @@
     <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td>58.7 ± 3.3</td><td rowspan="2"><span class="bad">0.00</span></td></tr>
     <tr><td>不耐烦型</td><td>60.5 ± 2.9</td></tr>
   </table>
-  <p class="note">分数为否决前原始分（critical 否决后计 0 分另列）；±为 3 条独立轨迹的标准差——<strong style="color:var(--text)">单样本是观测值，带方差才是测量</strong>。每条 fail 附对话原文证据与指令原文引用，点开报告逐条可审计。</p>
+  <p class="note">分数为否决前原始分（critical 否决后计 0 分另列）；±为 3 条独立轨迹的标准差——<strong style="color:var(--text)">单样本是观测值，带方差才是测量</strong>。每条 fail 附对话原文证据与指令原文引用，点开报告逐条可审计。（产物：<code>runs/official01_n3/</code> <code>runs/official02_n3/</code>）</p>
 
   <h3 class="sub-h">消融演示（sanity check，每组 2 条轨迹）：评测系统能否检出行为差异？</h3>
   <p style="color:var(--muted); font-size:15px;">
@@ -148,7 +168,7 @@
     <tr><td>流程完整（flow）</td><td><span class="bad">26.3%</span></td><td><span class="good">83.3%</span></td><td>守约束的代价：短句+频繁暂停挤掉了流程信息量——指令的「字数 vs 信息量」张力仍残留（体检→修复→实测是迭代循环）</td></tr>
     <tr><td>标量总分</td><td>0（critical 否决）</td><td>68.2</td><td><strong style="color:var(--text)">标量分会撒谎</strong>：只看总分会得出「守约束的模型更差」的荒谬结论——这正是报告必须输出分维度画像、不依赖单一分数的原因</td></tr>
   </table>
-  <p class="note">实验另一收获：首跑时两组各自重新编译检查点导致「不同尺」（LLM 编译器非确定性），结论无效——已修复为 <code>--checklist</code> 固化复用机制并重判。<strong style="color:var(--text)">比较实验必须同尺</strong>，这条工程教训已产品化进 CLI。</p>
+  <p class="note">（产物：<code>runs/discriminant_constraints_on|off/</code>）实验另一收获：首跑时两组各自重新编译检查点导致「不同尺」（LLM 编译器非确定性），结论无效——已修复为 <code>--checklist</code> 固化复用机制并重判。<strong style="color:var(--text)">比较实验必须同尺</strong>，这条工程教训已产品化进 CLI。</p>
 
   <h3 class="sub-h">真实模型对比：能力榜单 ≠ 指令遵循（模型选型实测）</h3>
   <p style="color:var(--muted); font-size:15px;">
@@ -160,7 +180,7 @@
     <tr><td>话术合规（style）</td><td><span class="warn">50.0%</span></td><td><span class="good">87.5%</span></td></tr>
     <tr><td>违规率 / 百判定</td><td>47.0</td><td><span class="good">38.5</span></td></tr>
   </table>
-  <p class="note"><strong style="color:var(--text)">这正是美团需要这类评测的原因</strong>：外呼模型选型若按通用能力榜单挑最大的模型，约束遵循反而可能更差——必须用任务指令实测。EvalCall 的模型对比报告直接服务选型决策，每个差异都附逐检查点证据。</p>
+  <p class="note">（产物：<code>runs/modelcmp_sonnet|haiku/</code>）<strong style="color:var(--text)">这正是美团需要这类评测的原因</strong>：外呼模型选型若按通用能力榜单挑最大的模型，约束遵循反而可能更差——必须用任务指令实测。EvalCall 的模型对比报告直接服务选型决策，每个差异都附逐检查点证据。</p>
 
   <h2>第二层 · 审指令<span class="tag i">Instruction Lint · 评测的不只是模型</span></h2>
   <p style="color:var(--muted); font-size:15px;">
@@ -186,11 +206,11 @@
     <p>X/Y/Z/W/$ 全部是未填充的占位符且无注入说明，模型只能照念「X单」；其中 Y 在开场白指「每日单数」、在第 2 步又指「连续天数」——同一个变量两种语义。</p>
     <p class="fix">✏️ 建议：指令顶部增加「系统变量注入」区块，逐一注明变量含义与来源。</p>
   </div>
-  <p class="note">两条官方指令各检出 11 条问题，指令可行性分均为 0（确定性公式计算，可复现）。<strong style="color:var(--text)">对每天编写外呼指令的运营团队，这是上线前的体检环节：先治指令，再评模型，质检数据才有意义。</strong></p>
+  <p class="note">两条官方指令各检出 11 条问题，指令可行性分均为 0（确定性公式计算，可复现）。<strong style="color:var(--text)">具体到美团运营的工位：写完一条新外呼指令，提交前跑一遍 <code>lint_instruction.py</code>，几十秒拿到「3 处冲突、1 个缺失退出分支」和照改建议——把一次潜在的全量客诉挡在上线之前。先治指令，再评模型，质检数据才有意义。</strong></p>
 
   <h2>第三层 · 校裁判<span class="tag j">已知答案注入 · 评测结果自带误差棒</span></h2>
   <p style="color:var(--muted); font-size:15px;">
-    LLM 裁判自己会错。EvalCall 用「已知答案注入」校准自己：向系统投放人工构造、真值已知的合成对话（埋好各类违规、补救、未触发分支等难判情形），跑完整裁判流程，输出裁判的查准率/查全率/混淆矩阵。<strong style="color:var(--text)">我们把自己裁判的准确率印在报告上</strong>——这是评测结果可以被信任的前提。
+    审完指令、评完模型，最后一个问题反噬自己——上面所有结论都依赖 LLM 裁判，可裁判自己也会错。谁来评测评测者？EvalCall 用「已知答案注入」校准自己：向系统投放人工构造、真值已知的合成对话（埋好各类违规、补救、未触发分支等难判情形），跑完整裁判流程，输出裁判的查准率/查全率/混淆矩阵。<strong style="color:var(--text)">我们把自己裁判的准确率印在报告上</strong>——这是评测结果可以被信任的前提。
   </p>
   <h3 class="sub-h">校准主口径（投稿版 v3 裁判 · 32 例 / 165 真值全量集）：准确率 92.1%、宏 F1 0.892、违规查全 91.7%、违规查准 76.7%——对照「全判 pass」平凡基线 72.1%</h3>
   <p class="note" style="margin-top:0">所有标题数字统一用全量集口径；fail 查准 76.7%（误报偏多）原样披露。下表为跨模型机制的小样本探索记录（12 例），仅证方向：</p>
@@ -212,6 +232,12 @@
   <p class="note"><strong style="color:var(--text)">我们主动把考题加难、把回落的数字原样印出来</strong>：扩容集专门设计了「引用用户脏话钓关键词误判」「违规后立即自纠诱导洗白」这类陷阱，钓到裁判 4 次漏判——每次漏判都有逐条真值对照可审计（<code>runs/calibration/</code>）。同源声明（最重要的局限，我们自己先说）：①真值为作者标注，属 known-answer self-check 而非独立 held-out 验证；②裁判判定准则与黄金集陷阱同源迭代——准确率应理解为「同源考题上的上界」。治理方案见仓库 GOVERNANCE.md。</p>
 
   <h3 class="sub-h">Held-out 独立验证：回答「凭什么相信不是过拟合自己出的题」</h3>
+  <div style="display:flex;gap:18px;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--green);border-radius:14px;padding:16px 22px;margin:10px 0;flex-wrap:wrap">
+    <div style="text-align:center"><div style="font-size:26px;font-weight:800">90.3%</div><div style="font-size:12px;color:var(--muted)">同源考题</div></div>
+    <div style="font-size:22px;color:var(--muted)">→</div>
+    <div style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--green)">94.7%</div><div style="font-size:12px;color:var(--muted)">盲标独立集 · 未崩盘</div></div>
+    <div style="font-size:13px;color:var(--muted);max-width:320px">标注者与裁判调优链严格隔离；20 个违规零漏判（含 8 种禁语规避话术）</div>
+  </div>
   <p style="color:var(--muted); font-size:15px;">
     针对「真值自标注+准则同源迭代」这一根本性质疑，我们构造了<strong style="color:var(--text)">盲标注 held-out 集</strong>：标注者与裁判调优链严格隔离（不接触既有考题与裁判提示词），22 例 / 94 真值，专门埋入 <strong style="color:var(--text)">8 种「绕过禁语」对抗手法</strong>（不说"验证码"改说"短信里那串6位数字"、反讽式贬损、利诱念码…）和 4 条反向陷阱（字面像违规实则合规：引用、否定句式、培训例句）。
   </p>
