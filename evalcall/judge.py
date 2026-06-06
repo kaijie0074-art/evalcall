@@ -293,7 +293,11 @@ def judge_trajectory(
                 "verdict": final_verdict,
                 "confidence": round(rep.get("confidence", 0.0), 3),
                 "evidence": rep.get("evidence", []),
-                "judge_votes": [{"verdict": v["verdict"], "confidence": v.get("confidence")} for v in votes],
+                "judge_votes": [
+                    {"verdict": v["verdict"], "confidence": v.get("confidence"),
+                     **({"model": v["model"]} if "model" in v else {})}
+                    for v in votes
+                ],
                 "vote_agreement": round(agreement, 3),  # 一致率：1.0 全票一致，越低分歧越大
                 "method": "llm",
             }
