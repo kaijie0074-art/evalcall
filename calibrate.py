@@ -106,6 +106,31 @@ def compute_metrics(pairs: list[dict]) -> dict[str, Any]:
         else None
     )
 
+    # 按模型分别的置信度校准：跨模型混投时各模型置信度刻度不可比，
+    # 必须按票面 model 字段分组各算 gap，可信度分层才有依据
+    per_model: dict = {}
+    for p in pairs:
+        for v in p.get("judge_votes") or []:
+            if not isinstance(v, dict) or "model" not in v:
+                continue
+            conf = v.get("confidence")
+            if not isinstance(conf, (int, float)):
+                continue
+            vote_ok = str(v.get("verdict", "")).lower() == str(p["truth"]).lower()
+            bucket = per_model.setdefault(v["model"], {"correct": [], "wrong": []})
+            bucket["correct" if vote_ok else "wrong"].append(conf)
+    per_model_calibration = {}
+    for m, b in per_model.items():
+        mc = round(sum(b["correct"]) / len(b["correct"]), 4) if b["correct"] else None
+        mw = round(sum(b["wrong"]) / len(b["wrong"]), 4) if b["wrong"] else None
+        per_model_calibration[m] = {
+            "avg_confidence_when_correct": mc,
+            "avg_confidence_when_wrong": mw,
+            "calibration_gap": round(mc - mw, 4) if (mc is not None and mw is not None) else None,
+            "n_correct": len(b["correct"]),
+            "n_wrong": len(b["wrong"]),
+        }
+
     return {
         "total_judgments": n,
         "correct": correct,
@@ -120,6 +145,7 @@ def compute_metrics(pairs: list[dict]) -> dict[str, Any]:
             "n_correct": len(conf_correct),
             "n_wrong": len(conf_wrong),
         },
+        "per_model_confidence_calibration": per_model_calibration,
     }
 
 
@@ -189,6 +215,9 @@ def run(limit: int | None, votes: int, model: str | None) -> dict[str, Any]:
                 "method": j.get("method"),
                 "vote_agreement": j.get("vote_agreement"),
                 "evidence": j.get("evidence", []),
+                # 保留票级明细（含每票投票模型）：跨模型置信度不在同一刻度，
+                # 可信度分层必须按模型分别校准——票面数据是这项分析的原料
+                "judge_votes": j.get("judge_votes", []),
             }
             pairs.append(item)
             case_items.append(item)
