@@ -152,7 +152,16 @@
   <p style="color:var(--muted); font-size:15px;">
     LLM 裁判自己会错。EvalCall 用「已知答案注入」校准自己：向系统投放人工构造、真值已知的合成对话（埋好各类违规、补救、未触发分支等难判情形），跑完整裁判流程，输出裁判的查准率/查全率/混淆矩阵。<strong style="color:var(--text)">我们把自己裁判的准确率印在报告上</strong>——这是评测结果可以被信任的前提。
   </p>
-  <!-- CALIBRATION_SECTION -->
+  <h3 class="sub-h">校准实测：12 条合成对话 · 52 个已知真值（含转述开场白、打断后补救、模糊近违规等难判情形）</h3>
+  <table>
+    <tr><th>指标</th><th>数值</th><th>含义</th></tr>
+    <tr><td>整体准确率</td><td><span class="good">86.5%</span>（45/52，宏 F1 0.887）</td><td>裁判与已知真值的一致程度</td></tr>
+    <tr><td>违规查全率（fail Recall）</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检场景最关键的底线</td></tr>
+    <tr><td>constraint / forbidden / style 准确率</td><td><span class="good">100%</span></td><td>约束、禁止项、话术类判定高度可信</td></tr>
+    <tr><td>flow 类准确率</td><td><span class="warn">82%</span>（误判方向全部为 pass→fail）</td><td>流程类判定系统性<strong style="color:var(--text)">偏严</strong>：报告中 flow 类 fail 数自带「约 +18% 偏严」误差棒</td></tr>
+    <tr><td>置信度校准</td><td>判对均值 0.953 vs 判错均值 0.876</td><td>裁判判对时确实更自信——置信度可用于可信度分层</td></tr>
+  </table>
+  <p class="note">误判全部集中在「合理转述的开场白 / 被打断后补救的流程」该不该算合规——这类口径分歧正是校准要暴露给质检负责人拍板的。完整混淆矩阵与逐 case 明细见 <code>runs/calibration/calibration.json</code>。</p>
   <div class="grid" style="margin-top:14px">
     <div class="card"><h3>判定有据：指令原文喂给裁判</h3><p>裁判提示词携带每条检查点的 source_quote 指令原文。开发中实测：不带原文时裁判对「应当以指定开场白开启」类检查点只能臆测（3 票 2:1 分裂）；带原文后 3 票全对，整体投票一致率 88.9%。</p></div>
     <div class="card"><h3>三票多数决 + 分歧率透明</h3><p>每条 LLM 判定投 3 票取多数，报告同时公布一致率与分裂条目——分裂项自动标记建议人工复核，评测结论自带可信度分层。</p></div>
