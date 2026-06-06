@@ -1,2 +1,4 @@
 [lint] 正在体检 data/tasks_official/official_02_lowlatency.yaml …（2 次 LLM 调用，可能需要数分钟）
 [llm.chat_json] 第 1/3 次解析失败：claude-cli 调用超时（>180s）
+
+[lint] 完整结果已写入：runs/lint/official_02_lint.json

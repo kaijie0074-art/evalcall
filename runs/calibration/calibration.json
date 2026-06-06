@@ -1,38 +1,39 @@
 {
   "meta": {
     "golden_set": "data/calibration/golden_set.json",
-    "backend": "mock",
+    "backend": "claude-cli",
     "model": "sonnet",
-    "n_votes": 1,
-    "n_cases": 1,
-    "limit": 1,
-    "total_elapsed_sec": 0.0,
+    "n_votes": 3,
+    "n_cases": 2,
+    "limit": 2,
+    "total_elapsed_sec": 211.8,
     "ground_truth_distribution": {
-      "pass": 6
+      "pass": 9,
+      "fail": 2
     }
   },
   "metrics": {
-    "total_judgments": 6,
-    "correct": 0,
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "total_judgments": 11,
+    "correct": 10,
+    "accuracy": 0.9091,
+    "macro_f1": 0.8706,
     "per_verdict": {
       "pass": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1": 0.0,
-        "support": 6,
-        "tp": 0,
+        "precision": 1.0,
+        "recall": 0.8889,
+        "f1": 0.9412,
+        "support": 9,
+        "tp": 8,
         "fp": 0,
-        "fn": 6
+        "fn": 1
       },
       "fail": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1": 0.0,
-        "support": 0,
-        "tp": 0,
-        "fp": 0,
+        "precision": 0.6667,
+        "recall": 1.0,
+        "f1": 0.8,
+        "support": 2,
+        "tp": 2,
+        "fp": 1,
         "fn": 0
       },
       "na": {
@@ -41,19 +42,19 @@
         "f1": 0.0,
         "support": 0,
         "tp": 0,
-        "fp": 6,
+        "fp": 0,
         "fn": 0
       }
     },
     "confusion_matrix": {
       "pass": {
-        "pass": 0,
-        "fail": 0,
-        "na": 6
+        "pass": 8,
+        "fail": 1,
+        "na": 0
       },
       "fail": {
         "pass": 0,
-        "fail": 0,
+        "fail": 2,
         "na": 0
       },
       "na": {
@@ -63,28 +64,28 @@
       }
     },
     "confidence_calibration": {
-      "avg_confidence_when_correct": null,
-      "avg_confidence_when_wrong": 0.0,
-      "calibration_gap": null,
-      "n_correct": 0,
-      "n_wrong": 6
+      "avg_confidence_when_correct": 0.966,
+      "avg_confidence_when_wrong": 0.95,
+      "calibration_gap": 0.016,
+      "n_correct": 10,
+      "n_wrong": 1
     }
   },
   "accuracy_by_checkpoint_type": {
     "flow": {
-      "correct": 0,
-      "total": 4,
-      "accuracy": 0.0
+      "correct": 7,
+      "total": 8,
+      "accuracy": 0.875
     },
     "constraint": {
-      "correct": 0,
-      "total": 1,
-      "accuracy": 0.0
+      "correct": 2,
+      "total": 2,
+      "accuracy": 1.0
     },
     "style": {
-      "correct": 0,
+      "correct": 1,
       "total": 1,
-      "accuracy": 0.0
+      "accuracy": 1.0
     }
   },
   "case_details": [
@@ -92,81 +93,238 @@
       "case_id": "case01_clean_pass",
       "description": "标准合规通话：身份/核实/目的/收尾全做到，赔付金额明确，礼貌简洁。全 pass 基准。",
       "n_checkpoints": 6,
-      "n_correct": 0,
-      "accuracy": 0.0,
-      "elapsed_sec": 0.0,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 86.3,
       "items": [
         {
           "case_id": "case01_clean_pass",
           "checkpoint_id": "flow_greeting_identity",
           "checkpoint_type": "flow",
           "truth": "pass",
-          "pred": "na",
-          "correct": false,
-          "confidence": 0.0,
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
           "method": "llm",
           "vote_agreement": 1.0,
-          "evidence": []
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是闪送平台客服，我工号是8821，请问是张先生本人吗？"
+            }
+          ]
         },
         {
           "case_id": "case01_clean_pass",
           "checkpoint_id": "flow_verify_customer",
           "checkpoint_type": "flow",
           "truth": "pass",
-          "pred": "na",
-          "correct": false,
-          "confidence": 0.0,
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
           "method": "llm",
           "vote_agreement": 1.0,
-          "evidence": []
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是张先生本人吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "麻烦您核对下订单后四位是不是3092？"
+            },
+            {
+              "turn": 4,
+              "quote": "好的本人核实通过。"
+            }
+          ]
         },
         {
           "case_id": "case01_clean_pass",
           "checkpoint_id": "flow_state_purpose",
           "checkpoint_type": "flow",
           "truth": "pass",
-          "pred": "na",
-          "correct": false,
-          "confidence": 0.0,
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
           "method": "llm",
           "vote_agreement": 1.0,
-          "evidence": []
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "这次来电是想跟您说明下，您那单因为天气延误了，给您带来不便很抱歉。"
+            }
+          ]
         },
         {
           "case_id": "case01_clean_pass",
           "checkpoint_id": "flow_closing_confirm",
           "checkpoint_type": "flow",
           "truth": "pass",
-          "pred": "na",
-          "correct": false,
-          "confidence": 0.0,
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
           "method": "llm",
           "vote_agreement": 1.0,
-          "evidence": []
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 10,
+              "quote": "感谢您的接听，祝您生活愉快，再见。"
+            }
+          ]
         },
         {
           "case_id": "case01_clean_pass",
           "checkpoint_id": "constraint_compensation_amount",
           "checkpoint_type": "constraint",
           "truth": "pass",
-          "pred": "na",
-          "correct": false,
-          "confidence": 0.0,
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
           "method": "llm",
           "vote_agreement": 1.0,
-          "evidence": []
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "我们给您账户补偿5元无门槛券，今天就能到。"
+            }
+          ]
         },
         {
           "case_id": "case01_clean_pass",
           "checkpoint_id": "style_concise_polite",
           "checkpoint_type": "style",
           "truth": "pass",
-          "pred": "na",
-          "correct": false,
-          "confidence": 0.0,
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.92,
           "method": "llm",
           "vote_agreement": 1.0,
-          "evidence": []
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是闪送平台客服，我工号是8821，请问是张先生本人吗？"
+            },
+            {
+              "turn": 4,
+              "quote": "好的本人核实通过。这次来电是想跟您说明下，您那单因为天气延误了，给您带来不便很抱歉。"
+            },
+            {
+              "turn": 6,
+              "quote": "确实久了。我们给您账户补偿5元无门槛券，今天就能到。"
+            },
+            {
+              "turn": 8,
+              "quote": "感谢理解。请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 10,
+              "quote": "好的，感谢您的接听，祝您生活愉快，再见。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case02_paraphrased_greeting",
+      "description": "难判：开场白转述而非原文照搬——只说了平台名没报工号身份，但语义上自报了来历。flow_greeting 设为 pass（合理转述应判过），核实环节明确缺失判 fail。",
+      "n_checkpoints": 5,
+      "n_correct": 4,
+      "accuracy": 0.8,
+      "elapsed_sec": 125.5,
+      "items": [
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "喂您好，我这边是美团外卖官方这边的，看到您刚下了个单想跟您对接一下。"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这单商家临时缺货了，想问下您是换个菜还是退款？"
+            },
+            {
+              "turn": 4,
+              "quote": "好的那我帮您走退款，退回到您原支付方式。"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这单商家临时缺货了，想问下您是换个菜还是退款？"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "原路退回的，一般1到3个工作日就到账了。"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "好嘞，那不打扰您了，祝您用餐愉快。"
+            }
+          ]
         }
       ]
     }

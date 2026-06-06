@@ -3,29 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvalCall · 外呼对话模型指令遵循自动评测系统</title>
+<title>EvalCall · 三层质量闭环 · 外呼对话指令遵循自动评测系统</title>
 <style>
   :root {
     --bg: #0d1117; --card: #161b22; --border: #30363d;
     --text: #e6edf3; --muted: #8b949e;
-    --accent: #ffd100; --accent2: #58a6ff; --green: #3fb950; --red: #f85149;
+    --accent: #ffd100; --accent2: #58a6ff; --green: #3fb950; --red: #f85149; --purple: #bc8cff;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.7; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
-  .hero { text-align: center; padding: 40px 0 32px; }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 48px 24px 80px; }
+  .hero { text-align: center; padding: 40px 0 28px; }
   .logo { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 16px; background: var(--accent); color: #1a1a1a; font-size: 36px; font-weight: 800; margin-bottom: 20px; }
   h1 { font-size: 34px; letter-spacing: 1px; }
   .sub { color: var(--muted); font-size: 17px; margin-top: 8px; }
-  .badges { margin-top: 18px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .loop-banner { display: flex; gap: 0; justify-content: center; align-items: center; margin: 26px auto 8px; flex-wrap: wrap; }
+  .loop-item { padding: 10px 22px; border-radius: 10px; font-weight: 700; font-size: 17px; }
+  .loop-item.m { background: rgba(88,166,255,.12); color: var(--accent2); border: 1px solid rgba(88,166,255,.4); }
+  .loop-item.i { background: rgba(255,209,0,.10); color: var(--accent); border: 1px solid rgba(255,209,0,.4); }
+  .loop-item.j { background: rgba(188,140,255,.10); color: var(--purple); border: 1px solid rgba(188,140,255,.4); }
+  .loop-arrow { color: var(--muted); padding: 0 12px; font-size: 20px; }
+  .badges { margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .badge { font-size: 13px; padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); }
   .badge.hl { border-color: var(--accent); color: var(--accent); }
-  .cta { display: flex; gap: 16px; justify-content: center; margin: 36px 0 12px; flex-wrap: wrap; }
-  .btn { display: inline-block; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none; transition: transform .15s; }
+  .cta { display: flex; gap: 16px; justify-content: center; margin: 30px 0 8px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 14px 26px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; transition: transform .15s; }
   .btn:hover { transform: translateY(-2px); }
   .btn-primary { background: var(--accent); color: #1a1a1a; }
   .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
-  h2 { font-size: 22px; margin: 56px 0 20px; padding-left: 12px; border-left: 4px solid var(--accent); }
+  h2 { font-size: 22px; margin: 56px 0 18px; padding-left: 12px; border-left: 4px solid var(--accent); }
+  h2 .tag { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 12px; vertical-align: 4px; margin-left: 10px; }
+  .tag.m { background: rgba(88,166,255,.12); color: var(--accent2); }
+  .tag.i { background: rgba(255,209,0,.10); color: var(--accent); }
+  .tag.j { background: rgba(188,140,255,.10); color: var(--purple); }
+  h3.sub-h { margin: 24px 0 12px; font-size: 17px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
   .card h3 { font-size: 16px; margin-bottom: 10px; color: var(--accent2); }
@@ -39,9 +50,21 @@
   table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   th, td { padding: 12px 16px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--border); }
   th { color: var(--muted); font-weight: 600; background: rgba(255,255,255,.02); }
-  td .good { color: var(--green); font-weight: 700; }
-  td .bad { color: var(--red); font-weight: 700; }
+  .good { color: var(--green); font-weight: 700; }
+  .bad { color: var(--red); font-weight: 700; }
+  .warn { color: var(--accent); font-weight: 700; }
   .note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .finding { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-top: 12px; }
+  .finding .dim { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 10px; margin-right: 8px; }
+  .dim.conflict { background: rgba(248,81,73,.12); color: var(--red); }
+  .dim.missing { background: rgba(255,209,0,.10); color: var(--accent); }
+  .dim.ambiguous { background: rgba(88,166,255,.12); color: var(--accent2); }
+  .finding h4 { display: inline; font-size: 15px; }
+  .finding p { font-size: 14px; color: var(--muted); margin-top: 8px; }
+  .finding .fix { margin-top: 8px; font-size: 13px; color: var(--green); }
+  .story { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 12px; padding: 20px 22px; margin-top: 14px; }
+  .story h4 { font-size: 15px; margin-bottom: 6px; }
+  .story p { font-size: 14px; color: var(--muted); }
   .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); }
   code { background: rgba(110,118,129,.2); border-radius: 4px; padding: 2px 6px; font-size: 13px; }
 </style>
@@ -53,52 +76,112 @@
     <div class="logo">E</div>
     <h1>EvalCall</h1>
     <div class="sub">外呼对话模型 · 复杂指令遵循 · 可解释可量化自动评测系统</div>
+    <div class="loop-banner">
+      <span class="loop-item m">评模型</span><span class="loop-arrow">→</span>
+      <span class="loop-item i">审指令</span><span class="loop-arrow">→</span>
+      <span class="loop-item j">校裁判</span><span class="loop-arrow">↺</span>
+    </div>
     <div class="badges">
       <span class="badge hl">美团 AI Hackathon 2026 · 命题二</span>
       <span class="badge">官方脱敏数据实测</span>
-      <span class="badge">对抗式用户模拟器</span>
-      <span class="badge">双轨判定 + 3 票多数决</span>
+      <span class="badge">评测结果自带误差棒</span>
+      <span class="badge">测试充分性可量化</span>
     </div>
     <div class="cta">
-      <a class="btn btn-primary" href="report-official.html">📊 查看官方数据评测报告</a>
-      <a class="btn btn-secondary" href="report-demo.html">🧪 满规模演示报告（5任务×5persona）</a>
+      <a class="btn btn-primary" href="report-official.html">📊 官方任务一实测报告</a>
+      <a class="btn btn-primary" href="report-official2.html">📊 官方任务二实测报告</a>
+      <a class="btn btn-secondary" href="report-demo.html">🧪 满规模演示（5任务×5persona）</a>
     </div>
   </div>
 
-  <h2>它解决什么问题</h2>
+  <h2>为什么这个问题难</h2>
   <p style="color:var(--muted); font-size:15px;">
-    美团履约数字人每天产生大规模外呼对话。任务指令包含复杂流程分支和多重合规约束——关键信息播报顺序、禁止话术、隐私保护、情绪处理规范。人工抽听质检：全量覆盖成本不可承受、问题发现滞后、评分因人而异。<br><br>
-    <strong style="color:var(--text)">EvalCall 把「人工看对话有没有按指令来」变成可量化、可重复、可审计的自动化流程。</strong>
+    美团履约数字人每天产生大规模外呼。指令包含复杂流程分支和多重合规约束，人工抽听无法全量覆盖、标准因人而异。但「做一个自动评测器」不是难点——<strong style="color:var(--text)">难的是凭什么信它</strong>：
+    裁判自己会误判，谁来评测评测系统？模型分数低，是模型差还是指令本身写得自相矛盾？模拟器说「测得充分」，充分到什么程度？<br><br>
+    <strong style="color:var(--text)">EvalCall 的回答是三层质量闭环：不仅评测模型，还审计指令本身，并量化校准自己的裁判。</strong>每一层都在官方脱敏数据上实测落地。
   </p>
 
-  <h2>评测流水线</h2>
+  <h2>第一层 · 评模型<span class="tag m">对抗式模拟 + 双轨判定</span></h2>
   <div class="pipeline">
     <div class="step"><div class="num">1</div><div class="name">指令编译</div><div class="desc">自然语言指令 → 结构化检查点<br>每条可溯源 source_quote</div></div>
     <div class="arrow">→</div>
-    <div class="step"><div class="num">2</div><div class="name">对抗模拟</div><div class="desc">6 种 persona 定向诱导违规<br>覆盖率驱动选场景</div></div>
+    <div class="step"><div class="num">2</div><div class="name">对抗模拟</div><div class="desc">6 种 persona 定向施压<br>打断 / 跑题 / 质疑 / 沉默</div></div>
     <div class="arrow">→</div>
-    <div class="step"><div class="num">3</div><div class="name">双轨判定</div><div class="desc">规则轨 + LLM 轨<br>3 票多数决 + 自一致率</div></div>
+    <div class="step"><div class="num">3</div><div class="name">双轨判定</div><div class="desc">规则轨 + LLM 轨（带指令原文）<br>3 票多数决</div></div>
     <div class="arrow">→</div>
     <div class="step"><div class="num">4</div><div class="name">量化报告</div><div class="desc">四维画像 / 热力图<br>逐检查点证据引用</div></div>
   </div>
 
-  <h2>官方脱敏数据实测结果</h2>
+  <h3 class="sub-h">官方脱敏数据实测</h3>
   <table>
-    <tr><th>任务（官方指令）</th><th>Persona</th><th>检查点通过率</th><th>说明</th></tr>
-    <tr><td rowspan="2">骑手合同到期外呼通知</td><td>配合型用户</td><td><span class="good">68.4%</span>（13✓/6✗）</td><td>主流程基本完成，部分话术约束违规</td></tr>
-    <tr><td>不耐烦型用户</td><td><span class="bad">33.3%</span>（1✓/2✗）</td><td>被打断后流程严重丢失</td></tr>
+    <tr><th>任务（官方指令）</th><th>Persona</th><th>检查点通过率</th><th>结论</th></tr>
+    <!-- OFFICIAL01_ROWS -->
+    <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td><span class="warn">38.1%</span>（8✓/13✗）</td><td rowspan="2">「每次回复≤20字」为 critical 约束且持续违规 → 一票否决归零。<strong style="color:var(--text)">第二层指令体检证明：这不全是模型的错，指令本身物理不可行</strong></td></tr>
+    <tr><td>不耐烦型</td><td><span class="warn">55.0%</span>（11✓/9✗）</td></tr>
   </table>
-  <p class="note">
-    同一模型在不同用户行为下的指令遵循率差距达 35 个百分点——这正是 EvalCall 对抗式模拟器的价值：<strong style="color:var(--text)">不制造压力场景，就测不出真实短板。</strong>
-    每条失败结论都附对话原文证据，点开报告即可逐条审计。
-  </p>
+  <p class="note">每条 fail 都附对话原文证据与指令原文引用，点开报告逐条可审计。</p>
 
-  <h2>核心创新</h2>
-  <div class="grid">
-    <div class="card"><h3>① 指令 → 检查点编译</h3><p>评测结论不是「大模型觉得还行」，而是逐条对应指令原文的通过/失败。每条检查点带 source_quote 可溯源，可审计、可复现。</p></div>
-    <div class="card"><h3>② 对抗式模拟器</h3><p>模拟器主动针对约束项「定向诱导」被测模型违规，追踪检查点覆盖率，优先制造尚未触发的场景。6 种 persona 覆盖真实用户行为。</p></div>
-    <div class="card"><h3>③ 双轨判定 + 多数投票</h3><p>规则轨处理确定性判断，LLM 轨处理语义场景且必须引用对话原文为证。3 票多数决降低误判，自一致率让结果自带可靠性度量。</p></div>
-    <div class="card"><h3>④ 数据即插即用</h3><p>格式适配层把外部脱敏数据映射到内部 schema，评测逻辑与数据格式解耦。本次官方 xlsx 数据零改造直接接入。</p></div>
+  <h2>第二层 · 审指令<span class="tag i">Instruction Lint · 评测的不只是模型</span></h2>
+  <p style="color:var(--muted); font-size:15px;">
+    实测中任务二被一票否决——深挖发现根因不在模型。EvalCall 内置指令体检器，自动检测指令的<strong style="color:var(--text)">自相矛盾 / 不可行约束 / 歧义表述 / 缺失分支</strong>，并给出可直接照改的修订建议。以下全部是体检器在两条官方指令上的<strong style="color:var(--text)">自主发现</strong>（提示词只教方法论，无任何硬编码结论）：
+  </p>
+  <div class="finding">
+    <span class="dim conflict">冲突 · high</span><h4>任务二：字数上限 vs 信息量，物理不可行</h4>
+    <p>指令要求「每次回复极简——最多15-20个字」，但 Step1 参考话术约 43 字、Step2 询问语约 38 字——官方提供的参考话术自己就是上限的两倍以上。任何模型都无法同时满足，实测被一票否决归零。</p>
+    <p class="fix">✏️ 建议：字数上限改为「单句不超过20字、单轮可多句」，或将参考话术拆为 ≤20 字短句分轮发出。</p>
+  </div>
+  <div class="finding">
+    <span class="dim conflict">冲突 · high</span><h4>任务一：业务规则自相矛盾</h4>
+    <p>Call Flow 第 2 步说「单日合同需要连续 Y 天完成配送」，Knowledge Points 却写「单日合同在生效当天完成 X 单即可」——同一合同类型的履约周期在指令内部互相打架，模型说哪个都算错。</p>
+    <p class="fix">✏️ 建议：确认业务实际规则后统一表述；若是笔误，将 Call Flow 第 2 步改为「多日合同需连续 Y 天」。</p>
+  </div>
+  <div class="finding">
+    <span class="dim missing">缺失分支 · high</span><h4>任务二：没有「请勿再来电」退出分支（合规风险）</h4>
+    <p>整个流程没有商家明确拒绝（「不需要了解」「以后别打了」）时的退出路径。执行者无脚本可循，可能继续硬推，直接引发客诉与合规风险。同时缺失：负责人不在场、说「就1分钟」后仍被拒等路径。</p>
+    <p class="fix">✏️ 建议：补通用退出规则——商家明确拒绝时立即致歉挂断，不得再说任何产品内容。</p>
+  </div>
+  <div class="finding">
+    <span class="dim ambiguous">歧义 · high</span><h4>任务一：占位符未注入 + 同名变量两种语义</h4>
+    <p>X/Y/Z/W/$ 全部是未填充的占位符且无注入说明，模型只能照念「X单」；其中 Y 在开场白指「每日单数」、在第 2 步又指「连续天数」——同一个变量两种语义。</p>
+    <p class="fix">✏️ 建议：指令顶部增加「系统变量注入」区块，逐一注明变量含义与来源。</p>
+  </div>
+  <p class="note">两条官方指令各检出 11 条问题，指令可行性分均为 0（确定性公式计算，可复现）。<strong style="color:var(--text)">对每天编写外呼指令的运营团队，这是上线前的体检环节：先治指令，再评模型，质检数据才有意义。</strong></p>
+
+  <h2>第三层 · 校裁判<span class="tag j">已知答案注入 · 评测结果自带误差棒</span></h2>
+  <p style="color:var(--muted); font-size:15px;">
+    LLM 裁判自己会错。EvalCall 用「已知答案注入」校准自己：向系统投放人工构造、真值已知的合成对话（埋好各类违规、补救、未触发分支等难判情形），跑完整裁判流程，输出裁判的查准率/查全率/混淆矩阵。<strong style="color:var(--text)">我们把自己裁判的准确率印在报告上</strong>——这是评测结果可以被信任的前提。
+  </p>
+  <!-- CALIBRATION_SECTION -->
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h3>判定有据：指令原文喂给裁判</h3><p>裁判提示词携带每条检查点的 source_quote 指令原文。开发中实测：不带原文时裁判对「应当以指定开场白开启」类检查点只能臆测（3 票 2:1 分裂）；带原文后 3 票全对，整体投票一致率 88.9%。</p></div>
+    <div class="card"><h3>三票多数决 + 分歧率透明</h3><p>每条 LLM 判定投 3 票取多数，报告同时公布一致率与分裂条目——分裂项自动标记建议人工复核，评测结论自带可信度分层。</p></div>
+    <div class="card"><h3>上下文隔离</h3><p>被测模型与模拟器在干净上下文中运行，杜绝宿主环境信息泄入对话轨迹。开发中实测抓到一例轨迹污染（模拟模型拒演并泄露宿主信息），已通过隔离机制根除。</p></div>
+    <div class="card"><h3>鲁棒 JSON 解析</h3><p>官方指令含英文引号时，小模型输出 JSON 必带未转义裸引号。内置裸引号修复器（实测失败样本单测覆盖），编译/判定链路对脏输出免疫。</p></div>
+  </div>
+
+  <h2>测试充分性量化 · 覆盖率驱动</h2>
+  <p style="color:var(--muted); font-size:15px;">
+    「模拟器测得充分」不能靠形容词。EvalCall 把每个检查点是否被轨迹实际检验（pass/fail vs na）汇总成<strong style="color:var(--text)">触达率</strong>，并列出测试盲区清单：
+  </p>
+  <table style="margin-top:12px">
+    <tr><th>任务</th><th>检查点触达率</th><th>测试盲区（从未被任何轨迹触达）</th></tr>
+    <!-- COVERAGE_ROW_01 -->
+    <tr><td>任务二 · 低延迟直播</td><td><span class="warn">77.8%</span></td><td class="note">6 个条件分支未触达：商家开车场景应挂断、Web控制台未显示选项的兜底引导、被打断时的过渡语等——直接指明下一轮该补哪些 persona/策略</td></tr>
+  </table>
+  <p class="note">盲区清单反哺模拟器：覆盖率驱动的测试调度会优先制造尚未触达的场景。评测系统不仅打分，还告诉你测试本身还差什么。</p>
+
+  <h2>真实战绩：这套系统在开发中抓出的问题</h2>
+  <div class="story">
+    <h4>🎯 抓出指令缺陷（第二层）</h4>
+    <p>官方任务二的字数约束 vs 参考话术冲突、任务一的业务规则自相矛盾——若直接上线，质检数据全失真。指令体检在评测前就能拦下。</p>
+  </div>
+  <div class="story">
+    <h4>🎯 抓出裁判误判（第三层）</h4>
+    <p>被测模型一字不差说出指定开场白，单票裁判却判 fail——根因是裁判没拿到指令原文只能臆测。修复后 3 票全对。这正是「校裁判」层存在的意义。</p>
+  </div>
+  <div class="story">
+    <h4>🎯 抓出测试盲区（覆盖率）</h4>
+    <p>任务二有 6 个条件分支从未被测试触达。没有覆盖率量化，这些盲区会被「平均分」掩盖。</p>
   </div>
 
   <h2>量化指标体系</h2>
@@ -106,22 +189,26 @@
     <tr><th>指标</th><th>说明</th></tr>
     <tr><td>约束违反数 / 百次对话</td><td>核心量化产出，可按 task / persona / severity 三维切片</td></tr>
     <tr><td>四维能力画像</td><td>流程完整度 · 约束遵循率 · 异常处理 · 话术合规</td></tr>
-    <tr><td>可解释证据覆盖率</td><td>每条 fail 必须附对话原文引用，目标 &gt; 95%</td></tr>
-    <tr><td>judge 自一致率 / 双轨冲突率</td><td>评测结果自带可靠性度量</td></tr>
+    <tr><td>检查点触达率 + 盲区清单</td><td>测试充分性的量化表达，反哺模拟器调度</td></tr>
+    <tr><td>裁判查准率 / 查全率 / 混淆矩阵</td><td>已知答案注入校准，评测结果自带误差棒</td></tr>
+    <tr><td>投票一致率 / 双轨冲突率</td><td>逐条结论的可信度分层，分裂项标记人工复核</td></tr>
+    <tr><td>指令可行性分 + 缺陷清单</td><td>指令体检产出，附可直接照改的修订建议</td></tr>
   </table>
 
   <h2>使用方式</h2>
   <div class="card">
     <p style="font-size:14px; color:var(--text)">
-      两条命令覆盖全流程：<br><br>
-      <code>evalcall run --task data/tasks_official/official_01.yaml --personas all</code>　编译指令 → 多轨迹模拟 → 批量判定<br><br>
-      <code>evalcall report --run runs/official01</code>　生成可交互 HTML 报告
+      <code>evalcall run --task task.yaml --personas all</code>　编译指令 → 对抗模拟 → 双轨判定<br><br>
+      <code>evalcall report --run runs/xxx</code>　生成可交互 HTML 报告<br><br>
+      <code>python3 lint_instruction.py task.yaml</code>　指令体检：冲突 / 不可行 / 歧义 / 缺失分支<br><br>
+      <code>python3 calibrate.py</code>　裁判自校准：已知答案注入 → 查准率 / 查全率<br><br>
+      <code>python3 rejudge_checkpoint.py runs/xxx all 3</code>　裁判升级后从既有轨迹全量重判（无需重跑对话）
     </p>
   </div>
 
   <div class="footer">
     EvalCall · 美团 AI Hackathon 2026 命题二「复杂指令下的多轮对话评测系统」参赛作品<br>
-    指令编译器与双轨判定引擎为通用组件，可接入任何基于任务指令的对话系统质检场景
+    三层质量闭环：评模型 · 审指令 · 校裁判 —— 指令编译器、双轨判定引擎、体检器、校准器均为通用组件
   </div>
 
 </div>

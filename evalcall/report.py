@@ -257,7 +257,11 @@ def _aggregate(
         # judge 可靠性：投票一致率
         if isinstance(votes, list) and votes:
             vote_total += 1
-            if len(set(str(v).lower() for v in votes)) == 1:
+            # votes 元素是 {"verdict": ..., "confidence": ...} dict，只比较 verdict
+            if len(set(
+                str(v.get("verdict", v) if isinstance(v, dict) else v).lower()
+                for v in votes
+            )) == 1:
                 vote_unanimous += 1
             else:
                 vote_split += 1
