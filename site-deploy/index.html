@@ -115,7 +115,8 @@
   <h3 class="sub-h">官方脱敏数据实测</h3>
   <table>
     <tr><th>任务（官方指令）</th><th>Persona</th><th>检查点通过率</th><th>结论</th></tr>
-    <!-- OFFICIAL01_ROWS -->
+    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td><span class="good">68.8%</span>（11✓/5✗）</td><td rowspan="2">否决前原始分 67.3 / 75.4，均被 critical 一票否决：开场白未完整播报单量——<strong style="color:var(--text)">体检器恰好查出该指令把 5 项信息塞进一句开场白，模型必然丢项</strong></td></tr>
+    <tr><td>不耐烦型</td><td><span class="good">76.5%</span>（13✓/4✗）</td></tr>
     <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td><span class="warn">38.1%</span>（8✓/13✗）</td><td rowspan="2">「每次回复≤20字」为 critical 约束且持续违规 → 一票否决归零。<strong style="color:var(--text)">第二层指令体检证明：这不全是模型的错，指令本身物理不可行</strong></td></tr>
     <tr><td>不耐烦型</td><td><span class="warn">55.0%</span>（11✓/9✗）</td></tr>
   </table>
@@ -165,7 +166,7 @@
   </p>
   <table style="margin-top:12px">
     <tr><th>任务</th><th>检查点触达率</th><th>测试盲区（从未被任何轨迹触达）</th></tr>
-    <!-- COVERAGE_ROW_01 -->
+    <tr><td>任务一 · 骑手合同通知</td><td><span class="good">94.4%</span></td><td class="note">1 个分支未触达：「骑手坚持无法配送时应安慰后挂断」——提示需要补一个强硬拒绝型 persona</td></tr>
     <tr><td>任务二 · 低延迟直播</td><td><span class="warn">77.8%</span></td><td class="note">6 个条件分支未触达：商家开车场景应挂断、Web控制台未显示选项的兜底引导、被打断时的过渡语等——直接指明下一轮该补哪些 persona/策略</td></tr>
   </table>
   <p class="note">盲区清单反哺模拟器：覆盖率驱动的测试调度会优先制造尚未触达的场景。评测系统不仅打分，还告诉你测试本身还差什么。</p>
@@ -181,7 +182,7 @@
   </div>
   <div class="story">
     <h4>🎯 抓出测试盲区（覆盖率）</h4>
-    <p>任务二有 6 个条件分支从未被测试触达。没有覆盖率量化，这些盲区会被「平均分」掩盖。</p>
+    <p>任务一有 1 个、任务二有 6 个条件分支从未被测试触达。没有覆盖率量化，这些盲区会被「平均分」掩盖。</p>
   </div>
 
   <h2>量化指标体系</h2>

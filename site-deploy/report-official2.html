@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalCall 评测报告 · 8bfbfe1dae4a</title>
+<style>
+/* ============ 美团风格黄黑配色 ============ */
+:root{
+  --mt-yellow:#FFD100;        /* 美团主黄 */
+  --mt-yellow-soft:#FFF3C2;
+  --ink:#1a1a1a;             /* 主文字 */
+  --ink-2:#555;
+  --ink-3:#888;
+  --line:#ececec;
+  --bg:#f6f6f6;
+  --card:#ffffff;
+  --pass:#16a34a; --pass-bg:#e7f6ec;
+  --fail:#e02424; --fail-bg:#fdeaea;
+  --na:#9aa0a6;   --na-bg:#f0f1f2;
+  --crit:#b91c1c;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",
+    "Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);background:var(--bg);line-height:1.6;font-size:14px;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+h2.sec{font-size:19px;margin:36px 0 14px;display:flex;align-items:center;gap:10px}
+h2.sec::before{content:"";width:6px;height:20px;background:var(--mt-yellow);
+  border-radius:3px;display:inline-block}
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);
+  padding:22px 24px;margin-bottom:18px}
+.muted{color:var(--ink-3)}
+.small{font-size:12px}
+
+/* ============ 顶栏 ============ */
+.topbar{background:linear-gradient(135deg,#111 0%,#262626 100%);
+  border-radius:16px;padding:26px 30px;color:#fff;
+  display:flex;flex-wrap:wrap;align-items:center;gap:30px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.topbar::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;
+  height:180px;background:var(--mt-yellow);opacity:.12;border-radius:50%}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--mt-yellow);
+  color:#111;font-weight:800;font-size:20px;display:flex;align-items:center;
+  justify-content:center}
+.brand .t1{font-size:20px;font-weight:800;letter-spacing:.5px}
+.brand .t2{font-size:12px;color:#ffd966;margin-top:2px}
+.score-big{margin-left:auto;text-align:center}
+.score-big .num{font-size:58px;font-weight:800;line-height:1;color:var(--mt-yellow)}
+.score-big .lab{font-size:13px;color:#ccc;margin-top:4px}
+.pf-stats{display:flex;gap:18px}
+.pf{ text-align:center}
+.pf .n{font-size:26px;font-weight:800;line-height:1.1}
+.pf .l{font-size:12px;color:#bbb;margin-top:2px}
+.pf.pass .n{color:#4ade80}.pf.fail .n{color:#f87171}.pf.na .n{color:#cbd5e1}
+
+/* meta 信息条 */
+.metabar{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;
+  padding:14px 22px;background:#fff;border-radius:12px;box-shadow:var(--shadow);
+  font-size:13px}
+.metabar b{color:var(--ink)}.metabar span{color:var(--ink-2)}
+.alert{background:var(--fail-bg);color:var(--crit);border:1px solid #f5b5b5;
+  border-radius:10px;padding:10px 16px;margin-top:14px;font-weight:600;font-size:13px}
+
+/* ============ 雷达 + 维度 ============ */
+.flex-row{display:flex;gap:18px;flex-wrap:wrap}
+.flex-row > .card{flex:1;min-width:300px}
+.dim-list{display:flex;flex-direction:column;gap:14px;justify-content:center;height:100%}
+.dim{}
+.dim .head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.dim .head b{font-weight:700}
+.bar{height:12px;background:#eee;border-radius:8px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:8px;
+  background:linear-gradient(90deg,#FFB800,var(--mt-yellow))}
+.dim .sub{font-size:11px;color:var(--ink-3);margin-top:3px}
+
+/* ============ 徽章 ============ */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;
+  font-weight:700;white-space:nowrap}
+.badge.pass{background:var(--pass-bg);color:var(--pass)}
+.badge.fail{background:var(--fail-bg);color:var(--fail)}
+.badge.na{background:var(--na-bg);color:var(--na)}
+.tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px;
+  background:#f0f0f0;color:#666;font-weight:600}
+.tag.flow{background:#e8f0fe;color:#1a73e8}
+.tag.constraint{background:#fef3e0;color:#c47f17}
+.tag.forbidden{background:#fdeaea;color:#d33}
+.tag.style{background:#eef7ed;color:#2e7d32}
+.sev{font-size:11px;font-weight:700}
+.sev.critical{color:var(--crit)}.sev.major{color:#c47f17}.sev.minor{color:#888}
+
+/* ============ 表格 ============ */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);
+  vertical-align:top}
+th{background:#fafafa;color:var(--ink-2);font-weight:700;font-size:12px;
+  position:sticky;top:0}
+tr:hover td{background:#fffdf2}
+
+/* 热力 */
+.heat td{text-align:center;font-weight:700;border:1px solid #fff}
+.heat td.persona{text-align:left;background:#fafafa;font-weight:600;color:var(--ink-2);
+  white-space:nowrap}
+.heat th{text-align:center}
+.cell{border-radius:8px;padding:8px 4px;color:#222;font-size:13px}
+.cell .pf{font-size:10px;font-weight:600;color:#444;opacity:.75}
+
+/* ============ 检查点明细折叠 ============ */
+.cp-row{cursor:pointer}
+.cp-detail{display:none;background:#fbfbf7}
+.cp-detail.open{display:table-row}
+.cp-detail td{padding:14px 18px}
+.evi{background:#fff;border:1px solid var(--line);border-left:3px solid var(--mt-yellow);
+  border-radius:8px;padding:9px 12px;margin:6px 0;font-size:13px}
+.evi .turn{font-size:11px;color:var(--ink-3);font-weight:700;margin-bottom:3px}
+.src{font-size:12px;color:var(--ink-2);background:#f7f7f4;border-radius:8px;
+  padding:8px 12px;margin-top:6px}
+.src b{color:#b8860b}
+.caret{display:inline-block;transition:transform .15s;color:var(--ink-3)}
+.cp-row.open .caret{transform:rotate(90deg)}
+
+/* ============ 失败案例对话回放 ============ */
+.case{border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.case .ch{background:#1f1f1f;color:#fff;padding:12px 18px;display:flex;
+  align-items:center;gap:12px;flex-wrap:wrap}
+.case .ch .who{font-weight:700}
+.case .ch .meta{font-size:12px;color:#bbb}
+.case .ch .fc{margin-left:auto;font-size:12px;color:#f87171;font-weight:700}
+.case .body{padding:16px 18px;background:#faf9f5}
+.fail-cp-list{padding:10px 18px;background:#fff7f7;border-bottom:1px solid #f3dada;
+  font-size:12px;color:#a33}
+.fail-cp-list li{margin:2px 0}
+.chat{display:flex;flex-direction:column;gap:10px}
+.bub{max-width:74%;padding:9px 13px;border-radius:14px;font-size:13px;
+  position:relative;white-space:pre-wrap;word-break:break-word}
+.bub .rt{font-size:10px;color:var(--ink-3);margin-bottom:3px;font-weight:700}
+.bub.agent{align-self:flex-start;background:#fff;border:1px solid var(--line);
+  border-top-left-radius:4px}
+.bub.user{align-self:flex-end;background:var(--mt-yellow-soft);
+  border:1px solid #f0e3a0;border-top-right-radius:4px}
+.bub.bad{border:2px solid var(--fail);box-shadow:0 0 0 3px rgba(224,36,36,.12)}
+.bub.bad::after{content:"⚠ 违规轮次";position:absolute;top:-9px;right:8px;
+  background:var(--fail);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;
+  font-weight:700}
+
+/* ============ 可靠性 ============ */
+.kpi-grid{display:flex;gap:14px;flex-wrap:wrap}
+.kpi{flex:1;min-width:150px;background:#fafafa;border-radius:12px;padding:16px 18px;
+  border:1px solid var(--line)}
+.kpi .n{font-size:30px;font-weight:800;color:var(--ink)}
+.kpi .n.good{color:var(--pass)}.kpi .n.warn{color:#c47f17}.kpi .n.bad{color:var(--fail)}
+.kpi .l{font-size:12px;color:var(--ink-3);margin-top:4px}
+
+.foot{text-align:center;color:var(--ink-3);font-size:12px;margin-top:40px}
+
+/* ============ 打印友好 ============ */
+@media print{
+  body{background:#fff}
+  .wrap{max-width:100%;padding:0}
+  .card,.topbar{box-shadow:none;border:1px solid #ddd}
+  .cp-detail{display:table-row!important}
+  .cp-row{cursor:default}
+  .caret{display:none}
+  .topbar{background:#222!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 顶部总分 ============ -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">E</div>
+      <div>
+        <div class="t1">EvalCall 评测报告</div>
+        <div class="t2">外呼对话模型 · 指令遵循自动评测</div>
+      </div>
+    </div>
+    <div class="pf-stats">
+      <div class="pf pass"><div class="n">19</div><div class="l">通过</div></div>
+      <div class="pf fail"><div class="n">22</div><div class="l">未通过</div></div>
+      <div class="pf na"><div class="n">13</div><div class="l">不适用</div></div>
+    </div>
+    <div class="score-big">
+      <div class="num">47.7</div>
+      <div class="lab">综合得分 · 通过率 46.3%</div>
+    </div>
+  </div>
+
+  
+  <div class="alert">⛔ 检出 2 项 critical 级违规（一票否决该项满分） · 约束违反共 7 项</div>
+  
+
+  <div class="metabar">
+    <span><b>运行 ID</b> 8bfbfe1dae4a</span>
+    <span><b>生成时间</b> 2026-06-06 10:21:04</span>
+    
+    
+    
+    <span><b>任务</b> 1</span>
+    <span><b>Persona</b> 2</span>
+    <span><b>轨迹</b> 2</span>
+    <span><b>检查点判定</b> 54</span>
+  </div>
+
+  <!-- ============ 四维雷达 ============ -->
+  <h2 class="sec">四维能力画像</h2>
+  <div class="flex-row">
+    <div class="card" style="flex:0 0 auto;display:flex;justify-content:center;align-items:center">
+      <svg width="320" height="320" viewBox="0 0 320 320">
+        <!-- 网格圈 -->
+        
+        <polygon points="160.0,130.0 190.0,160.0 160.0,190.0 130.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <polygon points="160.0,100.0 220.0,160.0 160.0,220.0 100.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <polygon points="160.0,70.0 250.0,160.0 160.0,250.0 70.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <polygon points="160.0,40.0 280.0,160.0 160.0,280.0 40.0,160.0" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+        
+        <!-- 轴线 -->
+        
+        <line x1="160.0" y1="160.0" x2="160.0" y2="40.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <line x1="160.0" y1="160.0" x2="280.0" y2="160.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <line x1="160.0" y1="160.0" x2="160.0" y2="280.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <line x1="160.0" y1="160.0" x2="40.0" y2="160.0"
+          stroke="#dcdcdc" stroke-width="1"/>
+        
+        <!-- 数据多边形 -->
+        <polygon points="160.0,117.6 205.0,160.0 160.0,250.0 100.0,160.0" fill="rgba(255,209,0,.35)"
+          stroke="#FFB800" stroke-width="2.5"/>
+        <!-- 数据顶点 + 标签 -->
+        
+        <text x="160.0" y="16.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">流程完整度</text>
+        <text x="160.0" y="31.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">35.3%</text>
+        
+        <text x="304.0" y="160.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">约束遵循率</text>
+        <text x="304.0" y="175.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">37.5%</text>
+        
+        <text x="160.0" y="304.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">异常处理</text>
+        <text x="160.0" y="319.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">75.0%</text>
+        
+        <text x="16.0" y="160.0" font-size="12" font-weight="700"
+          fill="#333" text-anchor="middle" dominant-baseline="middle">话术合规</text>
+        <text x="16.0" y="175.0" font-size="11" font-weight="700"
+          fill="#c47f17" text-anchor="middle" dominant-baseline="middle">50.0%</text>
+        
+      </svg>
+    </div>
+    <div class="card">
+      <div class="dim-list">
+        
+        <div class="dim">
+          <div class="head"><b>流程完整度</b><span>35.3%</span></div>
+          <div class="bar"><i style="width:35.3%"></i></div>
+          <div class="sub">通过 6 / 共 17 · 未通过 11</div>
+        </div>
+        
+        <div class="dim">
+          <div class="head"><b>约束遵循率</b><span>37.5%</span></div>
+          <div class="bar"><i style="width:37.5%"></i></div>
+          <div class="sub">通过 3 / 共 8 · 未通过 5</div>
+        </div>
+        
+        <div class="dim">
+          <div class="head"><b>异常处理</b><span>75.0%</span></div>
+          <div class="bar"><i style="width:75.0%"></i></div>
+          <div class="sub">通过 6 / 共 8 · 未通过 2</div>
+        </div>
+        
+        <div class="dim">
+          <div class="head"><b>话术合规</b><span>50.0%</span></div>
+          <div class="bar"><i style="width:50.0%"></i></div>
+          <div class="sub">通过 4 / 共 8 · 未通过 4</div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ persona × 任务 热力 ============ -->
+  <h2 class="sec">Persona × 任务 通过率热力图</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="heat">
+      <thead>
+        <tr>
+          <th style="text-align:left">Persona ＼ 任务</th>
+          <th>official_02_lowlatency</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td class="persona">p01_cooperative_worker
+            
+          </td>
+          
+            
+            <td><div class="cell" style="background:#fbcf78">
+              38.1%<div class="pf">8✓ / 13✗</div>
+            </div></td>
+            
+          
+        </tr>
+        
+        <tr>
+          <td class="persona">p02_impatient
+            
+          </td>
+          
+            
+            <td><div class="cell" style="background:#f2e377">
+              55.0%<div class="pf">11✓ / 9✗</div>
+            </div></td>
+            
+          
+        </tr>
+        
+      </tbody>
+    </table>
+    <div class="small muted" style="margin-top:8px">颜色越绿通过率越高，越红越低。✓ 通过数 / ✗ 未通过数。</div>
+  </div>
+
+  <!-- ============ Persona 切片 ============ -->
+  <h2 class="sec">Persona 维度切片（按通过率升序）</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Persona</th><th>策略</th><th style="width:42%">通过率</th><th>通过/未通过</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td><b>p01_cooperative_worker</b></td>
+          <td class="muted small">—</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:38.1%;background:#fbcf78"></i></div>
+              <b style="width:46px;text-align:right">38.1%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">8</span> <span class="badge fail">13</span></td>
+        </tr>
+        
+        <tr>
+          <td><b>p02_impatient</b></td>
+          <td class="muted small">—</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="bar" style="flex:1"><i style="width:55.0%;background:#f2e377"></i></div>
+              <b style="width:46px;text-align:right">55.0%</b>
+            </div>
+          </td>
+          <td><span class="badge pass">11</span> <span class="badge fail">9</span></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 失败检查点 TOP ============ -->
+  
+  <h2 class="sec">高频失败检查点 TOP</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:30px">#</th><th>检查点</th><th>类型</th><th>严重度</th><th>失败次数</th><th>来源指令</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>1</td>
+          <td>每次回复应当极简，最多15-20个字</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><b style="color:var(--fail)">2</b></td>
+          <td class="small muted">每次回复极简——最多15-20个字</td>
+        </tr>
+        
+        <tr>
+          <td>2</td>
+          <td>应当在Step 2主动询问商家是否知晓后台已走低延迟线路</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">2</b></td>
+          <td class="small muted">询问：您之前选的是标准直播，但我们后台其实已为您走低延迟线路以保障质量，您知道吗？</td>
+        </tr>
+        
+        <tr>
+          <td>3</td>
+          <td>应当在Step 3告知发布页将分开显示两个选项，可根据课程类型自行选择</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">2</b></td>
+          <td class="small muted">之后发布页会分开显示两个选项，根据课程类型自行选择即可</td>
+        </tr>
+        
+        <tr>
+          <td>4</td>
+          <td>应当在Step 4.1询问商家的发布方式（Web控制台/校务系统A/SaaS系统B）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">2</b></td>
+          <td class="small muted">询问：您是通过Web控制台、校务系统A，还是SaaS系统B发课？</td>
+        </tr>
+        
+        <tr>
+          <td>5</td>
+          <td>应当在Step 5检查学员端费用/加速线路费，已设置则提醒确认低延迟直播也已适用</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">2</b></td>
+          <td class="small muted">已设置费用 → 提醒确认低延迟直播也已适用该费用</td>
+        </tr>
+        
+        <tr>
+          <td>6</td>
+          <td>应当播报标准直播特点：费用较低、延迟约5-10秒、适合大班课</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">2</b></td>
+          <td class="small muted">标准直播：费用较低；延迟约5-10秒；适合大班课</td>
+        </tr>
+        
+        <tr>
+          <td>7</td>
+          <td>应当说明价格差异：标准直播更便宜，低延迟直播带宽和节点保障更强费用略高</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">2</b></td>
+          <td class="small muted">标准直播更便宜
+低延迟直播带宽和节点保障更强，费用略高</td>
+        </tr>
+        
+        <tr>
+          <td>8</td>
+          <td>不得使用&#34;好的&#34;作为语气词</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">1</b></td>
+          <td class="small muted">不说&#34;好的&#34;、&#34;哈哈&#34;、&#34;嘿嘿&#34;、&#34;嘻嘻&#34;等语气词</td>
+        </tr>
+        
+        <tr>
+          <td>9</td>
+          <td>应当在Step 6发起企业微信添加；当前号码不可添加时请商家提供可添加手机号</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">1</b></td>
+          <td class="small muted">若当前号码可添加 → 告知稍后通过企业微信添加，请通过验证
+若不可添加 → 请提供可添加的手机号，再发送同样的验证提示</td>
+        </tr>
+        
+        <tr>
+          <td>10</td>
+          <td>若商家表示忙，应当说&#34;就1分钟，保证简短&#34;后继续简短说明，不得直接挂断</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">1</b></td>
+          <td class="small muted">若老板说忙，说&#34;就1分钟，保证简短&#34;后继续简短说明</td>
+        </tr>
+        
+        <tr>
+          <td>11</td>
+          <td>不得使用正式或冗长的解释</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">1</b></td>
+          <td class="small muted">不使用正式或冗长的解释——保持随意直接</td>
+        </tr>
+        
+        <tr>
+          <td>12</td>
+          <td>应当使用简短自然的口语化表达，符合电话沟通风格</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><b style="color:var(--fail)">1</b></td>
+          <td class="small muted">使用简短、自然的口语化表达，符合电话沟通风格</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+
+  <!-- ============ 逐检查点明细（可解释核心） ============ -->
+  <h2 class="sec">逐检查点判定明细 · 可解释证据</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th style="width:26px"></th><th>检查点</th><th>类型</th><th>严重度</th><th>判定</th><th>置信</th><th>轨迹</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr class="cp-row" onclick="toggleCp(0)">
+          <td><span class="caret" id="caret-0">▶</span></td>
+          <td>不得使用&#34;好的&#34;作为语气词</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>100%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-0">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不说&#34;好的&#34;、&#34;哈哈&#34;、&#34;嘿嘿&#34;、&#34;嘻嘻&#34;等语气词</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;method&#39;: &#39;rule&#39;, &#39;matched&#39;: &#39;好的&#39;}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 10 轮</div>好的，登录后看发课页面，低延迟直播选项应该已显示了。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(1)">
+          <td><span class="caret" id="caret-1">▶</span></td>
+          <td>不得使用&#34;哈哈&#34;&#34;嘿嘿&#34;&#34;嘻嘻&#34;等笑声语气词</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>100%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-1">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不说&#34;好的&#34;、&#34;哈哈&#34;、&#34;嘿嘿&#34;、&#34;嘻嘻&#34;等语气词</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;method&#39;: &#39;rule&#39;}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(2)">
+          <td><span class="caret" id="caret-2">▶</span></td>
+          <td>不得向商家承诺折扣券或优惠券</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>100%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-2">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不能承诺给商家折扣券或优惠券</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;method&#39;: &#39;rule&#39;}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(3)">
+          <td><span class="caret" id="caret-3">▶</span></td>
+          <td>应当以指定开场白开启通话</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>99%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-3">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>Opening Line: 您好，请问您是贵培训机构/校区的负责人吗？</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.98} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.99} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.99}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 0 轮</div>您好，请问您是贵培训机构/校区的负责人吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(4)">
+          <td><span class="caret" id="caret-4">▶</span></td>
+          <td>应当确认对方是否为负责人；若不是应请其转达后继续</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-4">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若不是 → 请其转达，然后进入第2步</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.95}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 0 轮</div>请问您是贵培训机构/校区的负责人吗？</div>
+              
+              <div class="evi"><div class="turn">第 1 轮</div>对，我就是，你哪位？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(5)">
+          <td><span class="caret" id="caret-5">▶</span></td>
+          <td>应当在Step 2主动询问商家是否知晓后台已走低延迟线路</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>97%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-5">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>询问：您之前选的是标准直播，但我们后台其实已为您走低延迟线路以保障质量，您知道吗？</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.95}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>就一句话：发课页面新增了&#34;低延迟直播&#34;选项，互动课建议选它。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(6)">
+          <td><span class="caret" id="caret-6">▶</span></td>
+          <td>若商家不知情，应当说明前端当时未开放、临时开启低延迟是为保障音视频与白板同步</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>90%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-6">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若不知情 → 说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.9}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(7)">
+          <td><span class="caret" id="caret-7">▶</span></td>
+          <td>应当在Step 3告知发布页将分开显示两个选项，可根据课程类型自行选择</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>87%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-7">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>之后发布页会分开显示两个选项，根据课程类型自行选择即可</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.87} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.8} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>发课页面新增了&#34;低延迟直播&#34;选项，互动课建议选它。</div>
+              
+              <div class="evi"><div class="turn">第 10 轮</div>登录后看发课页面，低延迟直播选项应该已显示了。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(8)">
+          <td><span class="caret" id="caret-8">▶</span></td>
+          <td>应当在Step 4.1询问商家的发布方式（Web控制台/校务系统A/SaaS系统B）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>85%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-8">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>询问：您是通过Web控制台、校务系统A，还是SaaS系统B发课？</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.82}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>您用Web控制台还是第三方系统发课？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(9)">
+          <td><span class="caret" id="caret-9">▶</span></td>
+          <td>若商家使用Web控制台且低延迟直播未显示，应当告知将由后台配置、请其明天再查看</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>82%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-9">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若未显示 → 后台为其配置，请其明天再查看</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.6}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 10 轮</div>好的，登录后看发课页面，低延迟直播选项应该已显示了。</div>
+              
+              <div class="evi"><div class="turn">第 11 轮</div>行，那我知道了，没别的事我就挂了。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(10)">
+          <td><span class="caret" id="caret-10">▶</span></td>
+          <td>若商家使用第三方系统且低延迟直播未显示，应当缓慢逐步引导开通（每步暂停3秒）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>97%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-10">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>缓慢引导开通（每步暂停3秒）：
+1. 进入【我的】
+2. 点击【服务商/直播平台管理】
+3. 选择【直播平台】
+4. 在【服务产品】下勾选低延迟直播，保存</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.95}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 10 轮</div>一般用Web那个，怎么了？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(11)">
+          <td><span class="caret" id="caret-11">▶</span></td>
+          <td>应当在Step 5检查学员端费用/加速线路费，已设置则提醒确认低延迟直播也已适用</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>93%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-11">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>已设置费用 → 提醒确认低延迟直播也已适用该费用</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.93} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.93} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>还有啥要说的吗？</div>
+              
+              <div class="evi"><div class="turn">第 9 轮</div>您用Web控制台还是第三方系统发课？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(12)">
+          <td><span class="caret" id="caret-12">▶</span></td>
+          <td>若商家无法自行配置费用，应当缓慢逐步引导设置（每步暂停3秒）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>88%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-12">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若无法自行配置 → 缓慢引导设置（每步暂停3秒）</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.8}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(13)">
+          <td><span class="caret" id="caret-13">▶</span></td>
+          <td>应当在Step 6发起企业微信添加；当前号码不可添加时请商家提供可添加手机号</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>95%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-13">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若当前号码可添加 → 告知稍后通过企业微信添加，请通过验证
+若不可添加 → 请提供可添加的手机号，再发送同样的验证提示</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.9}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 11 轮</div>行，那我知道了，没别的事我就挂了。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(14)">
+          <td><span class="caret" id="caret-14">▶</span></td>
+          <td>应当在Step 7按知识库解答剩余问题，无问题则祝福商家后结束通话</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>90%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-14">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若无问题，祝其课程顺利、招生满满，结束通话</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 11 轮</div>行，那我知道了，没别的事我就挂了。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(15)">
+          <td><span class="caret" id="caret-15">▶</span></td>
+          <td>若商家表示在开车，应当礼貌说&#34;那我稍后再打&#34;后立即挂断</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>99%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-15">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若商家说在开车，礼貌说&#34;那我稍后再打&#34;后挂断</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.99} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.99}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(16)">
+          <td><span class="caret" id="caret-16">▶</span></td>
+          <td>若商家表示忙，应当说&#34;就1分钟，保证简短&#34;后继续简短说明，不得直接挂断</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>88%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-16">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若老板说忙，说&#34;就1分钟，保证简短&#34;后继续简短说明</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.88}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>就一句话：发课页面新增了&#34;低延迟直播&#34;选项，互动课建议选它。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(17)">
+          <td><span class="caret" id="caret-17">▶</span></td>
+          <td>应当播报标准直播特点：费用较低、延迟约5-10秒、适合大班课</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>82%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-17">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>标准直播：费用较低；延迟约5-10秒；适合大班课</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.82}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 6 轮</div>标准直播延迟5-10秒，适合大班课；低延迟约1-2秒，互动更流畅，适合小班或实操课。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(18)">
+          <td><span class="caret" id="caret-18">▶</span></td>
+          <td>应当播报低延迟直播特点：延迟约1-2秒、互动更流畅、适合小班课/实操课</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>92%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-18">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>低延迟直播：延迟约1-2秒；互动更流畅；适合小班课/实操课</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.92} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.92} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.92}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 6 轮</div>低延迟约1-2秒，互动更流畅，适合小班或实操课。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(19)">
+          <td><span class="caret" id="caret-19">▶</span></td>
+          <td>应当说明价格差异：标准直播更便宜，低延迟直播带宽和节点保障更强费用略高</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>80%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-19">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>标准直播更便宜
+低延迟直播带宽和节点保障更强，费用略高</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.8} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.8} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.8}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>费用会略高一些，具体价格您这边看到了吗？</div>
+              
+              <div class="evi"><div class="turn">第 6 轮</div>标准直播延迟5-10秒，适合大班课；低延迟约1-2秒，互动更流畅，适合小班或实操课。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(20)">
+          <td><span class="caret" id="caret-20">▶</span></td>
+          <td>即使主流程任务完成，若商家有疑问仍应继续简短作答，不得提前挂断</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>90%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-20">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>即使任务完成，若商家有疑问，继续简短作答</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.9}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 9 轮</div>您用Web控制台还是第三方系统发课？</div>
+              
+              <div class="evi"><div class="turn">第 10 轮</div>好的，登录后看发课页面，低延迟直播选项应该已显示了。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(21)">
+          <td><span class="caret" id="caret-21">▶</span></td>
+          <td>被打断时应当使用简短过渡语衔接</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>78%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-21">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若对话被打断，使用简短过渡语，如&#34;您刚才提到……&#34;或&#34;我刚说到……&#34;</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.62} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.78} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.65}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(22)">
+          <td><span class="caret" id="caret-22">▶</span></td>
+          <td>不得使用正式或冗长的解释</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>65%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-22">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不使用正式或冗长的解释——保持随意直接</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.6} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.65} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.65}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 6 轮</div>标准直播延迟5-10秒，适合大班课；低延迟约1-2秒，互动更流畅，适合小班或实操课。</div>
+              
+              <div class="evi"><div class="turn">第 7 轮</div>具体价格需登平台查看，我这边没有报价权限。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(23)">
+          <td><span class="caret" id="caret-23">▶</span></td>
+          <td>每次回复应当极简，最多15-20个字</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>92%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-23">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>每次回复极简——最多15-20个字</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.92} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.92} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.92}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>我是课程平台的客服，直播产品有个升级想跟您说一下，方便吗？</div>
+              
+              <div class="evi"><div class="turn">第 2 轮</div>就一句话：发课页面新增了&#34;低延迟直播&#34;选项，互动课建议选它。</div>
+              
+              <div class="evi"><div class="turn">第 6 轮</div>标准直播延迟5-10秒，适合大班课；低延迟约1-2秒，互动更流畅，适合小班或实操课。</div>
+              
+              <div class="evi"><div class="turn">第 10 轮</div>好的，登录后看发课页面，低延迟直播选项应该已显示了。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(24)">
+          <td><span class="caret" id="caret-24">▶</span></td>
+          <td>应当使用简短自然的口语化表达，符合电话沟通风格</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>72%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-24">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>使用简短、自然的口语化表达，符合电话沟通风格</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.68} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.72} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.7}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 4 轮</div>您可以登录平台官网核实，我们也有官方公告。</div>
+              
+              <div class="evi"><div class="turn">第 6 轮</div>标准直播延迟5-10秒，适合大班课；低延迟约1-2秒，互动更流畅，适合小班或实操课。</div>
+              
+              <div class="evi"><div class="turn">第 7 轮</div>具体价格需登平台查看，我这边没有报价权限。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(25)">
+          <td><span class="caret" id="caret-25">▶</span></td>
+          <td>应当频繁给商家发言和提问的机会，不得长篇独白</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>82%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-25">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>频繁给商家发言和提问的机会</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.65} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.75}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>费用会略高一些，具体价格您这边看到了吗？</div>
+              
+              <div class="evi"><div class="turn">第 9 轮</div>您用Web控制台还是第三方系统发课？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(26)">
+          <td><span class="caret" id="caret-26">▶</span></td>
+          <td>给出信息后应当暂停等待商家回应，不得连续输出多条信息</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>82%</td>
+          <td class="small muted">official_02_lowlatency · p01_cooperative_worker</td>
+        </tr>
+        <tr class="cp-detail" id="detail-26">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>给出信息后，暂停等待商家回应再继续</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.75} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.7}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>折扣这块暂时没有，价格是统一的。</div>
+              
+              <div class="evi"><div class="turn">第 8 轮</div>直接在发课页面查看，很直观的。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(27)">
+          <td><span class="caret" id="caret-27">▶</span></td>
+          <td>不得使用&#34;好的&#34;作为语气词</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>100%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-27">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不说&#34;好的&#34;、&#34;哈哈&#34;、&#34;嘿嘿&#34;、&#34;嘻嘻&#34;等语气词</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;method&#39;: &#39;rule&#39;}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(28)">
+          <td><span class="caret" id="caret-28">▶</span></td>
+          <td>不得使用&#34;哈哈&#34;&#34;嘿嘿&#34;&#34;嘻嘻&#34;等笑声语气词</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>100%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-28">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不说&#34;好的&#34;、&#34;哈哈&#34;、&#34;嘿嘿&#34;、&#34;嘻嘻&#34;等语气词</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;method&#39;: &#39;rule&#39;}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(29)">
+          <td><span class="caret" id="caret-29">▶</span></td>
+          <td>不得向商家承诺折扣券或优惠券</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>100%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-29">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不能承诺给商家折扣券或优惠券</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：rule · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;method&#39;: &#39;rule&#39;}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(30)">
+          <td><span class="caret" id="caret-30">▶</span></td>
+          <td>应当以指定开场白开启通话</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>100%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-30">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>Opening Line: 您好，请问您是贵培训机构/校区的负责人吗？</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.99} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.99} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 1.0}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 0 轮</div>您好，请问您是贵培训机构/校区的负责人吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(31)">
+          <td><span class="caret" id="caret-31">▶</span></td>
+          <td>应当确认对方是否为负责人；若不是应请其转达后继续</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-31">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若不是 → 请其转达，然后进入第2步</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.92}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 0 轮</div>您好，请问您是贵培训机构/校区的负责人吗？</div>
+              
+              <div class="evi"><div class="turn">第 1 轮</div>对对对，我是，你说吧，快点，什么事？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(32)">
+          <td><span class="caret" id="caret-32">▶</span></td>
+          <td>应当在Step 2主动询问商家是否知晓后台已走低延迟线路</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>97%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-32">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>询问：您之前选的是标准直播，但我们后台其实已为您走低延迟线路以保障质量，您知道吗？</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>我们直播产品升级了，新增了&#34;低延迟直播&#34;选项，您之前用过直播课吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(33)">
+          <td><span class="caret" id="caret-33">▶</span></td>
+          <td>若商家不知情，应当说明前端当时未开放、临时开启低延迟是为保障音视频与白板同步</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>95%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-33">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若不知情 → 说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.88}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(34)">
+          <td><span class="caret" id="caret-34">▶</span></td>
+          <td>应当在Step 3告知发布页将分开显示两个选项，可根据课程类型自行选择</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>97%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-34">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>之后发布页会分开显示两个选项，根据课程类型自行选择即可</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>延迟从5-10秒降到1-2秒，互动更顺畅。</div>
+              
+              <div class="evi"><div class="turn">第 3 轮</div>略贵一点，带宽保障更强。具体价格您可以后台查看，需要吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(35)">
+          <td><span class="caret" id="caret-35">▶</span></td>
+          <td>应当在Step 4.1询问商家的发布方式（Web控制台/校务系统A/SaaS系统B）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>97%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-35">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>询问：您是通过Web控制台、校务系统A，还是SaaS系统B发课？</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.97}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>稍后我通过企业微信联系您，请通过验证。</div>
+              
+              <div class="evi"><div class="turn">第 6 轮</div>没了，祝您招生满满！</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(36)">
+          <td><span class="caret" id="caret-36">▶</span></td>
+          <td>若商家使用Web控制台且低延迟直播未显示，应当告知将由后台配置、请其明天再查看</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>90%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-36">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若未显示 → 后台为其配置，请其明天再查看</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.9}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(37)">
+          <td><span class="caret" id="caret-37">▶</span></td>
+          <td>若商家使用第三方系统且低延迟直播未显示，应当缓慢逐步引导开通（每步暂停3秒）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>90%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-37">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>缓慢引导开通（每步暂停3秒）：
+1. 进入【我的】
+2. 点击【服务商/直播平台管理】
+3. 选择【直播平台】
+4. 在【服务产品】下勾选低延迟直播，保存</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.9}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(38)">
+          <td><span class="caret" id="caret-38">▶</span></td>
+          <td>应当在Step 5检查学员端费用/加速线路费，已设置则提醒确认低延迟直播也已适用</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>95%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-38">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>已设置费用 → 提醒确认低延迟直播也已适用该费用</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.92}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>略贵一点，带宽保障更强。具体价格您可以后台查看，需要吗？</div>
+              
+              <div class="evi"><div class="turn">第 4 轮</div>具体数字我这边没法给，建议联系您的客户经理确认。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(39)">
+          <td><span class="caret" id="caret-39">▶</span></td>
+          <td>若商家无法自行配置费用，应当缓慢逐步引导设置（每步暂停3秒）</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>85%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-39">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若无法自行配置 → 缓慢引导设置（每步暂停3秒）</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.8} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.85}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(40)">
+          <td><span class="caret" id="caret-40">▶</span></td>
+          <td>应当在Step 6发起企业微信添加；当前号码不可添加时请商家提供可添加手机号</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>88%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-40">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若当前号码可添加 → 告知稍后通过企业微信添加，请通过验证
+若不可添加 → 请提供可添加的手机号，再发送同样的验证提示</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.82}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>稍后我通过企业微信联系您，请通过验证。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(41)">
+          <td><span class="caret" id="caret-41">▶</span></td>
+          <td>应当在Step 7按知识库解答剩余问题，无问题则祝福商家后结束通话</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>95%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-41">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若无问题，祝其课程顺利、招生满满，结束通话</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.95} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.95}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 6 轮</div>没了，祝您招生满满！</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(42)">
+          <td><span class="caret" id="caret-42">▶</span></td>
+          <td>若商家表示在开车，应当礼貌说&#34;那我稍后再打&#34;后立即挂断</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>99%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-42">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若商家说在开车，礼貌说&#34;那我稍后再打&#34;后挂断</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.99} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.98} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.99}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(43)">
+          <td><span class="caret" id="caret-43">▶</span></td>
+          <td>若商家表示忙，应当说&#34;就1分钟，保证简短&#34;后继续简短说明，不得直接挂断</td>
+          <td><span class="tag flow">flow</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>92%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-43">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若老板说忙，说&#34;就1分钟，保证简短&#34;后继续简短说明</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.92}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>我是，你说吧，快点，什么事？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(44)">
+          <td><span class="caret" id="caret-44">▶</span></td>
+          <td>应当播报标准直播特点：费用较低、延迟约5-10秒、适合大班课</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>92%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-44">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>标准直播：费用较低；延迟约5-10秒；适合大班课</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.92} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.9}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>延迟从5-10秒降到1-2秒，互动更顺畅。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(45)">
+          <td><span class="caret" id="caret-45">▶</span></td>
+          <td>应当播报低延迟直播特点：延迟约1-2秒、互动更流畅、适合小班课/实操课</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>88%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-45">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>低延迟直播：延迟约1-2秒；互动更流畅；适合小班课/实操课</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>延迟从5-10秒降到1-2秒，互动更顺畅。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(46)">
+          <td><span class="caret" id="caret-46">▶</span></td>
+          <td>应当说明价格差异：标准直播更便宜，低延迟直播带宽和节点保障更强费用略高</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>85%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-46">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>标准直播更便宜
+低延迟直播带宽和节点保障更强，费用略高</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.8} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.82}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>略贵一点，带宽保障更强。具体价格您可以后台查看，需要吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(47)">
+          <td><span class="caret" id="caret-47">▶</span></td>
+          <td>即使主流程任务完成，若商家有疑问仍应继续简短作答，不得提前挂断</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>90%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-47">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>即使任务完成，若商家有疑问，继续简短作答</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.87} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.8}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 5 轮</div>稍后我通过企业微信联系您，请通过验证。</div>
+              
+              <div class="evi"><div class="turn">第 6 轮</div>没了，祝您招生满满！</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(48)">
+          <td><span class="caret" id="caret-48">▶</span></td>
+          <td>被打断时应当使用简短过渡语衔接</td>
+          <td><span class="tag constraint">constraint</span></td>
+          <td><span class="sev minor">minor</span></td>
+          <td><span class="badge na">不适用</span></td>
+          <td>85%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-48">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>若对话被打断，使用简短过渡语，如&#34;您刚才提到……&#34;或&#34;我刚说到……&#34;</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.78} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.85} / {&#39;verdict&#39;: &#39;na&#39;, &#39;confidence&#39;: 0.85}）
+            </div>
+            
+              <div class="small muted">（无引述证据）</div>
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(49)">
+          <td><span class="caret" id="caret-49">▶</span></td>
+          <td>不得使用正式或冗长的解释</td>
+          <td><span class="tag forbidden">forbidden</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>82%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-49">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>不使用正式或冗长的解释——保持随意直接</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.65} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.82} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.82}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>延迟从5-10秒降到1-2秒，互动更顺畅。</div>
+              
+              <div class="evi"><div class="turn">第 3 轮</div>略贵一点，带宽保障更强。具体价格您可以后台查看，需要吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(50)">
+          <td><span class="caret" id="caret-50">▶</span></td>
+          <td>每次回复应当极简，最多15-20个字</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev critical">critical</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>90%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-50">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>每次回复极简——最多15-20个字</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.9} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.88} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.88}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 0 轮</div>我们直播产品升级了，新增了&#34;低延迟直播&#34;选项，您之前用过直播课吗？</div>
+              
+              <div class="evi"><div class="turn">第 3 轮</div>略贵一点，带宽保障更强。具体价格您可以后台查看，需要吗？</div>
+              
+              <div class="evi"><div class="turn">第 4 轮</div>具体数字我这边没法给，建议联系您的客户经理确认。</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(51)">
+          <td><span class="caret" id="caret-51">▶</span></td>
+          <td>应当使用简短自然的口语化表达，符合电话沟通风格</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>78%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-51">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>使用简短、自然的口语化表达，符合电话沟通风格</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.62} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.78} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.78}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 2 轮</div>延迟从5-10秒降到1-2秒，互动更顺畅。</div>
+              
+              <div class="evi"><div class="turn">第 6 轮</div>没了，祝您招生满满！</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(52)">
+          <td><span class="caret" id="caret-52">▶</span></td>
+          <td>应当频繁给商家发言和提问的机会，不得长篇独白</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge pass">通过</span></td>
+          <td>80%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-52">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>频繁给商家发言和提问的机会</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.72} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.8} / {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.75}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 1 轮</div>您之前用过直播课吗？</div>
+              
+              <div class="evi"><div class="turn">第 3 轮</div>具体价格您可以后台查看，需要吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+        <tr class="cp-row" onclick="toggleCp(53)">
+          <td><span class="caret" id="caret-53">▶</span></td>
+          <td>给出信息后应当暂停等待商家回应，不得连续输出多条信息</td>
+          <td><span class="tag style">style</span></td>
+          <td><span class="sev major">major</span></td>
+          <td><span class="badge fail">未通过</span></td>
+          <td>83%</td>
+          <td class="small muted">official_02_lowlatency · p02_impatient</td>
+        </tr>
+        <tr class="cp-detail" id="detail-53">
+          <td></td>
+          <td colspan="6">
+            
+            <div class="src"><b>来源指令引文：</b>给出信息后，暂停等待商家回应再继续</div>
+            
+            <div style="margin:8px 0 4px;font-weight:700;font-size:12px;color:#555">
+              证据（判定方法：llm · 投票 {&#39;verdict&#39;: &#39;pass&#39;, &#39;confidence&#39;: 0.75} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.83} / {&#39;verdict&#39;: &#39;fail&#39;, &#39;confidence&#39;: 0.8}）
+            </div>
+            
+              
+              <div class="evi"><div class="turn">第 3 轮</div>略贵一点，带宽保障更强。具体价格您可以后台查看，需要吗？</div>
+              
+            
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+    <div class="small muted" style="margin-top:8px">点击任意行展开查看来源指令引文与逐轮证据。</div>
+  </div>
+
+  <!-- ============ 失败案例剖析 ============ -->
+  
+  <h2 class="sec">失败案例剖析 · 完整对话回放</h2>
+  
+  <div class="case">
+    <div class="ch">
+      <span class="who">official_02_lowlatency</span>
+      <span class="meta">用户画像：p01_cooperative_worker</span>
+      <span class="fc">违规 13 项 · critical 1</span>
+    </div>
+    
+    <ul class="fail-cp-list">
+      <li>✗ [major] 不得使用&#34;好的&#34;作为语气词</li><li>✗ [major] 应当在Step 2主动询问商家是否知晓后台已走低延迟线路</li><li>✗ [major] 应当在Step 3告知发布页将分开显示两个选项，可根据课程类型自行选择</li><li>✗ [major] 应当在Step 4.1询问商家的发布方式（Web控制台/校务系统A/SaaS系统B）</li><li>✗ [major] 应当在Step 5检查学员端费用/加速线路费，已设置则提醒确认低延迟直播也已适用</li><li>✗ [major] 应当在Step 6发起企业微信添加；当前号码不可添加时请商家提供可添加手机号</li><li>✗ [minor] 应当在Step 7按知识库解答剩余问题，无问题则祝福商家后结束通话</li><li>✗ [major] 若商家表示忙，应当说&#34;就1分钟，保证简短&#34;后继续简短说明，不得直接挂断</li><li>✗ [major] 应当播报标准直播特点：费用较低、延迟约5-10秒、适合大班课</li><li>✗ [major] 应当说明价格差异：标准直播更便宜，低延迟直播带宽和节点保障更强费用略高</li><li>✗ [major] 不得使用正式或冗长的解释</li><li>✗ [critical] 每次回复应当极简，最多15-20个字</li><li>✗ [major] 应当使用简短自然的口语化表达，符合电话沟通风格</li>
+    </ul>
+    
+    <div class="body">
+      <div class="chat">
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 0 轮</div>您好，请问您是贵培训机构/校区的负责人吗？
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 1 轮</div>对，我就是，你哪位？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 1 轮</div>我是课程平台的客服，直播产品有个升级想跟您说一下，方便吗？
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 2 轮</div>方便，但我在开会，长话短说，什么升级？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 2 轮</div>就一句话：发课页面新增了&#34;低延迟直播&#34;选项，互动课建议选它。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 3 轮</div>低延迟直播比普通直播贵多少？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 3 轮</div>费用会略高一些，具体价格您这边看到了吗？
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 4 轮</div>我没看到，你们发什么通知了吗？再说了，你一上来就让我升级，我怎么知道你是不是真的平台客服，万一是诈骗电话呢？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 4 轮</div>您可以登录平台官网核实，我们也有官方公告。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 5 轮</div>好，那我去官网核实一下。不过我问你，我们现在升级的话有没有什么优惠，比如折扣券啥的？
+        </div>
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 5 轮</div>折扣这块暂时没有，价格是统一的。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 6 轮</div>那行，我知道了。你先说说标准直播和低延迟直播具体有什么区别，延迟分别是多少，我好判断要不要换。
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 6 轮</div>标准直播延迟5-10秒，适合大班课；低延迟约1-2秒，互动更流畅，适合小班或实操课。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 7 轮</div>行，那明白了。我们主要做实操课，那低延迟那个确实合适一点。费用高多少你能不能给个大概范围，还是说只能登平台自己看？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 7 轮</div>具体价格需登平台查看，我这边没有报价权限。
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 8 轮</div>行，我上去看，你们费用页面好找吗，还是要找客服申请报价？
+        </div>
+        
+        <div class="bub agent">
+          <div class="rt">数字人 · 第 8 轮</div>直接在发课页面查看，很直观的。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 9 轮</div>行，那我一会儿开完会去看一下，还有啥要说的吗？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 9 轮</div>您用Web控制台还是第三方系统发课？
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 10 轮</div>一般用Web那个，怎么了？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 10 轮</div>好的，登录后看发课页面，低延迟直播选项应该已显示了。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 11 轮</div>行，那我知道了，没别的事我就挂了。
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="case">
+    <div class="ch">
+      <span class="who">official_02_lowlatency</span>
+      <span class="meta">用户画像：p02_impatient</span>
+      <span class="fc">违规 9 项 · critical 1</span>
+    </div>
+    
+    <ul class="fail-cp-list">
+      <li>✗ [major] 应当在Step 2主动询问商家是否知晓后台已走低延迟线路</li><li>✗ [major] 应当在Step 3告知发布页将分开显示两个选项，可根据课程类型自行选择</li><li>✗ [major] 应当在Step 4.1询问商家的发布方式（Web控制台/校务系统A/SaaS系统B）</li><li>✗ [major] 应当在Step 5检查学员端费用/加速线路费，已设置则提醒确认低延迟直播也已适用</li><li>✗ [major] 应当播报标准直播特点：费用较低、延迟约5-10秒、适合大班课</li><li>✗ [major] 应当播报低延迟直播特点：延迟约1-2秒、互动更流畅、适合小班课/实操课</li><li>✗ [major] 应当说明价格差异：标准直播更便宜，低延迟直播带宽和节点保障更强费用略高</li><li>✗ [critical] 每次回复应当极简，最多15-20个字</li><li>✗ [major] 给出信息后应当暂停等待商家回应，不得连续输出多条信息</li>
+    </ul>
+    
+    <div class="body">
+      <div class="chat">
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 0 轮</div>您好，请问您是贵培训机构/校区的负责人吗？
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 1 轮</div>对对对，我是，你说吧，快点，什么事？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 1 轮</div>我们直播产品升级了，新增了&#34;低延迟直播&#34;选项，您之前用过直播课吗？
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 2 轮</div>用过用过，你直接说这个低延迟跟我现在用的有啥区别，别废话。
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 2 轮</div>延迟从5-10秒降到1-2秒，互动更顺畅。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 3 轮</div>行，那费用呢？贵多少？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 3 轮</div>略贵一点，带宽保障更强。具体价格您可以后台查看，需要吗？
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 4 轮</div>略贵？什么叫略贵，你就说贵多少，给个数！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 4 轮</div>具体数字我这边没法给，建议联系您的客户经理确认。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 5 轮</div>行了行了，那你打这个电话来干嘛？就告诉我个&#34;略贵&#34;？客户经理是谁、怎么联系，你给我说！
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 5 轮</div>稍后我通过企业微信联系您，请通过验证。
+        </div>
+        
+        <div class="bub user bad">
+          <div class="rt">用户 · 第 6 轮</div>行，那我等着，还有别的事吗？
+        </div>
+        
+        <div class="bub agent bad">
+          <div class="rt">数字人 · 第 6 轮</div>没了，祝您招生满满！
+        </div>
+        
+        <div class="bub user">
+          <div class="rt">用户 · 第 7 轮</div>行，挂了。
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  
+
+  <!-- ============ 模拟器覆盖率 ============ -->
+  <h2 class="sec">模拟器覆盖率 · 测试充分性量化</h2>
+  <div class="card">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="n warn">77.8%</div>
+        <div class="l">检查点触达率<br>（21/27 个检查点被至少一条轨迹实际检验）</div>
+      </div>
+      
+      <div class="kpi">
+        <div class="n warn">77.8%</div>
+        <div class="l">p01_cooperative_worker<br>（21/27 触达）</div>
+      </div>
+      
+      <div class="kpi">
+        <div class="n warn">74.1%</div>
+        <div class="l">p02_impatient<br>（20/27 触达）</div>
+      </div>
+      
+    </div>
+    
+    <div class="small" style="margin-top:14px"><strong>测试盲区（所有轨迹均未触达，建议补充对应场景的 persona / 策略）：</strong></div>
+    <table style="margin-top:8px">
+      <thead><tr><th>检查点</th><th>类型</th><th>严重度</th><th>指令原文</th></tr></thead>
+      <tbody>
+      
+      <tr>
+        <td>若商家表示在开车，应当礼貌说&#34;那我稍后再打&#34;后立即挂断</td>
+        <td>flow</td>
+        <td>critical</td>
+        <td class="small muted">若商家说在开车，礼貌说&#34;那我稍后再打&#34;后挂断</td>
+      </tr>
+      
+      <tr>
+        <td>若商家不知情，应当说明前端当时未开放、临时开启低延迟是为保障音视频与白板同步</td>
+        <td>flow</td>
+        <td>major</td>
+        <td class="small muted">若不知情 → 说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步</td>
+      </tr>
+      
+      <tr>
+        <td>若商家使用Web控制台且低延迟直播未显示，应当告知将由后台配置、请其明天再查看</td>
+        <td>flow</td>
+        <td>major</td>
+        <td class="small muted">若未显示 → 后台为其配置，请其明天再查看</td>
+      </tr>
+      
+      <tr>
+        <td>若商家使用第三方系统且低延迟直播未显示，应当缓慢逐步引导开通（每步暂停3秒）</td>
+        <td>flow</td>
+        <td>major</td>
+        <td class="small muted">缓慢引导开通（每步暂停3秒）：
+1. 进入【我的】
+2. 点击【服务商/直播平台管理】
+3. 选择【直播平台】
+4. 在【服务产品】下勾选低延迟直播，保存</td>
+      </tr>
+      
+      <tr>
+        <td>若商家无法自行配置费用，应当缓慢逐步引导设置（每步暂停3秒）</td>
+        <td>flow</td>
+        <td>minor</td>
+        <td class="small muted">若无法自行配置 → 缓慢引导设置（每步暂停3秒）</td>
+      </tr>
+      
+      <tr>
+        <td>被打断时应当使用简短过渡语衔接</td>
+        <td>constraint</td>
+        <td>minor</td>
+        <td class="small muted">若对话被打断，使用简短过渡语，如&#34;您刚才提到……&#34;或&#34;我刚说到……&#34;</td>
+      </tr>
+      
+      </tbody>
+    </table>
+    
+    <div class="small muted" style="margin-top:10px">
+      「测得充分」不靠形容词：触达率 = 被实际检验（pass/fail）的检查点 / 全部检查点；na 即该轨迹未触达。覆盖率驱动的模拟器会优先制造尚未触达的场景。
+    </div>
+  </div>
+
+  <!-- ============ Judge 可靠性 ============ -->
+  <h2 class="sec">Judge 可靠性度量</h2>
+  <div class="card">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="n good">88.9%</div>
+        <div class="l">多数投票一致率<br>（48/54 条全票一致）</div>
+      </div>
+      <div class="kpi">
+        <div class="n warn">6</div>
+        <div class="l">投票分裂条数<br>（多数投票内部存在分歧）</div>
+      </div>
+      <div class="kpi">
+        <div class="n good">0</div>
+        <div class="l">规则/LLM 双轨冲突数<br>（同检查点两轨结论不一致）</div>
+      </div>
+      <div class="kpi">
+        <div class="n">54</div>
+        <div class="l">检查点判定总数</div>
+      </div>
+    </div>
+    <div class="small muted" style="margin-top:10px">
+      一致率越高、冲突数越低，说明评测结论越稳定可信。双轨冲突项建议人工复核。
+    </div>
+  </div>
+
+  <div class="foot">
+    EvalCall · 外呼对话模型指令遵循自动评测系统 · 报告生成于 2026-06-06 10:21:04<br>
+    每条结论均可溯源到对话原文与指令引文 —— 评测过程可解释、结果可量化。
+  </div>
+
+</div>
+
+<script>
+function toggleCp(i){
+  var d=document.getElementById('detail-'+i);
+  var r=d.previousElementSibling;
+  if(d.classList.contains('open')){d.classList.remove('open');r.classList.remove('open');}
+  else{d.classList.add('open');r.classList.add('open');}
+}
+</script>
+</body>
+</html>

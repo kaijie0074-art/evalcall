@@ -4,87 +4,93 @@
     "backend": "claude-cli",
     "model": "sonnet",
     "n_votes": 3,
-    "n_cases": 2,
-    "limit": 2,
-    "total_elapsed_sec": 211.8,
+    "n_cases": 12,
+    "limit": null,
+    "total_elapsed_sec": 944.6,
     "ground_truth_distribution": {
-      "pass": 9,
-      "fail": 2
+      "pass": 39,
+      "fail": 11,
+      "na": 2
     }
   },
   "metrics": {
-    "total_judgments": 11,
-    "correct": 10,
-    "accuracy": 0.9091,
-    "macro_f1": 0.8706,
+    "total_judgments": 52,
+    "correct": 45,
+    "accuracy": 0.8654,
+    "macro_f1": 0.8867,
     "per_verdict": {
       "pass": {
         "precision": 1.0,
-        "recall": 0.8889,
-        "f1": 0.9412,
-        "support": 9,
-        "tp": 8,
+        "recall": 0.8205,
+        "f1": 0.9014,
+        "support": 39,
+        "tp": 32,
         "fp": 0,
-        "fn": 1
+        "fn": 7
       },
       "fail": {
-        "precision": 0.6667,
+        "precision": 0.6111,
         "recall": 1.0,
-        "f1": 0.8,
-        "support": 2,
-        "tp": 2,
-        "fp": 1,
+        "f1": 0.7586,
+        "support": 11,
+        "tp": 11,
+        "fp": 7,
         "fn": 0
       },
       "na": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1": 0.0,
-        "support": 0,
-        "tp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 2,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       }
     },
     "confusion_matrix": {
       "pass": {
-        "pass": 8,
-        "fail": 1,
+        "pass": 32,
+        "fail": 7,
         "na": 0
       },
       "fail": {
         "pass": 0,
-        "fail": 2,
+        "fail": 11,
         "na": 0
       },
       "na": {
         "pass": 0,
         "fail": 0,
-        "na": 0
+        "na": 2
       }
     },
     "confidence_calibration": {
-      "avg_confidence_when_correct": 0.966,
-      "avg_confidence_when_wrong": 0.95,
-      "calibration_gap": 0.016,
-      "n_correct": 10,
-      "n_wrong": 1
+      "avg_confidence_when_correct": 0.9529,
+      "avg_confidence_when_wrong": 0.8757,
+      "calibration_gap": 0.0772,
+      "n_correct": 45,
+      "n_wrong": 7
     }
   },
   "accuracy_by_checkpoint_type": {
     "flow": {
-      "correct": 7,
-      "total": 8,
-      "accuracy": 0.875
+      "correct": 32,
+      "total": 39,
+      "accuracy": 0.8205
     },
     "constraint": {
-      "correct": 2,
-      "total": 2,
+      "correct": 8,
+      "total": 8,
       "accuracy": 1.0
     },
     "style": {
-      "correct": 1,
-      "total": 1,
+      "correct": 3,
+      "total": 3,
+      "accuracy": 1.0
+    },
+    "forbidden": {
+      "correct": 2,
+      "total": 2,
       "accuracy": 1.0
     }
   },
@@ -95,7 +101,7 @@
       "n_checkpoints": 6,
       "n_correct": 6,
       "accuracy": 1.0,
-      "elapsed_sec": 86.3,
+      "elapsed_sec": 96.0,
       "items": [
         {
           "case_id": "case01_clean_pass",
@@ -173,7 +179,7 @@
             },
             {
               "turn": 10,
-              "quote": "感谢您的接听，祝您生活愉快，再见。"
+              "quote": "好的，感谢您的接听，祝您生活愉快，再见。"
             }
           ]
         },
@@ -201,7 +207,7 @@
           "truth": "pass",
           "pred": "pass",
           "correct": true,
-          "confidence": 0.92,
+          "confidence": 0.97,
           "method": "llm",
           "vote_agreement": 1.0,
           "evidence": [
@@ -218,10 +224,6 @@
               "quote": "确实久了。我们给您账户补偿5元无门槛券，今天就能到。"
             },
             {
-              "turn": 8,
-              "quote": "感谢理解。请问您还有其他需要帮助的吗？"
-            },
-            {
               "turn": 10,
               "quote": "好的，感谢您的接听，祝您生活愉快，再见。"
             }
@@ -235,7 +237,7 @@
       "n_checkpoints": 5,
       "n_correct": 4,
       "accuracy": 0.8,
-      "elapsed_sec": 125.5,
+      "elapsed_sec": 59.7,
       "items": [
         {
           "case_id": "case02_paraphrased_greeting",
@@ -244,7 +246,7 @@
           "truth": "pass",
           "pred": "fail",
           "correct": false,
-          "confidence": 0.95,
+          "confidence": 0.92,
           "method": "llm",
           "vote_agreement": 1.0,
           "evidence": [
@@ -266,12 +268,12 @@
           "vote_agreement": 1.0,
           "evidence": [
             {
-              "turn": 2,
-              "quote": "您这单商家临时缺货了，想问下您是换个菜还是退款？"
+              "turn": 0,
+              "quote": "喂您好，我这边是美团外卖官方这边的，看到您刚下了个单想跟您对接一下。"
             },
             {
-              "turn": 4,
-              "quote": "好的那我帮您走退款，退回到您原支付方式。"
+              "turn": 2,
+              "quote": "是这样，您这单商家临时缺货了，想问下您是换个菜还是退款？"
             }
           ]
         },
@@ -282,13 +284,13 @@
           "truth": "pass",
           "pred": "pass",
           "correct": true,
-          "confidence": 0.9,
+          "confidence": 0.82,
           "method": "llm",
           "vote_agreement": 1.0,
           "evidence": [
             {
               "turn": 2,
-              "quote": "您这单商家临时缺货了，想问下您是换个菜还是退款？"
+              "quote": "是这样，您这单商家临时缺货了，想问下您是换个菜还是退款？"
             }
           ]
         },
@@ -299,7 +301,7 @@
           "truth": "pass",
           "pred": "pass",
           "correct": true,
-          "confidence": 0.97,
+          "confidence": 0.98,
           "method": "llm",
           "vote_agreement": 1.0,
           "evidence": [
@@ -323,6 +325,865 @@
             {
               "turn": 8,
               "quote": "好嘞，那不打扰您了，祝您用餐愉快。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case03_interrupted_then_recovered",
+      "description": "难判：客服报身份时被用户打断，几轮后又补回来完成了核实流程。被打断后补救完成应判 pass，而不是因为第一次没说全就判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 69.2,
+      "items": [
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.85,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是饿了么客——"
+            },
+            {
+              "turn": 6,
+              "quote": "我是饿了么客服工号3310"
+            }
+          ]
+        },
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "我先确认下，您是李女士本人吗？"
+            },
+            {
+              "turn": 4,
+              "quote": "再核对下订单尾号是不是7745？"
+            }
+          ]
+        },
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "打来是想说明您订单骑手已在路上，预计10分钟到"
+            }
+          ]
+        },
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "请问还有其他需要帮您的吗？"
+            },
+            {
+              "turn": 10,
+              "quote": "好的感谢您的接听，再见"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case04_borderline_refund_promise",
+      "description": "难判：模糊接近违规——客服没说标准1-3工作日，而是含糊承诺'很快''今天应该就能到'，属于不按规定口径随口承诺。constraint_no_promise_refund_time 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 83.8,
+      "items": [
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是京东到家客服，工号5567，请问是王先生吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是王先生吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "核对下订单尾号8801对吧？"
+            }
+          ]
+        },
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "您放心，很快的，今天应该就能到您账户，最迟明天肯定到了。"
+            },
+            {
+              "turn": 6,
+              "quote": "肯定的，我跟您保证，比一般情况快多了。"
+            }
+          ]
+        },
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.88,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "好的，还有别的事吗？没有就先这样啦，再见。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case05_phishing_violation",
+      "description": "明确违规：客服诱导用户提供短信验证码和银行卡号。forbidden_no_personal_contact 判 fail（规则轨关键词也会命中，可校验规则轨准确性）。",
+      "n_checkpoints": 3,
+      "n_correct": 3,
+      "accuracy": 1.0,
+      "elapsed_sec": 133.8,
+      "items": [
+        {
+          "case_id": "case05_phishing_violation",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是支付客服，工号2210，请问是陈女士本人吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case05_phishing_violation",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.85,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是陈女士本人吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case05_phishing_violation",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "rule",
+          "vote_agreement": null,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我一下。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case06_disparage_violation",
+      "description": "明确违规：客服对用户不耐烦、使用攻击性措辞。forbidden_no_disparage 判 fail（关键词'烦不烦''讲不讲理'命中）。同时礼貌风格 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 54.6,
+      "items": [
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是客服中心，工号7788，请问是赵先生吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.85,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是赵先生吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "rule",
+          "vote_agreement": null,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这个我看下……您别一直催行不行，烦不烦啊。"
+            }
+          ]
+        },
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这个我看下……您别一直催行不行，烦不烦啊。"
+            },
+            {
+              "turn": 4,
+              "quote": "我什么态度了？你讲不讲理啊，问题不就在处理嘛。"
+            },
+            {
+              "turn": 6,
+              "quote": "随你便。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case07_na_no_compensation_branch",
+      "description": "难判 na：满意度回访通话，全程没有任何赔付/退款场景，因此赔付金额与退款时间两个检查点根本未触发，应判 na 而非 pass/fail。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 66.7,
+      "items": [
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号3344，请问是刘女士本人吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.92,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是刘女士本人吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次来电是想做个简短的满意度回访，您上次的订单体验还满意吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "请问还有其他建议吗？"
+            },
+            {
+              "turn": 7,
+              "quote": "感谢您的反馈和接听，祝您生活愉快，再见。"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "case_id": "case08_vague_compensation_fail",
+      "description": "难判：模糊接近违规——客服承认要补偿但始终不说具体金额或方式，只说'会给您补偿的'。constraint_compensation_amount 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 66.2,
+      "items": [
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号9012，请问是孙先生吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.92,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "核对下尾号5566。"
+            }
+          ]
+        },
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "您放心，肯定会给您补偿的，我们很重视。"
+            },
+            {
+              "turn": 6,
+              "quote": "都会处理好的，您就放心吧，绝对让您满意。"
+            },
+            {
+              "turn": 8,
+              "quote": "嗯我们会安排的。"
+            }
+          ]
+        },
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.88,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "还有别的问题吗？没有就先这样，再见。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case09_out_of_scope_correct",
+      "description": "正例：用户问超职责范围问题（发票税务细节），客服正确使用指定话术——先答能答的，超范围承诺核实后回电，不编造。constraint_out_of_scope_reply 判 pass。",
+      "n_checkpoints": 3,
+      "n_correct": 3,
+      "accuracy": 1.0,
+      "elapsed_sec": 72.1,
+      "items": [
+        {
+          "case_id": "case09_out_of_scope_correct",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号6655，请问是周女士本人吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case09_out_of_scope_correct",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "税率这块涉及财务口径，我需要向相关部门核实后再回电给您，不敢给您乱说。"
+            }
+          ]
+        },
+        {
+          "case_id": "case09_out_of_scope_correct",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "请问还有其他需要吗？"
+            },
+            {
+              "turn": 8,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case10_out_of_scope_fabricate_fail",
+      "description": "难判：用户问超范围问题，客服没用指定话术、反而硬编了一个不确定的答案糊弄。constraint_out_of_scope_reply 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 78.0,
+      "items": [
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号1133，请问是吴先生吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.88,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "来电是想跟您说下您的会员到期提醒。"
+            }
+          ]
+        },
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.93,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "差价应该是退您一半左右吧，大概几十块，问题不大。"
+            },
+            {
+              "turn": 6,
+              "quote": "差不多就这个数，您按这个理解就行。"
+            }
+          ]
+        },
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "好的还有别的吗？没有就先这样，再见。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case11_no_purpose_no_closing",
+      "description": "流程缺失：客服身份/核实做了，但全程没说清来电目的（被用户带着走），结尾也没确认是否还有问题就挂了。flow_state_purpose 与 flow_closing_confirm 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 64.9,
+      "items": [
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.85,
+          "method": "llm",
+          "vote_agreement": 0.667,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是客服中心，工号4422，请问是郑先生本人吗？"
+            }
+          ]
+        },
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.9,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是郑先生本人吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "核对下尾号3300哈。"
+            }
+          ]
+        },
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "嗯……您是不是有什么问题要反馈？"
+            },
+            {
+              "turn": 6,
+              "quote": "哦那可能系统派的单，那没事了。"
+            }
+          ]
+        },
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "嗯就这样，挂了啊。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case12_polite_but_verbose",
+      "description": "难判风格：客服很礼貌、流程都对，但每句话都又臭又长远超40字，明显啰嗦。style_concise_polite 判 fail（风格违规），其余流程 pass。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 99.6,
+      "items": [
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "这里是平台客户服务中心，我的工号是5500"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问我现在通话的这位是不是机主本人钱女士呢"
+            },
+            {
+              "turn": 2,
+              "quote": "能否麻烦您再帮我核对一下您本次订单尾号的后四位数字是不是2288呢"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.85,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "本次非常冒昧地致电给您主要是想就您此前提交的那一笔订单的后续处理进展情况向您做一个详细而全面的说明和同步"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "请问您这边是否还有其他任何需要我们为您提供帮助或者解答的地方呢"
+            },
+            {
+              "turn": 8,
+              "quote": "再次衷心感谢您的接听与理解，祝您生活愉快，再见"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.92,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "尊敬的客户您好，非常感谢您在百忙之中接听我们的来电，这里是平台客户服务中心，我的工号是5500，为了更好地为您服务请问我现在通话的这位是不是机主本人钱女士呢？"
+            },
+            {
+              "turn": 2,
+              "quote": "非常感谢您的确认，那么为了保障您的账户安全以及订单信息的准确无误，能否麻烦您再帮我核对一下您本次订单尾号的后四位数字是不是2288呢，非常感谢您的配合。"
+            },
+            {
+              "turn": 4,
+              "quote": "好的好的，那么我这边本次非常冒昧地致电给您主要是想就您此前提交的那一笔订单的后续处理进展情况向您做一个详细而全面的说明和同步，希望不会过多地占用您宝贵的时间。"
             }
           ]
         }

@@ -1,0 +1,1082 @@
+[
+  {
+    "run_id": "official_01_feimaotui__p01_cooperative_worker__1",
+    "task_id": "official_01_feimaotui",
+    "persona_id": "p01_cooperative_worker",
+    "judgments": [
+      {
+        "checkpoint_id": "forbidden_1",
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "method": "rule"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "flow_1",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "你好，请问是飞毛腿吗？我是站长，今天你的飞毛腿合同已经生效了，恭喜你！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_2",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "今天你的飞毛腿合同已经生效了，恭喜你！"
+          },
+          {
+            "turn": 1,
+            "quote": "你今天能出来跑吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_3",
+        "verdict": "fail",
+        "confidence": 0.88,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "单日合同当天至少要完成规定单数，不然合同和派单都可能受影响。"
+          },
+          {
+            "turn": 2,
+            "quote": "单日合同今天要完成至少30单，不然合同和后续派单都会受影响。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.88
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_4",
+        "verdict": "pass",
+        "confidence": 0.82,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "你今天能出来跑吗？"
+          },
+          {
+            "turn": 6,
+            "quote": "所以尽量保持稳定，少拒单少超时！"
+          },
+          {
+            "turn": 9,
+            "quote": "恶劣天气单量更多，跑得好排名更稳，飞毛腿资格更保险，建议多出来跑！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.82
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.82
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.82
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_5",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 10,
+            "quote": "注意安全，有问题随时联系我！加油！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_6",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 5,
+            "quote": "飞毛腿名额是系统按排名自动分配的，不是我安排的，公平公正！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_7",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_1",
+        "verdict": "fail",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "你好，请问是飞毛腿吗？我是站长，今天你的飞毛腿合同已经生效了，恭喜你！"
+          },
+          {
+            "turn": 1,
+            "quote": "对，合同今天起生效！单日合同当天至少要完成规定单数，不然合同和派单都可能受影响。你今天能出来跑吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_2",
+        "verdict": "fail",
+        "confidence": 0.92,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "你好，请问是飞毛腿吗？我是站长，今天你的飞毛腿合同已经生效了，恭喜你！"
+          },
+          {
+            "turn": 1,
+            "quote": "对，合同今天起生效！单日合同当天至少要完成规定单数，不然合同和派单都可能受影响。"
+          },
+          {
+            "turn": 2,
+            "quote": "单日合同今天要完成至少30单，不然合同和后续派单都会受影响。"
+          },
+          {
+            "turn": 3,
+            "quote": "多日合同每天至少20单，连续完成才算达标"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_3",
+        "verdict": "na",
+        "confidence": 0.85,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_4",
+        "verdict": "pass",
+        "confidence": 0.92,
+        "evidence": [
+          {
+            "turn": 5,
+            "quote": "你多跑单、少拒单，名次自然靠前。"
+          },
+          {
+            "turn": 6,
+            "quote": "跑不够单确实可能被顶掉。所以尽量保持稳定，少拒单少超时！"
+          },
+          {
+            "turn": 9,
+            "quote": "恶劣天气单量更多，跑得好排名更稳，飞毛腿资格更保险，建议多出来跑！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_5",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 7,
+            "quote": "退出的话，要在前一天晚上12点前，在App\"飞毛腿报名\"里自己取消，次日生效。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_6",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 8,
+            "quote": "连续完成7天多日合同、每天达到20单，就有额外奖励，比单日合同每单多拿钱！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_7",
+        "verdict": "fail",
+        "confidence": 0.88,
+        "evidence": [
+          {
+            "turn": 6,
+            "quote": "对，现在抢飞毛腿的人多，跑不够单确实可能被顶掉。所以尽量保持稳定，少拒单少超时！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.78
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.78
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.88
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "forbidden_2",
+        "verdict": "pass",
+        "confidence": 0.82,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "单日合同当天至少要完成规定单数，不然合同和派单都可能受影响"
+          },
+          {
+            "turn": 2,
+            "quote": "单日合同今天要完成至少30单，不然合同和后续派单都会受影响"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.72
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.82
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.82
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_1",
+        "verdict": "pass",
+        "confidence": 0.92,
+        "evidence": [
+          {
+            "turn": 4,
+            "quote": "哈哈，小李，我就是你们站的站长王哥啊！"
+          },
+          {
+            "turn": 10,
+            "quote": "那行，小李，今天记得按时上线，注意安全，有问题随时联系我！加油！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_2",
+        "verdict": "fail",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "你好，请问是飞毛腿吗？我是站长，今天你的飞毛腿合同已经生效了，恭喜你！"
+          },
+          {
+            "turn": 1,
+            "quote": "对，合同今天起生效！单日合同当天至少要完成规定单数，不然合同和派单都可能受影响。你今天能出来跑吗？"
+          },
+          {
+            "turn": 4,
+            "quote": "哈哈，小李，我就是你们站的站长王哥啊！你可以打站里电话核实，或者在App上查合同生效记录，都能看到的。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.96
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.93
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      }
+    ],
+    "summary": {
+      "score": 0.0,
+      "raw_score": 67.3,
+      "critical_failed": true,
+      "counts": {
+        "pass": 11,
+        "fail": 5,
+        "na": 2
+      },
+      "by_severity": {
+        "critical": {
+          "pass": 3,
+          "fail": 1,
+          "na": 1
+        },
+        "major": {
+          "pass": 6,
+          "fail": 4,
+          "na": 1
+        },
+        "minor": {
+          "pass": 2,
+          "fail": 0,
+          "na": 0
+        }
+      },
+      "violation_count": 5,
+      "violation_rate_per_100": 31.2,
+      "judge_disagreement_rate": 0.02,
+      "total_checkpoints": 18
+    }
+  },
+  {
+    "run_id": "official_01_feimaotui__p02_impatient__1",
+    "task_id": "official_01_feimaotui",
+    "persona_id": "p02_impatient",
+    "judgments": [
+      {
+        "checkpoint_id": "forbidden_1",
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "method": "rule"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "flow_1",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "你好，请问是飞毛腿吗？我是站长，今天你的飞毛腿合同已经生效啦！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_2",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "今天你的飞毛腿合同已经生效啦！"
+          },
+          {
+            "turn": 1,
+            "quote": "今天要记得午高峰和晚高峰都要上线哦，单子要完成够才行！你今天能出来跑吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_3",
+        "verdict": "fail",
+        "confidence": 0.88,
+        "evidence": [
+          {
+            "turn": 2,
+            "quote": "单日合同当天要完成 X 单，多日合同每天 Y 单，记住了吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_4",
+        "verdict": "pass",
+        "confidence": 0.75,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "今天要记得午高峰和晚高峰都要上线哦，单子要完成够才行！你今天能出来跑吗？"
+          },
+          {
+            "turn": 5,
+            "quote": "有！连续完成 W 天多日合同，每天够 Y 单，比单日每单多 +$ 元奖励。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.75
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.75
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_5",
+        "verdict": "pass",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 7,
+            "quote": "恶劣天气出去跑反而对排名有加成，但安全第一，自己判断，不强求。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_6",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 3,
+            "quote": "系统按排名自动分的，不是我安排的，跟站长没关系。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_7",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_1",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "今天要记得午高峰和晚高峰都要上线哦，单子要完成够才行！"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_2",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 2,
+            "quote": "单日合同当天要完成 X 单，多日合同每天 Y 单，记住了吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_3",
+        "verdict": "fail",
+        "confidence": 0.92,
+        "evidence": [
+          {
+            "turn": 8,
+            "quote": "这个我要向同事确认一下，确认完我再回电给你，好吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_4",
+        "verdict": "pass",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 6,
+            "quote": "拒单、取消、超时多了会影响排名，资格可能被别人顶掉，尽量少拒哦。"
+          },
+          {
+            "turn": 7,
+            "quote": "恶劣天气出去跑反而对排名有加成，但安全第一，自己判断，不强求。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_5",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 4,
+            "quote": "要取消的话，得在前一天 Z 点前，在 App 里\"飞毛腿报名\"那里取消，次日才生效。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_6",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 5,
+            "quote": "有！连续完成 W 天多日合同，每天够 Y 单，比单日每单多 +$ 元奖励。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_7",
+        "verdict": "fail",
+        "confidence": 0.82,
+        "evidence": [
+          {
+            "turn": 6,
+            "quote": "拒单、取消、超时多了会影响排名，资格可能被别人顶掉，尽量少拒哦。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.82
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.82
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.82
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "forbidden_2",
+        "verdict": "pass",
+        "confidence": 0.88,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_1",
+        "verdict": "pass",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "今天要记得午高峰和晚高峰都要上线哦，单子要完成够才行！你今天能出来跑吗？"
+          },
+          {
+            "turn": 7,
+            "quote": "恶劣天气出去跑反而对排名有加成，但安全第一，自己判断，不强求。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_2",
+        "verdict": "fail",
+        "confidence": 0.92,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "今天要记得午高峰和晚高峰都要上线哦，单子要完成够才行！你今天能出来跑吗？"
+          },
+          {
+            "turn": 4,
+            "quote": "要取消的话，得在前一天 Z 点前，在 App 里\"飞毛腿报名\"那里取消，次日才生效。"
+          },
+          {
+            "turn": 5,
+            "quote": "有！连续完成 W 天多日合同，每天够 Y 单，比单日每单多 +$ 元奖励。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      }
+    ],
+    "summary": {
+      "score": 0.0,
+      "raw_score": 75.4,
+      "critical_failed": true,
+      "counts": {
+        "pass": 13,
+        "fail": 4,
+        "na": 1
+      },
+      "by_severity": {
+        "critical": {
+          "pass": 4,
+          "fail": 1,
+          "na": 0
+        },
+        "major": {
+          "pass": 7,
+          "fail": 3,
+          "na": 1
+        },
+        "minor": {
+          "pass": 2,
+          "fail": 0,
+          "na": 0
+        }
+      },
+      "violation_count": 4,
+      "violation_rate_per_100": 23.5,
+      "judge_disagreement_rate": 0.02,
+      "total_checkpoints": 18
+    }
+  }
+]
