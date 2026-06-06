@@ -158,9 +158,14 @@ def cmd_run(args: argparse.Namespace) -> None:
     covered_cp_ids: set = set()
 
     with open(transcripts_path, "w", encoding="utf-8") as tf:
-        for persona in personas:
+        for p_i, persona in enumerate(personas):
             persona_id = persona.get("id", "persona")
             for i in range(1, args.n + 1):
+                # 可复现性：seed 派生规则 (base + persona序号*1000 + 轨迹序号)，
+                # 落进轨迹 meta——之前 arena 支持 seed 但主流程从不传，复现是空话
+                traj_seed = (
+                    args.seed + p_i * 1000 + i if args.seed is not None else None
+                )
                 run_id = f"{task_id}__{persona_id}__{i}"
                 uncovered = [
                     c.get("text") for c in cp_dicts
@@ -176,6 +181,7 @@ def cmd_run(args: argparse.Namespace) -> None:
                         checkpoints=cp_dicts,  # arena 按 dict 访问（.get），传字典形式
                         max_turns=args.max_turns,
                         priority_targets=uncovered or None,
+                        seed=traj_seed,
                     )
                 except Exception as exc:  # noqa: BLE001  —— 单条失败不中断整批
                     print(f"[evalcall] 警告：对话 {run_id} 失败，跳过：{exc}", file=sys.stderr)
@@ -323,6 +329,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--max-turns", type=int, default=12, help="单条对话最大轮数")
     p_run.add_argument("--model", default=None, help="覆盖默认模型名（评测/编译用）")
     p_run.add_argument("--checklist", default=None, help="复用已固化的检查点清单 JSON（A/B 对比实验必须同尺）")
+    p_run.add_argument("--seed", type=int, default=None, help="随机种子基值（派生规则 base+persona序号*1000+轨迹序号，保证可复现）")
     p_run.set_defaults(func=cmd_run)
 
     p_rep = sub.add_parser("report", help="从 run 目录生成 HTML 报告")

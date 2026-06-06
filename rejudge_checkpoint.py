@@ -37,10 +37,18 @@ for run in by_run:
     rid = run["run_id"]
     traj = trajectories.get(rid)
     if traj is None:
+        # 兜底1：persona 内唯一；兜底2：按出现顺序对位（cli 落盘顺序 =
+        # judgments_by_run 顺序，均为 persona 外层、重复序号内层）
         cands = trajectories_by_persona.get(run["persona_id"], [])
-        if len(cands) != 1:
-            raise SystemExit(f"无法唯一匹配轨迹：{rid}（persona 候选 {len(cands)} 条）")
-        traj = cands[0]
+        if len(cands) == 1:
+            traj = cands[0]
+        else:
+            same_persona_runs = [r for r in by_run if r["persona_id"] == run["persona_id"]]
+            idx = same_persona_runs.index(run)
+            if idx < len(cands):
+                traj = cands[idx]
+            else:
+                raise SystemExit(f"无法匹配轨迹：{rid}（persona 候选 {len(cands)} 条，序号 {idx}）")
     print(f"[rejudge] {rid} / {cp_id} × {n_votes}票 …", flush=True)
     new_list = judge.judge_trajectory(target_cps, traj, n_votes=n_votes)
     new_by_id = {j["checkpoint_id"]: j for j in new_list}

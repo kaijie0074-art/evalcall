@@ -105,7 +105,7 @@
   <div class="pipeline">
     <div class="step"><div class="num">1</div><div class="name">指令编译</div><div class="desc">自然语言指令 → 结构化检查点<br>每条可溯源 source_quote</div></div>
     <div class="arrow">→</div>
-    <div class="step"><div class="num">2</div><div class="name">对抗模拟</div><div class="desc">6 种 persona 定向施压<br>打断 / 跑题 / 质疑 / 沉默</div></div>
+    <div class="step"><div class="num">2</div><div class="name">对抗模拟</div><div class="desc">6 维策略空间加权组合的 persona<br>打断 / 跑题 / 质疑 / 沉默</div></div>
     <div class="arrow">→</div>
     <div class="step"><div class="num">3</div><div class="name">双轨判定</div><div class="desc">规则轨 + LLM 轨（带指令原文）<br>3 票多数决</div></div>
     <div class="arrow">→</div>
@@ -115,16 +115,16 @@
   <h3 class="sub-h">官方脱敏数据实测（每 persona 3 条独立轨迹 · 跨模型裁判团 · 含 pass^k 可靠性口径）</h3>
   <table>
     <tr><th>任务（官方指令）</th><th>Persona</th><th>原始分（n=3，均值±标准差）</th><th>pass^3</th><th>结论</th></tr>
-    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td>50.6 ± 6.8</td><td rowspan="2"><span class="bad">0.00</span></td><td rowspan="4">两任务全部 18 条轨迹均触发 critical 否决，pass^3=0（τ-bench 口径：连「偶尔全对」都没有）。<strong style="color:var(--text)">体检器给出归因：任务一开场白塞 5 项信息必丢项、任务二字数与信息量物理冲突</strong>——低分主因在指令，报告自动挂归因警示</td></tr>
+    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td>50.6 ± 6.8</td><td rowspan="2"><span class="bad">0.00</span></td><td rowspan="4">两任务全部轨迹均触发 critical 否决，pass^3=0。注：pass^k 度量「零 critical 完美通过」，与均值是不同维度——当前被测模型在该口径下全 0，说明 critical 级完美通过对其是高门槛，这本身是结论而非指标失效；n=3 下 pass^k 取值离散，生产需 n≥10。<strong style="color:var(--text)">体检器给出归因：任务一开场白塞 5 项信息必丢项、任务二字数与信息量物理冲突</strong>——低分主因在指令，报告自动挂归因警示</td></tr>
     <tr><td>不耐烦型</td><td>41.2 ± 12.1</td></tr>
     <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td>58.7 ± 3.3</td><td rowspan="2"><span class="bad">0.00</span></td></tr>
     <tr><td>不耐烦型</td><td>60.5 ± 2.9</td></tr>
   </table>
   <p class="note">分数为否决前原始分（critical 否决后计 0 分另列）；±为 3 条独立轨迹的标准差——<strong style="color:var(--text)">单样本是观测值，带方差才是测量</strong>。每条 fail 附对话原文证据与指令原文引用，点开报告逐条可审计。</p>
 
-  <h3 class="sub-h">判别力实验：评测系统真能区分模型行为吗？</h3>
+  <h3 class="sub-h">消融演示（sanity check，每组 2 条轨迹）：评测系统能否检出行为差异？</h3>
   <p style="color:var(--muted); font-size:15px;">
-    受控消融实验：同一被测模型、同一任务（体检修复版指令）、<strong style="color:var(--text)">同一把固化的检查点尺子</strong>，唯一变量是被测模型「看得见 vs 看不见」指令中的约束段。
+    受控消融实验：同一被测模型、同一任务（体检修复版指令）、<strong style="color:var(--text)">同一把固化的检查点尺子</strong>，唯一变量是被测模型「看得见 vs 看不见」指令中的约束段。规模声明：每组 2 条轨迹，属可行性演示而非统计结论——分离方向清晰（71/63 个百分点），置信区间未估。
   </p>
   <table>
     <tr><th>维度</th><th>看得见约束</th><th>看不见约束</th><th>解读</th></tr>
@@ -177,9 +177,9 @@
   <p style="color:var(--muted); font-size:15px;">
     LLM 裁判自己会错。EvalCall 用「已知答案注入」校准自己：向系统投放人工构造、真值已知的合成对话（埋好各类违规、补救、未触发分支等难判情形），跑完整裁判流程，输出裁判的查准率/查全率/混淆矩阵。<strong style="color:var(--text)">我们把自己裁判的准确率印在报告上</strong>——这是评测结果可以被信任的前提。
   </p>
-  <h3 class="sub-h">校准实测：12 条合成对话 · 52 个已知真值（含转述开场白、打断后补救、模糊近违规等难判情形）</h3>
+  <h3 class="sub-h">校准实测（主口径：32 例 / 165 真值全量集；准确率需对照「全判 pass」平凡基线 72.1%——类别不平衡下宏 F1 比准确率更诚实）</h3>
   <table>
-    <tr><th>指标</th><th>同模型 3 票（基线）</th><th>跨模型裁判团（haiku/sonnet/opus 各投 1 票）</th><th>含义</th></tr>
+    <tr><th>指标</th><th>同模型 3 票（12 例探索性小样本）</th><th>跨模型裁判团（同 12 例；样本小、差异未做显著性检验，结论为方向性而非定论）</th><th>含义</th></tr>
     <tr><td>整体准确率</td><td>86.5%</td><td><span class="good">94.2%</span>（宏 F1 0.887→0.947）</td><td>裁判与已知真值的一致程度</td></tr>
     <tr><td>违规查全率（fail Recall）</td><td>100%</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检底线两种配置下都守住</td></tr>
     <tr><td>违规查准率（fail Precision）</td><td><span class="warn">61.1%</span>（7 误报）</td><td><span class="good">78.6%</span>（3 误报）</td><td><strong style="color:var(--text)">不好看的数字我们直接印出来</strong>，然后用实验修它：偏严误报近乎减半</td></tr>
@@ -193,7 +193,7 @@
     <tr><td>违规查全率</td><td>100%</td><td><span class="warn">88.9%</span>（4 个刁钻违规漏判：自纠洗白、噪声掩护类）</td></tr>
     <tr><td>分类型</td><td>—</td><td>constraint 100% · flow 90.4% · style 80% · forbidden 62.5%</td></tr>
   </table>
-  <p class="note"><strong style="color:var(--text)">我们主动把考题加难、把回落的数字原样印出来</strong>：扩容集专门设计了「引用用户脏话钓关键词误判」「违规后立即自纠诱导洗白」这类陷阱，钓到裁判 4 次漏判——每次漏判都有逐条真值对照可审计（<code>runs/calibration/calibration.json</code>）。<strong style="color:var(--text)">闭环动作已执行</strong>：把这两类误判模式提炼为 4 条判定准则写进裁判提示词（归属判定/自纠不洗白/语义等价从宽/噪声不豁免），并在同一 32 例集上重校准量化提升（结果即将回填）；校准产物 meta 现已记录完整裁判团配置，叙述口径可由产物自证。规模声明：32 例仍属演示规模，生产基线需引入人工标注的真实脱敏对话（避免「自己出题自己判」的同源风险）。</p>
+  <p class="note"><strong style="color:var(--text)">我们主动把考题加难、把回落的数字原样印出来</strong>：扩容集专门设计了「引用用户脏话钓关键词误判」「违规后立即自纠诱导洗白」这类陷阱，钓到裁判 4 次漏判——每次漏判都有逐条真值对照可审计（<code>runs/calibration/calibration.json</code>）。<strong style="color:var(--text)">闭环动作已执行</strong>：把这两类误判模式提炼为 4 条判定准则写进裁判提示词（归属判定/自纠不洗白/语义等价从宽/噪声不豁免），并在同一 32 例集上重校准量化提升（结果即将回填）；校准产物 meta 现已记录完整裁判团配置，叙述口径可由产物自证。同源声明（最重要的局限，我们自己先说）：①真值为作者标注，属 known-answer self-check 而非独立 held-out 验证；②裁判判定准则与黄金集陷阱同源迭代——准确率应理解为「同源考题上的上界」，换一批结构不同的难例无保证。治理方案（public/sealed 两层切分、季度换血、canary 检查点）见仓库 GOVERNANCE.md。</p>
   <p class="note"><strong style="color:var(--text)">这组对照本身就是方法论结论：同一个模型连投 3 票只能消随机噪声，错会 3:0 一起错（实测 7 个误判全是全票一致地错）；换 3 个不同模型投票才消得掉系统性偏见——准确率 +7.7 个百分点，误报近乎减半，漏判保持为零。</strong>剩余误判集中在「合理转述的开场白该不该算合规」这类口径分歧——正是校准要暴露给质检负责人拍板的。完整混淆矩阵见 <code>runs/calibration/calibration.json</code>（基线留档 <code>calibration_samemodel_baseline.json</code>）。</p>
   <div class="grid" style="margin-top:14px">
     <div class="card"><h3>判定有据：指令原文喂给裁判</h3><p>裁判提示词携带每条检查点的 source_quote 指令原文。开发中实测：不带原文时裁判对「应当以指定开场白开启」类检查点只能臆测（3 票 2:1 分裂）；带原文后 3 票全对，整体投票一致率 88.9%。</p></div>
@@ -211,7 +211,7 @@
     <tr><td>任务一 · 骑手合同通知</td><td>94.4%（1 个盲区）</td><td><span class="good">100%（0 盲区）</span></td></tr>
     <tr><td>任务二 · 低延迟直播</td><td><span class="warn">77.8%（6 个盲区）</span></td><td><span class="good">100%（0 盲区）</span></td></tr>
   </table>
-  <p class="note"><strong style="color:var(--text)">反馈环已实现且实证有效（任务二 +22.2 个百分点、盲区清零）</strong>：每条轨迹判定完成后，仍未触达的检查点被标记为「优先攻击目标」注入下一条轨迹的对抗模拟器，主动制造触发场景——商家开车要挂断、Web控制台兜底引导这些此前永远测不到的分支被逐一逼出（对标 FLARE 的 coverage-guided behavioral fuzzing 范式，首次用于对话指令遵循质检，<code>evalcall/cli.py</code> 主循环可查证）。评测系统不仅打分，还告诉你测试差什么、并主动补上。</p>
+  <p class="note"><strong style="color:var(--text)">反馈环已实现且实证有效（任务二 +22.2 个百分点、盲区清零）</strong>：每条轨迹判定完成后，仍未触达的检查点被标记为「优先攻击目标」注入下一条轨迹的对抗模拟器，主动制造触发场景——商家开车要挂断、Web控制台兜底引导这些此前测不到的分支被逐一逼出（绝对量：两任务合计补上 7 个盲区检查点——演示规模下绝对量小，机制价值在检查点数百条的生产规模显现；机制对标 coverage-guided behavioral fuzzing，<code>evalcall/cli.py</code> 主循环可查证）。触达口径已收紧：fail 须附原文证据才计触达，收紧后两任务仍保持 100%。评测系统不仅打分，还告诉你测试差什么、并主动补上。</p>
 
   <h2>真实战绩：这套系统在开发中抓出的问题</h2>
   <div class="story">
@@ -245,14 +245,14 @@
   <h2>学术对标 · 我们站在哪、新在哪</h2>
   <table>
     <tr><th>EvalCall 设计</th><th>对应研究脉络</th><th>对照结论</th></tr>
-    <tr><td>指令→检查点编译</td><td>TICK / CheckEval（ICLR'25）的 checklist 分解评测；Prometheus 2 细粒度 rubric</td><td>同范式，但我们<strong style="color:var(--text)">自动从指令编译</strong>且用对抗模拟器动态触发，而非静态评既有文本</td></tr>
+    <tr><td>指令→检查点编译</td><td>TICK（ICLR'25）的 checklist 分解评测</td><td>同范式，但我们<strong style="color:var(--text)">自动从指令编译</strong>且用对抗模拟器动态触发，而非静态评既有文本</td></tr>
     <tr><td>规则+LLM 双轨</td><td>IFEval（可程序化验证约束）+ MT-Bench 系 LLM-judge</td><td>IFEval 只覆盖可正则验证的约束，我们把语义约束一并纳入</td></tr>
     <tr><td>对抗式用户模拟器</td><td>τ-bench / τ²-bench（NeurIPS'24，Sierra）的 LLM 用户模拟</td><td>τ 系列追求「像真人」（fidelity），我们追求「专挑指令崩溃路径」（adversarial coverage）</td></tr>
     <tr><td>裁判自校准</td><td>JudgeBench（ICLR'25）的 meta-evaluation with verifiable ground truth</td><td>同方法论，落到外呼质检场景</td></tr>
-    <tr><td>覆盖率反馈环</td><td>FLARE 的 coverage-guided behavioral fuzzing（此前只用于代码/MAS 测试）</td><td><strong style="color:var(--text)">首次用于对话指令遵循质检</strong></td></tr>
+    <tr><td>覆盖率反馈环</td><td>FLARE 的 coverage-guided behavioral fuzzing（此前只用于代码/MAS 测试）</td><td>此前公开应用集中在代码/MAS 测试，<strong style="color:var(--text)">对话指令遵循质检方向未检索到先例</strong></td></tr>
     <tr><td>指令体检器</td><td>——</td><td><strong style="color:var(--text)">公开文献空白</strong>：IFEval/ComplexBench/FollowBench 都假设指令是好的、只测模型；没有公开工作检测「指令本身是否自相矛盾/不可行/缺分支」</td></tr>
   </table>
-  <p class="note">一句话定位：把 IFEval 的可验证约束、τ-bench 的用户模拟、JudgeBench 的裁判元评测，首次合成一个面向外呼 agent 的<strong style="color:var(--text)">上线前主动压测闭环</strong>——并新增「指令体检」这个文献空白维度。「对抗式 × 覆盖率引导 × 外呼指令遵循」三元交集查无公开先例。</p>
+  <p class="note">一句话定位：把 IFEval 的可验证约束、τ-bench 的用户模拟、JudgeBench 的裁判元评测，首次合成一个面向外呼 agent 的<strong style="color:var(--text)">上线前主动压测闭环</strong>——并新增「指令体检」这个文献空白维度。「对抗式 × 覆盖率引导 × 外呼指令遵循」三元交集在我们的检索范围内未见公开先例（检索截至 2026-06，欢迎指正）。</p>
 
   <h2>生产 ROI · 带算术的账，不是「规模越大越省」的口号</h2>
   <table>
