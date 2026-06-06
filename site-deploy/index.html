@@ -159,6 +159,7 @@
     <tr><td>违规查全率（fail Recall）</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检场景最关键的底线</td></tr>
     <tr><td>constraint / forbidden / style 准确率</td><td><span class="good">100%</span></td><td>约束、禁止项、话术类判定高度可信</td></tr>
     <tr><td>flow 类准确率</td><td><span class="warn">82%</span>（误判方向全部为 pass→fail）</td><td>流程类判定系统性<strong style="color:var(--text)">偏严</strong>：报告中 flow 类 fail 数自带「约 +18% 偏严」误差棒</td></tr>
+    <tr><td>违规判定查准率（fail Precision）</td><td><span class="warn">61.1%</span>（11 TP / 7 FP）</td><td>裁判报出的违规约四成是偏严误报——<strong style="color:var(--text)">我们直接把这个不好看的数字印出来</strong>：质检场景宁可错杀不可漏放，但误报需人工复核，这就是误差棒的意义</td></tr>
     <tr><td>置信度校准</td><td>判对均值 0.953 vs 判错均值 0.876</td><td>裁判判对时确实更自信——置信度可用于可信度分层</td></tr>
   </table>
   <p class="note">误判全部集中在「合理转述的开场白 / 被打断后补救的流程」该不该算合规——这类口径分歧正是校准要暴露给质检负责人拍板的。完整混淆矩阵与逐 case 明细见 <code>runs/calibration/calibration.json</code>。</p>
@@ -178,7 +179,7 @@
     <tr><td>任务一 · 骑手合同通知</td><td><span class="good">94.4%</span></td><td class="note">1 个分支未触达：「骑手坚持无法配送时应安慰后挂断」——提示需要补一个强硬拒绝型 persona</td></tr>
     <tr><td>任务二 · 低延迟直播</td><td><span class="warn">77.8%</span></td><td class="note">6 个条件分支未触达：商家开车场景应挂断、Web控制台未显示选项的兜底引导、被打断时的过渡语等——直接指明下一轮该补哪些 persona/策略</td></tr>
   </table>
-  <p class="note">盲区清单反哺模拟器：覆盖率驱动的测试调度会优先制造尚未触达的场景。评测系统不仅打分，还告诉你测试本身还差什么。</p>
+  <p class="note">覆盖率不只是事后统计——<strong style="color:var(--text)">已实现 coverage-guided 反馈环</strong>：每条轨迹判定完成后，仍未触达的检查点被标记为「优先攻击目标」注入下一条轨迹的对抗模拟器，主动制造触发场景（对标 FLARE 的 coverage-guided behavioral fuzzing 范式，<code>evalcall/cli.py</code> 主循环可查证）。评测系统不仅打分，还告诉你测试本身还差什么、并主动去补。</p>
 
   <h2>真实战绩：这套系统在开发中抓出的问题</h2>
   <div class="story">
@@ -204,6 +205,36 @@
     <tr><td>投票一致率 / 双轨冲突率</td><td>逐条结论的可信度分层，分裂项标记人工复核</td></tr>
     <tr><td>指令可行性分 + 缺陷清单</td><td>指令体检产出，附可直接照改的修订建议</td></tr>
   </table>
+
+  <h2>学术对标 · 我们站在哪、新在哪</h2>
+  <table>
+    <tr><th>EvalCall 设计</th><th>对应研究脉络</th><th>对照结论</th></tr>
+    <tr><td>指令→检查点编译</td><td>TICK / CheckEval（ICLR'25）的 checklist 分解评测；Prometheus 2 细粒度 rubric</td><td>同范式，但我们<strong style="color:var(--text)">自动从指令编译</strong>且用对抗模拟器动态触发，而非静态评既有文本</td></tr>
+    <tr><td>规则+LLM 双轨</td><td>IFEval（可程序化验证约束）+ MT-Bench 系 LLM-judge</td><td>IFEval 只覆盖可正则验证的约束，我们把语义约束一并纳入</td></tr>
+    <tr><td>对抗式用户模拟器</td><td>τ-bench / τ²-bench（NeurIPS'24，Sierra）的 LLM 用户模拟</td><td>τ 系列追求「像真人」（fidelity），我们追求「专挑指令崩溃路径」（adversarial coverage）</td></tr>
+    <tr><td>裁判自校准</td><td>JudgeBench（ICLR'25）的 meta-evaluation with verifiable ground truth</td><td>同方法论，落到外呼质检场景</td></tr>
+    <tr><td>覆盖率反馈环</td><td>FLARE 的 coverage-guided behavioral fuzzing（此前只用于代码/MAS 测试）</td><td><strong style="color:var(--text)">首次用于对话指令遵循质检</strong></td></tr>
+    <tr><td>指令体检器</td><td>——</td><td><strong style="color:var(--text)">公开文献空白</strong>：IFEval/ComplexBench/FollowBench 都假设指令是好的、只测模型；没有公开工作检测「指令本身是否自相矛盾/不可行/缺分支」</td></tr>
+  </table>
+  <p class="note">一句话定位：把 IFEval 的可验证约束、τ-bench 的用户模拟、JudgeBench 的裁判元评测，首次合成一个面向外呼 agent 的<strong style="color:var(--text)">上线前主动压测闭环</strong>——并新增「指令体检」这个文献空白维度。「对抗式 × 覆盖率引导 × 外呼指令遵循」三元交集查无公开先例。</p>
+
+  <h2>生产成本账 · 比人工省多少</h2>
+  <table>
+    <tr><th>项目</th><th>测算</th></tr>
+    <tr><td>单条轨迹 LLM 调用量</td><td>≈35 次（被测 10 + 模拟器 10 + 裁判 5 批×3 票），约 8 万 token</td></tr>
+    <tr><td>生产后端单价（如 qwen-plus / deepseek 档）</td><td>约 ¥0.2–0.6 / 轨迹；规则轨零成本前置过滤可再降 LLM 调用 30%+</td></tr>
+    <tr><td>人工质检对照</td><td>抽听一通电话+填表约 10–15 分钟，按质检员时薪折算 ≈¥8–12 / 通</td></tr>
+    <tr><td>结论</td><td><strong style="color:var(--text)">单通成本约为人工的 1/20–1/50，且可全量覆盖</strong>；裁判偏严带来的误报（fail 查准率 61%）意味着约 4 成 fail 需人工复核——复核量仍远小于全量抽听</td></tr>
+  </table>
+  <p class="note">诚实声明：本演示用本地 claude-cli 后端（单次 30-180s），慢是演示通道的选择，不是架构上限——后端可插拔，切换批量 API 即得生产吞吐。裁判升级后可用重判工具从既有轨迹回溯，无需重跑对话，回归成本约为全量的 1/3。</p>
+
+  <h2>已知局限与路线图 · 我们自己先说</h2>
+  <div class="grid">
+    <div class="card"><h3>同家族裁判的自我偏袒</h3><p>当前被测与裁判同为 Claude 家族，存在 self-enhancement bias。已实现跨档位裁判团（haiku/sonnet/opus 每票不同模型），生产部署将换异构家族（GPT/Qwen/Claude 交叉）+ 人工抽检锚点。</p></div>
+    <div class="card"><h3>编译器本身尚未校准</h3><p>检查点编译靠 source_quote 溯源兜底，但「抽得全不全、severity 标得准不准」无金标准校验。路线图：把校准黄金集扩展到编译层（人工标注的标准检查点清单）。</p></div>
+    <div class="card"><h3>样本规模与统计置信</h3><p>演示规模下分数为观测值而非统计估计。已支持多轨迹 + pass^k 可靠性口径（对标 τ-bench），生产建议每 persona ≥20 条轨迹。</p></div>
+    <div class="card"><h3>生态效度</h3><p>被测模型为通用 LLM 扮演（官方未提供真实外呼模型，所有参赛队同此约束）；persona 为手工设计+盲区驱动补充。真实脱敏轨迹接入有现成格式适配层。</p></div>
+  </div>
 
   <h2>使用方式</h2>
   <div class="card">

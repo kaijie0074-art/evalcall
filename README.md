@@ -40,7 +40,7 @@ flowchart TD
     A["任务指令 YAML\n(自然语言 + 流程约束)"] --> B["① 指令编译器\nInstruction Compiler\ncompiler.py"]
     B --> C["检查点清单 Checklist\nflow / constraint / forbidden / style\n每条可溯源到指令原文"]
     C --> D["② 用户模拟器\nUser Simulator\nsimulator.py\n多 persona × 多策略\n对抗模式 + 覆盖率驱动"]
-    C --> E["③ 对话竞技场\nArena Runner\narena.py\n被测模型 × 模拟器\n批量并发 N 条轨迹"]
+    C --> E["③ 对话竞技场\nArena Runner\narena.py\n被测模型 × 模拟器\ncoverage-guided 串行调度"]
     D --> E
     E --> F["transcript JSONL\nruns/*/transcripts/"]
     F --> G["④ 双轨评测引擎\nJudge\njudge.py\n规则轨 + LLM轨\n多数投票(3票) + 自一致率"]
@@ -61,7 +61,7 @@ flowchart TD
      ▼                      ▼
 ② 用户模拟器           ③ 对话竞技场 arena.py
    simulator.py            被测模型 × 模拟器
-   多 persona × 多策略      批量并发 N 条轨迹
+   多 persona × 多策略      coverage-guided 调度
    对抗 + 覆盖率驱动         └─ 输出：transcript JSONL
      │                      │
      └──────────────────────┘
@@ -84,8 +84,8 @@ flowchart TD
 | 组件 | 文件 | 职责 |
 |------|------|------|
 | ① 指令编译器 | `evalcall/compiler.py` | 将自然语言任务指令解析为结构化检查点清单。每条检查点含 `id`、`type`（flow/constraint/forbidden/style）、`text`、`source_quote`（可溯源原文）、`severity`（critical/major/minor）。 |
-| ② 用户模拟器 | `evalcall/simulator.py` | LLM 扮演被呼叫用户，支持六种 persona（配合型/打断型/跑题型/质疑型/情绪型/沉默型）。对抗模式：针对检查点中的约束定向诱导被测模型违规；覆盖率驱动：优先制造尚未被测到的场景。 |
-| ③ 对话竞技场 | `evalcall/arena.py` | 编排被测模型与用户模拟器之间的多轮对话，支持批量并发跑 N 条轨迹，输出标准 transcript JSONL。 |
+| ② 用户模拟器 | `evalcall/simulator.py` | LLM 扮演被呼叫用户，支持六种 persona（配合型/打断型/跑题型/质疑型/情绪型/沉默型）。对抗模式：约束/禁止项作为对抗目标注入；coverage-guided：跨轨迹未触达的检查点被标记为优先攻击目标（cli 主循环反馈环，已实现非口号）。 |
+| ③ 对话竞技场 | `evalcall/arena.py` | 编排被测模型与用户模拟器之间的多轮对话，coverage-guided 调度：每条轨迹判定后，未触达检查点作为优先攻击目标注入下一条轨迹（反馈环依赖前序判定，故按设计串行；无反馈模式可并行扩展）。输出标准 transcript JSONL。 |
 | ④ 双轨评测引擎 | `evalcall/judge.py` | 规则轨（确定性检查：关键信息是否播报、禁语是否出现）+ LLM轨（逐检查点判定 pass/fail/NA，必须引用对话原文作为证据，3票多数投票定结论）。附带可靠性指标：judge 自一致率、规则/LLM 双轨冲突率。 |
 | ⑤ 评测报告 | `evalcall/report.py` | 聚合判定结果，生成总分 + 四维雷达（流程完整度/约束遵循率/异常处理/话术合规）、逐检查点明细（结论+证据+置信度）、失败案例剖析、persona 维度切片。输出 HTML 可视化报告 + JSON 机器可读结果。 |
 
@@ -196,7 +196,7 @@ python -m evalcall report --run-dir runs/your-data-dir/
 
 1. **指令→检查点编译，可溯源**：评的不是笼统印象，而是逐条对应指令原文的检查点。评测结论有原文依据，可审计、可复现。
 
-2. **对抗式模拟器 + 覆盖率驱动**：模拟器不随机聊天，而是主动针对约束项「定向诱导」被测模型违规，同时追踪覆盖率、优先触发尚未被测到的场景，确保测试充分有效。
+2. **对抗式模拟器 + coverage-guided 反馈环**：模拟器不随机聊天——约束项作为对抗目标定向诱导，且每条轨迹判定后未触达检查点自动成为下一条轨迹的优先攻击目标（对标 FLARE 的 coverage-guided behavioral fuzzing，首次用于对话指令遵循质检）。报告输出触达率与盲区清单。
 
 3. **双轨判定 + 多数投票 + 自一致率**：规则轨保证确定性，LLM 轨处理语义复杂场景，3票多数投票降低单次误判风险，自一致率和双轨冲突率提供评测结果的可靠性度量。
 
