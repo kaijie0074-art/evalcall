@@ -172,8 +172,9 @@
     <tr><td>违规查全率（fail Recall）</td><td>100%</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检底线两种配置下都守住</td></tr>
     <tr><td>违规查准率（fail Precision）</td><td><span class="warn">61.1%</span>（7 误报）</td><td><span class="good">78.6%</span>（3 误报）</td><td><strong style="color:var(--text)">不好看的数字我们直接印出来</strong>，然后用实验修它：偏严误报近乎减半</td></tr>
     <tr><td>pass 查全率</td><td>82.1%</td><td><span class="good">92.3%</span></td><td>flow 类「偏严误杀」显著缓解</td></tr>
-    <tr><td>置信度校准</td><td colspan="2">判对均值 0.953 vs 判错均值 0.876</td><td>裁判判对时确实更自信——可用于可信度分层</td></tr>
+    <tr><td>置信度校准</td><td>判对 0.953 vs 判错 0.876（gap +0.077，<span class="good">有效</span>）</td><td>判对 0.951 vs 判错 0.950（gap ≈0，<span class="warn">失效</span>）</td><td><strong style="color:var(--text)">跨模型混投的副作用，我们主动披露</strong>：不同模型的置信度不在同一刻度，混在一起即失去分层能力。结论：准确率用跨模型投票，可信度分层需按模型分别校准（路线图）</td></tr>
   </table>
+  <p class="note" style="margin-top:8px">规模声明：黄金集 12 例 / 52 个判定（fail 类 support=11）属演示规模——94.2% 的置信区间较宽，3 个误报的增减即可明显波动 fail 查准率。生产基线需 50+ 例并引入人工标注的真实脱敏对话（避免「自己出题自己判」的同源风险）。</p>
   <p class="note"><strong style="color:var(--text)">这组对照本身就是方法论结论：同一个模型连投 3 票只能消随机噪声，错会 3:0 一起错（实测 7 个误判全是全票一致地错）；换 3 个不同模型投票才消得掉系统性偏见——准确率 +7.7 个百分点，误报近乎减半，漏判保持为零。</strong>剩余误判集中在「合理转述的开场白该不该算合规」这类口径分歧——正是校准要暴露给质检负责人拍板的。完整混淆矩阵见 <code>runs/calibration/calibration.json</code>（基线留档 <code>calibration_samemodel_baseline.json</code>）。</p>
   <div class="grid" style="margin-top:14px">
     <div class="card"><h3>判定有据：指令原文喂给裁判</h3><p>裁判提示词携带每条检查点的 source_quote 指令原文。开发中实测：不带原文时裁判对「应当以指定开场白开启」类检查点只能臆测（3 票 2:1 分裂）；带原文后 3 票全对，整体投票一致率 88.9%。</p></div>
