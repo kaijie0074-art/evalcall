@@ -40,7 +40,7 @@ from evalcall import judge  # noqa: E402
 
 VERDICTS = ("pass", "fail", "na")
 
-GOLDEN_PATH = os.path.join("data", "calibration", "golden_set.json")
+GOLDEN_PATH = os.environ.get("GOLDEN_SET_PATH") or os.path.join("data", "calibration", "golden_set.json")
 OUT_DIR = os.path.join("runs", "calibration")
 OUT_PATH = os.path.join(OUT_DIR, "calibration.json")
 
@@ -329,16 +329,22 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 条 case（试跑用）")
     ap.add_argument("--votes", type=int, default=3, help="每检查点投票次数，默认 3")
     ap.add_argument("--model", type=str, default=None, help="裁判模型（默认走环境变量/sonnet）")
+    ap.add_argument("--golden", type=str, default=None, help="自定义黄金集路径（held-out 验证用）")
+    ap.add_argument("--out", type=str, default=None, help="自定义输出 JSON 路径")
     args = ap.parse_args()
+    global GOLDEN_PATH
+    if args.golden:
+        GOLDEN_PATH = args.golden
+    out_path = args.out or OUT_PATH
 
     os.makedirs(OUT_DIR, exist_ok=True)
     result = run(limit=args.limit, votes=args.votes, model=args.model)
 
-    with open(OUT_PATH, "w", encoding="utf-8") as f:
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
     print_summary(result)
-    print(f"\n已写入: {OUT_PATH}")
+    print(f"\n已写入: {out_path}")
     return 0
 
 
