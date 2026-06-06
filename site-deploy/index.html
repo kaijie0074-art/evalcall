@@ -154,15 +154,14 @@
   </p>
   <h3 class="sub-h">校准实测：12 条合成对话 · 52 个已知真值（含转述开场白、打断后补救、模糊近违规等难判情形）</h3>
   <table>
-    <tr><th>指标</th><th>数值</th><th>含义</th></tr>
-    <tr><td>整体准确率</td><td><span class="good">86.5%</span>（45/52，宏 F1 0.887）</td><td>裁判与已知真值的一致程度</td></tr>
-    <tr><td>违规查全率（fail Recall）</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检场景最关键的底线</td></tr>
-    <tr><td>constraint / forbidden / style 准确率</td><td><span class="good">100%</span></td><td>约束、禁止项、话术类判定高度可信</td></tr>
-    <tr><td>flow 类准确率</td><td><span class="warn">82%</span>（误判方向全部为 pass→fail）</td><td>流程类判定系统性<strong style="color:var(--text)">偏严</strong>：报告中 flow 类 fail 数自带「约 +18% 偏严」误差棒</td></tr>
-    <tr><td>违规判定查准率（fail Precision）</td><td><span class="warn">61.1%</span>（11 TP / 7 FP）</td><td>裁判报出的违规约四成是偏严误报——<strong style="color:var(--text)">我们直接把这个不好看的数字印出来</strong>：质检场景宁可错杀不可漏放，但误报需人工复核，这就是误差棒的意义</td></tr>
-    <tr><td>置信度校准</td><td>判对均值 0.953 vs 判错均值 0.876</td><td>裁判判对时确实更自信——置信度可用于可信度分层</td></tr>
+    <tr><th>指标</th><th>同模型 3 票（基线）</th><th>跨模型裁判团（haiku/sonnet/opus 各投 1 票）</th><th>含义</th></tr>
+    <tr><td>整体准确率</td><td>86.5%</td><td><span class="good">94.2%</span>（宏 F1 0.887→0.947）</td><td>裁判与已知真值的一致程度</td></tr>
+    <tr><td>违规查全率（fail Recall）</td><td>100%</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检底线两种配置下都守住</td></tr>
+    <tr><td>违规查准率（fail Precision）</td><td><span class="warn">61.1%</span>（7 误报）</td><td><span class="good">78.6%</span>（3 误报）</td><td><strong style="color:var(--text)">不好看的数字我们直接印出来</strong>，然后用实验修它：偏严误报近乎减半</td></tr>
+    <tr><td>pass 查全率</td><td>82.1%</td><td><span class="good">92.3%</span></td><td>flow 类「偏严误杀」显著缓解</td></tr>
+    <tr><td>置信度校准</td><td colspan="2">判对均值 0.953 vs 判错均值 0.876</td><td>裁判判对时确实更自信——可用于可信度分层</td></tr>
   </table>
-  <p class="note">误判全部集中在「合理转述的开场白 / 被打断后补救的流程」该不该算合规——这类口径分歧正是校准要暴露给质检负责人拍板的。完整混淆矩阵与逐 case 明细见 <code>runs/calibration/calibration.json</code>。</p>
+  <p class="note"><strong style="color:var(--text)">这组对照本身就是方法论结论：同一个模型连投 3 票只能消随机噪声，错会 3:0 一起错（实测 7 个误判全是全票一致地错）；换 3 个不同模型投票才消得掉系统性偏见——准确率 +7.7 个百分点，误报近乎减半，漏判保持为零。</strong>剩余误判集中在「合理转述的开场白该不该算合规」这类口径分歧——正是校准要暴露给质检负责人拍板的。完整混淆矩阵见 <code>runs/calibration/calibration.json</code>（基线留档 <code>calibration_samemodel_baseline.json</code>）。</p>
   <div class="grid" style="margin-top:14px">
     <div class="card"><h3>判定有据：指令原文喂给裁判</h3><p>裁判提示词携带每条检查点的 source_quote 指令原文。开发中实测：不带原文时裁判对「应当以指定开场白开启」类检查点只能臆测（3 票 2:1 分裂）；带原文后 3 票全对，整体投票一致率 88.9%。</p></div>
     <div class="card"><h3>三票多数决 + 分歧率透明</h3><p>每条 LLM 判定投 3 票取多数，报告同时公布一致率与分裂条目——分裂项自动标记建议人工复核，评测结论自带可信度分层。</p></div>
