@@ -212,9 +212,9 @@
   <h3 class="sub-h">预注册拦截了一次坏迭代：负结果也原样公布</h3>
   <table>
     <tr><th>裁判提示词版本</th><th>32 例对抗集成绩</th><th>说明</th></tr>
-    <tr><td>v1（基础版）</td><td><span class="good">90.3%</span></td><td>当前投稿版裁判配置</td></tr>
+    <tr><td>v1（基础版）</td><td>90.3%</td><td>原基线</td></tr>
     <tr><td>v2（加 4 条防误判准则）</td><td><span class="bad">73.3%</span>（崩盘）</td><td>改动前按预注册协议落盘了预测（fail 查全 ≥94%）——实测全面失败：谨慎准则诱发「na 逃避」（na 查准率仅 0.238，裁判拿不准就弃权）。<strong style="color:var(--text)">预注册机制按设计拦截了这次倒退，它没有上线</strong></td></tr>
-    <tr><td>v3（补 na 使用纪律）</td><td>校准中</td><td>预注册决策规则已落盘：v3 ≥ v1 则采用，否则回滚 v1——升级有据、回滚有门</td></tr>
+    <tr><td>v3（4 准则 + na 纪律 + 双判合议）</td><td><span class="good">92.1%</span>（宏F1 0.892；forbidden 类 62.5%→100%）</td><td><strong style="color:#e6edf3">按预注册决策规则正式采用为投稿版</strong>——升级有预测、倒退有拦截、采纳有数据，每一步留档可查</td></tr>
   </table>
   <p class="note">意外收获：v2 配置下置信度校准 gap 从 0.043 暴涨至 0.67（按模型分别校准：haiku 0.64 / sonnet 0.69 / <strong style="color:var(--text)">opus 0.81</strong>）——裁判弃权或犯错时置信度显著更低，<strong style="color:var(--text)">置信度过滤从「失效」变为「可用」</strong>，且 per-model 校准数据证实了「跨模型置信度必须分别校准」的判断。完整预测-对账记录见 <code>runs/calibration/PREREGISTRATION_v2.md</code>（预测原文未改，错在哪如实写）。</p>
   <p class="note"><strong style="color:var(--text)">这组对照本身就是方法论结论：同一个模型连投 3 票只能消随机噪声，错会 3:0 一起错（实测 7 个误判全是全票一致地错）；换 3 个不同模型投票才消得掉系统性偏见——准确率 +7.7 个百分点，误报近乎减半，漏判保持为零。</strong>剩余误判集中在「合理转述的开场白该不该算合规」这类口径分歧——正是校准要暴露给质检负责人拍板的。完整混淆矩阵见 <code>runs/calibration/calibration.json</code>（基线留档 <code>calibration_samemodel_baseline.json</code>）。</p>
