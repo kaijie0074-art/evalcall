@@ -135,6 +135,18 @@
   </table>
   <p class="note">实验另一收获：首跑时两组各自重新编译检查点导致「不同尺」（LLM 编译器非确定性），结论无效——已修复为 <code>--checklist</code> 固化复用机制并重判。<strong style="color:var(--text)">比较实验必须同尺</strong>，这条工程教训已产品化进 CLI。</p>
 
+  <h3 class="sub-h">真实模型对比：能力榜单 ≠ 指令遵循（模型选型实测）</h3>
+  <p style="color:var(--muted); font-size:15px;">
+    同任务、同固化尺子、同跨模型裁判团，被测模型换成两个真实档位：
+  </p>
+  <table>
+    <tr><th>维度</th><th>Sonnet（大模型）被测</th><th>Haiku（小模型）被测</th><th>解读</th></tr>
+    <tr><td>约束遵循（constraint）</td><td><span class="warn">66.7%</span></td><td><span class="good">100%</span></td><td rowspan="3"><strong style="color:var(--text)">反直觉但机制清晰</strong>：强字数约束的外呼场景下，小模型天然简短的输出更守「极简话术」，大模型信息越丰富越易超限——<strong style="color:var(--text)">能力越强 ≠ 越守指令</strong></td></tr>
+    <tr><td>话术合规（style）</td><td><span class="warn">50.0%</span></td><td><span class="good">87.5%</span></td></tr>
+    <tr><td>违规率 / 百判定</td><td>47.0</td><td><span class="good">38.5</span></td></tr>
+  </table>
+  <p class="note"><strong style="color:var(--text)">这正是美团需要这类评测的原因</strong>：外呼模型选型若按通用能力榜单挑最大的模型，约束遵循反而可能更差——必须用任务指令实测。EvalCall 的模型对比报告直接服务选型决策，每个差异都附逐检查点证据。</p>
+
   <h2>第二层 · 审指令<span class="tag i">Instruction Lint · 评测的不只是模型</span></h2>
   <p style="color:var(--muted); font-size:15px;">
     实测中任务二被一票否决——深挖发现根因不在模型。EvalCall 内置指令体检器，自动检测指令的<strong style="color:var(--text)">自相矛盾 / 不可行约束 / 歧义表述 / 缺失分支</strong>，并给出可直接照改的修订建议。以下全部是体检器在两条官方指令上的<strong style="color:var(--text)">自主发现</strong>（提示词只教方法论，无任何硬编码结论）：

@@ -1,0 +1,2078 @@
+[
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "forbidden",
+    "severity": "major",
+    "text": "不得在对话中使用\"好的\"作为语气词或口头禅",
+    "source_quote": "不说\"好的\"、\"哈哈\"、\"嘿嘿\"、\"廻廻\"等语气词",
+    "checkpoint_id": "forbidden_1",
+    "verdict": "pass",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "method": "rule"
+      }
+    ],
+    "method": "rule"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "forbidden",
+    "severity": "major",
+    "text": "不得使用\"哈哈\"、\"嘿嘿\"、\"廻廻\"等轻浮语气词",
+    "source_quote": "不说\"好的\"、\"哈哈\"、\"嘿嘿\"、\"廻廻\"等语气词",
+    "checkpoint_id": "forbidden_2",
+    "verdict": "pass",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "method": "rule"
+      }
+    ],
+    "method": "rule"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "forbidden",
+    "severity": "critical",
+    "text": "不得向商家承诺折扣券或优惠券",
+    "source_quote": "不能承诺给商家折扣券或优惠券",
+    "checkpoint_id": "forbidden_3",
+    "verdict": "pass",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "method": "rule"
+      }
+    ],
+    "method": "rule"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "critical",
+    "text": "应当以指定开场白开启对话，询问对方是否为机构/校区负责人",
+    "source_quote": "您好，请问您是贵培训机构/校区的负责人吗？",
+    "checkpoint_id": "flow_1",
+    "verdict": "pass",
+    "confidence": 0.98,
+    "evidence": [
+      {
+        "turn": 0,
+        "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.98
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.98
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当确认对方身份；若不是负责人，应请其转达后再继续流程",
+    "source_quote": "若是负责人 → 进入第2步\n- 若不是 → 请其转达，然后进入第2步",
+    "checkpoint_id": "flow_2",
+    "verdict": "pass",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 1,
+        "quote": "[用户] 对，我是，你哪位？"
+      },
+      {
+        "turn": 1,
+        "quote": "[客服] 我是课程发布平台的客服，就想跟您说个直播产品升级的事。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "critical",
+    "text": "应当告知商家直播产品已升级，新增独立的低延迟直播选项，其他流程不变",
+    "source_quote": "我们对直播产品做了升级，新增了独立的\"低延迟直播\"选项。发课时选低延迟直播即可，其他流程不变。",
+    "checkpoint_id": "flow_3",
+    "verdict": "fail",
+    "confidence": 0.85,
+    "evidence": [
+      {
+        "turn": 2,
+        "quote": "我们新增了\"低延迟直播\"选项，发课时可以直接选。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.7
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.6
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当询问商家是否知晓后台已为其走低延迟线路",
+    "source_quote": "您之前选的是标准直播，但我们后台其实已为您走低延迟线路以保障质量，您知道吗？",
+    "checkpoint_id": "flow_4",
+    "verdict": "fail",
+    "confidence": 0.97,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.97
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.7
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家不知情，应说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步",
+    "source_quote": "若不知情 → 说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步",
+    "checkpoint_id": "flow_5",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.92
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.7
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "critical",
+    "text": "应当传达升级内容：发布页将分开显示两个选项，可根据课程类型自行选择",
+    "source_quote": "之后发布页会分开显示两个选项，根据课程类型自行选择即可。",
+    "checkpoint_id": "flow_6",
+    "verdict": "fail",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 12,
+        "quote": "登录后台，看看发布页有没有\"低延迟直播\"选项。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.88
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.65
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当说明两种直播的区别：标准直播延迟5-10秒适合大班课，低延迟直播延迟1-2秒适合小班课/实操课",
+    "source_quote": "标准直播：费用较低；延迟约5-10秒；适合大班课\n- 低延迟直播：延迟约1-2秒；互动更流畅；适合小班课/实操课",
+    "checkpoint_id": "flow_7",
+    "verdict": "fail",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 3,
+        "quote": "标准直播延迟约5-10秒，低延迟约1-2秒。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.92
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.6
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当说明价格差异：标准直播更便宜，低延迟直播带宽节点保障更强费用略高",
+    "source_quote": "标准直播更便宜\n- 低延迟直播带宽和节点保障更强，费用略高",
+    "checkpoint_id": "flow_8",
+    "verdict": "fail",
+    "confidence": 0.88,
+    "evidence": [
+      {
+        "turn": 4,
+        "quote": "低延迟直播费用略高一些，标准直播更便宜。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.88
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.55
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当询问商家通过何种方式发课（Web控制台、校务系统A或SaaS系统B）",
+    "source_quote": "您是通过Web控制台、校务系统A，还是SaaS系统B发课？",
+    "checkpoint_id": "flow_9",
+    "verdict": "fail",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 10,
+        "quote": "您平时发课用Web控制台，还是第三方系统？"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.6
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家使用Web控制台且低延迟直播未显示，应告知将在后台配置并请其明天再查看",
+    "source_quote": "若未显示 → 后台为其配置，请其明天再查看",
+    "checkpoint_id": "flow_10",
+    "verdict": "na",
+    "confidence": 0.9,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.8
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.55
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家使用第三方系统且未显示，应缓慢逐步引导开通，每步暂停等待回应",
+    "source_quote": "若未显示 → 缓慢引导开通（每步暂停3秒）：\n  1. 进入【我的】\n  2. 点击【服务商/直播平台管理】\n  3. 选择【直播平台】\n  4. 在【服务产品】下勾选低延迟直播，保存",
+    "checkpoint_id": "flow_11",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当检查学员端费用/加速线路费；若已设置费用，应提醒确认低延迟直播也已适用该费用",
+    "source_quote": "已设置费用 → 提醒确认低延迟直播也已适用该费用",
+    "checkpoint_id": "flow_12",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.82
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.8
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家无法自行配置费用，应缓慢逐步引导至收费规则并为低延迟直播启用",
+    "source_quote": "若无法自行配置 → 缓慢引导设置（每步暂停3秒）：\n1. 【我的】→【教务/财务设置】\n2. →【收费规则】\n3. →编辑直播线路附加费，为低延迟直播启用\n4. 保存",
+    "checkpoint_id": "flow_13",
+    "verdict": "fail",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 4,
+        "quote": "低延迟直播费用略高一些，标准直播更便宜。"
+      },
+      {
+        "turn": 5,
+        "quote": "你还没说具体多少钱，贵多少？"
+      },
+      {
+        "turn": 8,
+        "quote": "费用差异因用量而异，我没有具体数字。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.88
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.6
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当处理企业微信添加环节：告知稍后添加并请通过验证；若不可添加则请提供可用手机号",
+    "source_quote": "若当前号码可添加 → 告知稍后通过企业微信添加，请通过验证\n- 若不可添加 → 请提供可添加的手机号，再发送同样的验证提示",
+    "checkpoint_id": "flow_14",
+    "verdict": "pass",
+    "confidence": 0.85,
+    "evidence": [
+      {
+        "turn": 6,
+        "quote": "官方账号名称我稍后通过企业微信主动添加您，请通过验证即可。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.72
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "flow",
+    "severity": "minor",
+    "text": "应当在无问题时以祝福语结束通话",
+    "source_quote": "若无问题，祝其课程顺利、招生满满，结束通话",
+    "checkpoint_id": "flow_15",
+    "verdict": "fail",
+    "confidence": 0.92,
+    "evidence": [
+      {
+        "turn": 12,
+        "quote": "登录后台，看看发布页有没有\"低延迟直播\"选项。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.7
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.92
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.7
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "major",
+    "text": "商家说忙时，应先说\"就1分钟，保证简短\"，然后继续简短说明，不得直接挂断",
+    "source_quote": "若老板说忙，说\"就1分钟，保证简短\"后继续简短说明",
+    "checkpoint_id": "constraint_1",
+    "verdict": "fail",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 2,
+        "quote": "行行行，快说，什么事，我时间不多。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "critical",
+    "text": "商家说在开车时，必须礼貌说\"那我稍后再打\"后立即挂断，不得继续说明",
+    "source_quote": "若商家说在开车，礼貌说\"那我稍后再打\"后挂断",
+    "checkpoint_id": "constraint_2",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.99
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "critical",
+    "text": "商家明确表示不感兴趣或\"以后别打了\"时，必须立即说\"好的，打扰了，祝您生意兴隆\"后挂断",
+    "source_quote": "若商家明确表示不感兴趣、说\"不需要了解\"或\"以后别打了\"：立即说\"好的，打扰了，祝您生意兴隆\"后挂断，不得再说任何产品内容",
+    "checkpoint_id": "constraint_3",
+    "verdict": "na",
+    "confidence": 0.99,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.99
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "critical",
+    "text": "商家被告知\"就1分钟\"后仍明确拒绝时，应说\"好的，打扰了，再见\"后结束通话",
+    "source_quote": "若商家在被告知\"就1分钟\"后仍明确拒绝：说\"好的，打扰了，再见\"后结束通话，不得继续强推",
+    "checkpoint_id": "constraint_4",
+    "verdict": "na",
+    "confidence": 0.95,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.92
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "major",
+    "text": "若负责人不在/开会/不方便转达，应询问方便直接接听的时间，记录后礼貌挂断",
+    "source_quote": "若对方表示负责人不在/在开会/不方便转达：说\"好的，请问方便留一个他直接接听的时间吗？\"，记录后礼貌挂断",
+    "checkpoint_id": "constraint_5",
+    "verdict": "na",
+    "confidence": 0.97,
+    "evidence": [
+      {
+        "turn": 1,
+        "quote": "对，我是，你哪位？"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.97
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "major",
+    "text": "每给出一条信息后，应暂停等待商家回应再继续，不得连续独白",
+    "source_quote": "给出信息后，暂停等待商家回应再继续",
+    "checkpoint_id": "constraint_6",
+    "verdict": "pass",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 0,
+        "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+      },
+      {
+        "turn": 2,
+        "quote": "我们新增了\"低延迟直播\"选项，发课时可以直接选。"
+      },
+      {
+        "turn": 3,
+        "quote": "标准直播延迟约5-10秒，低延迟约1-2秒。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.72
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.78
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "major",
+    "text": "即使完成主要任务，若商家仍有疑问，应继续简短作答",
+    "source_quote": "即使任务完成，若商家有疑问，继续简短作答",
+    "checkpoint_id": "constraint_7",
+    "verdict": "pass",
+    "confidence": 0.85,
+    "evidence": [
+      {
+        "turn": 9,
+        "quote": "您说得对，这个电话主要是通知您新选项上线了。"
+      },
+      {
+        "turn": 11,
+        "quote": "有关系，不同系统操作位置不一样。"
+      },
+      {
+        "turn": 12,
+        "quote": "登录后台，看看发布页有没有\"低延迟直播\"选项。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.92
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.7
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "constraint",
+    "severity": "minor",
+    "text": "若对话被打断，应使用\"您刚才提到……\"或\"我刚说到……\"等过渡语衔接",
+    "source_quote": "若对话被打断，使用简短过渡语，如\"您刚才提到……\"或\"我刚说到……\"",
+    "checkpoint_id": "constraint_8",
+    "verdict": "fail",
+    "confidence": 0.92,
+    "evidence": [
+      {
+        "turn": 7,
+        "quote": "（系统无回复）"
+      },
+      {
+        "turn": 8,
+        "quote": "抱歉，费用差异因用量而异，我没有具体数字。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.92
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.82
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.8
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "forbidden",
+    "severity": "critical",
+    "text": "商家明确拒绝后，不得再说任何产品内容",
+    "source_quote": "立即说\"好的，打扰了，祝您生意兴隆\"后挂断，不得再说任何产品内容",
+    "checkpoint_id": "forbidden_4",
+    "verdict": "na",
+    "confidence": 0.9,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "forbidden",
+    "severity": "critical",
+    "text": "商家二次拒绝后，不得继续强推",
+    "source_quote": "说\"好的，打扰了，再见\"后结束通话，不得继续强推",
+    "checkpoint_id": "forbidden_5",
+    "verdict": "na",
+    "confidence": 0.95,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.8
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "style",
+    "severity": "major",
+    "text": "每次回复单句不超过20个字；信息量大时应拆成多个短句分轮说，每句后暂停等待回应",
+    "source_quote": "每次回复极简——单句不超过20个字；信息量大时可拆成多个短句分轮说，每说完一句暂停等商家回应",
+    "checkpoint_id": "style_1",
+    "verdict": "fail",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 1,
+        "quote": "我是课程发布平台的客服，就想跟您说个直播产品升级的事。"
+      },
+      {
+        "turn": 5,
+        "quote": "具体价格我帮您查一下，稍后通过企业微信给您发。"
+      },
+      {
+        "turn": 6,
+        "quote": "官方账号名称我稍后通过企业微信主动添加您，请通过验证即可。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "style",
+    "severity": "major",
+    "text": "应使用简短自然的口语化表达，符合电话沟通风格，不得使用书面或正式语体",
+    "source_quote": "使用简短、自然的口语化表达，符合电话沟通风格",
+    "checkpoint_id": "style_2",
+    "verdict": "fail",
+    "confidence": 0.85,
+    "evidence": [
+      {
+        "turn": 1,
+        "quote": "我是课程发布平台的客服，就想跟您说个直播产品升级的事。"
+      },
+      {
+        "turn": 6,
+        "quote": "官方账号名称我稍后通过企业微信主动添加您，请通过验证即可。"
+      },
+      {
+        "turn": 8,
+        "quote": "费用差异因用量而异，我没有具体数字。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.65
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "style",
+    "severity": "major",
+    "text": "应频繁给商家发言和提问的机会，不得长篇独白",
+    "source_quote": "频繁给商家发言和提问的机会",
+    "checkpoint_id": "style_3",
+    "verdict": "pass",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 4,
+        "quote": "低延迟直播费用略高一些，标准直播更便宜。"
+      },
+      {
+        "turn": 10,
+        "quote": "您平时发课用Web控制台，还是第三方系统？"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.75
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "type": "style",
+    "severity": "minor",
+    "text": "不得使用正式或冗长的解释，应保持随意直接的表达风格",
+    "source_quote": "不使用正式或冗长的解释——保持随意直接",
+    "checkpoint_id": "style_4",
+    "verdict": "fail",
+    "confidence": 0.85,
+    "evidence": [
+      {
+        "turn": 6,
+        "quote": "官方账号名称我稍后通过企业微信主动添加您，请通过验证即可。"
+      },
+      {
+        "turn": 8,
+        "quote": "费用差异因用量而异，我没有具体数字。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.7
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "forbidden",
+    "severity": "major",
+    "text": "不得在对话中使用\"好的\"作为语气词或口头禅",
+    "source_quote": "不说\"好的\"、\"哈哈\"、\"嘿嘿\"、\"廻廻\"等语气词",
+    "checkpoint_id": "forbidden_1",
+    "verdict": "pass",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "method": "rule"
+      }
+    ],
+    "method": "rule"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "forbidden",
+    "severity": "major",
+    "text": "不得使用\"哈哈\"、\"嘿嘿\"、\"廻廻\"等轻浮语气词",
+    "source_quote": "不说\"好的\"、\"哈哈\"、\"嘿嘿\"、\"廻廻\"等语气词",
+    "checkpoint_id": "forbidden_2",
+    "verdict": "pass",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "method": "rule"
+      }
+    ],
+    "method": "rule"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "forbidden",
+    "severity": "critical",
+    "text": "不得向商家承诺折扣券或优惠券",
+    "source_quote": "不能承诺给商家折扣券或优惠券",
+    "checkpoint_id": "forbidden_3",
+    "verdict": "pass",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "method": "rule"
+      }
+    ],
+    "method": "rule"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "critical",
+    "text": "应当以指定开场白开启对话，询问对方是否为机构/校区负责人",
+    "source_quote": "您好，请问您是贵培训机构/校区的负责人吗？",
+    "checkpoint_id": "flow_1",
+    "verdict": "pass",
+    "confidence": 1.0,
+    "evidence": [
+      {
+        "turn": 0,
+        "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.99
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.98
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当确认对方身份；若不是负责人，应请其转达后再继续流程",
+    "source_quote": "若是负责人 → 进入第2步\n- 若不是 → 请其转达，然后进入第2步",
+    "checkpoint_id": "flow_2",
+    "verdict": "pass",
+    "confidence": 0.97,
+    "evidence": [
+      {
+        "turn": 0,
+        "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+      },
+      {
+        "turn": 1,
+        "quote": "对，我就是，有什么事快说。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.97
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "critical",
+    "text": "应当告知商家直播产品已升级，新增独立的低延迟直播选项，其他流程不变",
+    "source_quote": "我们对直播产品做了升级，新增了独立的\"低延迟直播\"选项。发课时选低延迟直播即可，其他流程不变。",
+    "checkpoint_id": "flow_3",
+    "verdict": "fail",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 1,
+        "quote": "我们对直播产品做了升级，新增了\"低延迟直播\"选项。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.55
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当询问商家是否知晓后台已为其走低延迟线路",
+    "source_quote": "您之前选的是标准直播，但我们后台其实已为您走低延迟线路以保障质量，您知道吗？",
+    "checkpoint_id": "flow_4",
+    "verdict": "fail",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.8
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家不知情，应说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步",
+    "source_quote": "若不知情 → 说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步",
+    "checkpoint_id": "flow_5",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.7
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "critical",
+    "text": "应当传达升级内容：发布页将分开显示两个选项，可根据课程类型自行选择",
+    "source_quote": "之后发布页会分开显示两个选项，根据课程类型自行选择即可。",
+    "checkpoint_id": "flow_6",
+    "verdict": "fail",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当说明两种直播的区别：标准直播延迟5-10秒适合大班课，低延迟直播延迟1-2秒适合小班课/实操课",
+    "source_quote": "标准直播：费用较低；延迟约5-10秒；适合大班课\n- 低延迟直播：延迟约1-2秒；互动更流畅；适合小班课/实操课",
+    "checkpoint_id": "flow_7",
+    "verdict": "fail",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 2,
+        "quote": "现在标准直播延迟5到10秒，低延迟只要1到2秒。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.88
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.6
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当说明价格差异：标准直播更便宜，低延迟直播带宽节点保障更强费用略高",
+    "source_quote": "标准直播更便宜\n- 低延迟直播带宽和节点保障更强，费用略高",
+    "checkpoint_id": "flow_8",
+    "verdict": "fail",
+    "confidence": 0.85,
+    "evidence": [
+      {
+        "turn": 7,
+        "quote": "低延迟带宽费用略高，会体现在您这边。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.6
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当询问商家通过何种方式发课（Web控制台、校务系统A或SaaS系统B）",
+    "source_quote": "您是通过Web控制台、校务系统A，还是SaaS系统B发课？",
+    "checkpoint_id": "flow_9",
+    "verdict": "pass",
+    "confidence": 0.7,
+    "evidence": [
+      {
+        "turn": 3,
+        "quote": "您平时是通过哪个系统发课？"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.7
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.82
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.55
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家使用Web控制台且低延迟直播未显示，应告知将在后台配置并请其明天再查看",
+    "source_quote": "若未显示 → 后台为其配置，请其明天再查看",
+    "checkpoint_id": "flow_10",
+    "verdict": "pass",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 4,
+        "quote": "我帮您后台配置一下，明天再看看发布页。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家使用第三方系统且未显示，应缓慢逐步引导开通，每步暂停等待回应",
+    "source_quote": "若未显示 → 缓慢引导开通（每步暂停3秒）：\n  1. 进入【我的】\n  2. 点击【服务商/直播平台管理】\n  3. 选择【直播平台】\n  4. 在【服务产品】下勾选低延迟直播，保存",
+    "checkpoint_id": "flow_11",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当检查学员端费用/加速线路费；若已设置费用，应提醒确认低延迟直播也已适用该费用",
+    "source_quote": "已设置费用 → 提醒确认低延迟直播也已适用该费用",
+    "checkpoint_id": "flow_12",
+    "verdict": "pass",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 9,
+        "quote": "您学员端有设置附加费吗？"
+      },
+      {
+        "turn": 10,
+        "quote": "需要确认一下，低延迟直播不会自动套用您之前的设置。"
+      },
+      {
+        "turn": 11,
+        "quote": "您需要手动给低延迟直播也启用那个费用规则。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.8
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "若商家无法自行配置费用，应缓慢逐步引导至收费规则并为低延迟直播启用",
+    "source_quote": "若无法自行配置 → 缓慢引导设置（每步暂停3秒）：\n1. 【我的】→【教务/财务设置】\n2. →【收费规则】\n3. →编辑直播线路附加费，为低延迟直播启用\n4. 保存",
+    "checkpoint_id": "flow_13",
+    "verdict": "fail",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 12,
+        "quote": "用户：行，那你告诉我在哪儿设，步骤直接说，别让我自己摸索！客服：进【我的】，找【教务/财务设置】。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.55
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "major",
+    "text": "应当处理企业微信添加环节：告知稍后添加并请通过验证；若不可添加则请提供可用手机号",
+    "source_quote": "若当前号码可添加 → 告知稍后通过企业微信添加，请通过验证\n- 若不可添加 → 请提供可添加的手机号，再发送同样的验证提示",
+    "checkpoint_id": "flow_14",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "flow",
+    "severity": "minor",
+    "text": "应当在无问题时以祝福语结束通话",
+    "source_quote": "若无问题，祝其课程顺利、招生满满，结束通话",
+    "checkpoint_id": "flow_15",
+    "verdict": "na",
+    "confidence": 0.95,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.8
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "major",
+    "text": "商家说忙时，应先说\"就1分钟，保证简短\"，然后继续简短说明，不得直接挂断",
+    "source_quote": "若老板说忙，说\"就1分钟，保证简短\"后继续简短说明",
+    "checkpoint_id": "constraint_1",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.8
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "critical",
+    "text": "商家说在开车时，必须礼貌说\"那我稍后再打\"后立即挂断，不得继续说明",
+    "source_quote": "若商家说在开车，礼貌说\"那我稍后再打\"后挂断",
+    "checkpoint_id": "constraint_2",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "critical",
+    "text": "商家明确表示不感兴趣或\"以后别打了\"时，必须立即说\"好的，打扰了，祝您生意兴隆\"后挂断",
+    "source_quote": "若商家明确表示不感兴趣、说\"不需要了解\"或\"以后别打了\"：立即说\"好的，打扰了，祝您生意兴隆\"后挂断，不得再说任何产品内容",
+    "checkpoint_id": "constraint_3",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "critical",
+    "text": "商家被告知\"就1分钟\"后仍明确拒绝时，应说\"好的，打扰了，再见\"后结束通话",
+    "source_quote": "若商家在被告知\"就1分钟\"后仍明确拒绝：说\"好的，打扰了，再见\"后结束通话，不得继续强推",
+    "checkpoint_id": "constraint_4",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.97
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "major",
+    "text": "若负责人不在/开会/不方便转达，应询问方便直接接听的时间，记录后礼貌挂断",
+    "source_quote": "若对方表示负责人不在/在开会/不方便转达：说\"好的，请问方便留一个他直接接听的时间吗？\"，记录后礼貌挂断",
+    "checkpoint_id": "constraint_5",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.98
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "major",
+    "text": "每给出一条信息后，应暂停等待商家回应再继续，不得连续独白",
+    "source_quote": "给出信息后，暂停等待商家回应再继续",
+    "checkpoint_id": "constraint_6",
+    "verdict": "pass",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 1,
+        "quote": "客服：我们对直播产品做了升级，新增了\"低延迟直播\"选项。[停顿等待用户回应]"
+      },
+      {
+        "turn": 2,
+        "quote": "客服：现在标准直播延迟5到10秒，低延迟只要1到2秒。[停顿等待用户回应]"
+      },
+      {
+        "turn": 4,
+        "quote": "客服：我帮您后台配置一下，明天再看看发布页。[停顿等待用户回应]"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.82
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "major",
+    "text": "即使完成主要任务，若商家仍有疑问，应继续简短作答",
+    "source_quote": "即使任务完成，若商家有疑问，继续简短作答",
+    "checkpoint_id": "constraint_7",
+    "verdict": "pass",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 8,
+        "quote": "客服对用户\"到底多收我多少钱\"的追问回应：具体价格我这边没有数字，得帮您查一下。"
+      },
+      {
+        "turn": 10,
+        "quote": "客服对用户费用适用问题继续简短作答：需要确认一下，低延迟直播不会自动套用您之前的设置。"
+      },
+      {
+        "turn": 12,
+        "quote": "客服对用户\"步骤直接说\"的要求继续作答：进【我的】，找【教务/财务设置】。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "constraint",
+    "severity": "minor",
+    "text": "若对话被打断，应使用\"您刚才提到……\"或\"我刚说到……\"等过渡语衔接",
+    "source_quote": "若对话被打断，使用简短过渡语，如\"您刚才提到……\"或\"我刚说到……\"",
+    "checkpoint_id": "constraint_8",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.65
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.85
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "forbidden",
+    "severity": "critical",
+    "text": "商家明确拒绝后，不得再说任何产品内容",
+    "source_quote": "立即说\"好的，打扰了，祝您生意兴隆\"后挂断，不得再说任何产品内容",
+    "checkpoint_id": "forbidden_4",
+    "verdict": "na",
+    "confidence": 1.0,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 1.0
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.97
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "forbidden",
+    "severity": "critical",
+    "text": "商家二次拒绝后，不得继续强推",
+    "source_quote": "说\"好的，打扰了，再见\"后结束通话，不得继续强推",
+    "checkpoint_id": "forbidden_5",
+    "verdict": "na",
+    "confidence": 0.95,
+    "evidence": [],
+    "judge_votes": [
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.93
+      },
+      {
+        "verdict": "na",
+        "confidence": 0.95
+      }
+    ],
+    "vote_agreement": 1.0,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "style",
+    "severity": "major",
+    "text": "每次回复单句不超过20个字；信息量大时应拆成多个短句分轮说，每句后暂停等待回应",
+    "source_quote": "每次回复极简——单句不超过20个字；信息量大时可拆成多个短句分轮说，每说完一句暂停等商家回应",
+    "checkpoint_id": "style_1",
+    "verdict": "fail",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "turn": 1,
+        "quote": "我们对直播产品做了升级，新增了\"低延迟直播\"选项。"
+      },
+      {
+        "turn": 2,
+        "quote": "现在标准直播延迟5到10秒，低延迟只要1到2秒。"
+      },
+      {
+        "turn": 10,
+        "quote": "需要确认一下，低延迟直播不会自动套用您之前的设置。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.95
+      },
+      {
+        "verdict": "fail",
+        "confidence": 0.88
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.6
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "style",
+    "severity": "major",
+    "text": "应使用简短自然的口语化表达，符合电话沟通风格，不得使用书面或正式语体",
+    "source_quote": "使用简短、自然的口语化表达，符合电话沟通风格",
+    "checkpoint_id": "style_2",
+    "verdict": "pass",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 6,
+        "quote": "一般2小时内，您下午再刷新看看。"
+      },
+      {
+        "turn": 5,
+        "quote": "配置需要一点时间，最快今天下班前确认一下。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.85
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.68
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "style",
+    "severity": "major",
+    "text": "应频繁给商家发言和提问的机会，不得长篇独白",
+    "source_quote": "频繁给商家发言和提问的机会",
+    "checkpoint_id": "style_3",
+    "verdict": "pass",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "turn": 3,
+        "quote": "您平时是通过哪个系统发课？"
+      },
+      {
+        "turn": 9,
+        "quote": "您学员端有设置附加费吗？"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.8
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.87
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.9
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "type": "style",
+    "severity": "minor",
+    "text": "不得使用正式或冗长的解释，应保持随意直接的表达风格",
+    "source_quote": "不使用正式或冗长的解释——保持随意直接",
+    "checkpoint_id": "style_4",
+    "verdict": "pass",
+    "confidence": 0.88,
+    "evidence": [
+      {
+        "turn": 2,
+        "quote": "现在标准直播延迟5到10秒，低延迟只要1到2秒。"
+      },
+      {
+        "turn": 11,
+        "quote": "您需要手动给低延迟直播也启用那个费用规则。"
+      }
+    ],
+    "judge_votes": [
+      {
+        "verdict": "fail",
+        "confidence": 0.9
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.72
+      },
+      {
+        "verdict": "pass",
+        "confidence": 0.88
+      }
+    ],
+    "vote_agreement": 0.667,
+    "method": "llm"
+  }
+]
