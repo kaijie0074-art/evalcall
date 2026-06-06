@@ -140,11 +140,22 @@ def cmd_run(args: argparse.Namespace) -> None:
     by_run_judgments: list[dict[str, Any]] = []        # 按轨迹嵌套 → judgments_by_run.json（备查）
     per_run_summary: list[dict[str, Any]] = []
 
+    # coverage-guided 调度状态：跨轨迹累计"已触达"检查点（pass/fail 即触达），
+    # 每条新轨迹开跑前，把仍未触达的检查点作为优先攻击目标喂给模拟器，
+    # 主动制造能触发它们的场景（FLARE 式行为覆盖引导，而非事后统计）。
+    covered_cp_ids: set = set()
+
     with open(transcripts_path, "w", encoding="utf-8") as tf:
         for persona in personas:
             persona_id = persona.get("id", "persona")
             for i in range(1, args.n + 1):
                 run_id = f"{task_id}__{persona_id}__{i}"
+                uncovered = [
+                    c.get("text") for c in cp_dicts
+                    if c.get("id") not in covered_cp_ids and c.get("text")
+                ] if covered_cp_ids else []  # 首条轨迹无判定数据，不加先验
+                if uncovered:
+                    print(f"[evalcall] coverage-guided：{len(uncovered)} 个未触达检查点置为优先目标")
                 print(f"[evalcall] 跑对话 {run_id} …")
                 try:
                     trajectory = run_dialogue(
@@ -152,6 +163,7 @@ def cmd_run(args: argparse.Namespace) -> None:
                         persona=persona,
                         checkpoints=cp_dicts,  # arena 按 dict 访问（.get），传字典形式
                         max_turns=args.max_turns,
+                        priority_targets=uncovered or None,
                     )
                 except Exception as exc:  # noqa: BLE001  —— 单条失败不中断整批
                     print(f"[evalcall] 警告：对话 {run_id} 失败，跳过：{exc}", file=sys.stderr)
@@ -167,6 +179,11 @@ def cmd_run(args: argparse.Namespace) -> None:
                 # 评测
                 judgments = judge.judge_trajectory(checkpoints, trajectory, model=args.model)
                 summary = judge.summarize(checkpoints, judgments)
+
+                # 覆盖率反馈：本条轨迹触达（pass/fail）的检查点计入已覆盖
+                for j in judgments:
+                    if str(j.get("verdict", "na")).lower() in ("pass", "fail"):
+                        covered_cp_ids.add(j.get("checkpoint_id"))
 
                 # 扁平化：每条判定补轨迹定位字段 + 检查点元信息，供报告切片/加权/引文展示
                 for j in judgments:

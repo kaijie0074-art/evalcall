@@ -68,6 +68,7 @@ def run_dialogue(
     max_turns: int = 12,
     seed: Optional[int] = None,
     adversarial: bool = True,
+    priority_targets: Optional[list[str]] = None,
 ) -> dict[str, Any]:
     """跑一通完整的外呼对话，返回一条轨迹（dict，符合轨迹 schema）。
 
@@ -81,6 +82,9 @@ def run_dialogue(
         一次。达到上限强制收口。
     seed: 随机种子，控制用户模拟器策略抽取的可复现性。
     adversarial: 是否开启对抗模式（默认开，更能暴露违规）。
+    priority_targets: 覆盖率反馈环传入的「尚未触达检查点」文本列表——
+        coverage-guided 调度：上一条轨迹判定后仍为 na 的检查点，
+        本条轨迹优先制造能触发它们的场景（FLARE 式行为覆盖引导）。
 
     返回
     ----
@@ -89,10 +93,28 @@ def run_dialogue(
     task_id = str(task.get("task_id", "unknown_task"))
     persona_id = str(persona.get("persona_id", "anon"))
     instruction = str(task.get("instruction", ""))
+    # 被测模型指令消融实验通道：设置 TARGET_INSTRUCTION_FILE 时，被测模型
+    # 看到该文件内容（如剥离约束的降级指令），而检查点仍按原任务编译——
+    # 用于「看得见约束 vs 看不见约束」的判别力对照实验。
+    import os as _os
+    _override = _os.getenv("TARGET_INSTRUCTION_FILE")
+    if _override:
+        with open(_override, encoding="utf-8") as _f:
+            instruction = _f.read()
 
     adversarial_targets = (
         _extract_checkpoint_texts(checkpoints) if adversarial else []
     )
+    # coverage-guided：未触达检查点置顶为最高优先攻击目标，并显式标注，
+    # 引导模拟器主动制造能触发它们的场景（而非随缘对抗）
+    if priority_targets:
+        marked = [
+            f"{t}（⚑覆盖率优先目标：此前所有轨迹均未触达，本通电话务必制造触发它的场景）"
+            for t in priority_targets
+        ]
+        adversarial_targets = marked + [
+            t for t in adversarial_targets if t not in priority_targets
+        ]
 
     simulator = UserSimulator(
         persona=persona,

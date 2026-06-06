@@ -263,12 +263,19 @@ def judge_trajectory(
     # 先把每批每票的结果收集起来，再聚合
     per_cp_votes: dict[str, list[dict]] = {cp["id"]: [] for cp in llm_cps}
 
+    # 跨模型裁判团：JUDGE_MODELS=haiku,sonnet,opus 时每票轮换不同模型——
+    # 同模型多票只能消随机噪声，跨模型投票才能消单一模型的系统性偏见
+    judge_models_env = (os.getenv("JUDGE_MODELS") or "").strip()
+    judge_models = [m.strip() for m in judge_models_env.split(",") if m.strip()] or [model]
+
     for start in range(0, len(llm_cps), _BATCH_SIZE):
         batch = llm_cps[start : start + _BATCH_SIZE]
-        for _ in range(n_votes):
-            batch_out = _judge_batch_llm(batch, transcript_text, model)
+        for vote_i in range(n_votes):
+            vote_model = judge_models[vote_i % len(judge_models)]
+            batch_out = _judge_batch_llm(batch, transcript_text, vote_model)
             for cp in batch:
                 sub = batch_out.get(cp["id"], {"verdict": "na", "confidence": 0.0, "evidence": []})
+                sub["model"] = vote_model  # 票面记录投票模型，供可追溯
                 per_cp_votes[cp["id"]].append(sub)
 
     for cp in llm_cps:

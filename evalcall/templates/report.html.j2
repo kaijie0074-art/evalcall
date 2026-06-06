@@ -198,6 +198,20 @@ tr:hover td{background:#fffdf2}
   <div class="alert">⛔ 检出 {{ critical_fail }} 项 critical 级违规（一票否决该项满分） · 约束违反共 {{ constraint_violations }} 项</div>
   {% endif %}
 
+  {% if lint_warning %}
+  <div class="alert" style="border-color:#d4a017;background:#fdf6e3;color:#7a5d00">
+    ⚠️ <b>指令体检警示（归因提示）</b>：本任务指令的可行性分仅 <b>{{ lint_warning.feasibility_score }}/100</b>（检出 {{ lint_warning.n_findings }} 项缺陷
+    {%- for f in lint_warning.top_findings %}；{{ f.dimension }}：{{ f.analysis }}{% endfor %}）。
+    指令存在不可行/自相矛盾约束时，模型必然违规——<b>本报告的低分应主要归因于指令缺陷而非模型能力</b>。建议先按体检建议修复指令，再以本报告作为模型能力结论。
+  </div>
+  {% endif %}
+
+  {% if meta.n_trajectories < 3 %}
+  <div class="small muted" style="margin-top:6px">
+    ⓘ 当前为演示规模（共 {{ meta.n_trajectories }} 条轨迹）：以下分数为<b>单样本观测值，非统计估计</b>；生产环境建议每 persona ≥20 条轨迹并报告均值±置信区间。
+  </div>
+  {% endif %}
+
   <div class="metabar">
     <span><b>运行 ID</b> {{ meta.run_id }}</span>
     <span><b>生成时间</b> {{ meta.generated_at }}</span>

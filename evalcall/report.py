@@ -616,6 +616,52 @@ def _build_radar(dimensions: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _load_lint_warning(
+    run_dir: str, transcripts: list[dict[str, Any]]
+) -> Optional[dict[str, Any]]:
+    """在 run_dir 的兄弟目录 lint/ 下查找本任务的指令体检结果。
+
+    匹配规则：lint json 的 task_id 与轨迹 task_id 一致，且 feasibility_score < 50
+    时返回警示数据（feasibility、top findings 摘要），否则返回 None。
+    """
+    task_ids = {str(tx.get("task_id")) for tx in transcripts if tx.get("task_id")}
+    if not task_ids:
+        return None
+    lint_dir = os.path.join(os.path.dirname(run_dir), "lint")
+    if not os.path.isdir(lint_dir):
+        return None
+    for fname in os.listdir(lint_dir):
+        if not fname.endswith(".json"):
+            continue
+        data = _read_json(os.path.join(lint_dir, fname))
+        if not isinstance(data, dict):
+            continue
+        lint_task = str(data.get("task_id", ""))
+        # task_id 完全一致，或互为前缀（lint 文件可能用短名）
+        hit = any(
+            lint_task == t or t.startswith(lint_task) or lint_task.startswith(t)
+            for t in task_ids
+        )
+        if not hit:
+            continue
+        score = data.get("feasibility_score")
+        if not isinstance(score, (int, float)) or score >= 50:
+            return None
+        top = [
+            f for f in (data.get("findings") or [])
+            if isinstance(f, dict) and f.get("severity") == "high"
+        ][:3]
+        return {
+            "feasibility_score": score,
+            "n_findings": len(data.get("findings") or []),
+            "top_findings": [
+                {"dimension": f.get("dimension", ""), "analysis": str(f.get("analysis", ""))[:120]}
+                for f in top
+            ],
+        }
+    return None
+
+
 # ---------------------------------------------------------------------------
 # 对外入口
 # ---------------------------------------------------------------------------
@@ -633,6 +679,11 @@ def build_report(run_dir: str) -> str:
         summary = None
 
     model = _aggregate(transcripts, judgments, summary)
+
+    # 指令体检联动：若 runs/lint/ 下存在本任务的体检结果且可行性分过低，
+    # 在报告头部挂归因警示——低分主要归因指令缺陷而非模型能力，
+    # 避免「lint 说指令烂、主流程却把 0 分算在模型头上」的归因冲突。
+    model["lint_warning"] = _load_lint_warning(run_dir, transcripts)
 
     tpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
     env = Environment(
