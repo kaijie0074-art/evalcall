@@ -115,12 +115,24 @@ def cmd_run(args: argparse.Namespace) -> None:
 
     personas = _resolve_personas(args.personas)
 
-    print(f"[evalcall] 编译任务指令：{task_id} …")
-    try:
-        checkpoints = compiler.compile_task(task, model=args.model)
-    except Exception as exc:  # noqa: BLE001  —— LLM/解析失败给清晰报错而非 traceback
-        _die(f"指令编译失败：{exc}\n  请检查 LLM 后端配置（EVALCALL_BACKEND / 模型 / key）或任务指令内容")
-        return
+    if getattr(args, "checklist", None):
+        # 复用已固化的检查点清单——比较实验（A/B、消融、回归）必须用同一把尺子：
+        # LLM 编译器非确定性，每次重编译的检查点数量/措辞/severity 都会漂移，
+        # 跨 run 对比若各自编译，结论无效（实测踩坑后新增本通道）。
+        print(f"[evalcall] 复用检查点清单：{args.checklist}")
+        with open(args.checklist, encoding="utf-8") as f:
+            cp_raw = json.load(f)
+        checkpoints = [compiler.Checkpoint(**{
+            k: v for k, v in c.items()
+            if k in ("id", "type", "text", "source_quote", "severity", "needs_review", "keywords")
+        }) for c in cp_raw]
+    else:
+        print(f"[evalcall] 编译任务指令：{task_id} …")
+        try:
+            checkpoints = compiler.compile_task(task, model=args.model)
+        except Exception as exc:  # noqa: BLE001  —— LLM/解析失败给清晰报错而非 traceback
+            _die(f"指令编译失败：{exc}\n  请检查 LLM 后端配置（EVALCALL_BACKEND / 模型 / key）或任务指令内容")
+            return
     if not checkpoints:
         _die("指令编译未产出任何检查点，请检查任务指令内容或 LLM 后端配置")
     cp_dicts = compiler.checkpoints_to_dicts(checkpoints)
@@ -310,6 +322,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--out", default=None, help="输出目录，默认 runs/<task_id>/")
     p_run.add_argument("--max-turns", type=int, default=12, help="单条对话最大轮数")
     p_run.add_argument("--model", default=None, help="覆盖默认模型名（评测/编译用）")
+    p_run.add_argument("--checklist", default=None, help="复用已固化的检查点清单 JSON（A/B 对比实验必须同尺）")
     p_run.set_defaults(func=cmd_run)
 
     p_rep = sub.add_parser("report", help="从 run 目录生成 HTML 报告")
