@@ -122,6 +122,19 @@
   </table>
   <p class="note">每条 fail 都附对话原文证据与指令原文引用，点开报告逐条可审计。</p>
 
+  <h3 class="sub-h">判别力实验：评测系统真能区分模型行为吗？</h3>
+  <p style="color:var(--muted); font-size:15px;">
+    受控消融实验：同一被测模型、同一任务（体检修复版指令）、<strong style="color:var(--text)">同一把固化的检查点尺子</strong>，唯一变量是被测模型「看得见 vs 看不见」指令中的约束段。
+  </p>
+  <table>
+    <tr><th>维度</th><th>看得见约束</th><th>看不见约束</th><th>解读</th></tr>
+    <tr><td>约束遵循（constraint）</td><td><span class="good">100%</span></td><td><span class="bad">28.6%</span></td><td rowspan="2">看得见约束的模型严格守住了约束与话术——<strong style="color:var(--text)">+71 / +63 个百分点的分离度</strong>，评测系统精确检测到了行为差异</td></tr>
+    <tr><td>话术合规（style）</td><td><span class="good">62.5%</span></td><td><span class="bad">0%</span></td></tr>
+    <tr><td>流程完整（flow）</td><td><span class="bad">26.3%</span></td><td><span class="good">83.3%</span></td><td>守约束的代价：短句+频繁暂停挤掉了流程信息量——指令的「字数 vs 信息量」张力仍残留（体检→修复→实测是迭代循环）</td></tr>
+    <tr><td>标量总分</td><td>0（critical 否决）</td><td>68.2</td><td><strong style="color:var(--text)">标量分会撒谎</strong>：只看总分会得出「守约束的模型更差」的荒谬结论——这正是报告必须输出分维度画像、不依赖单一分数的原因</td></tr>
+  </table>
+  <p class="note">实验另一收获：首跑时两组各自重新编译检查点导致「不同尺」（LLM 编译器非确定性），结论无效——已修复为 <code>--checklist</code> 固化复用机制并重判。<strong style="color:var(--text)">比较实验必须同尺</strong>，这条工程教训已产品化进 CLI。</p>
+
   <h2>第二层 · 审指令<span class="tag i">Instruction Lint · 评测的不只是模型</span></h2>
   <p style="color:var(--muted); font-size:15px;">
     实测中任务二被一票否决——深挖发现根因不在模型。EvalCall 内置指令体检器，自动检测指令的<strong style="color:var(--text)">自相矛盾 / 不可行约束 / 歧义表述 / 缺失分支</strong>，并给出可直接照改的修订建议。以下全部是体检器在两条官方指令上的<strong style="color:var(--text)">自主发现</strong>（提示词只教方法论，无任何硬编码结论）：

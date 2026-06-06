@@ -1,20 +1,20 @@
 {
   "task_id": "official_02_fixed",
   "total_runs": 2,
-  "avg_score": 69.4,
+  "avg_score": 68.2,
   "critical_failed_runs": 0,
-  "avg_violation_rate_per_100": 34.9,
-  "avg_judge_disagreement_rate": 0.044,
+  "avg_violation_rate_per_100": 36.6,
+  "avg_judge_disagreement_rate": 0.086,
   "by_persona": {
     "p01_cooperative_worker": {
       "runs": 1,
       "critical_failed_runs": 0,
-      "avg_score": 68.3
+      "avg_score": 68.6
     },
     "p02_impatient": {
       "runs": 1,
       "critical_failed_runs": 0,
-      "avg_score": 70.5
+      "avg_score": 67.7
     }
   },
   "total_checkpoints": 32

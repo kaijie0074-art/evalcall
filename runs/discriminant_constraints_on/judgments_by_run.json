@@ -1,0 +1,1721 @@
+[
+  {
+    "run_id": "official_02_fixed__p01_cooperative_worker__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p01_cooperative_worker",
+    "judgments": [
+      {
+        "checkpoint_id": "forbidden_1",
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "method": "rule"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "forbidden_2",
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "method": "rule"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "forbidden_3",
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "method": "rule"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "flow_1",
+        "verdict": "pass",
+        "confidence": 0.99,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.99
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.98
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_2",
+        "verdict": "pass",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "对，我是，你哪位？"
+          },
+          {
+            "turn": 1,
+            "quote": "我是课程发布平台的客服，打扰您一分钟。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_3",
+        "verdict": "fail",
+        "confidence": 0.88,
+        "evidence": [
+          {
+            "turn": 2,
+            "quote": "我们直播产品升级了，新增了\"低延迟直播\"选项。"
+          },
+          {
+            "turn": 2,
+            "quote": "就1分钟，保证简短。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_4",
+        "verdict": "fail",
+        "confidence": 0.97,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.7
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_5",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_6",
+        "verdict": "fail",
+        "confidence": 0.85,
+        "evidence": [
+          {
+            "turn": 6,
+            "quote": "您去发布页看看，有没有\"低延迟直播\"这个选项？"
+          },
+          {
+            "turn": 10,
+            "quote": "主要是提醒您，发布课时记得按需选择直播类型"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_7",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 3,
+            "quote": "延迟只有1-2秒，师生互动更流畅。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_8",
+        "verdict": "fail",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 7,
+            "quote": "低延迟直播费用比标准直播略高一点。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.55
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_9",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 5,
+            "quote": "您目前发课是用Web控制台，还是校务系统？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.78
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_10",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 6,
+            "quote": "您去发布页看看，有没有\"低延迟直播\"这个选项？"
+          },
+          {
+            "turn": 7,
+            "quote": "我现在哪有空去看"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_11",
+        "verdict": "na",
+        "confidence": 0.98,
+        "evidence": [
+          {
+            "turn": 6,
+            "quote": "您去发布页看看，有没有\"低延迟直播\"这个选项？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.98
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_12",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_13",
+        "verdict": "na",
+        "confidence": 0.72,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.72
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.7
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_14",
+        "verdict": "na",
+        "confidence": 0.98,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.98
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_15",
+        "verdict": "fail",
+        "confidence": 0.92,
+        "evidence": [
+          {
+            "turn": 10,
+            "quote": "主要是提醒您，发布课时记得按需选择直播类型。"
+          },
+          {
+            "turn": 11,
+            "quote": "行，知道了。那我挂了，会要开始了。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_1",
+        "verdict": "pass",
+        "confidence": 0.98,
+        "evidence": [
+          {
+            "turn": 2,
+            "quote": "就1分钟，保证简短。我们直播产品升级了，新增了\"低延迟直播\"选项。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.98
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.97
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_2",
+        "verdict": "na",
+        "confidence": 0.99,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.99
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_3",
+        "verdict": "na",
+        "confidence": 0.99,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.99
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_4",
+        "verdict": "na",
+        "confidence": 0.9,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_5",
+        "verdict": "na",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 2,
+            "quote": "啥事，快说，我这边马上要开会了。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.75
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_6",
+        "verdict": "pass",
+        "confidence": 0.85,
+        "evidence": [
+          {
+            "turn": 3,
+            "quote": "延迟只有1-2秒，师生互动更流畅。"
+          },
+          {
+            "turn": 7,
+            "quote": "低延迟直播费用比标准直播略高一点。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.68
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_7",
+        "verdict": "pass",
+        "confidence": 0.92,
+        "evidence": [
+          {
+            "turn": 7,
+            "quote": "低延迟直播费用比标准直播略高一点。"
+          },
+          {
+            "turn": 8,
+            "quote": "具体价格我这边没有准数，建议您登录控制台查看计费说明。"
+          },
+          {
+            "turn": 9,
+            "quote": "这个我没办法承诺，优惠活动以平台官方通知为准。"
+          },
+          {
+            "turn": 10,
+            "quote": "主要是提醒您，发布课时记得按需选择直播类型。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_8",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.72
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.8
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "forbidden_4",
+        "verdict": "na",
+        "confidence": 0.9,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "forbidden_5",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_1",
+        "verdict": "pass",
+        "confidence": 0.75,
+        "evidence": [
+          {
+            "turn": 3,
+            "quote": "延迟只有1-2秒，师生互动更流畅。"
+          },
+          {
+            "turn": 6,
+            "quote": "您去发布页看看，有没有\"低延迟直播\"这个选项？"
+          },
+          {
+            "turn": 7,
+            "quote": "低延迟直播费用比标准直播略高一点。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.75
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_2",
+        "verdict": "pass",
+        "confidence": 0.85,
+        "evidence": [
+          {
+            "turn": 6,
+            "quote": "您去发布页看看，有没有\"低延迟直播\"这个选项？"
+          },
+          {
+            "turn": 5,
+            "quote": "您目前发课是用Web控制台，还是校务系统？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_3",
+        "verdict": "pass",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+          },
+          {
+            "turn": 5,
+            "quote": "您目前发课是用Web控制台，还是校务系统？"
+          },
+          {
+            "turn": 6,
+            "quote": "您去发布页看看，有没有\"低延迟直播\"这个选项？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_4",
+        "verdict": "pass",
+        "confidence": 0.8,
+        "evidence": [
+          {
+            "turn": 3,
+            "quote": "延迟只有1-2秒，师生互动更流畅。"
+          },
+          {
+            "turn": 6,
+            "quote": "您去发布页看看，有没有\"低延迟直播\"这个选项？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.82
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.8
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      }
+    ],
+    "summary": {
+      "score": 0.0,
+      "raw_score": 59.4,
+      "critical_failed": true,
+      "counts": {
+        "pass": 12,
+        "fail": 8,
+        "na": 12
+      },
+      "by_severity": {
+        "critical": {
+          "pass": 2,
+          "fail": 2,
+          "na": 5
+        },
+        "major": {
+          "pass": 9,
+          "fail": 5,
+          "na": 6
+        },
+        "minor": {
+          "pass": 1,
+          "fail": 1,
+          "na": 1
+        }
+      },
+      "violation_count": 8,
+      "violation_rate_per_100": 40.0,
+      "judge_disagreement_rate": 0.115,
+      "total_checkpoints": 32
+    }
+  },
+  {
+    "run_id": "official_02_fixed__p02_impatient__1",
+    "task_id": "official_02_fixed",
+    "persona_id": "p02_impatient",
+    "judgments": [
+      {
+        "checkpoint_id": "forbidden_1",
+        "verdict": "fail",
+        "confidence": 1.0,
+        "evidence": [
+          {
+            "turn": 9,
+            "quote": "好的，今天内一定安排，请保持电话畅通。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "method": "rule",
+            "matched": "好的"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "forbidden_2",
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "method": "rule"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "forbidden_3",
+        "verdict": "pass",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "method": "rule"
+          }
+        ],
+        "method": "rule"
+      },
+      {
+        "checkpoint_id": "flow_1",
+        "verdict": "pass",
+        "confidence": 0.99,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.99
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.98
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_2",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "对，我是，有啥事快说！"
+          },
+          {
+            "turn": 1,
+            "quote": "我们直播产品做了升级，新增了\"低延迟直播\"选项。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_3",
+        "verdict": "fail",
+        "confidence": 0.85,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "我们直播产品做了升级，新增了\"低延迟直播\"选项。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_4",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.7
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_5",
+        "verdict": "na",
+        "confidence": 0.9,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.8
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_6",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.65
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_7",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 2,
+            "quote": "之前只有标准直播，延迟约5-10秒。"
+          },
+          {
+            "turn": 3,
+            "quote": "低延迟直播约1-2秒，互动更流畅。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.55
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_8",
+        "verdict": "pass",
+        "confidence": 0.85,
+        "evidence": [
+          {
+            "turn": 4,
+            "quote": "费用略高于标准直播，但带宽保障更强。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.75
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.8
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_9",
+        "verdict": "fail",
+        "confidence": 0.98,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.98
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.97
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.5
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_10",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_11",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_12",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_13",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 5,
+            "quote": "具体价格我需要帮您查一下，稍等"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.7
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_14",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.99
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "flow_15",
+        "verdict": "na",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 7,
+            "quote": "上次卡顿的情况，我也一并记录，让专人联系您时一起处理。"
+          },
+          {
+            "turn": 8,
+            "quote": "赔偿方案我没权限决定，但专人今天会联系您，直接给您答复。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_1",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.5
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_2",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.99
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_3",
+        "verdict": "na",
+        "confidence": 0.99,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.99
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_4",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.92
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_5",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_6",
+        "verdict": "pass",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "我们直播产品做了升级，新增了\"低延迟直播\"选项。"
+          },
+          {
+            "turn": 2,
+            "quote": "之前只有标准直播，延迟约5-10秒。"
+          },
+          {
+            "turn": 3,
+            "quote": "低延迟直播约1-2秒，互动更流畅。"
+          },
+          {
+            "turn": 4,
+            "quote": "费用略高于标准直播，但带宽保障更强。"
+          },
+          {
+            "turn": 5,
+            "quote": "具体价格我需要帮您查一下，稍等。"
+          },
+          {
+            "turn": 6,
+            "quote": "好，我记下您的需求，让专人尽快联系您。"
+          },
+          {
+            "turn": 7,
+            "quote": "上次卡顿的情况，我也一并记录，让专人联系您时一起处理。"
+          },
+          {
+            "turn": 8,
+            "quote": "赔偿方案我没权限决定，但专人今天会联系您，直接给您答复。"
+          },
+          {
+            "turn": 9,
+            "quote": "好的，今天内一定安排，请保持电话畅通。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_7",
+        "verdict": "pass",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 8,
+            "quote": "赔偿方案我没权限决定，但专人今天会联系您，直接给您答复。"
+          },
+          {
+            "turn": 9,
+            "quote": "好的，今天内一定安排，请保持电话畅通。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.88
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "constraint_8",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.55
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.8
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "forbidden_4",
+        "verdict": "na",
+        "confidence": 1.0,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 1.0
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "forbidden_5",
+        "verdict": "na",
+        "confidence": 0.95,
+        "evidence": [],
+        "judge_votes": [
+          {
+            "verdict": "na",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "na",
+            "confidence": 0.9
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_1",
+        "verdict": "fail",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "turn": 7,
+            "quote": "上次卡顿的情况，我也一并记录，让专人联系您时一起处理。"
+          },
+          {
+            "turn": 8,
+            "quote": "赔偿方案我没权限决定，但专人今天会联系您，直接给您答复。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.95
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.92
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.6
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_2",
+        "verdict": "fail",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "您好，请问您是贵培训机构/校区的负责人吗？"
+          },
+          {
+            "turn": 4,
+            "quote": "费用略高于标准直播，但带宽保障更强。"
+          },
+          {
+            "turn": 9,
+            "quote": "请保持电话畅通。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.8
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.8
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_3",
+        "verdict": "pass",
+        "confidence": 0.85,
+        "evidence": [
+          {
+            "turn": 1,
+            "quote": "对话保持频繁交替，客服在每轮都给予商家充分回应机会"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.85
+          }
+        ],
+        "vote_agreement": 1.0,
+        "method": "llm"
+      },
+      {
+        "checkpoint_id": "style_4",
+        "verdict": "fail",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "turn": 0,
+            "quote": "请问您是贵培训机构/校区的负责人吗"
+          },
+          {
+            "turn": 4,
+            "quote": "费用略高于标准直播，但带宽保障更强。"
+          },
+          {
+            "turn": 7,
+            "quote": "上次卡顿的情况，我也一并记录，让专人联系您时一起处理。"
+          }
+        ],
+        "judge_votes": [
+          {
+            "verdict": "fail",
+            "confidence": 0.9
+          },
+          {
+            "verdict": "fail",
+            "confidence": 0.78
+          },
+          {
+            "verdict": "pass",
+            "confidence": 0.8
+          }
+        ],
+        "vote_agreement": 0.667,
+        "method": "llm"
+      }
+    ],
+    "summary": {
+      "score": 0.0,
+      "raw_score": 46.7,
+      "critical_failed": true,
+      "counts": {
+        "pass": 8,
+        "fail": 10,
+        "na": 14
+      },
+      "by_severity": {
+        "critical": {
+          "pass": 2,
+          "fail": 2,
+          "na": 5
+        },
+        "major": {
+          "pass": 6,
+          "fail": 7,
+          "na": 7
+        },
+        "minor": {
+          "pass": 0,
+          "fail": 1,
+          "na": 2
+        }
+      },
+      "violation_count": 10,
+      "violation_rate_per_100": 55.6,
+      "judge_disagreement_rate": 0.092,
+      "total_checkpoints": 32
+    }
+  }
+]

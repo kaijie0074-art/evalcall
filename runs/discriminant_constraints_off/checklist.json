@@ -2,7 +2,7 @@
   {
     "id": "flow_1",
     "type": "flow",
-    "text": "应以指定开场白开始通话，询问对方是否为机构/校区负责人",
+    "text": "应当以指定开场白开启对话，询问对方是否为机构/校区负责人",
     "source_quote": "您好，请问您是贵培训机构/校区的负责人吗？",
     "severity": "critical",
     "needs_review": false,
@@ -11,7 +11,7 @@
   {
     "id": "flow_2",
     "type": "flow",
-    "text": "应完成身份确认：是负责人则继续，不是则请其转达后继续",
+    "text": "应当确认对方身份；若不是负责人，应请其转达后再继续流程",
     "source_quote": "若是负责人 → 进入第2步\n- 若不是 → 请其转达，然后进入第2步",
     "severity": "major",
     "needs_review": false,
@@ -20,7 +20,7 @@
   {
     "id": "flow_3",
     "type": "flow",
-    "text": "应传达核心升级信息：新增独立\"低延迟直播\"选项，其他流程不变",
+    "text": "应当告知商家直播产品已升级，新增独立的低延迟直播选项，其他流程不变",
     "source_quote": "我们对直播产品做了升级，新增了独立的\"低延迟直播\"选项。发课时选低延迟直播即可，其他流程不变。",
     "severity": "critical",
     "needs_review": false,
@@ -29,7 +29,7 @@
   {
     "id": "flow_4",
     "type": "flow",
-    "text": "应询问商家是否知晓后台已为其走低延迟线路",
+    "text": "应当询问商家是否知晓后台已为其走低延迟线路",
     "source_quote": "您之前选的是标准直播，但我们后台其实已为您走低延迟线路以保障质量，您知道吗？",
     "severity": "major",
     "needs_review": false,
@@ -38,7 +38,7 @@
   {
     "id": "flow_5",
     "type": "flow",
-    "text": "商家不知情时，应说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步",
+    "text": "若商家不知情，应说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步",
     "source_quote": "若不知情 → 说明前端当时未开放，临时开启低延迟是为保障音视频与白板同步",
     "severity": "major",
     "needs_review": false,
@@ -47,16 +47,16 @@
   {
     "id": "flow_6",
     "type": "flow",
-    "text": "应告知发布页将分开显示两个选项，可按课程类型自行选择",
+    "text": "应当传达升级内容：发布页将分开显示两个选项，可根据课程类型自行选择",
     "source_quote": "之后发布页会分开显示两个选项，根据课程类型自行选择即可。",
-    "severity": "major",
+    "severity": "critical",
     "needs_review": false,
     "keywords": []
   },
   {
     "id": "flow_7",
     "type": "flow",
-    "text": "应说明标准直播与低延迟直播的延迟差异及适用场景",
+    "text": "应当说明两种直播的区别：标准直播延迟5-10秒适合大班课，低延迟直播延迟1-2秒适合小班课/实操课",
     "source_quote": "标准直播：费用较低；延迟约5-10秒；适合大班课\n- 低延迟直播：延迟约1-2秒；互动更流畅；适合小班课/实操课",
     "severity": "major",
     "needs_review": true,
@@ -65,7 +65,7 @@
   {
     "id": "flow_8",
     "type": "flow",
-    "text": "应说明两种直播的价格差异：标准直播更便宜，低延迟费用略高",
+    "text": "应当说明价格差异：标准直播更便宜，低延迟直播带宽节点保障更强费用略高",
     "source_quote": "标准直播更便宜\n- 低延迟直播带宽和节点保障更强，费用略高",
     "severity": "major",
     "needs_review": false,
@@ -74,7 +74,7 @@
   {
     "id": "flow_9",
     "type": "flow",
-    "text": "应询问商家通过何种方式发课（Web控制台/校务系统A/SaaS系统B）",
+    "text": "应当询问商家通过何种方式发课（Web控制台、校务系统A或SaaS系统B）",
     "source_quote": "您是通过Web控制台、校务系统A，还是SaaS系统B发课？",
     "severity": "major",
     "needs_review": false,
@@ -83,7 +83,7 @@
   {
     "id": "flow_10",
     "type": "flow",
-    "text": "Web控制台用户若低延迟直播未显示，应告知将在后台配置并请其明天再查看",
+    "text": "若商家使用Web控制台且低延迟直播未显示，应告知将在后台配置并请其明天再查看",
     "source_quote": "若未显示 → 后台为其配置，请其明天再查看",
     "severity": "major",
     "needs_review": false,
@@ -92,8 +92,8 @@
   {
     "id": "flow_11",
     "type": "flow",
-    "text": "第三方系统用户若未显示，应按4步缓慢引导开通，每步暂停3秒",
-    "source_quote": "缓慢引导开通（每步暂停3秒）：\n  1. 进入【我的】\n  2. 点击【服务商/直播平台管理】\n  3. 选择【直播平台】\n  4. 在【服务产品】下勾选低延迟直播，保存",
+    "text": "若商家使用第三方系统且未显示，应缓慢逐步引导开通，每步暂停等待回应",
+    "source_quote": "若未显示 → 缓慢引导开通（每步暂停3秒）：\n  1. 进入【我的】\n  2. 点击【服务商/直播平台管理】\n  3. 选择【直播平台】\n  4. 在【服务产品】下勾选低延迟直播，保存",
     "severity": "major",
     "needs_review": false,
     "keywords": []
@@ -101,7 +101,7 @@
   {
     "id": "flow_12",
     "type": "flow",
-    "text": "应检查学员端是否设置了直播线路附加费，已设置则提醒确认低延迟直播已适用该费用",
+    "text": "应当检查学员端费用/加速线路费；若已设置费用，应提醒确认低延迟直播也已适用该费用",
     "source_quote": "已设置费用 → 提醒确认低延迟直播也已适用该费用",
     "severity": "major",
     "needs_review": false,
@@ -110,7 +110,7 @@
   {
     "id": "flow_13",
     "type": "flow",
-    "text": "若学员端费用无法自行配置，应按4步缓慢引导设置，每步暂停3秒",
+    "text": "若商家无法自行配置费用，应缓慢逐步引导至收费规则并为低延迟直播启用",
     "source_quote": "若无法自行配置 → 缓慢引导设置（每步暂停3秒）：\n1. 【我的】→【教务/财务设置】\n2. →【收费规则】\n3. →编辑直播线路附加费，为低延迟直播启用\n4. 保存",
     "severity": "major",
     "needs_review": true,
@@ -119,7 +119,7 @@
   {
     "id": "flow_14",
     "type": "flow",
-    "text": "应完成企业微信添加：当前号码可加则告知稍后添加请通过验证，否则请提供可添加手机号",
+    "text": "应当处理企业微信添加环节：告知稍后添加并请通过验证；若不可添加则请提供可用手机号",
     "source_quote": "若当前号码可添加 → 告知稍后通过企业微信添加，请通过验证\n- 若不可添加 → 请提供可添加的手机号，再发送同样的验证提示",
     "severity": "major",
     "needs_review": false,
@@ -128,35 +128,17 @@
   {
     "id": "flow_15",
     "type": "flow",
-    "text": "结束通话时若无问题，应祝商家课程顺利、招生满满",
+    "text": "应当在无问题时以祝福语结束通话",
     "source_quote": "若无问题，祝其课程顺利、招生满满，结束通话",
     "severity": "minor",
     "needs_review": false,
     "keywords": []
   },
   {
-    "id": "flow_16",
-    "type": "flow",
-    "text": "商家说在开车时，应说\"那我稍后再打\"后立即挂断",
-    "source_quote": "若商家说在开车，礼貌说\"那我稍后再打\"后挂断",
-    "severity": "critical",
-    "needs_review": false,
-    "keywords": []
-  },
-  {
-    "id": "flow_17",
-    "type": "flow",
-    "text": "负责人不在/开会/不方便转达时，应询问可接听时间并记录，然后礼貌挂断",
-    "source_quote": "若对方表示负责人不在/在开会/不方便转达：说\"好的，请问方便留一个他直接接听的时间吗？\"，记录后礼貌挂断",
-    "severity": "major",
-    "needs_review": false,
-    "keywords": []
-  },
-  {
     "id": "constraint_1",
     "type": "constraint",
-    "text": "每次回复单句不得超过20个字，信息量大时应拆成多个短句分轮说",
-    "source_quote": "每次回复极简——单句不超过20个字；信息量大时可拆成多个短句分轮说",
+    "text": "商家说忙时，应先说\"就1分钟，保证简短\"，然后继续简短说明，不得直接挂断",
+    "source_quote": "若老板说忙，说\"就1分钟，保证简短\"后继续简短说明",
     "severity": "major",
     "needs_review": false,
     "keywords": []
@@ -164,35 +146,35 @@
   {
     "id": "constraint_2",
     "type": "constraint",
-    "text": "每说完一句应暂停等待商家回应，不得连续输出多条信息",
-    "source_quote": "每说完一句暂停等商家回应",
-    "severity": "major",
+    "text": "商家说在开车时，必须礼貌说\"那我稍后再打\"后立即挂断，不得继续说明",
+    "source_quote": "若商家说在开车，礼貌说\"那我稍后再打\"后挂断",
+    "severity": "critical",
     "needs_review": false,
     "keywords": []
   },
   {
     "id": "constraint_3",
     "type": "constraint",
-    "text": "应频繁给商家发言和提问的机会",
-    "source_quote": "频繁给商家发言和提问的机会",
-    "severity": "major",
+    "text": "商家明确表示不感兴趣或\"以后别打了\"时，必须立即说\"好的，打扰了，祝您生意兴隆\"后挂断",
+    "source_quote": "若商家明确表示不感兴趣、说\"不需要了解\"或\"以后别打了\"：立即说\"好的，打扰了，祝您生意兴隆\"后挂断，不得再说任何产品内容",
+    "severity": "critical",
     "needs_review": false,
     "keywords": []
   },
   {
     "id": "constraint_4",
     "type": "constraint",
-    "text": "对话被打断时应使用简短过渡语衔接，如\"您刚才提到……\"或\"我刚说到……\"",
-    "source_quote": "若对话被打断，使用简短过渡语，如\"您刚才提到……\"或\"我刚说到……\"",
-    "severity": "minor",
+    "text": "商家被告知\"就1分钟\"后仍明确拒绝时，应说\"好的，打扰了，再见\"后结束通话",
+    "source_quote": "若商家在被告知\"就1分钟\"后仍明确拒绝：说\"好的，打扰了，再见\"后结束通话，不得继续强推",
+    "severity": "critical",
     "needs_review": false,
     "keywords": []
   },
   {
     "id": "constraint_5",
     "type": "constraint",
-    "text": "即使任务完成，若商家有疑问，仍应继续简短作答",
-    "source_quote": "即使任务完成，若商家有疑问，继续简短作答",
+    "text": "若负责人不在/开会/不方便转达，应询问方便直接接听的时间，记录后礼貌挂断",
+    "source_quote": "若对方表示负责人不在/在开会/不方便转达：说\"好的，请问方便留一个他直接接听的时间吗？\"，记录后礼貌挂断",
     "severity": "major",
     "needs_review": false,
     "keywords": []
@@ -200,8 +182,8 @@
   {
     "id": "constraint_6",
     "type": "constraint",
-    "text": "商家说忙时应先说\"就1分钟，保证简短\"，再继续简短说明",
-    "source_quote": "若老板说忙，说\"就1分钟，保证简短\"后继续简短说明",
+    "text": "每给出一条信息后，应暂停等待商家回应再继续，不得连续独白",
+    "source_quote": "给出信息后，暂停等待商家回应再继续",
     "severity": "major",
     "needs_review": false,
     "keywords": []
@@ -209,37 +191,47 @@
   {
     "id": "constraint_7",
     "type": "constraint",
-    "text": "商家在被告知\"就1分钟\"后仍明确拒绝，应说\"好的，打扰了，再见\"后结束通话",
-    "source_quote": "若商家在被告知\"就1分钟\"后仍明确拒绝：说\"好的，打扰了，再见\"后结束通话，不得继续强推",
-    "severity": "critical",
+    "text": "即使完成主要任务，若商家仍有疑问，应继续简短作答",
+    "source_quote": "即使任务完成，若商家有疑问，继续简短作答",
+    "severity": "major",
     "needs_review": false,
     "keywords": []
   },
   {
     "id": "constraint_8",
     "type": "constraint",
-    "text": "商家明确表示不感兴趣或\"以后别打了\"时，应立即说\"好的，打扰了，祝您生意兴隆\"后挂断",
-    "source_quote": "若商家明确表示不感兴趣、说\"不需要了解\"或\"以后别打了\"：立即说\"好的，打扰了，祝您生意兴隆\"后挂断",
-    "severity": "critical",
+    "text": "若对话被打断，应使用\"您刚才提到……\"或\"我刚说到……\"等过渡语衔接",
+    "source_quote": "若对话被打断，使用简短过渡语，如\"您刚才提到……\"或\"我刚说到……\"",
+    "severity": "minor",
     "needs_review": false,
     "keywords": []
   },
   {
     "id": "forbidden_1",
     "type": "forbidden",
-    "text": "不得使用\"好的\"、\"哈哈\"、\"嘿嘿\"、\"嘻嘻\"等语气词作为回应",
-    "source_quote": "不说\"好的\"、\"哈哈\"、\"嘿嘿\"、\"嘻嘻\"等语气词",
+    "text": "不得在对话中使用\"好的\"作为语气词或口头禅",
+    "source_quote": "不说\"好的\"、\"哈哈\"、\"嘿嘿\"、\"廻廻\"等语气词",
     "severity": "major",
     "needs_review": false,
     "keywords": [
-      "好的",
-      "哈哈",
-      "嘿嘿",
-      "嘻嘻"
+      "好的"
     ]
   },
   {
     "id": "forbidden_2",
+    "type": "forbidden",
+    "text": "不得使用\"哈哈\"、\"嘿嘿\"、\"廻廻\"等轻浮语气词",
+    "source_quote": "不说\"好的\"、\"哈哈\"、\"嘿嘿\"、\"廻廻\"等语气词",
+    "severity": "major",
+    "needs_review": false,
+    "keywords": [
+      "哈哈",
+      "嘿嘿",
+      "廻廻"
+    ]
+  },
+  {
+    "id": "forbidden_3",
     "type": "forbidden",
     "text": "不得向商家承诺折扣券或优惠券",
     "source_quote": "不能承诺给商家折扣券或优惠券",
@@ -248,25 +240,15 @@
     "keywords": [
       "折扣券",
       "优惠券",
-      "优惠",
-      "打折",
-      "券"
+      "打折优惠",
+      "赠券"
     ]
-  },
-  {
-    "id": "forbidden_3",
-    "type": "forbidden",
-    "text": "商家明确拒绝后不得再说任何产品内容，必须立即结束通话",
-    "source_quote": "不得再说任何产品内容",
-    "severity": "critical",
-    "needs_review": false,
-    "keywords": []
   },
   {
     "id": "forbidden_4",
     "type": "forbidden",
-    "text": "商家仍拒绝后不得继续强推产品信息",
-    "source_quote": "不得继续强推",
+    "text": "商家明确拒绝后，不得再说任何产品内容",
+    "source_quote": "立即说\"好的，打扰了，祝您生意兴隆\"后挂断，不得再说任何产品内容",
     "severity": "critical",
     "needs_review": false,
     "keywords": []
@@ -274,17 +256,17 @@
   {
     "id": "forbidden_5",
     "type": "forbidden",
-    "text": "不得使用正式或冗长的解释方式",
-    "source_quote": "不使用正式或冗长的解释——保持随意直接",
-    "severity": "major",
+    "text": "商家二次拒绝后，不得继续强推",
+    "source_quote": "说\"好的，打扰了，再见\"后结束通话，不得继续强推",
+    "severity": "critical",
     "needs_review": false,
     "keywords": []
   },
   {
     "id": "style_1",
     "type": "style",
-    "text": "应使用简短、自然的口语化表达，符合电话沟通风格",
-    "source_quote": "使用简短、自然的口语化表达，符合电话沟通风格",
+    "text": "每次回复单句不超过20个字；信息量大时应拆成多个短句分轮说，每句后暂停等待回应",
+    "source_quote": "每次回复极简——单句不超过20个字；信息量大时可拆成多个短句分轮说，每说完一句暂停等商家回应",
     "severity": "major",
     "needs_review": false,
     "keywords": []
@@ -292,8 +274,26 @@
   {
     "id": "style_2",
     "type": "style",
-    "text": "应保持随意直接的表达风格",
-    "source_quote": "保持随意直接",
+    "text": "应使用简短自然的口语化表达，符合电话沟通风格，不得使用书面或正式语体",
+    "source_quote": "使用简短、自然的口语化表达，符合电话沟通风格",
+    "severity": "major",
+    "needs_review": false,
+    "keywords": []
+  },
+  {
+    "id": "style_3",
+    "type": "style",
+    "text": "应频繁给商家发言和提问的机会，不得长篇独白",
+    "source_quote": "频繁给商家发言和提问的机会",
+    "severity": "major",
+    "needs_review": false,
+    "keywords": []
+  },
+  {
+    "id": "style_4",
+    "type": "style",
+    "text": "不得使用正式或冗长的解释，应保持随意直接的表达风格",
+    "source_quote": "不使用正式或冗长的解释——保持随意直接",
     "severity": "minor",
     "needs_review": false,
     "keywords": []
