@@ -261,6 +261,9 @@ def run(limit: int | None, votes: int, model: str | None) -> dict[str, Any]:
             "golden_set": GOLDEN_PATH,
             "backend": os.getenv("EVALCALL_BACKEND", "claude-cli"),
             "model": model or os.getenv("EVALCALL_MODEL", "sonnet"),
+            # 溯源必须完整：裁判团配置不记录在产物里，事后无法自证
+            # 「这次校准到底是同模型还是跨模型」（实测被评审质疑过一次）
+            "judge_models": os.getenv("JUDGE_MODELS", "") or "(单模型)",
             "n_votes": votes,
             "n_cases": len(cases),
             "limit": limit,
