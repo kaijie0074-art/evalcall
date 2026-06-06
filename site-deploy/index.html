@@ -112,15 +112,15 @@
     <div class="step"><div class="num">4</div><div class="name">量化报告</div><div class="desc">四维画像 / 热力图<br>逐检查点证据引用</div></div>
   </div>
 
-  <h3 class="sub-h">官方脱敏数据实测</h3>
+  <h3 class="sub-h">官方脱敏数据实测（每 persona 3 条独立轨迹 · 跨模型裁判团 · 含 pass^k 可靠性口径）</h3>
   <table>
-    <tr><th>任务（官方指令）</th><th>Persona</th><th>检查点通过率</th><th>结论</th></tr>
-    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td><span class="good">68.8%</span>（11✓/5✗）</td><td rowspan="2">否决前原始分 67.3 / 75.4，均被 critical 一票否决：开场白未完整播报单量——<strong style="color:var(--text)">体检器恰好查出该指令把 5 项信息塞进一句开场白，模型必然丢项</strong></td></tr>
-    <tr><td>不耐烦型</td><td><span class="good">76.5%</span>（13✓/4✗）</td></tr>
-    <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td><span class="warn">38.1%</span>（8✓/13✗）</td><td rowspan="2">「每次回复≤20字」为 critical 约束且持续违规 → 一票否决归零。<strong style="color:var(--text)">第二层指令体检证明：这不全是模型的错，指令本身物理不可行</strong></td></tr>
-    <tr><td>不耐烦型</td><td><span class="warn">55.0%</span>（11✓/9✗）</td></tr>
+    <tr><th>任务（官方指令）</th><th>Persona</th><th>原始分（n=3，均值±标准差）</th><th>pass^3</th><th>结论</th></tr>
+    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td>50.6 ± 6.8</td><td rowspan="2"><span class="bad">0.00</span></td><td rowspan="4">两任务全部 18 条轨迹均触发 critical 否决，pass^3=0（τ-bench 口径：连「偶尔全对」都没有）。<strong style="color:var(--text)">体检器给出归因：任务一开场白塞 5 项信息必丢项、任务二字数与信息量物理冲突</strong>——低分主因在指令，报告自动挂归因警示</td></tr>
+    <tr><td>不耐烦型</td><td>41.2 ± 12.1</td></tr>
+    <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td>58.7 ± 3.3</td><td rowspan="2"><span class="bad">0.00</span></td></tr>
+    <tr><td>不耐烦型</td><td>60.5 ± 2.9</td></tr>
   </table>
-  <p class="note">每条 fail 都附对话原文证据与指令原文引用，点开报告逐条可审计。</p>
+  <p class="note">分数为否决前原始分（critical 否决后计 0 分另列）；±为 3 条独立轨迹的标准差——<strong style="color:var(--text)">单样本是观测值，带方差才是测量</strong>。每条 fail 附对话原文证据与指令原文引用，点开报告逐条可审计。</p>
 
   <h3 class="sub-h">判别力实验：评测系统真能区分模型行为吗？</h3>
   <p style="color:var(--muted); font-size:15px;">
@@ -187,11 +187,11 @@
     「模拟器测得充分」不能靠形容词。EvalCall 把每个检查点是否被轨迹实际检验（pass/fail vs na）汇总成<strong style="color:var(--text)">触达率</strong>，并列出测试盲区清单：
   </p>
   <table style="margin-top:12px">
-    <tr><th>任务</th><th>检查点触达率</th><th>测试盲区（从未被任何轨迹触达）</th></tr>
-    <tr><td>任务一 · 骑手合同通知</td><td><span class="good">94.4%</span></td><td class="note">1 个分支未触达：「骑手坚持无法配送时应安慰后挂断」——提示需要补一个强硬拒绝型 persona</td></tr>
-    <tr><td>任务二 · 低延迟直播</td><td><span class="warn">77.8%</span></td><td class="note">6 个条件分支未触达：商家开车场景应挂断、Web控制台未显示选项的兜底引导、被打断时的过渡语等——直接指明下一轮该补哪些 persona/策略</td></tr>
+    <tr><th>任务</th><th>无反馈环（被动统计）</th><th>coverage-guided 反馈环开启后</th></tr>
+    <tr><td>任务一 · 骑手合同通知</td><td>94.4%（1 个盲区）</td><td><span class="good">100%（0 盲区）</span></td></tr>
+    <tr><td>任务二 · 低延迟直播</td><td><span class="warn">77.8%（6 个盲区）</span></td><td><span class="good">100%（0 盲区）</span></td></tr>
   </table>
-  <p class="note">覆盖率不只是事后统计——<strong style="color:var(--text)">已实现 coverage-guided 反馈环</strong>：每条轨迹判定完成后，仍未触达的检查点被标记为「优先攻击目标」注入下一条轨迹的对抗模拟器，主动制造触发场景（对标 FLARE 的 coverage-guided behavioral fuzzing 范式，<code>evalcall/cli.py</code> 主循环可查证）。评测系统不仅打分，还告诉你测试本身还差什么、并主动去补。</p>
+  <p class="note"><strong style="color:var(--text)">反馈环已实现且实证有效（任务二 +22.2 个百分点、盲区清零）</strong>：每条轨迹判定完成后，仍未触达的检查点被标记为「优先攻击目标」注入下一条轨迹的对抗模拟器，主动制造触发场景——商家开车要挂断、Web控制台兜底引导这些此前永远测不到的分支被逐一逼出（对标 FLARE 的 coverage-guided behavioral fuzzing 范式，首次用于对话指令遵循质检，<code>evalcall/cli.py</code> 主循环可查证）。评测系统不仅打分，还告诉你测试差什么、并主动补上。</p>
 
   <h2>真实战绩：这套系统在开发中抓出的问题</h2>
   <div class="story">
@@ -203,8 +203,12 @@
     <p>被测模型一字不差说出指定开场白，单票裁判却判 fail——根因是裁判没拿到指令原文只能臆测。修复后 3 票全对。这正是「校裁判」层存在的意义。</p>
   </div>
   <div class="story">
-    <h4>🎯 抓出测试盲区（覆盖率）</h4>
-    <p>任务一有 1 个、任务二有 6 个条件分支从未被测试触达。没有覆盖率量化，这些盲区会被「平均分」掩盖。</p>
+    <h4>🎯 抓出测试盲区，并主动补上（覆盖率反馈环）</h4>
+    <p>被动统计模式下任务一有 1 个、任务二有 6 个条件分支从未被触达；开启 coverage-guided 反馈环后两任务触达率均达 100%、盲区清零——发现盲区到消灭盲区，闭环实证有效。</p>
+  </div>
+  <div class="story">
+    <h4>🎯 抓出「比较实验不同尺」的设计缺陷（工程纪律）</h4>
+    <p>判别力实验首跑时两组各自重新编译检查点（LLM 编译器非确定性），对照失效——已产品化为 <code>--checklist</code> 固化复用机制并同尺重判。比较实验必须同尺，这条教训写进了 CLI。</p>
   </div>
 
   <h2>量化指标体系</h2>

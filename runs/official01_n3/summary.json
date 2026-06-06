@@ -1,0 +1,21 @@
+{
+  "task_id": "official_01_feimaotui",
+  "total_runs": 6,
+  "avg_score": 0.0,
+  "critical_failed_runs": 6,
+  "avg_violation_rate_per_100": 55.4,
+  "avg_judge_disagreement_rate": 0.091,
+  "by_persona": {
+    "p01_cooperative_worker": {
+      "runs": 3,
+      "critical_failed_runs": 3,
+      "avg_score": 0.0
+    },
+    "p02_impatient": {
+      "runs": 3,
+      "critical_failed_runs": 3,
+      "avg_score": 0.0
+    }
+  },
+  "total_checkpoints": 23
+}

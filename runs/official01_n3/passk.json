@@ -1,0 +1,22 @@
+{
+  "runs": [
+    {
+      "persona_id": "p01_cooperative_worker",
+      "n": 3,
+      "mean_raw": 50.6,
+      "std_raw": 6.8,
+      "pass^1": 0.0,
+      "pass^2": 0.0,
+      "pass^3": 0.0
+    },
+    {
+      "persona_id": "p02_impatient",
+      "n": 3,
+      "mean_raw": 41.2,
+      "std_raw": 12.1,
+      "pass^1": 0.0,
+      "pass^2": 0.0,
+      "pass^3": 0.0
+    }
+  ]
+}
