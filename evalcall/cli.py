@@ -329,7 +329,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--max-turns", type=int, default=12, help="单条对话最大轮数")
     p_run.add_argument("--model", default=None, help="覆盖默认模型名（评测/编译用）")
     p_run.add_argument("--checklist", default=None, help="复用已固化的检查点清单 JSON（A/B 对比实验必须同尺）")
-    p_run.add_argument("--seed", type=int, default=None, help="随机种子基值（派生规则 base+persona序号*1000+轨迹序号，保证可复现）")
+    p_run.add_argument("--seed", type=int, default=None, help="随机种子基值（派生 base+persona序号*1000+轨迹序号）。注：仅模拟器随机性可复现；judge 非确定性+coverage 反馈环使整条 run 不保证完全复现")
     p_run.set_defaults(func=cmd_run)
 
     p_rep = sub.add_parser("report", help="从 run 目录生成 HTML 报告")

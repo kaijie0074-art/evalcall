@@ -33,6 +33,8 @@ flat = json.load(open(f"{run_dir}/judgments.json"))
 
 per_run_summary = []
 task_id = by_run[0]["task_id"]
+# 按 persona 维护位置游标（.index(run) 是值匹配，两条判定全等的 run 会错配）
+_persona_cursor: dict = {}
 for run in by_run:
     rid = run["run_id"]
     traj = trajectories.get(rid)
@@ -43,12 +45,12 @@ for run in by_run:
         if len(cands) == 1:
             traj = cands[0]
         else:
-            same_persona_runs = [r for r in by_run if r["persona_id"] == run["persona_id"]]
-            idx = same_persona_runs.index(run)
+            idx = _persona_cursor.get(run["persona_id"], 0)
+            _persona_cursor[run["persona_id"]] = idx + 1
             if idx < len(cands):
                 traj = cands[idx]
             else:
-                raise SystemExit(f"无法匹配轨迹：{rid}（persona 候选 {len(cands)} 条，序号 {idx}）")
+                raise SystemExit(f"无法匹配轨迹：{rid}（persona 候选 {len(cands)} 条，位置 {idx}）")
     print(f"[rejudge] {rid} / {cp_id} × {n_votes}票 …", flush=True)
     new_list = judge.judge_trajectory(target_cps, traj, n_votes=n_votes)
     new_by_id = {j["checkpoint_id"]: j for j in new_list}

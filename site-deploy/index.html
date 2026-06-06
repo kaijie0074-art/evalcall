@@ -94,6 +94,21 @@
     </div>
   </div>
 
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:8px 0 0">
+    <div style="background:var(--card);border:1px solid var(--accent);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--accent)">三层闭环</div>
+      <div style="font-size:13px;color:var(--muted)">评模型 · 审指令 · 校裁判<br>别人交打分器，我们交质量基础设施</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--green);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--green)">92.1%</div>
+      <div style="font-size:13px;color:var(--muted)">裁判校准主口径（32例全量集）<br>盲标独立集 94.7% 未崩盘佐证</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--accent2);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
+      <div style="font-size:30px;font-weight:800;color:var(--accent2)">22 处</div>
+      <div style="font-size:13px;color:var(--muted)">官方指令缺陷被体检器自主查出<br>0 分归因指令而非模型</div>
+    </div>
+  </div>
+
   <h2>为什么这个问题难</h2>
   <p style="color:var(--muted); font-size:15px;">
     美团履约数字人每天产生大规模外呼。指令包含复杂流程分支和多重合规约束，人工抽听无法全量覆盖、标准因人而异。但「做一个自动评测器」不是难点——<strong style="color:var(--text)">难的是凭什么信它</strong>：
@@ -115,7 +130,7 @@
   <h3 class="sub-h">官方脱敏数据实测（每 persona 3 条独立轨迹 · 跨模型裁判团 · 含 pass^k 可靠性口径）</h3>
   <table>
     <tr><th>任务（官方指令）</th><th>Persona</th><th>原始分（n=3，均值±标准差）</th><th>pass^3</th><th>结论</th></tr>
-    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td>50.6 ± 6.8</td><td rowspan="2"><span class="bad">0.00</span></td><td rowspan="4">两任务全部轨迹均触发 critical 否决，pass^3=0。注：pass^k 度量「零 critical 完美通过」，与均值是不同维度——当前被测模型在该口径下全 0，说明 critical 级完美通过对其是高门槛，这本身是结论而非指标失效；n=3 下 pass^k 取值离散，生产需 n≥10。<strong style="color:var(--text)">体检器给出归因：任务一开场白塞 5 项信息必丢项、任务二字数与信息量物理冲突</strong>——低分主因在指令，报告自动挂归因警示</td></tr>
+    <tr><td rowspan="2">任务一 · 骑手合同生效通知</td><td>配合型</td><td>50.6 ± 6.8</td><td rowspan="2"><span class="bad">0.00</span></td><td rowspan="4">两任务全部轨迹均触发 critical 否决，pass^3=0。注：pass^3=0 表示无一条轨迹做到零 critical 完美通过——是结论，不是 bug（详见报告）。<strong style="color:var(--text)">体检器给出归因：任务一开场白塞 5 项信息必丢项、任务二字数与信息量物理冲突</strong>——低分主因在指令，报告自动挂归因警示</td></tr>
     <tr><td>不耐烦型</td><td>41.2 ± 12.1</td></tr>
     <tr><td rowspan="2">任务二 · 低延迟直播升级通知</td><td>配合型</td><td>58.7 ± 3.3</td><td rowspan="2"><span class="bad">0.00</span></td></tr>
     <tr><td>不耐烦型</td><td>60.5 ± 2.9</td></tr>
@@ -181,7 +196,7 @@
   <p class="note" style="margin-top:0">所有标题数字统一用全量集口径；fail 查准 76.7%（误报偏多）原样披露。下表为跨模型机制的小样本探索记录（12 例），仅证方向：</p>
   <table>
     <tr><th>指标</th><th>同模型 3 票（12 例探索性小样本）</th><th>跨模型裁判团（同 12 例；样本小、差异未做显著性检验，结论为方向性而非定论）</th><th>含义</th></tr>
-    <tr><td>整体准确率</td><td>86.5%</td><td><span class="good">94.2%</span>（宏 F1 0.887→0.947）</td><td>裁判与已知真值的一致程度</td></tr>
+    <tr><td>整体准确率</td><td>86.5%</td><td>94.2%（宏 F1 0.887→0.947；12 例小样本，方向性参考）</td><td>裁判与已知真值的一致程度</td></tr>
     <tr><td>违规查全率（fail Recall）</td><td>100%</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">一个违规都不漏</strong>——质检底线两种配置下都守住</td></tr>
     <tr><td>违规查准率（fail Precision）</td><td><span class="warn">61.1%</span>（7 误报）</td><td><span class="good">78.6%</span>（3 误报）</td><td><strong style="color:var(--text)">不好看的数字我们直接印出来</strong>，然后用实验修它：偏严误报近乎减半</td></tr>
     <tr><td>pass 查全率</td><td>82.1%</td><td><span class="good">92.3%</span></td><td>flow 类「偏严误杀」显著缓解</td></tr>
@@ -202,13 +217,13 @@
   </p>
   <table>
     <tr><th>指标</th><th>同源集（32例）</th><th>Held-out 盲标注集（22例）</th><th>含义</th></tr>
-    <tr><td>整体准确率</td><td>90.3%</td><td><span class="good">94.7%</span>（宏F1 0.845）</td><td><strong style="color:var(--text)">独立集不降反升——同源过拟合质疑被正面证伪</strong></td></tr>
-    <tr><td>违规查全率</td><td>88.9%</td><td><span class="good">100%</span></td><td><strong style="color:var(--text)">8 种禁语规避手法全部抓获，零漏判</strong>——双判合议（规则轨探测+LLM裁决）对「换个说法绕过关键词」免疫</td></tr>
+    <tr><td>整体准确率</td><td>90.3%</td><td>94.7%（宏F1 0.845；本集「全判pass」平凡基线 74.5%；95% CI [88.0, 98.3]）</td><td>独立集未崩盘且量级一致——<strong style="color:var(--text)">初步缓解同源过拟合担忧</strong>（v1 同集对照实验进行中，跨集构成不同不可直接比大小）</td></tr>
+    <tr><td>违规查全率</td><td>88.9%</td><td><span class="good">100%</span></td><td>本集 20 个违规检查点 0 漏判，含 8 种禁语规避手法（每种 1-3 例，n 小：100% 召回的 95% CI 下界约 83%）——双判合议对规避话术的有效性获初步验证，非鲁棒性证明</td></tr>
     <tr><td>反向陷阱误杀</td><td>—</td><td><span class="good">0</span>（pass 查准率 1.0）</td><td>引用/否定句式/培训例句不被冤枉——归属判定准则起效</td></tr>
     <tr><td>forbidden / style 类准确率</td><td>62.5% / 80%</td><td><span class="good">100% / 100%</span></td><td>合规质检最关键的两类在独立集上满分</td></tr>
-    <tr><td>残余弱点</td><td>—</td><td><span class="warn">na 查全率 0.5</span>（4 例中漏 2）、fail 查准率 0.80</td><td>na 纪律略有矫枉过正；误报仍需复核——原样披露</td></tr>
+    <tr><td>残余弱点</td><td>—</td><td><span class="warn">na 类 n=4</span>（召回 2/4，95% CI [7%,93%]——样本不足以评估）、fail 查准率 0.80</td><td>na 维度本集无法下结论；误报仍需复核——原样披露</td></tr>
   </table>
-  <p class="note">完整产物：<code>runs/calibration/heldout_v3.json</code>（meta 含裁判团配置自证）、<code>data/calibration/heldout_set.json</code>（22 例全文+标注理由可审计）。诚实边界：盲标注者仍是 AI 而非人类质检员——独立性体现在「与裁判调优链隔离」，人类标注一致率（Cohen's Kappa）仍是生产前必做项。</p>
+  <p class="note">完整产物：<code>runs/calibration/heldout_v3.json</code>（meta 含裁判团配置自证）、<code>data/calibration/heldout_set.json</code>（22 例全文+标注理由可审计）。诚实边界：盲标注者是与裁判调优链隔离的 AI 二次标注（同属 Claude 家族——共享先验可能系统性抬高一致率，94.7% 应视为上界）；人类标注一致率（Cohen's Kappa）与异源家族交叉标注是生产前必做项。</p>
 
   <h3 class="sub-h">预注册拦截了一次坏迭代：负结果也原样公布</h3>
   <table>
@@ -286,7 +301,7 @@
     <tr><td>人工抽听对照</td><td>听录音+填质检表 10–15 分钟 ≈ ¥7–12 / 通（含人力综合成本）</td></tr>
     <tr><td rowspan="2">百万通/天规模的两种方案对账</td><td>现状·人工抽检 3%：3 万通 × ¥10 = <strong style="color:var(--text)">¥30 万/天，覆盖率 3%</strong></td></tr>
     <tr><td>EvalCall 全量：100 万通 × ¥0.15 = ¥15 万 ＋ fail 标记复核（标记率按14%、附证据复核 1-2 分钟/条 ≈¥1.5）14 万 × ¥1.5 = ¥21 万 → <strong style="color:var(--text)">¥36 万/天，覆盖率 100%</strong></td></tr>
-    <tr><td>结论</td><td><strong style="color:var(--text)">同量级预算下覆盖率 3% → 100%（33 倍）</strong>；且复核不用重听录音——报告附对话原文+指令原文双重证据，单条复核从 10 分钟降到 1-2 分钟。fail 查准率（当前 73%）每提升 10 个百分点，复核账单再降约 ¥3 万/天——这正是「校裁判」层持续迭代的直接金钱价值</td></tr>
+    <tr><td>结论</td><td><strong style="color:var(--text)">同量级预算下覆盖率 3% → 100%（33 倍）</strong>；且复核不用重听录音——报告附对话原文+指令原文双重证据，单条复核从 10 分钟降到 1-2 分钟。fail 查准率（当前 76.7%）每提升 10 个百分点，复核账单再降约 ¥3 万/天——这正是「校裁判」层持续迭代的直接金钱价值</td></tr>
     <tr><td>延迟与扩展性</td><td>演示通道 claude-cli 单案 165s 是本地子进程的限制；生产为批量 API——单通质检各自独立、可无限水平并行，墙钟由并发度决定而非架构。裁判升级后用重判工具从既有轨迹回溯，无需重跑对话</td></tr>
   </table>
 

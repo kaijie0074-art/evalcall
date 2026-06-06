@@ -191,6 +191,11 @@ tr:hover td{background:#fffdf2}
     <div class="score-big">
       <div class="num">{{ overall_score }}</div>
       <div class="lab">综合得分{% if critical_fail > 0 %}（critical 一票否决；否决前原始分 {{ raw_score }}）{% endif %} · 通过率 {{ pass_rate }}%</div>
+      {% if lint_warning %}
+      <div style="margin-top:6px;font-size:12px;font-weight:700;color:#7a5d00;background:#fdf6e3;border:1px solid #d4a017;border-radius:8px;padding:4px 10px;display:inline-block">
+        ⚠ 0 分主因：指令缺陷（可行性分 {{ lint_warning.feasibility_score }}/100，非模型能力，详见下方）
+      </div>
+      {% endif %}
     </div>
   </div>
 

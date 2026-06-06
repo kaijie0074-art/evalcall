@@ -338,6 +338,8 @@ def main() -> int:
     out_path = args.out or OUT_PATH
 
     os.makedirs(OUT_DIR, exist_ok=True)
+    # --out 指向新目录时先建好——曾有"跑一小时在最后写盘瞬间崩"的风险
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
     result = run(limit=args.limit, votes=args.votes, model=args.model)
 
     with open(out_path, "w", encoding="utf-8") as f:

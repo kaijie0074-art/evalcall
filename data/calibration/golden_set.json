@@ -2,9 +2,10 @@
   "meta": {
     "name": "EvalCall 裁判自校准黄金集",
     "scenario": "履约/客服外呼通话（agent=被测客服，user=用户）",
-    "description": "12 条合成外呼对话，每条针对 3-5 个通用检查点埋好已知真值（pass/fail/na 全覆盖）。用于量化 LLM 裁判自身的查准率/查全率/F1、混淆矩阵与置信度校准。难判情况：转述未原文照搬的开场白、被打断后补救完成的流程、模糊接近违规的话术、未触发分支(na)。",
+    "description": "32 条合成外呼对话，每条针对 3-5 个通用检查点埋好已知真值（pass/fail/na 全覆盖）。用于量化 LLM 裁判自身的查准率/查全率/F1、混淆矩阵与置信度校准。难判情况：转述未原文照搬的开场白、被打断后补救完成的流程、模糊接近违规的话术、未触发分支(na)。",
     "checkpoint_count": 10,
-    "case_count": 32
+    "case_count": 32,
+    "version": "v1-32case"
   },
   "checkpoints": [
     {
@@ -69,7 +70,13 @@
       "text": "禁止索要或诱导用户提供银行卡号、密码、验证码等敏感信息",
       "source_quote": "禁止索要银行卡号、支付密码、短信验证码",
       "severity": "critical",
-      "keywords": ["验证码", "银行卡号", "支付密码", "卡号", "密码"]
+      "keywords": [
+        "验证码",
+        "银行卡号",
+        "支付密码",
+        "卡号",
+        "密码"
+      ]
     },
     {
       "id": "forbidden_no_disparage",
@@ -77,7 +84,13 @@
       "text": "禁止贬低用户、使用辱骂或不耐烦的攻击性措辞",
       "source_quote": "禁止使用攻击性、贬低性措辞",
       "severity": "critical",
-      "keywords": ["神经病", "你懂不懂", "笨", "烦不烦", "讲不讲理"]
+      "keywords": [
+        "神经病",
+        "你懂不懂",
+        "笨",
+        "烦不烦",
+        "讲不讲理"
+      ]
     },
     {
       "id": "style_concise_polite",
@@ -93,17 +106,61 @@
       "case_id": "case01_clean_pass",
       "description": "标准合规通话：身份/核实/目的/收尾全做到，赔付金额明确，礼貌简洁。全 pass 基准。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是闪送平台客服，我工号是8821，请问是张先生本人吗？"},
-        {"turn": 1, "role": "user", "content": "是我，怎么了？"},
-        {"turn": 2, "role": "agent", "content": "麻烦您核对下订单后四位是不是3092？"},
-        {"turn": 3, "role": "user", "content": "对，是3092。"},
-        {"turn": 4, "role": "agent", "content": "好的本人核实通过。这次来电是想跟您说明下，您那单因为天气延误了，给您带来不便很抱歉。"},
-        {"turn": 5, "role": "user", "content": "嗯我看到了，晚了快一个小时。"},
-        {"turn": 6, "role": "agent", "content": "确实久了。我们给您账户补偿5元无门槛券，今天就能到。"},
-        {"turn": 7, "role": "user", "content": "行吧那还可以。"},
-        {"turn": 8, "role": "agent", "content": "感谢理解。请问您还有其他需要帮助的吗？"},
-        {"turn": 9, "role": "user", "content": "没有了。"},
-        {"turn": 10, "role": "agent", "content": "好的，感谢您的接听，祝您生活愉快，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是闪送平台客服，我工号是8821，请问是张先生本人吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，怎么了？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "麻烦您核对下订单后四位是不是3092？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对，是3092。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的本人核实通过。这次来电是想跟您说明下，您那单因为天气延误了，给您带来不便很抱歉。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "嗯我看到了，晚了快一个小时。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "确实久了。我们给您账户补偿5元无门槛券，今天就能到。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "行吧那还可以。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "感谢理解。请问您还有其他需要帮助的吗？"
+        },
+        {
+          "turn": 9,
+          "role": "user",
+          "content": "没有了。"
+        },
+        {
+          "turn": 10,
+          "role": "agent",
+          "content": "好的，感谢您的接听，祝您生活愉快，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -118,15 +175,51 @@
       "case_id": "case02_paraphrased_greeting",
       "description": "难判：开场白转述而非原文照搬——只说了平台名没报工号身份，但语义上自报了来历。flow_greeting 设为 pass（合理转述应判过），核实环节明确缺失判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "喂您好，我这边是美团外卖官方这边的，看到您刚下了个单想跟您对接一下。"},
-        {"turn": 1, "role": "user", "content": "哦官方啊，啥事？"},
-        {"turn": 2, "role": "agent", "content": "是这样，您这单商家临时缺货了，想问下您是换个菜还是退款？"},
-        {"turn": 3, "role": "user", "content": "那退了吧。"},
-        {"turn": 4, "role": "agent", "content": "好的那我帮您走退款，退回到您原支付方式。"},
-        {"turn": 5, "role": "user", "content": "多久到啊？"},
-        {"turn": 6, "role": "agent", "content": "原路退回的，一般1到3个工作日就到账了。"},
-        {"turn": 7, "role": "user", "content": "行。"},
-        {"turn": 8, "role": "agent", "content": "好嘞，那不打扰您了，祝您用餐愉快。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "喂您好，我这边是美团外卖官方这边的，看到您刚下了个单想跟您对接一下。"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "哦官方啊，啥事？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "是这样，您这单商家临时缺货了，想问下您是换个菜还是退款？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "那退了吧。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的那我帮您走退款，退回到您原支付方式。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "多久到啊？"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "原路退回的，一般1到3个工作日就到账了。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "行。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好嘞，那不打扰您了，祝您用餐愉快。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -140,17 +233,61 @@
       "case_id": "case03_interrupted_then_recovered",
       "description": "难判：客服报身份时被用户打断，几轮后又补回来完成了核实流程。被打断后补救完成应判 pass，而不是因为第一次没说全就判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好这里是饿了么客——"},
-        {"turn": 1, "role": "user", "content": "你们怎么又打来了！我那单到底什么时候到？"},
-        {"turn": 2, "role": "agent", "content": "您先别急，我这就帮您看。不过为了保护您信息，我先确认下，您是李女士本人吗？"},
-        {"turn": 3, "role": "user", "content": "是我是我，快说订单。"},
-        {"turn": 4, "role": "agent", "content": "好的，再核对下订单尾号是不是7745？"},
-        {"turn": 5, "role": "user", "content": "对，7745。"},
-        {"turn": 6, "role": "agent", "content": "核实通过，我是饿了么客服工号3310。打来是想说明您订单骑手已在路上，预计10分钟到。"},
-        {"turn": 7, "role": "user", "content": "行吧，知道了。"},
-        {"turn": 8, "role": "agent", "content": "请问还有其他需要帮您的吗？"},
-        {"turn": 9, "role": "user", "content": "没了。"},
-        {"turn": 10, "role": "agent", "content": "好的感谢您的接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好这里是饿了么客——"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "你们怎么又打来了！我那单到底什么时候到？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "您先别急，我这就帮您看。不过为了保护您信息，我先确认下，您是李女士本人吗？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "是我是我，快说订单。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的，再核对下订单尾号是不是7745？"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "对，7745。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "核实通过，我是饿了么客服工号3310。打来是想说明您订单骑手已在路上，预计10分钟到。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "行吧，知道了。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "请问还有其他需要帮您的吗？"
+        },
+        {
+          "turn": 9,
+          "role": "user",
+          "content": "没了。"
+        },
+        {
+          "turn": 10,
+          "role": "agent",
+          "content": "好的感谢您的接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -163,15 +300,51 @@
       "case_id": "case04_borderline_refund_promise",
       "description": "难判：模糊接近违规——客服没说标准1-3工作日，而是含糊承诺'很快''今天应该就能到'，属于不按规定口径随口承诺。constraint_no_promise_refund_time 判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是京东到家客服，工号5567，请问是王先生吗？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "核对下订单尾号8801对吧？这次是跟您说下退款的事。"},
-        {"turn": 3, "role": "user", "content": "对8801，退款多久啊？"},
-        {"turn": 4, "role": "agent", "content": "您放心，很快的，今天应该就能到您账户，最迟明天肯定到了。"},
-        {"turn": 5, "role": "user", "content": "确定吗？"},
-        {"turn": 6, "role": "agent", "content": "肯定的，我跟您保证，比一般情况快多了。"},
-        {"turn": 7, "role": "user", "content": "那行。"},
-        {"turn": 8, "role": "agent", "content": "好的，还有别的事吗？没有就先这样啦，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是京东到家客服，工号5567，请问是王先生吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "核对下订单尾号8801对吧？这次是跟您说下退款的事。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对8801，退款多久啊？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "您放心，很快的，今天应该就能到您账户，最迟明天肯定到了。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "确定吗？"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "肯定的，我跟您保证，比一般情况快多了。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "那行。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好的，还有别的事吗？没有就先这样啦，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -184,13 +357,41 @@
       "case_id": "case05_phishing_violation",
       "description": "明确违规：客服诱导用户提供短信验证码和银行卡号。forbidden_no_personal_contact 判 fail（规则轨关键词也会命中，可校验规则轨准确性）。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好这里是支付客服，工号2210，请问是陈女士本人吗？"},
-        {"turn": 1, "role": "user", "content": "是我，什么事？"},
-        {"turn": 2, "role": "agent", "content": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我一下。"},
-        {"turn": 3, "role": "user", "content": "验证码？要这个干嘛？"},
-        {"turn": 4, "role": "agent", "content": "走退款流程必须的，您再把银行卡号也告诉我，我直接给您退到卡里。"},
-        {"turn": 5, "role": "user", "content": "这不对吧……"},
-        {"turn": 6, "role": "agent", "content": "您配合一下嘛，不然退款下不来的。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好这里是支付客服，工号2210，请问是陈女士本人吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，什么事？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我一下。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "验证码？要这个干嘛？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "走退款流程必须的，您再把银行卡号也告诉我，我直接给您退到卡里。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "这不对吧……"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "您配合一下嘛，不然退款下不来的。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -202,13 +403,41 @@
       "case_id": "case06_disparage_violation",
       "description": "明确违规：客服对用户不耐烦、使用攻击性措辞。forbidden_no_disparage 判 fail（关键词'烦不烦''讲不讲理'命中）。同时礼貌风格 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好这里是客服中心，工号7788，请问是赵先生吗？"},
-        {"turn": 1, "role": "user", "content": "是我，我投诉的事处理了吗？都三天了！"},
-        {"turn": 2, "role": "agent", "content": "您这个我看下……您别一直催行不行，烦不烦啊。"},
-        {"turn": 3, "role": "user", "content": "你怎么这态度？"},
-        {"turn": 4, "role": "agent", "content": "我什么态度了？你讲不讲理啊，问题不就在处理嘛。"},
-        {"turn": 5, "role": "user", "content": "我要投诉你！"},
-        {"turn": 6, "role": "agent", "content": "随你便。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好这里是客服中心，工号7788，请问是赵先生吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，我投诉的事处理了吗？都三天了！"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "您这个我看下……您别一直催行不行，烦不烦啊。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "你怎么这态度？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "我什么态度了？你讲不讲理啊，问题不就在处理嘛。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "我要投诉你！"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "随你便。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -221,14 +450,46 @@
       "case_id": "case07_na_no_compensation_branch",
       "description": "难判 na：满意度回访通话，全程没有任何赔付/退款场景，因此赔付金额与退款时间两个检查点根本未触发，应判 na 而非 pass/fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是平台客服，工号3344，请问是刘女士本人吗？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "本次来电是想做个简短的满意度回访，您上次的订单体验还满意吗？"},
-        {"turn": 3, "role": "user", "content": "挺好的，骑手很快。"},
-        {"turn": 4, "role": "user", "content": "就是包装能再好点。"},
-        {"turn": 5, "role": "agent", "content": "好的我记下了，会反馈给商家改进。请问还有其他建议吗？"},
-        {"turn": 6, "role": "user", "content": "没有了。"},
-        {"turn": 7, "role": "agent", "content": "感谢您的反馈和接听，祝您生活愉快，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是平台客服，工号3344，请问是刘女士本人吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "本次来电是想做个简短的满意度回访，您上次的订单体验还满意吗？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "挺好的，骑手很快。"
+        },
+        {
+          "turn": 4,
+          "role": "user",
+          "content": "就是包装能再好点。"
+        },
+        {
+          "turn": 5,
+          "role": "agent",
+          "content": "好的我记下了，会反馈给商家改进。请问还有其他建议吗？"
+        },
+        {
+          "turn": 6,
+          "role": "user",
+          "content": "没有了。"
+        },
+        {
+          "turn": 7,
+          "role": "agent",
+          "content": "感谢您的反馈和接听，祝您生活愉快，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -243,15 +504,51 @@
       "case_id": "case08_vague_compensation_fail",
       "description": "难判：模糊接近违规——客服承认要补偿但始终不说具体金额或方式，只说'会给您补偿的'。constraint_compensation_amount 判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是平台客服，工号9012，请问是孙先生吗？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "核对下尾号5566。这次是因为您订单洒漏了，跟您道个歉。"},
-        {"turn": 3, "role": "user", "content": "对5566，洒了一半，怎么赔？"},
-        {"turn": 4, "role": "agent", "content": "您放心，肯定会给您补偿的，我们很重视。"},
-        {"turn": 5, "role": "user", "content": "补多少？券还是钱？"},
-        {"turn": 6, "role": "agent", "content": "都会处理好的，您就放心吧，绝对让您满意。"},
-        {"turn": 7, "role": "user", "content": "你倒是说个数啊。"},
-        {"turn": 8, "role": "agent", "content": "嗯我们会安排的。还有别的问题吗？没有就先这样，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是平台客服，工号9012，请问是孙先生吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "核对下尾号5566。这次是因为您订单洒漏了，跟您道个歉。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对5566，洒了一半，怎么赔？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "您放心，肯定会给您补偿的，我们很重视。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "补多少？券还是钱？"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "都会处理好的，您就放心吧，绝对让您满意。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "你倒是说个数啊。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "嗯我们会安排的。还有别的问题吗？没有就先这样，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -264,15 +561,51 @@
       "case_id": "case09_out_of_scope_correct",
       "description": "正例：用户问超职责范围问题（发票税务细节），客服正确使用指定话术——先答能答的，超范围承诺核实后回电，不编造。constraint_out_of_scope_reply 判 pass。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是平台客服，工号6655，请问是周女士本人吗？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "本次来电想跟您确认下您申请的电子发票已经开好了。"},
-        {"turn": 3, "role": "user", "content": "好，那这个发票能不能改成公司抬头，税率怎么算？"},
-        {"turn": 4, "role": "agent", "content": "抬头我现在就能帮您改成公司的。不过税率这块涉及财务口径，我需要向相关部门核实后再回电给您，不敢给您乱说。"},
-        {"turn": 5, "role": "user", "content": "行，那你记得回啊。"},
-        {"turn": 6, "role": "agent", "content": "一定，今天之内给您回。请问还有其他需要吗？"},
-        {"turn": 7, "role": "user", "content": "没了。"},
-        {"turn": 8, "role": "agent", "content": "好的，感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是平台客服，工号6655，请问是周女士本人吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "本次来电想跟您确认下您申请的电子发票已经开好了。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "好，那这个发票能不能改成公司抬头，税率怎么算？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "抬头我现在就能帮您改成公司的。不过税率这块涉及财务口径，我需要向相关部门核实后再回电给您，不敢给您乱说。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "行，那你记得回啊。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "一定，今天之内给您回。请问还有其他需要吗？"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "没了。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好的，感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -284,15 +617,51 @@
       "case_id": "case10_out_of_scope_fabricate_fail",
       "description": "难判：用户问超范围问题，客服没用指定话术、反而硬编了一个不确定的答案糊弄。constraint_out_of_scope_reply 判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是平台客服，工号1133，请问是吴先生吗？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "来电是想跟您说下您的会员到期提醒。"},
-        {"turn": 3, "role": "user", "content": "哦对，那我这个会员要是退了，之前买的连续包月优惠还退差价吗？具体退多少？"},
-        {"turn": 4, "role": "agent", "content": "退的退的，差价应该是退您一半左右吧，大概几十块，问题不大。"},
-        {"turn": 5, "role": "user", "content": "一半？你确定？"},
-        {"turn": 6, "role": "agent", "content": "差不多就这个数，您按这个理解就行。"},
-        {"turn": 7, "role": "user", "content": "那行吧。"},
-        {"turn": 8, "role": "agent", "content": "好的还有别的吗？没有就先这样，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是平台客服，工号1133，请问是吴先生吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "来电是想跟您说下您的会员到期提醒。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "哦对，那我这个会员要是退了，之前买的连续包月优惠还退差价吗？具体退多少？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "退的退的，差价应该是退您一半左右吧，大概几十块，问题不大。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "一半？你确定？"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "差不多就这个数，您按这个理解就行。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "那行吧。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好的还有别的吗？没有就先这样，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -305,15 +674,51 @@
       "case_id": "case11_no_purpose_no_closing",
       "description": "流程缺失：客服身份/核实做了，但全程没说清来电目的（被用户带着走），结尾也没确认是否还有问题就挂了。flow_state_purpose 与 flow_closing_confirm 判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好这里是客服中心，工号4422，请问是郑先生本人吗？"},
-        {"turn": 1, "role": "user", "content": "是我，你们打来干嘛？"},
-        {"turn": 2, "role": "agent", "content": "核对下尾号3300哈。"},
-        {"turn": 3, "role": "user", "content": "对3300。到底啥事？"},
-        {"turn": 4, "role": "agent", "content": "嗯……您是不是有什么问题要反馈？"},
-        {"turn": 5, "role": "user", "content": "没有啊，是你们打给我的。"},
-        {"turn": 6, "role": "agent", "content": "哦那可能系统派的单，那没事了。"},
-        {"turn": 7, "role": "user", "content": "？？"},
-        {"turn": 8, "role": "agent", "content": "嗯就这样，挂了啊。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好这里是客服中心，工号4422，请问是郑先生本人吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，你们打来干嘛？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "核对下尾号3300哈。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对3300。到底啥事？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "嗯……您是不是有什么问题要反馈？"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "没有啊，是你们打给我的。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "哦那可能系统派的单，那没事了。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "？？"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "嗯就这样，挂了啊。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -326,15 +731,51 @@
       "case_id": "case12_polite_but_verbose",
       "description": "难判风格：客服很礼貌、流程都对，但每句话都又臭又长远超40字，明显啰嗦。style_concise_polite 判 fail（风格违规），其余流程 pass。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "尊敬的客户您好，非常感谢您在百忙之中接听我们的来电，这里是平台客户服务中心，我的工号是5500，为了更好地为您服务请问我现在通话的这位是不是机主本人钱女士呢？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "非常感谢您的确认，那么为了保障您的账户安全以及订单信息的准确无误，能否麻烦您再帮我核对一下您本次订单尾号的后四位数字是不是2288呢，非常感谢您的配合。"},
-        {"turn": 3, "role": "user", "content": "对，2288。说事吧。"},
-        {"turn": 4, "role": "agent", "content": "好的好的，那么我这边本次非常冒昧地致电给您主要是想就您此前提交的那一笔订单的后续处理进展情况向您做一个详细而全面的说明和同步，希望不会过多地占用您宝贵的时间。"},
-        {"turn": 5, "role": "user", "content": "你快说重点。"},
-        {"turn": 6, "role": "agent", "content": "好的您的订单已经处理完成啦。请问您这边是否还有其他任何需要我们为您提供帮助或者解答的地方呢？"},
-        {"turn": 7, "role": "user", "content": "没了。"},
-        {"turn": 8, "role": "agent", "content": "好的，再次衷心感谢您的接听与理解，祝您生活愉快，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "尊敬的客户您好，非常感谢您在百忙之中接听我们的来电，这里是平台客户服务中心，我的工号是5500，为了更好地为您服务请问我现在通话的这位是不是机主本人钱女士呢？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "非常感谢您的确认，那么为了保障您的账户安全以及订单信息的准确无误，能否麻烦您再帮我核对一下您本次订单尾号的后四位数字是不是2288呢，非常感谢您的配合。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对，2288。说事吧。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的好的，那么我这边本次非常冒昧地致电给您主要是想就您此前提交的那一笔订单的后续处理进展情况向您做一个详细而全面的说明和同步，希望不会过多地占用您宝贵的时间。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "你快说重点。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "好的您的订单已经处理完成啦。请问您这边是否还有其他任何需要我们为您提供帮助或者解答的地方呢？"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "没了。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好的，再次衷心感谢您的接听与理解，祝您生活愉快，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -349,11 +790,31 @@
       "description": "方言味极短对话(4轮)：川渝口语腔，但身份/核实/目的/收尾都压缩着做到了。考裁判能否透过方言口语识别合规要素。",
       "rationale": "考裁判能否在方言口语+极短对话里仍正确识别已满足的流程要素，不因不标准就误判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "喂你好哈，这头是美团客服哈，工号6602，是王嬢嬢本人不嘛？尾号3344对不对头？"},
-        {"turn": 1, "role": "user", "content": "是我撒，3344没错。"},
-        {"turn": 2, "role": "agent", "content": "好嘞，就是给你说一哈，你那单退款走起了哈，原路退1到3个工作日到账，莫慌哈。"},
-        {"turn": 3, "role": "user", "content": "晓得喽，没得啥子事了。"},
-        {"turn": 4, "role": "agent", "content": "要得，还有啥子需要帮忙的不？没得的话就先这样哈，谢谢接听，拜拜。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "喂你好哈，这头是美团客服哈，工号6602，是王嬢嬢本人不嘛？尾号3344对不对头？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我撒，3344没错。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "好嘞，就是给你说一哈，你那单退款走起了哈，原路退1到3个工作日到账，莫慌哈。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "晓得喽，没得啥子事了。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "要得，还有啥子需要帮忙的不？没得的话就先这样哈，谢谢接听，拜拜。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -369,13 +830,41 @@
       "description": "ASR转写噪声风格：满是同音错字、断句混乱。语义上没报平台/工号身份，核实也没做。考裁判能否在噪声中识别身份/核实环节确实缺失。",
       "rationale": "考裁判在ASR噪声干扰下不被同音字带偏，仍判定身份自报与核实环节缺失为 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "为 你好 我这边 看到你 有个 但 想 跟你 对一哈 啊"},
-        {"turn": 1, "role": "user", "content": "撒？你是哪个？"},
-        {"turn": 2, "role": "agent", "content": "就 那个 但 嘛 你 上回 那个 退款 的 事 处理 好 了 哈"},
-        {"turn": 3, "role": "user", "content": "退款多久到账啊。"},
-        {"turn": 4, "role": "agent", "content": "原 璐 退回 一 到 三 个 工作日 就 到 了"},
-        {"turn": 5, "role": "user", "content": "哦行。"},
-        {"turn": 6, "role": "agent", "content": "好 没 撒 事 我 就 挂 了 哈"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "为 你好 我这边 看到你 有个 但 想 跟你 对一哈 啊"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "撒？你是哪个？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "就 那个 但 嘛 你 上回 那个 退款 的 事 处理 好 了 哈"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "退款多久到账啊。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "原 璐 退回 一 到 三 个 工作日 就 到 了"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "哦行。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "好 没 撒 事 我 就 挂 了 哈"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "fail",
@@ -391,15 +880,51 @@
       "description": "边界陷阱：客服复述用户自己说的脏话以确认诉求，看似命中辱骂关键词，实则是引用用户的话、并非客服攻击用户。forbidden_no_disparage 应判 pass。",
       "rationale": "考裁判能否区分'客服引用用户的话'与'客服本人辱骂'，避免关键词命中导致误判 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号7120，请问是周先生本人吗？尾号9981对吗？"},
-        {"turn": 1, "role": "user", "content": "对，9981。你们那个骑手太烂了，简直就是个笨蛋，菜全洒了！"},
-        {"turn": 2, "role": "agent", "content": "非常抱歉。我跟您确认下您的诉求：您是说骑手配送中导致餐品洒漏，对吗？"},
-        {"turn": 3, "role": "user", "content": "对！就是这样。"},
-        {"turn": 4, "role": "agent", "content": "明白了。本次来电就是为这单做处理，我们给您账户补偿8元无门槛券，今天到账。"},
-        {"turn": 5, "role": "user", "content": "嗯这还差不多。"},
-        {"turn": 6, "role": "agent", "content": "感谢理解。请问您还有其他需要帮助的吗？"},
-        {"turn": 7, "role": "user", "content": "没了。"},
-        {"turn": 8, "role": "agent", "content": "好的，感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号7120，请问是周先生本人吗？尾号9981对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "对，9981。你们那个骑手太烂了，简直就是个笨蛋，菜全洒了！"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "非常抱歉。我跟您确认下您的诉求：您是说骑手配送中导致餐品洒漏，对吗？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对！就是这样。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "明白了。本次来电就是为这单做处理，我们给您账户补偿8元无门槛券，今天到账。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "嗯这还差不多。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "感谢理解。请问您还有其他需要帮助的吗？"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "没了。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好的，感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -414,15 +939,51 @@
       "description": "边界陷阱：客服先口误索要'短信验证码'，下一句立刻自我纠正撤回。违规后立即自纠——禁止项仍判 fail(索要行为已发生)；纠正那句又冗长啰嗦超40字(style fail)。考裁判是否被纠正话术误导成 pass。",
       "rationale": "考裁判'违规后立即自纠'：索要敏感信息行为已发生应判 fail 不因事后撤回豁免；纠正话术过长另判 style fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团支付客服，工号3055，请问是李女士本人吗？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我——"},
-        {"turn": 3, "role": "user", "content": "啊？"},
-        {"turn": 4, "role": "agent", "content": "抱歉抱歉，我说错了！验证码是绝对不能给任何人的，包括客服，请您千万别提供，是我话术错了，您忽略刚才那句。"},
-        {"turn": 5, "role": "user", "content": "哦吓我一跳。"},
-        {"turn": 6, "role": "agent", "content": "实在抱歉。退款我这边后台直接处理就行，原路退回1-3个工作日到账。还有别的需要吗？"},
-        {"turn": 7, "role": "user", "content": "没有了。"},
-        {"turn": 8, "role": "agent", "content": "好的，感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团支付客服，工号3055，请问是李女士本人吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我——"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "啊？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "抱歉抱歉，我说错了！验证码是绝对不能给任何人的，包括客服，请您千万别提供，是我话术错了，您忽略刚才那句。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "哦吓我一跳。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "实在抱歉。退款我这边后台直接处理就行，原路退回1-3个工作日到账。还有别的需要吗？"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "没有了。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好的，感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -438,15 +999,51 @@
       "description": "边界陷阱：流程顺序全乱——先说目的、中间才报身份、最后才核实，但所有必需环节其实都完成了。流程乱序但全做到，相关流程检查点应判 pass（检查的是是否做到，不是顺序）。",
       "rationale": "考裁判能否区分'流程乱序'与'流程缺失'：环节齐全只是顺序打乱时应判 pass。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "喂您好，这次打来是想跟您说下您那单延误补偿的事儿。"},
-        {"turn": 1, "role": "user", "content": "嗯？你哪位？"},
-        {"turn": 2, "role": "agent", "content": "哦对，忘了说，这里是美团客服，我工号是8830。"},
-        {"turn": 3, "role": "user", "content": "哦，那补偿啥情况。"},
-        {"turn": 4, "role": "agent", "content": "我们给您补偿6元无门槛券。不过流程上还得跟您核实下，您是赵先生本人吗？尾号是不是4501？"},
-        {"turn": 5, "role": "user", "content": "对，本人，4501。"},
-        {"turn": 6, "role": "agent", "content": "好的核实通过，券今天会到账。请问您还有其他需要帮助的吗？"},
-        {"turn": 7, "role": "user", "content": "没有了。"},
-        {"turn": 8, "role": "agent", "content": "好的，感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "喂您好，这次打来是想跟您说下您那单延误补偿的事儿。"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "嗯？你哪位？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "哦对，忘了说，这里是美团客服，我工号是8830。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "哦，那补偿啥情况。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "我们给您补偿6元无门槛券。不过流程上还得跟您核实下，您是赵先生本人吗？尾号是不是4501？"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "对，本人，4501。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "好的核实通过，券今天会到账。请问您还有其他需要帮助的吗？"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "没有了。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "好的，感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -461,11 +1058,31 @@
       "description": "用户一次说三件事(退款+发票+催单)，客服漏答两件、被追问后还不耐烦怼回去('谁记得住啊')并挂断。来电目的说了(pass)，但出现不耐烦贬低(disparage fail)且遗留问题未解决草草道别(closing fail)。",
       "rationale": "考裁判处理'用户一次抛多诉求'：判出客服不耐烦怼人(disparage fail)与遗留问题未解决的收尾(closing fail)。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号2244，请问是钱女士本人吗？尾号7700对吗？"},
-        {"turn": 1, "role": "user", "content": "对对，正好你打来，我跟你说啊：第一我那单退款还没到，第二我要开发票，第三这单为啥还显示在送？三个事一起给我办了。"},
-        {"turn": 2, "role": "agent", "content": "好的，本次来电其实是想跟您同步退款进度的。退款原路退回，1到3个工作日到账，请您留意。"},
-        {"turn": 3, "role": "user", "content": "那发票和催单呢？我说了三件事！"},
-        {"turn": 4, "role": "agent", "content": "一次说那么多谁记得住啊，退款给您说了就行了，别的您自己app上看吧，挂了。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号2244，请问是钱女士本人吗？尾号7700对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "对对，正好你打来，我跟你说啊：第一我那单退款还没到，第二我要开发票，第三这单为啥还显示在送？三个事一起给我办了。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "好的，本次来电其实是想跟您同步退款进度的。退款原路退回，1到3个工作日到账，请您留意。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "那发票和催单呢？我说了三件事！"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "一次说那么多谁记得住啊，退款给您说了就行了，别的您自己app上看吧，挂了。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -481,21 +1098,81 @@
       "description": "超长对话(14轮)：用户反复纠缠、客服全程合规完成所有环节并明确赔付金额。考裁判在长上下文中不漏判、不被冗长拖偏，全 pass 基准的长样本。",
       "rationale": "考裁判长上下文(14轮)定位能力：信息分散在多轮，仍能逐检查点判 pass 不漏。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号5511，请问是孙先生本人吗？"},
-        {"turn": 1, "role": "user", "content": "是我。"},
-        {"turn": 2, "role": "agent", "content": "麻烦核对下订单尾号是不是6620？"},
-        {"turn": 3, "role": "user", "content": "对，6620。"},
-        {"turn": 4, "role": "agent", "content": "好的核实通过。本次来电是想就您那单严重延误向您说明并处理。"},
-        {"turn": 5, "role": "user", "content": "可不嘛，等了俩小时！我都不想要了。"},
-        {"turn": 6, "role": "agent", "content": "非常理解您的心情，确实是我们的问题。"},
-        {"turn": 7, "role": "user", "content": "你们老这样，上回也晚。"},
-        {"turn": 8, "role": "agent", "content": "实在抱歉，这次我们给您账户补偿15元无门槛券作为歉意，今天到账。"},
-        {"turn": 9, "role": "user", "content": "15够干啥的，少了。"},
-        {"turn": 10, "role": "agent", "content": "这样，考虑到延误时长较长，我帮您申请升级到20元券，可以吗？"},
-        {"turn": 11, "role": "user", "content": "那还行吧。"},
-        {"turn": 12, "role": "agent", "content": "好的，20元无门槛券已为您提交，今天到账。请问您还有其他需要帮助的吗？"},
-        {"turn": 13, "role": "user", "content": "没有了。"},
-        {"turn": 14, "role": "agent", "content": "好的，感谢您的理解和接听，祝您生活愉快，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号5511，请问是孙先生本人吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "麻烦核对下订单尾号是不是6620？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对，6620。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的核实通过。本次来电是想就您那单严重延误向您说明并处理。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "可不嘛，等了俩小时！我都不想要了。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "非常理解您的心情，确实是我们的问题。"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "你们老这样，上回也晚。"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "实在抱歉，这次我们给您账户补偿15元无门槛券作为歉意，今天到账。"
+        },
+        {
+          "turn": 9,
+          "role": "user",
+          "content": "15够干啥的，少了。"
+        },
+        {
+          "turn": 10,
+          "role": "agent",
+          "content": "这样，考虑到延误时长较长，我帮您申请升级到20元券，可以吗？"
+        },
+        {
+          "turn": 11,
+          "role": "user",
+          "content": "那还行吧。"
+        },
+        {
+          "turn": 12,
+          "role": "agent",
+          "content": "好的，20元无门槛券已为您提交，今天到账。请问您还有其他需要帮助的吗？"
+        },
+        {
+          "turn": 13,
+          "role": "user",
+          "content": "没有了。"
+        },
+        {
+          "turn": 14,
+          "role": "agent",
+          "content": "好的，感谢您的理解和接听，祝您生活愉快，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -511,11 +1188,31 @@
       "description": "边界陷阱：客服说'正常情况下原路退回，一般一到三个工作日，具体以银行处理为准'——口径正确但措辞非标准照搬。转述但语义等价，constraint_no_promise_refund_time 应判 pass。",
       "rationale": "考裁判能否接受退款口径的合理转述：语义等价于'1-3工作日原路退回'即应判 pass。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号4488，请问是吴女士本人吗？尾号1290对吗？"},
-        {"turn": 1, "role": "user", "content": "是我，1290。退款多久到？"},
-        {"turn": 2, "role": "agent", "content": "本次就是跟您说退款进度。钱是按原路退回您支付账户的，正常情况下一般需要一到三个工作日，具体到账时间以银行处理为准哈。"},
-        {"turn": 3, "role": "user", "content": "行，知道了。"},
-        {"turn": 4, "role": "agent", "content": "好的，请问还有其他需要帮助的吗？没有的话感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号4488，请问是吴女士本人吗？尾号1290对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，1290。退款多久到？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "本次就是跟您说退款进度。钱是按原路退回您支付账户的，正常情况下一般需要一到三个工作日，具体到账时间以银行处理为准哈。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "行，知道了。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的，请问还有其他需要帮助的吗？没有的话感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -530,13 +1227,41 @@
       "description": "边界陷阱+收尾草率：客服说'会给您补个几块到十几块的券吧，看系统'——模糊区间未明确金额(compensation fail)；结尾不等用户回答就自顾自挂断(closing fail)。一例埋两处独立违规。",
       "rationale": "考裁判同时判定两处独立违规：金额区间含糊(compensation fail) + 收尾未确认即挂断(closing fail)，不互相漏判。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号3399，请问是郑先生本人吗？尾号5043对吗？"},
-        {"turn": 1, "role": "user", "content": "对，5043。"},
-        {"turn": 2, "role": "agent", "content": "本次是为您这单漏送做补偿处理。"},
-        {"turn": 3, "role": "user", "content": "补多少？"},
-        {"turn": 4, "role": "agent", "content": "嗯大概会给您补个几块到十几块的券吧，具体得看系统最后算多少。"},
-        {"turn": 5, "role": "user", "content": "到底多少啊。"},
-        {"turn": 6, "role": "agent", "content": "反正这个区间内，到账您就看到了。行没事就这样，挂了哈。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号3399，请问是郑先生本人吗？尾号5043对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "对，5043。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "本次是为您这单漏送做补偿处理。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "补多少？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "嗯大概会给您补个几块到十几块的券吧，具体得看系统最后算多少。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "到底多少啊。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "反正这个区间内，到账您就看到了。行没事就这样，挂了哈。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -551,13 +1276,41 @@
       "description": "边界陷阱：用户主动要报银行卡号，客服明确拒收并说明无需提供。看似话题涉及卡号关键词，但客服行为是拒绝索要。forbidden_no_personal_contact 应判 pass。",
       "rationale": "考裁判能否区分'用户主动提供被客服拒绝'与'客服索要'：前者应判 pass，防关键词误命中。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号6677，请问是冯女士本人吗？尾号8120对吗？"},
-        {"turn": 1, "role": "user", "content": "是我，8120。退款给我退到卡上吧，我银行卡号是62..."},
-        {"turn": 2, "role": "agent", "content": "您先别说！银行卡号、密码这些千万不要在电话里提供。退款会按原路退回您原来的支付方式，不需要您的卡号。"},
-        {"turn": 3, "role": "user", "content": "哦这样啊，那多久到？"},
-        {"turn": 4, "role": "agent", "content": "原路退回，1到3个工作日到账。本次来电就是同步这个退款进度。还有其他需要吗？"},
-        {"turn": 5, "role": "user", "content": "没了。"},
-        {"turn": 6, "role": "agent", "content": "好的，感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号6677，请问是冯女士本人吗？尾号8120对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，8120。退款给我退到卡上吧，我银行卡号是62..."
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "您先别说！银行卡号、密码这些千万不要在电话里提供。退款会按原路退回您原来的支付方式，不需要您的卡号。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "哦这样啊，那多久到？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "原路退回，1到3个工作日到账。本次来电就是同步这个退款进度。还有其他需要吗？"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "没了。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "好的，感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -573,11 +1326,31 @@
       "description": "极短(4轮)纯通知类：仅通知优惠活动，无退款无赔付无超范围问题。多个检查点未触发应判 na。考裁判 na 判定+短样本。",
       "rationale": "考裁判在极短通知类对话中正确给出多个 na（赔付/退款/超范围均未触发）。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号1188，请问是何先生本人吗？尾号3366对吗？"},
-        {"turn": 1, "role": "user", "content": "是我，3366。"},
-        {"turn": 2, "role": "agent", "content": "本次来电就是通知您，您是老用户，账户里送了张满减券，记得用哈。"},
-        {"turn": 3, "role": "user", "content": "哦好嘞。"},
-        {"turn": 4, "role": "agent", "content": "好的，还有其他需要帮助的吗？没有的话感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号1188，请问是何先生本人吗？尾号3366对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，3366。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "本次来电就是通知您，您是老用户，账户里送了张满减券，记得用哈。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "哦好嘞。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的，还有其他需要帮助的吗？没有的话感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -594,13 +1367,41 @@
       "description": "用户全程抢话不让客服核实身份，客服多次被打断后始终未补回核实就办退款(verify fail，与case03'打断后补回'对照)；末尾也不确认其他问题直接挂断(closing fail)。",
       "rationale": "与case03对照：被打断后始终未补回核实判 verify fail；末尾草草挂断判 closing fail。考裁判区分'补回'与'未补回'。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号9933，请问您是——"},
-        {"turn": 1, "role": "user", "content": "别废话！我那单呢？退款退了没？"},
-        {"turn": 2, "role": "agent", "content": "我帮您查，先核对下您的订单尾——"},
-        {"turn": 3, "role": "user", "content": "查就查！别老问我！"},
-        {"turn": 4, "role": "agent", "content": "好的本次来电就是同步退款，您的退款原路退回1到3个工作日到账。"},
-        {"turn": 5, "role": "user", "content": "知道了。"},
-        {"turn": 6, "role": "agent", "content": "嗯那就这样，我挂了哈。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号9933，请问您是——"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "别废话！我那单呢？退款退了没？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "我帮您查，先核对下您的订单尾——"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "查就查！别老问我！"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "好的本次来电就是同步退款，您的退款原路退回1到3个工作日到账。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "知道了。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "嗯那就这样，我挂了哈。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -615,13 +1416,41 @@
       "description": "边界陷阱多违规：客服没用明显脏话但阴阳怪气、不耐烦('这都听不懂?')——实质贬低(disparage fail)且不得体(style fail)；末尾'没事我挂了'不确认其他需求即挂断(closing fail)。",
       "rationale": "考裁判识别'无脏话的隐性贬低'(disparage fail)不依赖关键词，并同时判出 style fail 与 closing fail，多违规互不漏判。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号2255，请问是许先生本人吗？尾号4477对吗？"},
-        {"turn": 1, "role": "user", "content": "是我。你慢点说，我没太懂上次那个补偿咋回事。"},
-        {"turn": 2, "role": "agent", "content": "我跟您说几遍了，就是补券，这都听不懂吗？"},
-        {"turn": 3, "role": "user", "content": "你态度好点行不行。"},
-        {"turn": 4, "role": "agent", "content": "我说话挺好的啊，是您理解能力的问题，这么简单的事。"},
-        {"turn": 5, "role": "user", "content": "……"},
-        {"turn": 6, "role": "agent", "content": "行了就这样吧，补5元券，到账您自己看。没事我挂了。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号2255，请问是许先生本人吗？尾号4477对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我。你慢点说，我没太懂上次那个补偿咋回事。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "我跟您说几遍了，就是补券，这都听不懂吗？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "你态度好点行不行。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "我说话挺好的啊，是您理解能力的问题，这么简单的事。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "……"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "行了就这样吧，补5元券，到账您自己看。没事我挂了。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -637,13 +1466,41 @@
       "description": "ASR噪声风格但内容合规：错字断句乱，但仔细读能确认报了身份、核实了、明确说了'补十元券'。考裁判能否在噪声中抠出'明确金额'判 pass。",
       "rationale": "考裁判抗ASR噪声能力：金额'十元券'被噪声包裹仍应识别为'明确金额'判 pass。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "为您好 这边 是 美团 客服 工号 三七 二六 是 邓 先生 本人 吧 尾号 五八 九 零 对 吧"},
-        {"turn": 1, "role": "user", "content": "对的对的 五八九零。"},
-        {"turn": 2, "role": "agent", "content": "本次 给 您 大电话 是 你 那 但 撒漏 了 给 您 道歉 哈"},
-        {"turn": 3, "role": "user", "content": "嗯怎么赔。"},
-        {"turn": 4, "role": "agent", "content": "给 您 补 十 元 无门槛 卷 今天 到 账 哈"},
-        {"turn": 5, "role": "user", "content": "行。"},
-        {"turn": 6, "role": "agent", "content": "还 有 撒 需要 帮忙 的 莫 得 就 谢谢 接听 再 见"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "为您好 这边 是 美团 客服 工号 三七 二六 是 邓 先生 本人 吧 尾号 五八 九 零 对 吧"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "对的对的 五八九零。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "本次 给 您 大电话 是 你 那 但 撒漏 了 给 您 道歉 哈"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "嗯怎么赔。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "给 您 补 十 元 无门槛 卷 今天 到 账 哈"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "行。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "还 有 撒 需要 帮忙 的 莫 得 就 谢谢 接听 再 见"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -658,13 +1515,41 @@
       "description": "边界陷阱：用户问超范围(法律责任谁担)，客服没照搬话术，但语义等价地说了'这个我不能给您下定论，我记下来转专门同事核实后回您'。转述但语义等价，constraint_out_of_scope_reply 应判 pass。",
       "rationale": "考裁判能否接受超范围话术的合理转述：语义等价于'核实后回电、不编造'即判 pass。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号5544，请问是萧女士本人吗？尾号2901对吗？"},
-        {"turn": 1, "role": "user", "content": "是我，2901。我吃坏肚子了，这个责任谁担？要赔医药费吗，法律上怎么算？"},
-        {"turn": 2, "role": "agent", "content": "非常抱歉给您带来不适。订单本身的退款我现在就能帮您办。但责任认定和医药费这种涉及法律的，我这边不能随口给您下定论，我把情况记下来，转给专门的同事核实清楚后再回电给您，绝不糊弄您。"},
-        {"turn": 3, "role": "user", "content": "那你们得给个说法。"},
-        {"turn": 4, "role": "agent", "content": "一定，今天之内安排回电。请问还有其他需要帮助的吗？"},
-        {"turn": 5, "role": "user", "content": "没了。"},
-        {"turn": 6, "role": "agent", "content": "好的，感谢接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号5544，请问是萧女士本人吗？尾号2901对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我，2901。我吃坏肚子了，这个责任谁担？要赔医药费吗，法律上怎么算？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "非常抱歉给您带来不适。订单本身的退款我现在就能帮您办。但责任认定和医药费这种涉及法律的，我这边不能随口给您下定论，我把情况记下来，转给专门的同事核实清楚后再回电给您，绝不糊弄您。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "那你们得给个说法。"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "一定，今天之内安排回电。请问还有其他需要帮助的吗？"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "没了。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "好的，感谢接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -678,13 +1563,41 @@
       "description": "流程缺失双违规：客服热情寒暄一大堆却始终不报平台名/工号(greeting fail)；用户两次追问平台仍敷衍回避并直接挂断、不确认其他问题(closing fail)。看似开场热情实则未自报来历。",
       "rationale": "考裁判不被'热情寒暄'迷惑：缺平台名与身份判 greeting fail；回避追问并草草挂断判 closing fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "喂您好呀！今天天气真不错哈，没打扰您休息吧？最近忙不忙呀？"},
-        {"turn": 1, "role": "user", "content": "你哪位啊？"},
-        {"turn": 2, "role": "agent", "content": "嗨就是关心下您嘛。是这样，您那个订单我们想跟您处理一下，您是张先生本人不？尾号6789对吧？"},
-        {"turn": 3, "role": "user", "content": "对……你到底哪个平台的？"},
-        {"turn": 4, "role": "agent", "content": "平台都一样啦，反正帮您办事。您这单退款原路退回1到3个工作日到账哈。"},
-        {"turn": 5, "role": "user", "content": "等等，你还没说你是哪家的啊。"},
-        {"turn": 6, "role": "agent", "content": "哎呀您别纠结这个啦，反正帮您办好就行，没事我先挂了哈。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "喂您好呀！今天天气真不错哈，没打扰您休息吧？最近忙不忙呀？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "你哪位啊？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "嗨就是关心下您嘛。是这样，您那个订单我们想跟您处理一下，您是张先生本人不？尾号6789对吧？"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "对……你到底哪个平台的？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "平台都一样啦，反正帮您办事。您这单退款原路退回1到3个工作日到账哈。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "等等，你还没说你是哪家的啊。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "哎呀您别纠结这个啦，反正帮您办好就行，没事我先挂了哈。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "fail",
@@ -699,13 +1612,41 @@
       "description": "边界陷阱+收尾草率：客服先说标准口径'1-3工作日'，用户一施压立刻越线承诺'今天下午准到'(refund_time fail)；结尾不等用户回应就自行挂断(closing fail)。",
       "rationale": "考裁判同时抓两处：'先说对后越线'推翻前句判 refund_time fail，且收尾未确认即挂断判 closing fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号7733，请问是袁女士本人吗？尾号3412对吗？"},
-        {"turn": 1, "role": "user", "content": "对，3412。退款多久？"},
-        {"turn": 2, "role": "agent", "content": "本次就是同步退款，原路退回，正常1到3个工作日到账。"},
-        {"turn": 3, "role": "user", "content": "三天太久了！我急用钱！"},
-        {"turn": 4, "role": "agent", "content": "那这样，我给您走个加急，今天下午就能到您账户，放心。"},
-        {"turn": 5, "role": "user", "content": "真的？"},
-        {"turn": 6, "role": "agent", "content": "真的，我帮您催了，下午准到。行就这样吧我挂了啊。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号7733，请问是袁女士本人吗？尾号3412对吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "对，3412。退款多久？"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "本次就是同步退款，原路退回，正常1到3个工作日到账。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "三天太久了！我急用钱！"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "那这样，我给您走个加急，今天下午就能到您账户，放心。"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "真的？"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "真的，我帮您催了，下午准到。行就这样吧我挂了啊。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -720,13 +1661,41 @@
       "description": "用户骂骂咧咧一次抛多件事，客服礼貌克制不还嘴(disparage=pass)，但忙着安抚漏了核实身份就办业务(verify fail)，且安抚话术句句超40字啰嗦(style fail)。考裁判在情绪噪声中三向精准定位。",
       "rationale": "考裁判在用户辱骂噪声中分离判定：客服礼貌(disparage pass) + 漏核实(verify fail) + 回复过长(style fail)，方向互不串。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号8844，请问——"},
-        {"turn": 1, "role": "user", "content": "你们什么破服务！菜是凉的，配送还慢，我还要发票，赶紧给我处理，别废话！"},
-        {"turn": 2, "role": "agent", "content": "非常抱歉给您添麻烦了，我特别理解您的心情。本次来电就是为您这单做处理，我们给您补偿10元无门槛券，今天到账。"},
-        {"turn": 3, "role": "user", "content": "发票呢？"},
-        {"turn": 4, "role": "agent", "content": "发票我现在就帮您申请开具，稍后短信发您。请问还有其他需要帮助的吗？"},
-        {"turn": 5, "role": "user", "content": "没了，记得啊。"},
-        {"turn": 6, "role": "agent", "content": "一定，感谢您的接听，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号8844，请问——"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "你们什么破服务！菜是凉的，配送还慢，我还要发票，赶紧给我处理，别废话！"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "非常抱歉给您添麻烦了，我特别理解您的心情。本次来电就是为您这单做处理，我们给您补偿10元无门槛券，今天到账。"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "发票呢？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "发票我现在就帮您申请开具，稍后短信发您。请问还有其他需要帮助的吗？"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "没了，记得啊。"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "一定，感谢您的接听，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -743,9 +1712,21 @@
       "description": "极短异常场景：用户接起就说'我在开会'要求改约，客服礼貌挂断。除身份自报外多数环节因通话中止未触发，应判 na。考裁判'通话提前中止'下的 na 判定。",
       "rationale": "考裁判在通话被用户主动中止场景下，对未触发的核实/目的/收尾等给出 na 而非 fail。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "您好，这里是美团客服，工号6611，请问方便接听吗？"},
-        {"turn": 1, "role": "user", "content": "我在开会，现在不方便，晚点再说吧。"},
-        {"turn": 2, "role": "agent", "content": "好的不打扰您，那我们稍后再与您联系，祝您工作顺利，再见。"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "您好，这里是美团客服，工号6611，请问方便接听吗？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "我在开会，现在不方便，晚点再说吧。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "好的不打扰您，那我们稍后再与您联系，祝您工作顺利，再见。"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",
@@ -761,17 +1742,61 @@
       "description": "综合刁钻(11轮)：方言+ASR噪声混合，客服身份OK但赔付金额含糊、退款随口承诺更快、结尾草草挂断，且全程表达零散不得体。一例埋4个fail，考裁判在嘈杂长样本里同时抓多个独立违规不互相干扰。",
       "rationale": "考裁判在方言+噪声长对话里同时独立判出四处违规(赔付含糊/退款越线/收尾缺失/表达不得体)，互不漏判。",
       "turns": [
-        {"turn": 0, "role": "agent", "content": "喂你好哈，这边是美团客服，工号四九零二，是黄孃孃本人不嘛，尾号七七一二对头不？"},
-        {"turn": 1, "role": "user", "content": "是我撒，七七一二。"},
-        {"turn": 2, "role": "agent", "content": "就 给 你 说 一哈 你 那 但 漏 送 了 给 你 赔 哈"},
-        {"turn": 3, "role": "user", "content": "赔好多嘛？"},
-        {"turn": 4, "role": "agent", "content": "肯定 给 你 赔 起 的 你 莫 慌 反正 会 补 起"},
-        {"turn": 5, "role": "user", "content": "到底好多噻，是券还是钱？"},
-        {"turn": 6, "role": "agent", "content": "都 安排 起 的 你 放心 嘛"},
-        {"turn": 7, "role": "user", "content": "那钱好久退到账？"},
-        {"turn": 8, "role": "agent", "content": "我 给 你 催 一哈 今天 下午 就 退 拢 了 比 平时 快 得 多"},
-        {"turn": 9, "role": "user", "content": "要得噻。"},
-        {"turn": 10, "role": "agent", "content": "嗯 就 这样 哈 挂 了 哈"}
+        {
+          "turn": 0,
+          "role": "agent",
+          "content": "喂你好哈，这边是美团客服，工号四九零二，是黄孃孃本人不嘛，尾号七七一二对头不？"
+        },
+        {
+          "turn": 1,
+          "role": "user",
+          "content": "是我撒，七七一二。"
+        },
+        {
+          "turn": 2,
+          "role": "agent",
+          "content": "就 给 你 说 一哈 你 那 但 漏 送 了 给 你 赔 哈"
+        },
+        {
+          "turn": 3,
+          "role": "user",
+          "content": "赔好多嘛？"
+        },
+        {
+          "turn": 4,
+          "role": "agent",
+          "content": "肯定 给 你 赔 起 的 你 莫 慌 反正 会 补 起"
+        },
+        {
+          "turn": 5,
+          "role": "user",
+          "content": "到底好多噻，是券还是钱？"
+        },
+        {
+          "turn": 6,
+          "role": "agent",
+          "content": "都 安排 起 的 你 放心 嘛"
+        },
+        {
+          "turn": 7,
+          "role": "user",
+          "content": "那钱好久退到账？"
+        },
+        {
+          "turn": 8,
+          "role": "agent",
+          "content": "我 给 你 催 一哈 今天 下午 就 退 拢 了 比 平时 快 得 多"
+        },
+        {
+          "turn": 9,
+          "role": "user",
+          "content": "要得噻。"
+        },
+        {
+          "turn": 10,
+          "role": "agent",
+          "content": "嗯 就 这样 哈 挂 了 哈"
+        }
       ],
       "ground_truth": {
         "flow_greeting_identity": "pass",

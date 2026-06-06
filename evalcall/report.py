@@ -265,13 +265,10 @@ def _aggregate(
             else:
                 vote_split += 1
 
-        # 双轨冲突：同一 checkpoint_id 在 rule 与 llm 下结论不同
-        key_cp = f"{tid}|{pid}|{cp_id}"
-        if verdict in ("pass", "fail"):
-            prev = method_verdict[key_cp]
-            prev[method] = verdict
-            if "rule" in prev and "llm" in prev and prev["rule"] != prev["llm"]:
-                rule_llm_conflict += 1
+        # 双轨冲突：双判合议后由 judge 直接打 rule_conflict 标记
+        # （规则轨命中但 LLM 否决——子串误命中/引用，需人工复核）
+        if j.get("rule_conflict"):
+            rule_llm_conflict += 1
 
         # 覆盖率累计
         cov = coverage_by_cp.setdefault(
