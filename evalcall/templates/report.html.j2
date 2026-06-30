@@ -227,6 +227,19 @@ tr:hover td{background:#fffdf2}
   <div class="alert">⛔ 检出 {{ critical_fail }} 项 critical 级违规（一票否决该项满分） · 约束违反共 {{ constraint_violations }} 项</div>
   {% endif %}
 
+  {% if weaknesses and (weaknesses.dimensions or weaknesses.personas) %}
+  <!-- ============ P3-2 模型弱点定位（数据驱动，指出最弱场景，供工程师定位改进方向） ============ -->
+  <div style="margin:16px 0;border-radius:12px;border:1px solid #e3d9ef;background:#faf7fe;padding:14px 18px">
+    <div style="font-weight:800;color:#5b3b8c;margin-bottom:6px">🎯 模型弱点定位（往哪改）</div>
+    <div style="font-size:13px;color:#444;line-height:1.7">
+      {% if weaknesses.dimensions %}<div>最弱维度：{% for d in weaknesses.dimensions %}<b>{{ d.label }}</b>（通过率 {{ d.rate }}%，{{ d.fail }} 项未过）{% if not loop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+      {% if weaknesses.personas %}<div>最难应对的用户类型：{% for p in weaknesses.personas %}<b>{{ p.label }}</b>（通过率 {{ p.rate }}%）{% if not loop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+      {% if weaknesses.top_fail_checkpoints %}<div>高频失败检查点：{% for f in weaknesses.top_fail_checkpoints %}{{ f.text }}（{{ f.count }} 次）{% if not loop.last %}；{% endif %}{% endfor %}</div>{% endif %}
+    </div>
+    <div style="font-size:11px;color:#998;margin-top:6px">※ 数据驱动的失败聚合，仅定位薄弱场景，不替代人工改写 prompt。</div>
+  </div>
+  {% endif %}
+
   {% if lint_warning %}
   <div class="alert" style="border-color:#d4a017;background:#fdf6e3;color:#7a5d00">
     ⚠️ <b>指令体检警示（归因提示）</b>：本任务指令的可行性分仅 <b>{{ lint_warning.feasibility_score }}/100</b>（检出 {{ lint_warning.n_findings }} 项缺陷

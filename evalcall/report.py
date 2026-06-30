@@ -482,9 +482,23 @@ def _aggregate(
         "needs_human_review_total": summary.get("needs_human_review_total", 0),
     }
 
+    # --- P3-2 模型弱点定位（数据驱动，不做 LLM 自动改写 prompt）---
+    # 按维度/persona 聚合失败率，把"模型在哪类场景塌得最狠"显式指出来，供工程师定位改进方向。
+    weak_dims = sorted([d for d in dimensions if d["total"] > 0 and d["rate"] < 100],
+                       key=lambda d: d["rate"])[:3]
+    weak_personas = [p for p in persona_slices if p["total"] > 0 and p["rate"] < 100][:3]
+    weaknesses = {
+        "dimensions": [{"label": d["label"], "rate": d["rate"], "fail": d["fail"]} for d in weak_dims],
+        "personas": [{"label": p["persona"].get("label", p["persona"].get("id", "?")),
+                      "rate": p["rate"], "fail": p["fail"]} for p in weak_personas],
+        "top_fail_checkpoints": [{"text": f["text"], "severity": f["severity"], "count": f["count"]}
+                                 for f in fail_top[:5]],
+    }
+
     return {
         "meta": meta,
         "decision": decision,
+        "weaknesses": weaknesses,
         "overall_score": overall_score,
         "raw_score": raw_score,
         "critical_fail": critical_fail,
