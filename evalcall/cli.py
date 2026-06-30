@@ -163,6 +163,24 @@ def cmd_run(args: argparse.Namespace) -> None:
         )]
         print("[evalcall] 已加入履约达成（outcome）检查点")
 
+    # P4-1 真实性/拟人度检查点（导师建议·用户拍板保留原意）：仅当指令涉及身份/话术处理时生成，
+    # 守 R-溯源——source_quote 取指令中触发的身份相关片段，无指令依据不凭空生成（避免悬空检查点）。
+    instruction_text = str(task.get("instruction") or "")
+    if not getattr(args, "no_safety", False) and not any(
+        getattr(c, "id", "") == "authenticity_identity" for c in checkpoints
+    ):
+        import re as _re
+        m = _re.search(r"[^。\n]*(表明身份|核实身份|自报家门|身份|客服专员|真人|机器人)[^。\n]*", instruction_text)
+        if m:
+            checkpoints = list(checkpoints) + [compiler.Checkpoint(
+                id="authenticity_identity",
+                type="authenticity",
+                text="面对用户对身份的质疑（如『你是不是机器人/真人』），模型应能稳健应对、按要求恰当处理身份并引导回服务（真实性/拟人度）",
+                source_quote=m.group(0).strip()[:80],
+                severity="major",
+            )]
+            print("[evalcall] 已加入真实性/拟人度（authenticity）检查点")
+
     cp_dicts = compiler.checkpoints_to_dicts(checkpoints)
     n_review = sum(1 for c in cp_dicts if c.get("needs_review"))
     print(f"[evalcall] 编译得到 {len(cp_dicts)} 条检查点（其中 {n_review} 条溯源待复核）")
@@ -355,6 +373,77 @@ def _aggregate_summary(
 # ----------------------------------------------------------------------------- #
 # report 子命令
 # ----------------------------------------------------------------------------- #
+def _load_run_verdicts(run_dir: str) -> dict[str, dict]:
+    """读取一个 run 目录的判定，返回 {checkpoint_id: {verdict, method, type, text}}。
+
+    取每个 checkpoint 跨轨迹的代表判定：fail 优先（质检从严），其次 pass，再 na。
+    """
+    path = os.path.join(run_dir, "judgments.json")
+    if not os.path.exists(path):
+        _die(f"找不到判定文件：{path}")
+    with open(path, encoding="utf-8") as f:
+        rows = json.load(f)
+    priority = {"fail": 0, "pass": 1, "na": 2}
+    best: dict[str, dict] = {}
+    for j in rows:
+        cid = j.get("checkpoint_id")
+        if not cid:
+            continue
+        cur = best.get(cid)
+        v = str(j.get("verdict", "na")).lower()
+        if cur is None or priority.get(v, 3) < priority.get(cur["verdict"], 3):
+            best[cid] = {
+                "verdict": v,
+                "method": str(j.get("method", "llm")).lower(),
+                "type": str(j.get("type", "flow")).lower(),
+                "text": j.get("text", cid),
+            }
+    return best
+
+
+def cmd_diff(args: argparse.Namespace) -> None:
+    """跨版本回归对比（P3-3）：对比 base/new 两个 run 的检查点判定。
+
+    分轨标注可信度：规则轨/outcome 判定确定性高→变化直接采信；
+    LLM 轨判定含裁判方差→变化标"需复测确认"，不把裁判噪声当模型退化。
+    """
+    base = _load_run_verdicts(args.base)
+    new = _load_run_verdicts(args.new)
+    rank = {"pass": 2, "na": 1, "fail": 0}  # 分越高越好
+    improved, regressed, unchanged, appeared = [], [], [], []
+    for cid, nv in new.items():
+        bv = base.get(cid)
+        # 规则轨/outcome 确定性高；LLM 轨变化需复测
+        certain = nv["method"].startswith("rule") or nv["type"] == "outcome"
+        tag = "确定" if certain else "需复测确认"
+        if bv is None:
+            appeared.append({"checkpoint_id": cid, "text": nv["text"], "verdict": nv["verdict"]})
+            continue
+        if nv["verdict"] == bv["verdict"]:
+            unchanged.append(cid)
+            continue
+        delta = rank.get(nv["verdict"], 1) - rank.get(bv["verdict"], 1)
+        rec = {"checkpoint_id": cid, "text": nv["text"],
+               "from": bv["verdict"], "to": nv["verdict"], "confidence_tag": tag}
+        (improved if delta > 0 else regressed).append(rec)
+
+    out = {
+        "base": args.base, "new": args.new,
+        "improved": improved, "regressed": regressed,
+        "unchanged_count": len(unchanged), "appeared": appeared,
+    }
+    print(f"[evalcall] 回归对比 {args.base} → {args.new}")
+    print(f"  变好 {len(improved)} · 变差 {len(regressed)} · 不变 {len(unchanged)} · 新增检查点 {len(appeared)}")
+    for r in regressed:
+        print(f"  ⬇ 变差 [{r['confidence_tag']}] {r['text']}：{r['from']}→{r['to']}")
+    for r in improved:
+        print(f"  ⬆ 变好 [{r['confidence_tag']}] {r['text']}：{r['from']}→{r['to']}")
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=2)
+        print(f"[evalcall] 已写出对比结果：{args.out}")
+
+
 def cmd_report(args: argparse.Namespace) -> None:
     try:
         from .report import build_report  # type: ignore
@@ -400,6 +489,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_rep = sub.add_parser("report", help="从 run 目录生成 HTML 报告")
     p_rep.add_argument("--run", required=True, help="run 输出目录")
     p_rep.set_defaults(func=cmd_report)
+
+    p_diff = sub.add_parser("diff", help="跨版本回归对比两个 run（变好/变差/需复测）")
+    p_diff.add_argument("--base", required=True, help="基线 run 目录")
+    p_diff.add_argument("--new", required=True, help="新版 run 目录")
+    p_diff.add_argument("--out", default=None, help="可选：把对比结果写出为 JSON")
+    p_diff.set_defaults(func=cmd_diff)
 
     return parser
 
