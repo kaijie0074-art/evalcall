@@ -240,6 +240,31 @@ tr:hover td{background:#fffdf2}
   </div>
   {% endif %}
 
+  {% if call_rows %}
+  <!-- ============ P2-2 通话级问题清单（质检按"一通一通"工作的分派/复核单位） ============ -->
+  <div style="margin:16px 0">
+    <div style="font-weight:800;color:#1a2b4a;margin-bottom:8px">📞 通话级问题清单（按通组织 · 质检复核单位）</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:#f3f6fb;text-align:left">
+        <th style="padding:8px 10px">通话</th><th style="padding:8px 10px">用户类型</th>
+        <th style="padding:8px 10px">门禁</th><th style="padding:8px 10px">通过/未过</th>
+        <th style="padding:8px 10px">踩中的红线</th>
+      </tr></thead>
+      <tbody>
+      {% for r in call_rows %}
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:8px 10px;color:#556"><a href="#call-{{ r.run_id }}" style="color:#2a6">{{ r.run_id }}</a></td>
+          <td style="padding:8px 10px">{{ r.persona_label }}</td>
+          <td style="padding:8px 10px">{% if r.p0_fail %}<b style="color:#c0392b">⛔ 打回</b>{% else %}<span style="color:#1e8e4e">✅ 通过</span>{% endif %}</td>
+          <td style="padding:8px 10px">{{ r.pass }} / {{ r.fail }}</td>
+          <td style="padding:8px 10px;color:#444">{% for f in r.fails %}<span style="color:{% if f.p0 %}#c0392b{% else %}#a60{% endif %}">{{ f.text }}</span>{% if not loop.last %}；{% endif %}{% else %}—{% endfor %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
   {% if lint_warning %}
   <div class="alert" style="border-color:#d4a017;background:#fdf6e3;color:#7a5d00">
     ⚠️ <b>指令体检警示（归因提示）</b>：本任务指令的可行性分仅 <b>{{ lint_warning.feasibility_score }}/100</b>（检出 {{ lint_warning.n_findings }} 项缺陷
@@ -428,9 +453,10 @@ tr:hover td{background:#fffdf2}
   {% if case_studies %}
   <h2 class="sec">失败案例剖析 · 完整对话回放</h2>
   {% for c in case_studies %}
-  <div class="case">
+  <div class="case" id="call-{{ c.run_id }}">
     <div class="ch">
       <span class="who">{{ c.task_label }}</span>
+      <span class="meta" style="color:#889">{{ c.run_id }}</span>
       <span class="meta">用户画像：{{ c.persona.label }}{% if c.persona.strategy %}（{{ c.persona.strategy }}）{% endif %}</span>
       <span class="fc">违规 {{ c.fails }} 项{% if c.critical %} · critical {{ c.critical }}{% endif %}</span>
     </div>
