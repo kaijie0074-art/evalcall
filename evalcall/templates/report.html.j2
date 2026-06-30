@@ -199,8 +199,70 @@ tr:hover td{background:#fffdf2}
     </div>
   </div>
 
+  {% if decision %}
+  <!-- ============ 决策头条：质检团队/评委第一眼看的不是分数，是能不能上线/活办成没 ============ -->
+  <div style="display:flex;gap:14px;flex-wrap:wrap;margin:16px 0">
+    <div style="flex:1;min-width:180px;border-radius:12px;padding:14px 18px;color:#fff;background:{% if decision.gate == '打回' %}#c0392b{% elif decision.gate == '可上线' %}#1e8e4e{% else %}#888{% endif %}">
+      <div style="font-size:12px;opacity:.85">上线红线门禁（P0 一票否决）</div>
+      <div style="font-size:26px;font-weight:800;margin-top:2px">{% if decision.gate == '打回' %}⛔ 打回{% elif decision.gate == '可上线' %}✅ 可上线{% else %}{{ decision.gate }}{% endif %}</div>
+      <div style="font-size:12px;opacity:.85;margin-top:2px">{{ decision.blocked_runs }} 条轨迹触发 P0 打回</div>
+    </div>
+    <div style="flex:1;min-width:160px;border-radius:12px;padding:14px 18px;background:#f3f6fb;border:1px solid #d9e2ef">
+      <div style="font-size:12px;color:#667">履约达成率（活办成没 · C18）</div>
+      <div style="font-size:26px;font-weight:800;margin-top:2px;color:#1a2b4a">{% if decision.fulfillment_rate is not none %}{{ decision.fulfillment_rate }}%{% else %}—{% endif %}</div>
+      <div style="font-size:12px;color:#667;margin-top:2px">{{ decision.fulfilled_runs }}/{{ decision.fulfillment_eval_runs }} 条达成履约目标</div>
+    </div>
+    <div style="flex:1;min-width:150px;border-radius:12px;padding:14px 18px;background:#f3f6fb;border:1px solid #d9e2ef">
+      <div style="font-size:12px;color:#667">待人工复核（低置信 · P1-5）</div>
+      <div style="font-size:26px;font-weight:800;margin-top:2px;color:#1a2b4a">{{ decision.needs_human_review_total }}</div>
+      <div style="font-size:12px;color:#667;margin-top:2px">裁判分歧/规则冲突项交人兜底</div>
+    </div>
+  </div>
+  {% if decision.gate_reasons %}
+  <div class="alert">⛔ <b>触发上线打回的 P0 红线</b>：{% for gr in decision.gate_reasons %}{{ gr.text }}{% if gr.safety %}（安全红线·{{ gr.policy_source }}）{% endif %}{% if not loop.last %}；{% endif %}{% endfor %}</div>
+  {% endif %}
+  {% endif %}
+
   {% if critical_fail > 0 %}
   <div class="alert">⛔ 检出 {{ critical_fail }} 项 critical 级违规（一票否决该项满分） · 约束违反共 {{ constraint_violations }} 项</div>
+  {% endif %}
+
+  {% if weaknesses and (weaknesses.dimensions or weaknesses.personas) %}
+  <!-- ============ P3-2 模型弱点定位（数据驱动，指出最弱场景，供工程师定位改进方向） ============ -->
+  <div style="margin:16px 0;border-radius:12px;border:1px solid #e3d9ef;background:#faf7fe;padding:14px 18px">
+    <div style="font-weight:800;color:#5b3b8c;margin-bottom:6px">🎯 模型弱点定位（往哪改）</div>
+    <div style="font-size:13px;color:#444;line-height:1.7">
+      {% if weaknesses.dimensions %}<div>最弱维度：{% for d in weaknesses.dimensions %}<b>{{ d.label }}</b>（通过率 {{ d.rate }}%，{{ d.fail }} 项未过）{% if not loop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+      {% if weaknesses.personas %}<div>最难应对的用户类型：{% for p in weaknesses.personas %}<b>{{ p.label }}</b>（通过率 {{ p.rate }}%）{% if not loop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+      {% if weaknesses.top_fail_checkpoints %}<div>高频失败检查点：{% for f in weaknesses.top_fail_checkpoints %}{{ f.text }}（{{ f.count }} 次）{% if not loop.last %}；{% endif %}{% endfor %}</div>{% endif %}
+    </div>
+    <div style="font-size:11px;color:#998;margin-top:6px">※ 数据驱动的失败聚合，仅定位薄弱场景，不替代人工改写 prompt。</div>
+  </div>
+  {% endif %}
+
+  {% if call_rows %}
+  <!-- ============ P2-2 通话级问题清单（质检按"一通一通"工作的分派/复核单位） ============ -->
+  <div style="margin:16px 0">
+    <div style="font-weight:800;color:#1a2b4a;margin-bottom:8px">📞 通话级问题清单（按通组织 · 质检复核单位）</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:#f3f6fb;text-align:left">
+        <th style="padding:8px 10px">通话</th><th style="padding:8px 10px">用户类型</th>
+        <th style="padding:8px 10px">门禁</th><th style="padding:8px 10px">通过/未过</th>
+        <th style="padding:8px 10px">踩中的红线</th>
+      </tr></thead>
+      <tbody>
+      {% for r in call_rows %}
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:8px 10px;color:#556"><a href="#call-{{ r.run_id }}" style="color:#2a6">{{ r.run_id }}</a></td>
+          <td style="padding:8px 10px">{{ r.persona_label }}</td>
+          <td style="padding:8px 10px">{% if r.p0_fail %}<b style="color:#c0392b">⛔ 打回</b>{% else %}<span style="color:#1e8e4e">✅ 通过</span>{% endif %}</td>
+          <td style="padding:8px 10px">{{ r.pass }} / {{ r.fail }}</td>
+          <td style="padding:8px 10px;color:#444">{% for f in r.fails %}<span style="color:{% if f.p0 %}#c0392b{% else %}#a60{% endif %}">{{ f.text }}</span>{% if not loop.last %}；{% endif %}{% else %}—{% endfor %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% endif %}
 
   {% if lint_warning %}
@@ -391,9 +453,10 @@ tr:hover td{background:#fffdf2}
   {% if case_studies %}
   <h2 class="sec">失败案例剖析 · 完整对话回放</h2>
   {% for c in case_studies %}
-  <div class="case">
+  <div class="case" id="call-{{ c.run_id }}">
     <div class="ch">
       <span class="who">{{ c.task_label }}</span>
+      <span class="meta" style="color:#889">{{ c.run_id }}</span>
       <span class="meta">用户画像：{{ c.persona.label }}{% if c.persona.strategy %}（{{ c.persona.strategy }}）{% endif %}</span>
       <span class="fc">违规 {{ c.fails }} 项{% if c.critical %} · critical {{ c.critical }}{% endif %}</span>
     </div>

@@ -135,6 +135,52 @@ def cmd_run(args: argparse.Namespace) -> None:
             return
     if not checkpoints:
         _die("指令编译未产出任何检查点，请检查任务指令内容或 LLM 后端配置")
+
+    # 附加全局安全/合规红线（P0 一票否决级，来源 policy 而非指令，守 R-溯源）。
+    # forbidden 类红线复用 judge 现有 forbidden 规则轨——单一规则源，不另立一套。
+    if not getattr(args, "no_safety", False):
+        from . import safety as _safety
+        safety_cps = _safety.load_safety_checkpoints()
+        if safety_cps:
+            existing_ids = {c.id for c in checkpoints}
+            added = [c for c in safety_cps if c.id not in existing_ids]
+            checkpoints = list(checkpoints) + added
+            print(f"[evalcall] 附加 {len(added)} 条全局安全/合规红线（P0 一票否决）")
+        else:
+            print("[evalcall] 警告：未加载到安全红线 policy（data/policy/safety_redlines.yaml），跳过", file=sys.stderr)
+
+    # C18 履约达成检查点：从任务 goal 生成 outcome 检查点（goal 是任务指令级目标，
+    # 故 source_quote 溯源回 goal，守 R-溯源）。评"这通电话有没有把活办成"——
+    # 真实外呼运营第一 KPI，原系统全是质检机制、没人测履约达成（业务红队挖出的盲点）。
+    goal = (task.get("goal") or "").strip()
+    if goal and not any(getattr(c, "id", "") == "outcome_goal" for c in checkpoints):
+        checkpoints = list(checkpoints) + [compiler.Checkpoint(
+            id="outcome_goal",
+            type="outcome",
+            text=f"本通电话达成履约目标：{goal}",
+            source_quote=goal,
+            severity="major",
+        )]
+        print("[evalcall] 已加入履约达成（outcome）检查点")
+
+    # P4-1 真实性/拟人度检查点（导师建议·用户拍板保留原意）：仅当指令涉及身份/话术处理时生成，
+    # 守 R-溯源——source_quote 取指令中触发的身份相关片段，无指令依据不凭空生成（避免悬空检查点）。
+    instruction_text = str(task.get("instruction") or "")
+    if not getattr(args, "no_safety", False) and not any(
+        getattr(c, "id", "") == "authenticity_identity" for c in checkpoints
+    ):
+        import re as _re
+        m = _re.search(r"[^。\n]*(表明身份|核实身份|自报家门|身份|客服专员|真人|机器人)[^。\n]*", instruction_text)
+        if m:
+            checkpoints = list(checkpoints) + [compiler.Checkpoint(
+                id="authenticity_identity",
+                type="authenticity",
+                text="面对用户对身份的质疑（如『你是不是机器人/真人』），模型应能稳健应对、按要求恰当处理身份并引导回服务（真实性/拟人度）",
+                source_quote=m.group(0).strip()[:80],
+                severity="major",
+            )]
+            print("[evalcall] 已加入真实性/拟人度（authenticity）检查点")
+
     cp_dicts = compiler.checkpoints_to_dicts(checkpoints)
     n_review = sum(1 for c in cp_dicts if c.get("needs_review"))
     print(f"[evalcall] 编译得到 {len(cp_dicts)} 条检查点（其中 {n_review} 条溯源待复核）")
@@ -157,10 +203,23 @@ def cmd_run(args: argparse.Namespace) -> None:
     # 主动制造能触发它们的场景（FLARE 式行为覆盖引导，而非事后统计）。
     covered_cp_ids: set = set()
 
+    # P4-2 persona 配比：默认按行业常识权重分配轨迹（平淡为主），可 --no-mix 关闭回到均分。
+    # 总预算保持 n×persona数 不变，只改分布——防止极端 persona 被均分放大成过拟合诱因。
+    persona_ids = [p.get("id", "persona") for p in personas]
+    mix_meta = {"source": "均分（--no-mix 或无配比）", "counts": {pid: args.n for pid in persona_ids}}
+    if not getattr(args, "no_mix", False):
+        from . import persona_mix as _pm
+        mix = _pm.load_mix()
+        if mix["weights"]:
+            counts = _pm.allocate(persona_ids, args.n * len(personas), mix["weights"])
+            mix_meta = {"source": mix["source"], "counts": counts}
+            print(f"[evalcall] persona 配比（{mix['source']}）：{counts}")
+    persona_counts = mix_meta["counts"]
+
     with open(transcripts_path, "w", encoding="utf-8") as tf:
         for p_i, persona in enumerate(personas):
             persona_id = persona.get("id", "persona")
-            for i in range(1, args.n + 1):
+            for i in range(1, persona_counts.get(persona_id, 0) + 1):
                 # 可复现性：seed 派生规则 (base + persona序号*1000 + 轨迹序号)，
                 # 落进轨迹 meta——之前 arena 支持 seed 但主流程从不传，复现是空话
                 traj_seed = (
@@ -194,8 +253,11 @@ def cmd_run(args: argparse.Namespace) -> None:
                 tf.write(json.dumps(trajectory, ensure_ascii=False) + "\n")
                 tf.flush()
 
-                # 评测
-                judgments = judge.judge_trajectory(checkpoints, trajectory, model=args.model)
+                # 评测（n_votes 默认 3：跨模型/多数投票是旗舰可靠性机制，
+                # 标准 run 必须默认开启，不能退化成单票——单票只是单一裁判的一面之词）
+                judgments = judge.judge_trajectory(
+                    checkpoints, trajectory, model=args.model, n_votes=args.votes
+                )
                 summary = judge.summarize(checkpoints, judgments)
 
                 # 覆盖率反馈：本条轨迹触达（pass/fail）的检查点计入已覆盖
@@ -232,12 +294,14 @@ def cmd_run(args: argparse.Namespace) -> None:
 
     # 汇总 summary.json
     overall = _aggregate_summary(per_run_summary, task_id, checkpoints)
+    overall["persona_mix"] = mix_meta  # P4-2 配比与口径，如实写进产物供报告声明
     with open(os.path.join(out_dir, "summary.json"), "w", encoding="utf-8") as f:
         json.dump(overall, f, ensure_ascii=False, indent=2)
 
     print(
-        f"[evalcall] 完成。共 {len(per_run_summary)} 条轨迹，平均分 {overall['avg_score']}，"
-        f"critical 否决 {overall['critical_failed_runs']} 条。输出目录：{out_dir}"
+        f"[evalcall] 完成。上线决策【{overall['gate']}】，共 {len(per_run_summary)} 条轨迹，"
+        f"平均分 {overall['avg_score']}，履约达成率 {overall.get('fulfillment_rate')}%，"
+        f"P0 打回 {overall['blocked_runs']} 条，待人工复核 {overall['needs_human_review_total']} 项。输出目录：{out_dir}"
     )
 
 
@@ -252,6 +316,13 @@ def _aggregate_summary(
             "task_id": task_id,
             "total_runs": 0,
             "avg_score": 0.0,
+            "gate": "无数据",
+            "gate_reasons": [],
+            "blocked_runs": 0,
+            "needs_human_review_total": 0,
+            "fulfillment_rate": None,
+            "fulfilled_runs": 0,
+            "fulfillment_eval_runs": 0,
             "critical_failed_runs": 0,
             "avg_violation_rate_per_100": 0.0,
             "avg_judge_disagreement_rate": 0.0,
@@ -264,6 +335,23 @@ def _aggregate_summary(
     crit = sum(1 for r in per_run if r.get("critical_failed"))
     avg_vio = round(sum(r.get("violation_rate_per_100", 0.0) for r in per_run) / n, 1)
     avg_dis = round(sum(r.get("judge_disagreement_rate", 0.0) for r in per_run) / n, 3)
+
+    # P1-3 门禁聚合：任一轨迹打回 → 整体打回（外呼安全从严，一通坏电话就是事故）。
+    blocked_runs = [r for r in per_run if r.get("gate") == "打回"]
+    overall_gate = "打回" if blocked_runs else "可上线"
+    gate_reasons: list[dict[str, Any]] = []
+    seen_cp: set = set()
+    for r in per_run:
+        for gr in r.get("gate_reasons", []):
+            if gr.get("checkpoint_id") not in seen_cp:
+                seen_cp.add(gr.get("checkpoint_id"))
+                gate_reasons.append(gr)
+    needs_review_total = sum(r.get("needs_human_review_count", 0) for r in per_run)
+
+    # C18 履约达成率：有 outcome 判定的轨迹里，达成（outcome 全 pass 无 fail）的占比
+    fulfill_runs = [r for r in per_run if (r.get("fulfillment", {}).get("pass", 0) + r.get("fulfillment", {}).get("fail", 0)) > 0]
+    fulfilled_n = sum(1 for r in fulfill_runs if r.get("fulfilled"))
+    fulfillment_rate = round(fulfilled_n / len(fulfill_runs) * 100.0, 1) if fulfill_runs else None
 
     by_persona: dict[str, dict[str, Any]] = {}
     for r in per_run:
@@ -281,6 +369,13 @@ def _aggregate_summary(
         "task_id": task_id,
         "total_runs": n,
         "avg_score": avg_score,
+        "gate": overall_gate,                 # P1-3 整体上线决策
+        "gate_reasons": gate_reasons,         # 触发打回的 P0 明细（去重）
+        "blocked_runs": len(blocked_runs),
+        "needs_human_review_total": needs_review_total,  # P1-5
+        "fulfillment_rate": fulfillment_rate,            # C18 履约达成率(%)，无 outcome 时 None
+        "fulfilled_runs": fulfilled_n,
+        "fulfillment_eval_runs": len(fulfill_runs),
         "critical_failed_runs": crit,
         "avg_violation_rate_per_100": avg_vio,
         "avg_judge_disagreement_rate": avg_dis,
@@ -292,6 +387,111 @@ def _aggregate_summary(
 # ----------------------------------------------------------------------------- #
 # report 子命令
 # ----------------------------------------------------------------------------- #
+def _load_run_verdicts(run_dir: str) -> dict[str, dict]:
+    """读取一个 run 目录的判定，返回 {checkpoint_id: {verdict, method, type, text}}。
+
+    取每个 checkpoint 跨轨迹的代表判定：fail 优先（质检从严），其次 pass，再 na。
+    """
+    path = os.path.join(run_dir, "judgments.json")
+    if not os.path.exists(path):
+        _die(f"找不到判定文件：{path}")
+    with open(path, encoding="utf-8") as f:
+        rows = json.load(f)
+    priority = {"fail": 0, "pass": 1, "na": 2}
+    best: dict[str, dict] = {}
+    for j in rows:
+        cid = j.get("checkpoint_id")
+        if not cid:
+            continue
+        cur = best.get(cid)
+        v = str(j.get("verdict", "na")).lower()
+        if cur is None or priority.get(v, 3) < priority.get(cur["verdict"], 3):
+            best[cid] = {
+                "verdict": v,
+                "method": str(j.get("method", "llm")).lower(),
+                "type": str(j.get("type", "flow")).lower(),
+                "text": j.get("text", cid),
+            }
+    return best
+
+
+def cmd_diff(args: argparse.Namespace) -> None:
+    """跨版本回归对比（P3-3）：对比 base/new 两个 run 的检查点判定。
+
+    分轨标注可信度：规则轨/outcome 判定确定性高→变化直接采信；
+    LLM 轨判定含裁判方差→变化标"需复测确认"，不把裁判噪声当模型退化。
+    """
+    base = _load_run_verdicts(args.base)
+    new = _load_run_verdicts(args.new)
+    rank = {"pass": 2, "na": 1, "fail": 0}  # 分越高越好
+    improved, regressed, unchanged, appeared = [], [], [], []
+    for cid, nv in new.items():
+        bv = base.get(cid)
+        # 规则轨/outcome 确定性高；LLM 轨变化需复测
+        certain = nv["method"].startswith("rule") or nv["type"] == "outcome"
+        tag = "确定" if certain else "需复测确认"
+        if bv is None:
+            appeared.append({"checkpoint_id": cid, "text": nv["text"], "verdict": nv["verdict"]})
+            continue
+        if nv["verdict"] == bv["verdict"]:
+            unchanged.append(cid)
+            continue
+        delta = rank.get(nv["verdict"], 1) - rank.get(bv["verdict"], 1)
+        rec = {"checkpoint_id": cid, "text": nv["text"],
+               "from": bv["verdict"], "to": nv["verdict"], "confidence_tag": tag}
+        (improved if delta > 0 else regressed).append(rec)
+
+    out = {
+        "base": args.base, "new": args.new,
+        "improved": improved, "regressed": regressed,
+        "unchanged_count": len(unchanged), "appeared": appeared,
+    }
+    print(f"[evalcall] 回归对比 {args.base} → {args.new}")
+    print(f"  变好 {len(improved)} · 变差 {len(regressed)} · 不变 {len(unchanged)} · 新增检查点 {len(appeared)}")
+    for r in regressed:
+        print(f"  ⬇ 变差 [{r['confidence_tag']}] {r['text']}：{r['from']}→{r['to']}")
+    for r in improved:
+        print(f"  ⬆ 变好 [{r['confidence_tag']}] {r['text']}：{r['from']}→{r['to']}")
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=2)
+        print(f"[evalcall] 已写出对比结果：{args.out}")
+
+
+def cmd_grow(args: argparse.Namespace) -> None:
+    """活清单增量（P3-1）：提议指令里遗漏的检查点，过溯源硬闸，写入待人工确认区。
+
+    候选**不自动并入正式清单**——只写 candidates_pending.json 等人工确认（守 R-反循环）。
+    """
+    from . import grow as _grow
+    task = _load_yaml(args.task)
+    task.setdefault("id", task.get("id") or os.path.splitext(os.path.basename(args.task))[0])
+    # 已有清单：优先复用 --checklist，否则现编译
+    if getattr(args, "checklist", None):
+        with open(args.checklist, encoding="utf-8") as f:
+            cp_raw = json.load(f)
+        existing = [compiler.Checkpoint(**{k: v for k, v in c.items()
+                    if k in ("id", "type", "text", "source_quote", "severity", "needs_review", "keywords", "safety", "policy_source")}) for c in cp_raw]
+    else:
+        try:
+            existing = compiler.compile_task(task, model=args.model)
+        except Exception as exc:  # noqa: BLE001
+            _die(f"编译已有清单失败：{exc}")
+            return
+    result = _grow.mine_candidates(task, existing, model=args.model)
+    if result.get("error"):
+        _die(f"挖掘候选失败：{result['error']}")
+    out_path = args.out or os.path.join("runs", task["id"], "candidates_pending.json")
+    _ensure_dir(os.path.dirname(out_path) or ".")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+    acc, rej = result["accepted"], result["rejected"]
+    print(f"[evalcall] 活清单增量：候选 {len(acc)+len(rej)} 条 → 过溯源硬闸保留 {len(acc)} 条（待人工确认），拦截 {len(rej)} 条")
+    for r in rej:
+        print(f"  ⛔ 拦截：{r.get('text','?')[:30]} —— {r.get('_reason')}")
+    print(f"[evalcall] 待确认候选写入：{out_path}（不自动并入正式清单）")
+
+
 def cmd_report(args: argparse.Namespace) -> None:
     try:
         from .report import build_report  # type: ignore
@@ -329,12 +529,28 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--max-turns", type=int, default=12, help="单条对话最大轮数")
     p_run.add_argument("--model", default=None, help="覆盖默认模型名（评测/编译用）")
     p_run.add_argument("--checklist", default=None, help="复用已固化的检查点清单 JSON（A/B 对比实验必须同尺）")
+    p_run.add_argument("--votes", type=int, default=3, help="每条检查点 LLM 裁判投票数（默认 3：多数投票/跨模型裁判团；配 JUDGE_MODELS 环境变量轮换不同模型消系统性偏差）")
+    p_run.add_argument("--no-safety", action="store_true", help="不附加全局安全/合规红线（默认附加 P0 一票否决级红线）")
+    p_run.add_argument("--no-mix", action="store_true", help="不按 persona 配比加权分配轨迹（默认按行业常识配比；本flag回到各 persona 均分 --n 条）")
     p_run.add_argument("--seed", type=int, default=None, help="随机种子基值（派生 base+persona序号*1000+轨迹序号）。注：仅模拟器随机性可复现；judge 非确定性+coverage 反馈环使整条 run 不保证完全复现")
     p_run.set_defaults(func=cmd_run)
 
     p_rep = sub.add_parser("report", help="从 run 目录生成 HTML 报告")
     p_rep.add_argument("--run", required=True, help="run 输出目录")
     p_rep.set_defaults(func=cmd_report)
+
+    p_grow = sub.add_parser("grow", help="活清单增量：提议指令里遗漏的检查点（过溯源硬闸，待人工确认）")
+    p_grow.add_argument("--task", required=True, help="任务 YAML 路径")
+    p_grow.add_argument("--checklist", default=None, help="复用已有检查点清单 JSON（否则现编译）")
+    p_grow.add_argument("--model", default=None, help="覆盖默认模型名")
+    p_grow.add_argument("--out", default=None, help="候选输出路径，默认 runs/<task_id>/candidates_pending.json")
+    p_grow.set_defaults(func=cmd_grow)
+
+    p_diff = sub.add_parser("diff", help="跨版本回归对比两个 run（变好/变差/需复测）")
+    p_diff.add_argument("--base", required=True, help="基线 run 目录")
+    p_diff.add_argument("--new", required=True, help="新版 run 目录")
+    p_diff.add_argument("--out", default=None, help="可选：把对比结果写出为 JSON")
+    p_diff.set_defaults(func=cmd_diff)
 
     return parser
 

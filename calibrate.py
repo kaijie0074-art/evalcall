@@ -131,12 +131,38 @@ def compute_metrics(pairs: list[dict]) -> dict[str, Any]:
             "n_wrong": len(b["wrong"]),
         }
 
+    # P1-4 分 severity 的 fail 查全率（漏判率）：安全/合规看的是召回不是查准——
+    # 漏判一条 P0(critical) 安全项 = 让该上线门禁形同虚设，代价远高于误杀。
+    # P0 漏判率 = truth=fail 的 critical 项里，裁判没判成 fail 的占比。
+    fail_recall_by_severity: dict[str, dict] = {}
+    for sev in ("critical", "major", "minor"):
+        sev_fail = [p for p in pairs if p["truth"] == "fail" and p.get("checkpoint_severity") == sev]
+        caught = sum(1 for p in sev_fail if p["pred"] == "fail")
+        total = len(sev_fail)
+        fail_recall_by_severity[sev] = {
+            "fail_truth_count": total,
+            "caught": caught,
+            "missed": total - caught,
+            "fail_recall": round(caught / total, 4) if total else None,
+            "miss_rate": round((total - caught) / total, 4) if total else None,
+        }
+    p0 = fail_recall_by_severity["critical"]
+    p0_fail_recall = {
+        "p0_fail_recall": p0["fail_recall"],
+        "p0_miss_rate": p0["miss_rate"],
+        "p0_missed": p0["missed"],
+        "p0_fail_truth_count": p0["fail_truth_count"],
+        "note": "P0=critical 安全/合规红线；口径=注入黄金集，非真实话务分布——勿外推为线上漏判率",
+    }
+
     return {
         "total_judgments": n,
         "correct": correct,
         "accuracy": round(accuracy, 4),
         "macro_f1": macro_f1,
         "per_verdict": per_verdict,
+        "fail_recall_by_severity": fail_recall_by_severity,  # P1-4
+        "p0_fail_recall": p0_fail_recall,                    # P1-4 安全项漏判（门禁兜底）
         "confusion_matrix": confusion,
         "confidence_calibration": {
             "avg_confidence_when_correct": avg_conf_correct,
@@ -208,6 +234,7 @@ def run(limit: int | None, votes: int, model: str | None) -> dict[str, Any]:
                 "case_id": case_id,
                 "checkpoint_id": cid,
                 "checkpoint_type": cp_index.get(cid, {}).get("type"),
+                "checkpoint_severity": cp_index.get(cid, {}).get("severity", "major"),
                 "truth": truth,
                 "pred": pred,
                 "correct": correct,

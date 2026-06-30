@@ -470,8 +470,62 @@ def _aggregate(
         "n_checkpoints": len(judgments),
     }
 
+    # --- 决策头条（P1-3 门禁 / C18 履约 / P1-5 复核）：从 summary.json 取聚合结果 ---
+    # 这些是质检团队和评委第一眼要看的"能不能上线/活办成没/几条要人看"，不是分数。
+    decision = {
+        "gate": summary.get("gate", "—"),
+        "gate_reasons": summary.get("gate_reasons", []),
+        "blocked_runs": summary.get("blocked_runs", 0),
+        "fulfillment_rate": summary.get("fulfillment_rate"),
+        "fulfilled_runs": summary.get("fulfilled_runs", 0),
+        "fulfillment_eval_runs": summary.get("fulfillment_eval_runs", 0),
+        "needs_human_review_total": summary.get("needs_human_review_total", 0),
+    }
+
+    # --- P2-2 通话级问题清单：质检按"一通一通"工作，报告补按 run 组织的视图 ---
+    # 每通电话：踩了哪些红线、最高 severity、是否触发 P0 打回——质检员的分派/复核单位。
+    _sev_rank = {"critical": 0, "major": 1, "minor": 2}
+    call_map: dict[str, dict] = {}
+    for j in judgments:
+        rid = str(j.get("run_id", "?"))
+        c = call_map.setdefault(rid, {
+            "run_id": rid,
+            "persona_label": persona_meta.get(str(j.get("persona_id", "")), {}).get("label", j.get("persona_id", "")),
+            "task_label": task_meta.get(str(j.get("task_id", "")), {}).get("label", j.get("task_id", "")),
+            "pass": 0, "fail": 0, "fails": [], "p0_fail": False, "worst": "minor",
+        })
+        v = str(j.get("verdict", "na")).lower()
+        if v == "pass":
+            c["pass"] += 1
+        elif v == "fail":
+            c["fail"] += 1
+            sev = str(j.get("severity", "minor")).lower()
+            is_p0 = sev == "critical" or bool(j.get("safety"))
+            if is_p0:
+                c["p0_fail"] = True
+            if _sev_rank.get(sev, 3) < _sev_rank.get(c["worst"], 3):
+                c["worst"] = sev
+            c["fails"].append({"text": str(j.get("text", j.get("checkpoint_id", ""))), "severity": sev, "p0": is_p0})
+    call_rows = sorted(call_map.values(), key=lambda r: (not r["p0_fail"], -r["fail"]))
+
+    # --- P3-2 模型弱点定位（数据驱动，不做 LLM 自动改写 prompt）---
+    # 按维度/persona 聚合失败率，把"模型在哪类场景塌得最狠"显式指出来，供工程师定位改进方向。
+    weak_dims = sorted([d for d in dimensions if d["total"] > 0 and d["rate"] < 100],
+                       key=lambda d: d["rate"])[:3]
+    weak_personas = [p for p in persona_slices if p["total"] > 0 and p["rate"] < 100][:3]
+    weaknesses = {
+        "dimensions": [{"label": d["label"], "rate": d["rate"], "fail": d["fail"]} for d in weak_dims],
+        "personas": [{"label": p["persona"].get("label", p["persona"].get("id", "?")),
+                      "rate": p["rate"], "fail": p["fail"]} for p in weak_personas],
+        "top_fail_checkpoints": [{"text": f["text"], "severity": f["severity"], "count": f["count"]}
+                                 for f in fail_top[:5]],
+    }
+
     return {
         "meta": meta,
+        "decision": decision,
+        "weaknesses": weaknesses,
+        "call_rows": call_rows,
         "overall_score": overall_score,
         "raw_score": raw_score,
         "critical_fail": critical_fail,
@@ -551,6 +605,7 @@ def _build_case_studies(
             )
         cases.append(
             {
+                "run_id": str(tx.get("run_id", f"{tid}__{pid}")),  # P2-1 锚点：通话级清单点击跳转到此回放
                 "task_label": task_meta.get(tid, {}).get("label", tid),
                 "persona": persona_meta.get(pid, {"id": pid, "label": pid}),
                 "fails": rec["fails"],

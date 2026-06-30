@@ -34,6 +34,8 @@ class Checkpoint:
     severity: str  # critical | major | minor
     needs_review: bool = False  # 溯源校验未通过时为 True
     keywords: list[str] = field(default_factory=list)  # forbidden 类的关键词/正则，供规则轨直接判
+    safety: bool = False  # 安全/合规红线（P0 一票否决级）；来源为 policy 而非指令时由 source_quote 标注 policy 出处
+    policy_source: str = ""  # 当检查点来自全局安全/合规 policy（非指令原文）时，记录 policy 出处，守 R-溯源
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
