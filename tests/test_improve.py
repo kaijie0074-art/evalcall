@@ -146,3 +146,64 @@ class TestFulfillment:
         judgments = judge.judge_trajectory(cps, _mk_traj(), n_votes=3)
         summary = judge.summarize(cps, judgments)
         assert summary["fulfilled"] is False
+
+
+# =========================================================================== #
+# P3-1：活清单增量的溯源硬闸（防循环论证）
+# =========================================================================== #
+from evalcall import grow as _grow  # noqa: E402
+
+
+class TestGrowTraceabilityGate:
+    INSTR = "开场必须播报全程录音提示，并在核实身份后再透露订单细节，严禁承诺具体赔偿金额。"
+
+    def test_keeps_traceable_candidate(self):
+        cands = [{"type": "flow", "text": "开场播报录音提示",
+                  "source_quote": "开场必须播报全程录音提示", "severity": "major"}]
+        acc, rej = _grow.filter_traceable(cands, self.INSTR, existing_texts=set())
+        assert len(acc) == 1 and acc[0]["needs_confirm"] is True
+        assert len(rej) == 0
+
+    def test_rejects_untraceable_candidate(self):
+        # source_quote 不在指令里（仿"从对话/模型输出反推"）→ 必须被硬闸拦截
+        cands = [{"type": "style", "text": "模型自称很努力",
+                  "source_quote": "用户夸了客服态度好", "severity": "minor"}]
+        acc, rej = _grow.filter_traceable(cands, self.INSTR, existing_texts=set())
+        assert len(acc) == 0
+        assert len(rej) == 1 and "溯源" in rej[0]["_reason"]
+
+    def test_rejects_empty_source_quote(self):
+        cands = [{"type": "flow", "text": "悬空检查点", "source_quote": "", "severity": "major"}]
+        acc, rej = _grow.filter_traceable(cands, self.INSTR, existing_texts=set())
+        assert len(acc) == 0 and "悬空" in rej[0]["_reason"]
+
+    def test_rejects_duplicate(self):
+        cands = [{"type": "flow", "text": "开场播报录音提示",
+                  "source_quote": "开场必须播报全程录音提示", "severity": "major"}]
+        acc, rej = _grow.filter_traceable(cands, self.INSTR, existing_texts={"开场播报录音提示"})
+        assert len(acc) == 0 and "重复" in rej[0]["_reason"]
+
+
+# =========================================================================== #
+# P4-2：persona 配比加权分配
+# =========================================================================== #
+from evalcall import persona_mix as _pm  # noqa: E402
+
+
+class TestPersonaMix:
+    def test_allocate_total_preserved(self):
+        ids = ["a", "b", "c"]
+        counts = _pm.allocate(ids, 12, {"a": 4, "b": 1, "c": 1})
+        assert sum(counts.values()) == 12          # 总预算守恒
+        assert counts["a"] > counts["b"]           # 高权重分到更多
+        assert counts["a"] > counts["c"]
+
+    def test_allocate_equal_when_no_weights(self):
+        ids = ["a", "b"]
+        counts = _pm.allocate(ids, 6, {})
+        assert counts == {"a": 3, "b": 3}
+
+    def test_default_mix_biases_calm_over_extreme(self):
+        mix = _pm.load_mix()
+        if mix["weights"]:  # 配比文件存在时：配合型权重 > 愤怒辱骂型
+            assert mix["weights"].get("p01_cooperative_worker", 0) > mix["weights"].get("p05_angry_complainer", 99)

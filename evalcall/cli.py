@@ -203,10 +203,23 @@ def cmd_run(args: argparse.Namespace) -> None:
     # 主动制造能触发它们的场景（FLARE 式行为覆盖引导，而非事后统计）。
     covered_cp_ids: set = set()
 
+    # P4-2 persona 配比：默认按行业常识权重分配轨迹（平淡为主），可 --no-mix 关闭回到均分。
+    # 总预算保持 n×persona数 不变，只改分布——防止极端 persona 被均分放大成过拟合诱因。
+    persona_ids = [p.get("id", "persona") for p in personas]
+    mix_meta = {"source": "均分（--no-mix 或无配比）", "counts": {pid: args.n for pid in persona_ids}}
+    if not getattr(args, "no_mix", False):
+        from . import persona_mix as _pm
+        mix = _pm.load_mix()
+        if mix["weights"]:
+            counts = _pm.allocate(persona_ids, args.n * len(personas), mix["weights"])
+            mix_meta = {"source": mix["source"], "counts": counts}
+            print(f"[evalcall] persona 配比（{mix['source']}）：{counts}")
+    persona_counts = mix_meta["counts"]
+
     with open(transcripts_path, "w", encoding="utf-8") as tf:
         for p_i, persona in enumerate(personas):
             persona_id = persona.get("id", "persona")
-            for i in range(1, args.n + 1):
+            for i in range(1, persona_counts.get(persona_id, 0) + 1):
                 # 可复现性：seed 派生规则 (base + persona序号*1000 + 轨迹序号)，
                 # 落进轨迹 meta——之前 arena 支持 seed 但主流程从不传，复现是空话
                 traj_seed = (
@@ -281,6 +294,7 @@ def cmd_run(args: argparse.Namespace) -> None:
 
     # 汇总 summary.json
     overall = _aggregate_summary(per_run_summary, task_id, checkpoints)
+    overall["persona_mix"] = mix_meta  # P4-2 配比与口径，如实写进产物供报告声明
     with open(os.path.join(out_dir, "summary.json"), "w", encoding="utf-8") as f:
         json.dump(overall, f, ensure_ascii=False, indent=2)
 
@@ -444,6 +458,40 @@ def cmd_diff(args: argparse.Namespace) -> None:
         print(f"[evalcall] 已写出对比结果：{args.out}")
 
 
+def cmd_grow(args: argparse.Namespace) -> None:
+    """活清单增量（P3-1）：提议指令里遗漏的检查点，过溯源硬闸，写入待人工确认区。
+
+    候选**不自动并入正式清单**——只写 candidates_pending.json 等人工确认（守 R-反循环）。
+    """
+    from . import grow as _grow
+    task = _load_yaml(args.task)
+    task.setdefault("id", task.get("id") or os.path.splitext(os.path.basename(args.task))[0])
+    # 已有清单：优先复用 --checklist，否则现编译
+    if getattr(args, "checklist", None):
+        with open(args.checklist, encoding="utf-8") as f:
+            cp_raw = json.load(f)
+        existing = [compiler.Checkpoint(**{k: v for k, v in c.items()
+                    if k in ("id", "type", "text", "source_quote", "severity", "needs_review", "keywords", "safety", "policy_source")}) for c in cp_raw]
+    else:
+        try:
+            existing = compiler.compile_task(task, model=args.model)
+        except Exception as exc:  # noqa: BLE001
+            _die(f"编译已有清单失败：{exc}")
+            return
+    result = _grow.mine_candidates(task, existing, model=args.model)
+    if result.get("error"):
+        _die(f"挖掘候选失败：{result['error']}")
+    out_path = args.out or os.path.join("runs", task["id"], "candidates_pending.json")
+    _ensure_dir(os.path.dirname(out_path) or ".")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+    acc, rej = result["accepted"], result["rejected"]
+    print(f"[evalcall] 活清单增量：候选 {len(acc)+len(rej)} 条 → 过溯源硬闸保留 {len(acc)} 条（待人工确认），拦截 {len(rej)} 条")
+    for r in rej:
+        print(f"  ⛔ 拦截：{r.get('text','?')[:30]} —— {r.get('_reason')}")
+    print(f"[evalcall] 待确认候选写入：{out_path}（不自动并入正式清单）")
+
+
 def cmd_report(args: argparse.Namespace) -> None:
     try:
         from .report import build_report  # type: ignore
@@ -483,12 +531,20 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--checklist", default=None, help="复用已固化的检查点清单 JSON（A/B 对比实验必须同尺）")
     p_run.add_argument("--votes", type=int, default=3, help="每条检查点 LLM 裁判投票数（默认 3：多数投票/跨模型裁判团；配 JUDGE_MODELS 环境变量轮换不同模型消系统性偏差）")
     p_run.add_argument("--no-safety", action="store_true", help="不附加全局安全/合规红线（默认附加 P0 一票否决级红线）")
+    p_run.add_argument("--no-mix", action="store_true", help="不按 persona 配比加权分配轨迹（默认按行业常识配比；本flag回到各 persona 均分 --n 条）")
     p_run.add_argument("--seed", type=int, default=None, help="随机种子基值（派生 base+persona序号*1000+轨迹序号）。注：仅模拟器随机性可复现；judge 非确定性+coverage 反馈环使整条 run 不保证完全复现")
     p_run.set_defaults(func=cmd_run)
 
     p_rep = sub.add_parser("report", help="从 run 目录生成 HTML 报告")
     p_rep.add_argument("--run", required=True, help="run 输出目录")
     p_rep.set_defaults(func=cmd_report)
+
+    p_grow = sub.add_parser("grow", help="活清单增量：提议指令里遗漏的检查点（过溯源硬闸，待人工确认）")
+    p_grow.add_argument("--task", required=True, help="任务 YAML 路径")
+    p_grow.add_argument("--checklist", default=None, help="复用已有检查点清单 JSON（否则现编译）")
+    p_grow.add_argument("--model", default=None, help="覆盖默认模型名")
+    p_grow.add_argument("--out", default=None, help="候选输出路径，默认 runs/<task_id>/candidates_pending.json")
+    p_grow.set_defaults(func=cmd_grow)
 
     p_diff = sub.add_parser("diff", help="跨版本回归对比两个 run（变好/变差/需复测）")
     p_diff.add_argument("--base", required=True, help="基线 run 目录")
