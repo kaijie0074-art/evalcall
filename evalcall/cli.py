@@ -135,6 +135,20 @@ def cmd_run(args: argparse.Namespace) -> None:
             return
     if not checkpoints:
         _die("指令编译未产出任何检查点，请检查任务指令内容或 LLM 后端配置")
+
+    # 附加全局安全/合规红线（P0 一票否决级，来源 policy 而非指令，守 R-溯源）。
+    # forbidden 类红线复用 judge 现有 forbidden 规则轨——单一规则源，不另立一套。
+    if not getattr(args, "no_safety", False):
+        from . import safety as _safety
+        safety_cps = _safety.load_safety_checkpoints()
+        if safety_cps:
+            existing_ids = {c.id for c in checkpoints}
+            added = [c for c in safety_cps if c.id not in existing_ids]
+            checkpoints = list(checkpoints) + added
+            print(f"[evalcall] 附加 {len(added)} 条全局安全/合规红线（P0 一票否决）")
+        else:
+            print("[evalcall] 警告：未加载到安全红线 policy（data/policy/safety_redlines.yaml），跳过", file=sys.stderr)
+
     cp_dicts = compiler.checkpoints_to_dicts(checkpoints)
     n_review = sum(1 for c in cp_dicts if c.get("needs_review"))
     print(f"[evalcall] 编译得到 {len(cp_dicts)} 条检查点（其中 {n_review} 条溯源待复核）")
@@ -239,8 +253,9 @@ def cmd_run(args: argparse.Namespace) -> None:
         json.dump(overall, f, ensure_ascii=False, indent=2)
 
     print(
-        f"[evalcall] 完成。共 {len(per_run_summary)} 条轨迹，平均分 {overall['avg_score']}，"
-        f"critical 否决 {overall['critical_failed_runs']} 条。输出目录：{out_dir}"
+        f"[evalcall] 完成。上线决策【{overall['gate']}】，共 {len(per_run_summary)} 条轨迹，"
+        f"平均分 {overall['avg_score']}，P0 打回 {overall['blocked_runs']} 条，"
+        f"待人工复核 {overall['needs_human_review_total']} 项。输出目录：{out_dir}"
     )
 
 
@@ -255,6 +270,10 @@ def _aggregate_summary(
             "task_id": task_id,
             "total_runs": 0,
             "avg_score": 0.0,
+            "gate": "无数据",
+            "gate_reasons": [],
+            "blocked_runs": 0,
+            "needs_human_review_total": 0,
             "critical_failed_runs": 0,
             "avg_violation_rate_per_100": 0.0,
             "avg_judge_disagreement_rate": 0.0,
@@ -267,6 +286,18 @@ def _aggregate_summary(
     crit = sum(1 for r in per_run if r.get("critical_failed"))
     avg_vio = round(sum(r.get("violation_rate_per_100", 0.0) for r in per_run) / n, 1)
     avg_dis = round(sum(r.get("judge_disagreement_rate", 0.0) for r in per_run) / n, 3)
+
+    # P1-3 门禁聚合：任一轨迹打回 → 整体打回（外呼安全从严，一通坏电话就是事故）。
+    blocked_runs = [r for r in per_run if r.get("gate") == "打回"]
+    overall_gate = "打回" if blocked_runs else "可上线"
+    gate_reasons: list[dict[str, Any]] = []
+    seen_cp: set = set()
+    for r in per_run:
+        for gr in r.get("gate_reasons", []):
+            if gr.get("checkpoint_id") not in seen_cp:
+                seen_cp.add(gr.get("checkpoint_id"))
+                gate_reasons.append(gr)
+    needs_review_total = sum(r.get("needs_human_review_count", 0) for r in per_run)
 
     by_persona: dict[str, dict[str, Any]] = {}
     for r in per_run:
@@ -284,6 +315,10 @@ def _aggregate_summary(
         "task_id": task_id,
         "total_runs": n,
         "avg_score": avg_score,
+        "gate": overall_gate,                 # P1-3 整体上线决策
+        "gate_reasons": gate_reasons,         # 触发打回的 P0 明细（去重）
+        "blocked_runs": len(blocked_runs),
+        "needs_human_review_total": needs_review_total,  # P1-5
         "critical_failed_runs": crit,
         "avg_violation_rate_per_100": avg_vio,
         "avg_judge_disagreement_rate": avg_dis,
@@ -333,6 +368,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--model", default=None, help="覆盖默认模型名（评测/编译用）")
     p_run.add_argument("--checklist", default=None, help="复用已固化的检查点清单 JSON（A/B 对比实验必须同尺）")
     p_run.add_argument("--votes", type=int, default=3, help="每条检查点 LLM 裁判投票数（默认 3：多数投票/跨模型裁判团；配 JUDGE_MODELS 环境变量轮换不同模型消系统性偏差）")
+    p_run.add_argument("--no-safety", action="store_true", help="不附加全局安全/合规红线（默认附加 P0 一票否决级红线）")
     p_run.add_argument("--seed", type=int, default=None, help="随机种子基值（派生 base+persona序号*1000+轨迹序号）。注：仅模拟器随机性可复现；judge 非确定性+coverage 反馈环使整条 run 不保证完全复现")
     p_run.set_defaults(func=cmd_run)
 

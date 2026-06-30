@@ -71,3 +71,56 @@ class TestDefaultVotes:
         for j in judgments:
             # 非 forbidden 检查点，judge_votes 应恰为 3 票
             assert len(j["judge_votes"]) == 3, j
+
+
+# =========================================================================== #
+# P1：安全轨 / 业务分级 / 上线门禁 / 低置信复核
+# =========================================================================== #
+from evalcall import safety as _safety  # noqa: E402
+
+
+class TestSafetyAndGate:
+    def test_business_level_mapping(self):
+        assert _safety.business_level("critical") == "P0"
+        assert _safety.business_level("minor", safety=True) == "P0"  # safety 抬到 P0
+        assert _safety.business_level("major") == "P1"
+        assert _safety.business_level("minor") == "P2"
+
+    def test_load_safety_checkpoints(self):
+        cps = _safety.load_safety_checkpoints()
+        assert len(cps) >= 3
+        assert all(c.safety for c in cps)
+        assert all(c.policy_source for c in cps)  # 守 R-溯源：每条有 policy 出处，不悬空
+
+    def test_gate_blocks_on_p0_fail(self, monkeypatch):
+        monkeypatch.setattr(judge.llm, "chat_json", _stub_chat_json(verdict="fail"))
+        cps = [compiler.Checkpoint(id="s1", type="constraint", text="不得泄露隐私",
+                                   source_quote="policy", severity="critical", safety=True)]
+        judgments = judge.judge_trajectory(cps, _mk_traj(), n_votes=3)
+        summary = judge.summarize(cps, judgments)
+        assert summary["gate"] == "打回"
+        assert summary["gate_reasons"] and summary["gate_reasons"][0]["checkpoint_id"] == "s1"
+        assert summary["by_business_level"]["P0"]["fail"] == 1
+
+    def test_gate_pass_when_no_p0_fail(self, monkeypatch):
+        monkeypatch.setattr(judge.llm, "chat_json", _stub_chat_json(verdict="fail"))
+        cps = [compiler.Checkpoint(id="m1", type="style", text="语气友好",
+                                   source_quote="友好", severity="minor")]
+        judgments = judge.judge_trajectory(cps, _mk_traj(), n_votes=3)
+        summary = judge.summarize(cps, judgments)
+        assert summary["gate"] == "可上线"  # 只有 P2 fail，不触发门禁
+
+    def test_needs_human_review_on_split_vote(self, monkeypatch):
+        # 让三票里出现分歧：依次返回 fail/fail/pass
+        seq = iter(["fail", "fail", "pass"])
+        def _split(messages, schema_hint=None, model=None):
+            v = next(seq, "pass")
+            user = messages[-1]["content"]
+            ids = [t[3:].split("|")[0].strip() for t in user.split() if t.startswith("id=")]
+            return {"results": [{"checkpoint_id": c, "verdict": v, "confidence": 0.8,
+                                 "evidence": []} for c in ids]}
+        monkeypatch.setattr(judge.llm, "chat_json", _split)
+        cps = [compiler.Checkpoint(id="c1", type="flow", text="x", source_quote="x", severity="major")]
+        judgments = judge.judge_trajectory(cps, _mk_traj(), n_votes=3)
+        assert judgments[0]["needs_human_review"] is True
+        assert judgments[0]["vote_agreement"] < 1.0
