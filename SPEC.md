@@ -1,6 +1,8 @@
 # SPEC — 美团黑客松赛道二：复杂指令下的多轮对话评测系统
 
 > 截止：2026-06-07 投稿。评审维度：创新性、完整性、应用效果、商业价值。
+>
+> ⚠️ 本文为**初版设计规格（历史基线）**。2026-06-30 经导师指导后实现已扩展（上线门禁/安全红线轨/履约达成/真实性检查点/回归diff/活清单增量等），最新落地见 `docs/EvalCall改进-建模-20260630.md` 与 `README.md` 的「决策与安全增强」节；分支 `evalcall-improve-20260630`。本文不再逐条同步实现细节，仅留作原始设计参照。
 
 ## 0. 赛题
 
@@ -98,7 +100,7 @@ Python 3.11+，零重依赖（requests + jinja2，可选 rich）。LLM 后端可
 - 环境变量：`EVALCALL_BACKEND=claude-cli|openai|mock`、`OPENAI_BASE_URL`、`OPENAI_API_KEY`、`EVALCALL_MODEL`、被测模型独立配置 `TARGET_*` 同名变量
 - Python 全部带类型标注；中文注释；不引入 pandas/numpy 等重依赖
 
-## 5. 里程碑（今天内）
+## 5. 里程碑（投稿日 2026-06-06 内 · 历史）
 
 1. 并行开发四块（A/B/C/D）
 2. 主 Agent 集成，`claude-cli` 后端端到端跑通 1 任务 × 3 persona × 3 轨迹
