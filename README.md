@@ -147,6 +147,12 @@ python -m evalcall run --task data/tasks/t01_overdue_appease.yaml --personas all
 
 # 生成/刷新报告（基于已有轨迹）
 python -m evalcall report --run runs/t01_overdue_appease/
+
+# 跨版本回归对比（规则/履约判定=确定，LLM判定=需复测确认）
+python -m evalcall diff --base runs/v1/ --new runs/v2/
+
+# 活清单增量：提议指令里遗漏的检查点（过溯源硬闸，写入待人工确认区，不自动并入）
+python -m evalcall grow --task data/tasks/t01_overdue_appease.yaml
 ```
 
 ### 输出产物
