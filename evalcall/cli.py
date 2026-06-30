@@ -194,8 +194,11 @@ def cmd_run(args: argparse.Namespace) -> None:
                 tf.write(json.dumps(trajectory, ensure_ascii=False) + "\n")
                 tf.flush()
 
-                # 评测
-                judgments = judge.judge_trajectory(checkpoints, trajectory, model=args.model)
+                # 评测（n_votes 默认 3：跨模型/多数投票是旗舰可靠性机制，
+                # 标准 run 必须默认开启，不能退化成单票——单票只是单一裁判的一面之词）
+                judgments = judge.judge_trajectory(
+                    checkpoints, trajectory, model=args.model, n_votes=args.votes
+                )
                 summary = judge.summarize(checkpoints, judgments)
 
                 # 覆盖率反馈：本条轨迹触达（pass/fail）的检查点计入已覆盖
@@ -329,6 +332,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--max-turns", type=int, default=12, help="单条对话最大轮数")
     p_run.add_argument("--model", default=None, help="覆盖默认模型名（评测/编译用）")
     p_run.add_argument("--checklist", default=None, help="复用已固化的检查点清单 JSON（A/B 对比实验必须同尺）")
+    p_run.add_argument("--votes", type=int, default=3, help="每条检查点 LLM 裁判投票数（默认 3：多数投票/跨模型裁判团；配 JUDGE_MODELS 环境变量轮换不同模型消系统性偏差）")
     p_run.add_argument("--seed", type=int, default=None, help="随机种子基值（派生 base+persona序号*1000+轨迹序号）。注：仅模拟器随机性可复现；judge 非确定性+coverage 反馈环使整条 run 不保证完全复现")
     p_run.set_defaults(func=cmd_run)
 

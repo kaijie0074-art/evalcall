@@ -67,7 +67,7 @@ flowchart TD
      └──────────────────────┘
                             ▼
                    ④ 双轨评测引擎 judge.py
-                      规则轨（确定性）
+                      规则轨（确定性探测器，只产线索不独裁）
                       LLM轨（逐检查点，证据引用，3票投票）
                       + 自一致率 / 双轨冲突率
                             │
@@ -86,7 +86,7 @@ flowchart TD
 | ① 指令编译器 | `evalcall/compiler.py` | 将自然语言任务指令解析为结构化检查点清单。每条检查点含 `id`、`type`（flow/constraint/forbidden/style）、`text`、`source_quote`（可溯源原文）、`severity`（critical/major/minor）。 |
 | ② 用户模拟器 | `evalcall/simulator.py` | LLM 扮演被呼叫用户，支持六种 persona（配合型/打断型/跑题型/质疑型/情绪型/沉默型）。对抗模式：约束/禁止项作为对抗目标注入；coverage-guided：跨轨迹未触达的检查点被标记为优先攻击目标（cli 主循环反馈环，已实现非口号）。 |
 | ③ 对话竞技场 | `evalcall/arena.py` | 编排被测模型与用户模拟器之间的多轮对话，coverage-guided 调度：每条轨迹判定后，未触达检查点作为优先攻击目标注入下一条轨迹（反馈环依赖前序判定，故按设计串行；无反馈模式可并行扩展）。输出标准 transcript JSONL。 |
-| ④ 双轨评测引擎 | `evalcall/judge.py` | 规则轨（确定性检查：关键信息是否播报、禁语是否出现）+ LLM轨（逐检查点判定 pass/fail/NA，必须引用对话原文作为证据，3票多数投票定结论）。附带可靠性指标：judge 自一致率、规则/LLM 双轨冲突率。 |
+| ④ 双轨评测引擎 | `evalcall/judge.py` | 规则轨（确定性**探测器**：禁语/关键信息子串命中只产生"线索"，不独裁——避免「不太好的话」误命中禁语「好的」式的系统性误杀）+ LLM轨（逐检查点判定 pass/fail/NA，必须引用对话原文作为证据，默认 3 票多数投票定结论）。规则命中线索交 LLM 轨合议：双确认→fail(method=rule+llm)，LLM 否决→标 rule_conflict 供人工复核。附带可靠性指标：judge 自一致率、规则/LLM 双轨冲突率。 |
 | ⑤ 评测报告 | `evalcall/report.py` | 聚合判定结果，生成总分 + 四维雷达（流程完整度/约束遵循率/异常处理/话术合规）、逐检查点明细（结论+证据+置信度）、失败案例剖析、persona 维度切片。输出 HTML 可视化报告 + JSON 机器可读结果。 |
 
 ---
@@ -139,30 +139,30 @@ export TARGET_MODEL=your-model-name
 ### 运行评测
 
 ```bash
-# 跑一次完整评测（指定任务文件，默认 3 条轨迹）
-python -m evalcall run --task data/tasks/delivery_confirm.yaml
+# 跑一次完整评测（指定任务文件，默认每 persona 3 条轨迹、裁判 3 票多数投票）
+python -m evalcall run --task data/tasks/t01_overdue_appease.yaml
 
-# 指定 persona 和轨迹数
-python -m evalcall run --task data/tasks/delivery_confirm.yaml --personas all --runs 5
+# 指定 persona、轨迹数与裁判票数
+python -m evalcall run --task data/tasks/t01_overdue_appease.yaml --personas all --n 5 --votes 3
 
 # 生成/刷新报告（基于已有轨迹）
-python -m evalcall report --run-dir runs/20260606_143000/
+python -m evalcall report --run runs/t01_overdue_appease/
 ```
 
 ### 输出产物
 
 ```
 runs/
-└── 20260606_143000/          # 每次 run 按时间戳命名
-    ├── transcripts/           # 原始对话轨迹（JSONL）
-    │   ├── run_001.jsonl
-    │   └── ...
-    ├── judgments/             # 逐轨迹判定结果（JSON）
-    │   ├── run_001_judgment.json
-    │   └── ...
-    ├── report.html            # HTML 可视化报告（浏览器直接打开）
-    └── report.json            # 机器可读聚合结果
+└── <task_id>/                 # 每个任务一个目录（如 runs/t01_overdue_appease/）
+    ├── checklist.json         # ① 编译出的检查点清单（可固化复用，A/B 同尺）
+    ├── transcripts.jsonl      # 全部对话轨迹（单文件，每行一条）
+    ├── judgments.json         # 扁平判定列表（report 直接消费）
+    ├── judgments_by_run.json  # 按轨迹嵌套的判定（备查）
+    ├── summary.json           # 机器可读聚合结果（平均分/否决数/分歧率/persona切片）
+    └── report.html            # HTML 可视化报告（浏览器直接打开）
 ```
+
+> 说明：聚合的机器可读结果在 `summary.json`（不是 `report.json`）；报告产物是 `report.html`。
 
 ---
 
@@ -185,7 +185,7 @@ python -m evalcall run --task data/tasks/delivery_confirm.yaml
 3. 执行报告生成命令
 
 ```bash
-python -m evalcall report --run-dir runs/your-data-dir/
+python -m evalcall report --run runs/your-data-dir/
 ```
 
 官方数据到达后，只需按 `data/README.md` 的字段映射表做一次格式转换，无需修改评测逻辑。
