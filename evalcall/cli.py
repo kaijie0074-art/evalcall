@@ -149,6 +149,20 @@ def cmd_run(args: argparse.Namespace) -> None:
         else:
             print("[evalcall] 警告：未加载到安全红线 policy（data/policy/safety_redlines.yaml），跳过", file=sys.stderr)
 
+    # C18 履约达成检查点：从任务 goal 生成 outcome 检查点（goal 是任务指令级目标，
+    # 故 source_quote 溯源回 goal，守 R-溯源）。评"这通电话有没有把活办成"——
+    # 真实外呼运营第一 KPI，原系统全是质检机制、没人测履约达成（业务红队挖出的盲点）。
+    goal = (task.get("goal") or "").strip()
+    if goal and not any(getattr(c, "id", "") == "outcome_goal" for c in checkpoints):
+        checkpoints = list(checkpoints) + [compiler.Checkpoint(
+            id="outcome_goal",
+            type="outcome",
+            text=f"本通电话达成履约目标：{goal}",
+            source_quote=goal,
+            severity="major",
+        )]
+        print("[evalcall] 已加入履约达成（outcome）检查点")
+
     cp_dicts = compiler.checkpoints_to_dicts(checkpoints)
     n_review = sum(1 for c in cp_dicts if c.get("needs_review"))
     print(f"[evalcall] 编译得到 {len(cp_dicts)} 条检查点（其中 {n_review} 条溯源待复核）")
@@ -254,8 +268,8 @@ def cmd_run(args: argparse.Namespace) -> None:
 
     print(
         f"[evalcall] 完成。上线决策【{overall['gate']}】，共 {len(per_run_summary)} 条轨迹，"
-        f"平均分 {overall['avg_score']}，P0 打回 {overall['blocked_runs']} 条，"
-        f"待人工复核 {overall['needs_human_review_total']} 项。输出目录：{out_dir}"
+        f"平均分 {overall['avg_score']}，履约达成率 {overall.get('fulfillment_rate')}%，"
+        f"P0 打回 {overall['blocked_runs']} 条，待人工复核 {overall['needs_human_review_total']} 项。输出目录：{out_dir}"
     )
 
 
@@ -274,6 +288,9 @@ def _aggregate_summary(
             "gate_reasons": [],
             "blocked_runs": 0,
             "needs_human_review_total": 0,
+            "fulfillment_rate": None,
+            "fulfilled_runs": 0,
+            "fulfillment_eval_runs": 0,
             "critical_failed_runs": 0,
             "avg_violation_rate_per_100": 0.0,
             "avg_judge_disagreement_rate": 0.0,
@@ -299,6 +316,11 @@ def _aggregate_summary(
                 gate_reasons.append(gr)
     needs_review_total = sum(r.get("needs_human_review_count", 0) for r in per_run)
 
+    # C18 履约达成率：有 outcome 判定的轨迹里，达成（outcome 全 pass 无 fail）的占比
+    fulfill_runs = [r for r in per_run if (r.get("fulfillment", {}).get("pass", 0) + r.get("fulfillment", {}).get("fail", 0)) > 0]
+    fulfilled_n = sum(1 for r in fulfill_runs if r.get("fulfilled"))
+    fulfillment_rate = round(fulfilled_n / len(fulfill_runs) * 100.0, 1) if fulfill_runs else None
+
     by_persona: dict[str, dict[str, Any]] = {}
     for r in per_run:
         pid = r.get("persona_id", "?")
@@ -319,6 +341,9 @@ def _aggregate_summary(
         "gate_reasons": gate_reasons,         # 触发打回的 P0 明细（去重）
         "blocked_runs": len(blocked_runs),
         "needs_human_review_total": needs_review_total,  # P1-5
+        "fulfillment_rate": fulfillment_rate,            # C18 履约达成率(%)，无 outcome 时 None
+        "fulfilled_runs": fulfilled_n,
+        "fulfillment_eval_runs": len(fulfill_runs),
         "critical_failed_runs": crit,
         "avg_violation_rate_per_100": avg_vio,
         "avg_judge_disagreement_rate": avg_dis,

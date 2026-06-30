@@ -470,8 +470,21 @@ def _aggregate(
         "n_checkpoints": len(judgments),
     }
 
+    # --- 决策头条（P1-3 门禁 / C18 履约 / P1-5 复核）：从 summary.json 取聚合结果 ---
+    # 这些是质检团队和评委第一眼要看的"能不能上线/活办成没/几条要人看"，不是分数。
+    decision = {
+        "gate": summary.get("gate", "—"),
+        "gate_reasons": summary.get("gate_reasons", []),
+        "blocked_runs": summary.get("blocked_runs", 0),
+        "fulfillment_rate": summary.get("fulfillment_rate"),
+        "fulfilled_runs": summary.get("fulfilled_runs", 0),
+        "fulfillment_eval_runs": summary.get("fulfillment_eval_runs", 0),
+        "needs_human_review_total": summary.get("needs_human_review_total", 0),
+    }
+
     return {
         "meta": meta,
+        "decision": decision,
         "overall_score": overall_score,
         "raw_score": raw_score,
         "critical_fail": critical_fail,

@@ -124,3 +124,25 @@ class TestSafetyAndGate:
         judgments = judge.judge_trajectory(cps, _mk_traj(), n_votes=3)
         assert judgments[0]["needs_human_review"] is True
         assert judgments[0]["vote_agreement"] < 1.0
+
+
+# =========================================================================== #
+# C18：履约达成（outcome 检查点）
+# =========================================================================== #
+class TestFulfillment:
+    def test_outcome_pass_counts_fulfilled(self, monkeypatch):
+        monkeypatch.setattr(judge.llm, "chat_json", _stub_chat_json(verdict="pass"))
+        cps = [compiler.Checkpoint(id="outcome_goal", type="outcome",
+                                   text="本通电话达成履约目标：安抚用户", source_quote="安抚用户", severity="major")]
+        judgments = judge.judge_trajectory(cps, _mk_traj(), n_votes=3)
+        summary = judge.summarize(cps, judgments)
+        assert summary["fulfillment"]["pass"] == 1
+        assert summary["fulfilled"] is True
+
+    def test_outcome_fail_not_fulfilled(self, monkeypatch):
+        monkeypatch.setattr(judge.llm, "chat_json", _stub_chat_json(verdict="fail"))
+        cps = [compiler.Checkpoint(id="outcome_goal", type="outcome",
+                                   text="本通电话达成履约目标：安抚用户", source_quote="安抚用户", severity="major")]
+        judgments = judge.judge_trajectory(cps, _mk_traj(), n_votes=3)
+        summary = judge.summarize(cps, judgments)
+        assert summary["fulfilled"] is False

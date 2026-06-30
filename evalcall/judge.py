@@ -383,11 +383,14 @@ def summarize(
     agreements: list[float] = []
     needs_review_count = 0
     gate_reasons: list[dict[str, Any]] = []  # 触发"打回"的 P0 fail 清单
+    fulfillment = {"pass": 0, "fail": 0, "na": 0}  # C18 履约达成（outcome 检查点）
 
     for j in judgments:
         cp = cp_index.get(j["checkpoint_id"], {})
         severity = cp.get("severity", "major")
         level = business_level(severity, bool(cp.get("safety")))
+        if cp.get("type") == "outcome":
+            fulfillment[j.get("verdict", "na")] = fulfillment.get(j.get("verdict", "na"), 0) + 1
         weight = _SEVERITY_WEIGHT.get(severity, _SEVERITY_WEIGHT["major"])
         verdict = j.get("verdict", "na")
 
@@ -437,6 +440,8 @@ def summarize(
         "critical_failed": critical_failed,
         "gate": gate,                      # P1-3 上线决策：打回 | 可上线
         "gate_reasons": gate_reasons,      # 触发打回的 P0 fail 明细
+        "fulfillment": fulfillment,        # C18 履约达成（outcome 检查点 pass/fail/na）
+        "fulfilled": (fulfillment["fail"] == 0 and fulfillment["pass"] > 0),  # 本轨是否达成履约目标
         "counts": counts,
         "by_severity": by_severity,
         "by_business_level": by_business_level,  # P1-2 P0/P1/P2 计数
