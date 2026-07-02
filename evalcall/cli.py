@@ -122,9 +122,12 @@ def cmd_run(args: argparse.Namespace) -> None:
         print(f"[evalcall] 复用检查点清单：{args.checklist}")
         with open(args.checklist, encoding="utf-8") as f:
             cp_raw = json.load(f)
+        # 白名单必须含 safety/policy_source：漏掉会把安全红线"降级"成普通检查点，
+        # 且后面附加安全轨时因 id 已存在被去重挡掉，最终清单里只剩被剥了 safety 的版本。
         checkpoints = [compiler.Checkpoint(**{
             k: v for k, v in c.items()
-            if k in ("id", "type", "text", "source_quote", "severity", "needs_review", "keywords")
+            if k in ("id", "type", "text", "source_quote", "severity",
+                     "needs_review", "keywords", "safety", "policy_source")
         }) for c in cp_raw]
     else:
         print(f"[evalcall] 编译任务指令：{task_id} …")
@@ -246,10 +249,12 @@ def cmd_run(args: argparse.Namespace) -> None:
                     print(f"[evalcall] 警告：对话 {run_id} 失败，跳过：{exc}", file=sys.stderr)
                     continue
 
-                # 补齐轨迹元字段
-                trajectory.setdefault("run_id", run_id)
-                trajectory.setdefault("task_id", task_id)
-                trajectory.setdefault("persona_id", persona_id)
+                # 统一轨迹元字段：强制覆盖为 CLI 的复合 run_id。
+                # arena 内部会自生成 uuid 型 run_id，若用 setdefault 会保留 uuid，
+                # 导致 transcripts 与 judgments 两套 ID 对不上、报告证据跳转锚点全断。
+                trajectory["run_id"] = run_id
+                trajectory["task_id"] = task_id
+                trajectory["persona_id"] = persona_id
                 tf.write(json.dumps(trajectory, ensure_ascii=False) + "\n")
                 tf.flush()
 
@@ -276,6 +281,10 @@ def cmd_run(args: argparse.Namespace) -> None:
                         "severity": meta.get("severity", "minor"),
                         "text": meta.get("text", ""),
                         "source_quote": meta.get("source_quote", ""),
+                        # 安全红线标记必须随判定下传：report 的通话级 P0 标记读的是
+                        # judgment 上的 safety，不带就只剩 severity=critical 一条腿
+                        "safety": bool(meta.get("safety")),
+                        "policy_source": meta.get("policy_source", ""),
                         **j,
                     }
                     flat_judgments.append(flat)
@@ -336,9 +345,16 @@ def _aggregate_summary(
     avg_vio = round(sum(r.get("violation_rate_per_100", 0.0) for r in per_run) / n, 1)
     avg_dis = round(sum(r.get("judge_disagreement_rate", 0.0) for r in per_run) / n, 3)
 
-    # P1-3 门禁聚合：任一轨迹打回 → 整体打回（外呼安全从严，一通坏电话就是事故）。
+    # P1-3 门禁聚合：任一轨迹打回 → 整体打回（外呼安全从严，一通坏电话就是事故）；
+    # 无打回但存在"无法判定"轨迹 → 整体也只能是"无法判定"（不许把判定失败聚合成通过）。
     blocked_runs = [r for r in per_run if r.get("gate") == "打回"]
-    overall_gate = "打回" if blocked_runs else "可上线"
+    undecided_runs = [r for r in per_run if r.get("gate") == "无法判定"]
+    if blocked_runs:
+        overall_gate = "打回"
+    elif undecided_runs:
+        overall_gate = "无法判定"
+    else:
+        overall_gate = "可上线"
     gate_reasons: list[dict[str, Any]] = []
     seen_cp: set = set()
     for r in per_run:

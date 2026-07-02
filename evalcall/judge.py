@@ -28,6 +28,10 @@ _SEVERITY_WEIGHT = {"critical": 5.0, "major": 3.0, "minor": 1.0}
 # 一次 LLM prompt 打包判定的检查点数量上限
 _BATCH_SIZE = 6
 
+# 门禁 fail-open 防护阈值：na 占比 ≥ 该值时门禁判"无法判定"而非"可上线"
+# （LLM 判定通道故障时整批退化 na，不设防会把"没判成"包装成"通过"）
+GATE_NA_THRESHOLD = float(os.environ.get("EVALCALL_GATE_NA_THRESHOLD", "0.5"))
+
 
 # ----------------------------------------------------------------------------- #
 # 工具：归一化检查点 / 轨迹
@@ -432,7 +436,16 @@ def summarize(
 
     # P1-3 上线红线门禁：任一 P0（安全红线或 critical）fail → 打回，否则可上线。
     # 门禁是评测落地为"决策"的出口——质检团队要的是能拍板的二值结论，不是光给分数。
-    gate = "打回" if gate_reasons else "可上线"
+    # fail-open 防护："LLM 通道故障导致大面积 na"和"判定通过"是两回事——
+    # 全部/多数检查点 na（无一 pass/fail）时不能打出"可上线"，须显式判"无法判定"。
+    total_cp = counts["pass"] + counts["fail"] + counts["na"]
+    na_ratio = (counts["na"] / total_cp) if total_cp else 1.0
+    if gate_reasons:
+        gate = "打回"
+    elif na_ratio >= GATE_NA_THRESHOLD:
+        gate = "无法判定"
+    else:
+        gate = "可上线"
 
     return {
         "score": final_score,

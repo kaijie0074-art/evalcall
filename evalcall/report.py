@@ -151,14 +151,19 @@ def _aggregate(
 ) -> dict[str, Any]:
     """把三份原始数据聚合成模板视图模型。"""
 
-    # --- transcript 索引：(task_id, persona_id) -> transcript ---
-    tx_index: dict[tuple[str, str], dict[str, Any]] = {}
+    # --- transcript 索引：run_id -> transcript（主键）+ (task_id, persona_id) 回退 ---
+    # 必须以 run_id 为主键：同 (task, persona) 在 n>1 时有多条轨迹，按二元组索引会互相
+    # 覆盖只剩最后一条，导致案例回放把 A 轨迹的违规证据高亮到 B 轨迹的对话上。
+    tx_index: dict[str, dict[str, Any]] = {}
+    tx_fallback: dict[tuple[str, str], dict[str, Any]] = {}
     persona_meta: dict[str, dict[str, Any]] = {}
     task_meta: dict[str, dict[str, Any]] = {}
     for tx in transcripts:
         tid = str(tx.get("task_id", "unknown"))
         pid = str(tx.get("persona_id", "unknown"))
-        tx_index[(tid, pid)] = tx
+        rid = str(tx.get("run_id") or f"{tid}__{pid}")
+        tx_index[rid] = tx
+        tx_fallback[(tid, pid)] = tx
         meta = tx.get("meta", {}) or {}
         if pid not in persona_meta:
             persona_meta[pid] = {
@@ -415,7 +420,9 @@ def _aggregate(
     )
 
     # --- 失败案例剖析：选 fail 占比高的轨迹做完整回放 ---
-    case_studies = _build_case_studies(transcripts, judgments, tx_index, task_meta, persona_meta)
+    case_studies = _build_case_studies(
+        transcripts, judgments, tx_index, tx_fallback, task_meta, persona_meta
+    )
 
     # --- 模拟器覆盖率 ---
     never_covered = [
@@ -507,6 +514,10 @@ def _aggregate(
                 c["worst"] = sev
             c["fails"].append({"text": str(j.get("text", j.get("checkpoint_id", ""))), "severity": sev, "p0": is_p0})
     call_rows = sorted(call_map.values(), key=lambda r: (not r["p0_fail"], -r["fail"]))
+    # 回放区只渲染 top-N 严重案例：仅有对应回放的通话行才渲染跳转链接（防断链锚点）
+    _case_ids = {c["run_id"] for c in case_studies}
+    for r in call_rows:
+        r["has_case"] = r["run_id"] in _case_ids
 
     # --- P3-2 模型弱点定位（数据驱动，不做 LLM 自动改写 prompt）---
     # 按维度/persona 聚合失败率，把"模型在哪类场景塌得最狠"显式指出来，供工程师定位改进方向。
@@ -554,21 +565,23 @@ def _first_run_id(transcripts: list[dict[str, Any]]) -> str:
 def _build_case_studies(
     transcripts: list[dict[str, Any]],
     judgments: list[dict[str, Any]],
-    tx_index: dict[tuple[str, str], dict[str, Any]],
+    tx_index: dict[str, dict[str, Any]],
+    tx_fallback: dict[tuple[str, str], dict[str, Any]],
     task_meta: dict[str, dict[str, Any]],
     persona_meta: dict[str, dict[str, Any]],
     max_cases: int = 3,
 ) -> list[dict[str, Any]]:
     """挑选失败最严重的若干条轨迹做完整对话回放，违规轮次高亮。"""
-    # 按轨迹聚合 fail，记录违规轮次
-    per_tx: dict[tuple[str, str], dict[str, Any]] = defaultdict(
+    # 按轨迹（run_id）聚合 fail，记录违规轮次。
+    # 不能按 (task, persona) 聚合：n>1 时会把多条轨迹的违规混到一条对话上。
+    per_tx: dict[tuple[str, str, str], dict[str, Any]] = defaultdict(
         lambda: {"fails": 0, "critical": 0, "bad_turns": set(), "fail_cps": []}
     )
     for j in judgments:
         if str(j.get("verdict", "")).lower() != "fail":
             continue
-        _, tid, pid = _trajectory_key(j)
-        rec = per_tx[(tid, pid)]
+        rid, tid, pid = _trajectory_key(j)
+        rec = per_tx[(rid, tid, pid)]
         rec["fails"] += 1
         if str(j.get("severity", "")).lower() == "critical":
             rec["critical"] += 1
@@ -588,8 +601,9 @@ def _build_case_studies(
     )[:max_cases]
 
     cases = []
-    for (tid, pid), rec in ranked:
-        tx = tx_index.get((tid, pid))
+    for (rid, tid, pid), rec in ranked:
+        # 先按 run_id 精确取轨迹；旧产物 ID 不齐时回退 (task, persona) 近似匹配
+        tx = tx_index.get(rid) or tx_fallback.get((tid, pid))
         if not tx:
             continue
         bad_turns = rec["bad_turns"]
@@ -605,7 +619,9 @@ def _build_case_studies(
             )
         cases.append(
             {
-                "run_id": str(tx.get("run_id", f"{tid}__{pid}")),  # P2-1 锚点：通话级清单点击跳转到此回放
+                # P2-1 锚点：通话级清单按判定侧 run_id 生成 href，这里必须用同一个 rid，
+                # 否则跳转两端 ID 对不上
+                "run_id": rid or str(tx.get("run_id", f"{tid}__{pid}")),
                 "task_label": task_meta.get(tid, {}).get("label", tid),
                 "persona": persona_meta.get(pid, {"id": pid, "label": pid}),
                 "fails": rec["fails"],

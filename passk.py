@@ -14,6 +14,8 @@ import math
 import sys
 from collections import defaultdict
 
+if len(sys.argv) < 2:
+    sys.exit("用法：python3 passk.py <run目录> [k上限，默认3]\n  例：python3 passk.py runs/official01_n3 3")
 run_dir = sys.argv[1]
 k_max = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 

@@ -12,6 +12,9 @@ import sys
 from evalcall import judge
 from evalcall.cli import _aggregate_summary
 
+if len(sys.argv) < 3:
+    sys.exit("用法：python3 rejudge_checkpoint.py <run目录> <检查点id|all> [票数，默认3]\n"
+             "  例：python3 rejudge_checkpoint.py runs/official01 forbidden_1 3")
 run_dir, cp_id = sys.argv[1], sys.argv[2]
 n_votes = int(sys.argv[3]) if len(sys.argv) > 3 else 3
 

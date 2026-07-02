@@ -21,8 +21,11 @@ _GROW_SYS = (
     "你是评测检查点的覆盖性审计员。给你一段外呼任务【指令原文】和一份【已有检查点清单】，"
     "请找出指令里明确要求、但已有清单**遗漏**的检查点。\n"
     "铁律：每条新检查点的 source_quote 必须是【指令原文】里真实存在的连续片段，逐字摘抄，"
-    "不得改写、不得自造、不得来自对话内容或你的推测。找不到能逐字摘抄的指令依据就不要提。\n"
-    '只输出 JSON：{"candidates":[{"type":"flow|constraint|forbidden|style","text":"检查点描述",'
+    "不得改写、不得自造、不得来自对话内容或你的推测。找不到能逐字摘抄的指令依据就不要提。"
+)
+
+_GROW_SCHEMA_HINT = (
+    '{"candidates":[{"type":"flow|constraint|forbidden|style","text":"检查点描述",'
     '"source_quote":"指令原文逐字片段","severity":"critical|major|minor"}]}'
 )
 
@@ -68,7 +71,7 @@ def mine_candidates(
     user = f"【指令原文】\n{source_text}\n\n【已有检查点清单】\n{existing_lines}"
     messages = [{"role": "system", "content": _GROW_SYS}, {"role": "user", "content": user}]
     try:
-        data = llm.chat_json(messages, model=model)
+        data = llm.chat_json(messages, _GROW_SCHEMA_HINT, model=model)
         raw = data.get("candidates") if isinstance(data, dict) else data
         candidates = raw if isinstance(raw, list) else []
     except Exception as exc:  # noqa: BLE001

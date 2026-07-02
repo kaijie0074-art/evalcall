@@ -253,7 +253,8 @@ tr:hover td{background:#fffdf2}
       <tbody>
       {% for r in call_rows %}
         <tr style="border-bottom:1px solid #eee">
-          <td style="padding:8px 10px;color:#556"><a href="#call-{{ r.run_id }}" style="color:#2a6">{{ r.run_id }}</a></td>
+          {# 回放区只渲染 top-N 严重案例：没有对应回放的通话不给跳转链接，防断链锚点 #}
+          <td style="padding:8px 10px;color:#556">{% if r.has_case %}<a href="#call-{{ r.run_id }}" style="color:#2a6">{{ r.run_id }}</a>{% else %}{{ r.run_id }}{% endif %}</td>
           <td style="padding:8px 10px">{{ r.persona_label }}</td>
           <td style="padding:8px 10px">{% if r.p0_fail %}<b style="color:#c0392b">⛔ 打回</b>{% else %}<span style="color:#1e8e4e">✅ 通过</span>{% endif %}</td>
           <td style="padding:8px 10px">{{ r.pass }} / {{ r.fail }}</td>
