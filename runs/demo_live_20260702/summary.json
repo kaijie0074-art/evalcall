@@ -1,0 +1,54 @@
+{
+  "task_id": "official_01_feimaotui",
+  "total_runs": 1,
+  "avg_score": 0.0,
+  "gate": "打回",
+  "gate_reasons": [
+    {
+      "checkpoint_id": "constraint_2",
+      "text": "应告知单日合同每天至少完成X单的要求",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "constraint_3",
+      "text": "应告知多日合同每天至少完成Y单的要求",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_3",
+      "text": "应告知骑手今天飞毛腿合同已生效，并询问其是否可以开始配送",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "constraint_4",
+      "text": "应说明单日飞毛腿合同需要连续Y天完成配送，否则合同将受到影响",
+      "safety": false,
+      "policy_source": ""
+    }
+  ],
+  "blocked_runs": 1,
+  "needs_human_review_total": 0,
+  "fulfillment_rate": 0.0,
+  "fulfilled_runs": 0,
+  "fulfillment_eval_runs": 1,
+  "critical_failed_runs": 1,
+  "avg_violation_rate_per_100": 52.4,
+  "avg_judge_disagreement_rate": 0.0,
+  "by_persona": {
+    "p02_impatient": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    }
+  },
+  "total_checkpoints": 30,
+  "persona_mix": {
+    "source": "行业常识默认（非真实话务统计）",
+    "counts": {
+      "p02_impatient": 1
+    }
+  }
+}

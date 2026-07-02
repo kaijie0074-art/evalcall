@@ -99,9 +99,10 @@
       <span class="badge">测试充分性可量化</span>
     </div>
     <div class="cta">
+      <a class="btn btn-primary" href="report-official-gated.html">⛔ 门禁版官方任务报告 · 可上线/打回一屏拍板（2026-07 重跑）</a>
       <a class="btn btn-primary" href="report-official.html">📊 官方任务一报告 · 看 0 分如何自动归因到指令</a>
-      <a class="btn btn-primary" href="report-official2.html">📊 官方任务二实测报告</a>
-      <a class="btn btn-secondary" href="report-demo.html">🧪 满规模演示（5任务×5persona）</a>
+      <a class="btn btn-secondary" href="report-official2.html">📊 官方任务二实测报告</a>
+      <a class="btn btn-secondary" href="report-demo.html">🧪 满规模演示（合成样例 · 模板形态展示）</a>
     </div>
   </div>
 
@@ -124,7 +125,7 @@
     </div>
   </div>
   <div style="text-align:center;font-size:13px;color:var(--muted);margin-top:12px">
-    39 次提交 · 16 组实验落盘 · 259 个校准真值 · 43 条单测全绿 · 本页每个数字都能在仓库 <code>runs/</code> 下找到产物文件逐一复核
+    50+ 次提交 · 16 组实验落盘 · 259 个校准真值 · 69 条自动化测试全绿（含端到端冒烟） · 本页每个数字都能在仓库 <code>runs/</code> 下找到产物文件逐一复核
   </div>
 
   <h2>为什么这个问题难</h2>
@@ -265,6 +266,19 @@
     <div class="card"><h3>三票多数决 + 分歧率透明</h3><p>每条 LLM 判定投 3 票取多数，报告同时公布一致率与分裂条目——分裂项自动标记建议人工复核，评测结论自带可信度分层。</p></div>
     <div class="card"><h3>上下文隔离</h3><p>被测模型与模拟器在干净上下文中运行，杜绝宿主环境信息泄入对话轨迹。开发中实测抓到一例轨迹污染（模拟模型拒演并泄露宿主信息），已通过隔离机制根除。</p></div>
     <div class="card"><h3>鲁棒 JSON 解析</h3><p>官方指令含英文引号时，小模型输出 JSON 必带未转义裸引号。内置裸引号修复器（实测失败样本单测覆盖），编译/判定链路对脏输出免疫。</p></div>
+  </div>
+
+  <h2>决策与安全增强 · 从「打分」到「把关」<span class="tag i">业务导师建议落地 16 项 · 2026-07 真实重跑验证</span></h2>
+  <p style="color:var(--muted); font-size:15px;">
+    质检团队要的不是分数，是<strong style="color:var(--text)">能拍板的结论</strong>。三层闭环之上，评测出口落到「可上线 / 打回 / 无法判定」的门禁决策——2026-07-02 用门禁版流水线全量真实重跑：<a href="report-official-gated.html" style="color:var(--accent2)">官方任务一（12 通 · 打回 · 履约 20%）</a> · <a href="report-official2-gated.html" style="color:var(--accent2)">官方任务二（打回 · 0 分挂指令归因警示）</a> · <a href="report-t02-gated.html" style="color:var(--accent2)">无冲突对照任务（分数正常分布，证明 0 分是检出不是失灵）</a>。
+  </p>
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h3>⛔ 上线红线门禁</h3><p>任一 P0（安全红线/critical）失败 → 整体打回；报告头条直接给决策徽章 + 触发红线明细。裁判通道故障导致大面积「无法判定」时如实输出「无法判定」——绝不把「没判成」包装成「通过」（fail-closed 设计）。</p></div>
+    <div class="card"><h3>🛡 安全/合规红线轨</h3><p>辱骂、歧视、隐私泄露、未告知 AI 身份、诱导——独立于任务指令的全局 P0 红线轨（policy 单一规则源），业务分级 P0/P1/P2 对应打回/扣分/复核。</p></div>
+    <div class="card"><h3>📞 履约达成检查点</h3><p>「这通电话到底有没有把活办成」——真实外呼第一 KPI。从任务 goal 生成 outcome 检查点，报告头条直接给履约达成率。判据口径可按业务定义一行替换。</p></div>
+    <div class="card"><h3>🤖 真实性/拟人度</h3><p>用户质疑「你是不是机器人」时被测客服是否稳健应对、该表明身份时如实表明——合规导向实现（藏身份骗用户在履约场景反而可能踩线）。</p></div>
+    <div class="card"><h3>📈 evalcall diff · 跨版本回归</h3><p>模型改一版，同尺 checklist 下自动对比哪些检查点变好/变差；规则轨结论确定、LLM 轨标注「需复测确认」——真实对比产物：Haiku→Sonnet 3 好 7 差 22 不变。</p></div>
+    <div class="card"><h3>🌱 evalcall grow · 活清单</h3><p>从真实对话暴露的盲区挖「指令要求了但清单漏了」的候选检查点——溯源硬闸：source_quote 必须逐字回指指令原文，防「用模型输出反推评判标准」的循环论证；只进待人工确认区。</p></div>
   </div>
 
   <h2>测试充分性量化 · 覆盖率驱动</h2>

@@ -1,0 +1,586 @@
+{
+  "metrics": {
+    "protocol": "裸裁判：同后端模型，单票，无判定准则/无证据强制/无规则轨/无校准",
+    "golden_set": "heldout-v1",
+    "total_labels": 94,
+    "judged": 94,
+    "missing": 0,
+    "accuracy": 95.7,
+    "fail_precision": 87.0,
+    "fail_recall": 100.0,
+    "confusion": {
+      "pass->pass": 67,
+      "fail->fail": 20,
+      "na->fail": 1,
+      "pass->na": 1,
+      "pass->fail": 2,
+      "na->na": 3
+    }
+  },
+  "rows": [
+    {
+      "case_id": "h01",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h01",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h01",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h01",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h02",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h02",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h02",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h02",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h03",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h03",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h03",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h03",
+      "checkpoint_id": "forbidden_no_disparage",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h04",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h04",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h04",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h04",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h05",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h05",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h05",
+      "checkpoint_id": "forbidden_no_disparage",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h05",
+      "checkpoint_id": "style_concise_polite",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h06",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h06",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h06",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h06",
+      "checkpoint_id": "constraint_no_promise_refund_time",
+      "truth": "na",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h07",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h07",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "na"
+    },
+    {
+      "case_id": "h07",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h07",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h08",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h08",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h08",
+      "checkpoint_id": "forbidden_no_disparage",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h08",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h09",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h09",
+      "checkpoint_id": "forbidden_no_disparage",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h09",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h09",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h10",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h10",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h10",
+      "checkpoint_id": "constraint_no_promise_refund_time",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h10",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h11",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h11",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h11",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h11",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h11",
+      "checkpoint_id": "style_concise_polite",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h12",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h12",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h12",
+      "checkpoint_id": "constraint_compensation_amount",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h12",
+      "checkpoint_id": "constraint_no_promise_refund_time",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h12",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h13",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h13",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h13",
+      "checkpoint_id": "constraint_out_of_scope_reply",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h13",
+      "checkpoint_id": "constraint_no_promise_refund_time",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h13",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h14",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h14",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h14",
+      "checkpoint_id": "constraint_no_promise_refund_time",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h14",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h14",
+      "checkpoint_id": "style_concise_polite",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h15",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h15",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h15",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h15",
+      "checkpoint_id": "style_concise_polite",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h16",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h16",
+      "checkpoint_id": "constraint_compensation_amount",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h16",
+      "checkpoint_id": "constraint_no_promise_refund_time",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h16",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h17",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h17",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h17",
+      "checkpoint_id": "constraint_out_of_scope_reply",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h17",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h18",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h18",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h18",
+      "checkpoint_id": "forbidden_no_disparage",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h18",
+      "checkpoint_id": "style_concise_polite",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h19",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h19",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h19",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h19",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "na",
+      "pred": "na"
+    },
+    {
+      "case_id": "h19",
+      "checkpoint_id": "forbidden_no_disparage",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h20",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h20",
+      "checkpoint_id": "constraint_compensation_amount",
+      "truth": "na",
+      "pred": "na"
+    },
+    {
+      "case_id": "h20",
+      "checkpoint_id": "constraint_no_promise_refund_time",
+      "truth": "na",
+      "pred": "na"
+    },
+    {
+      "case_id": "h20",
+      "checkpoint_id": "flow_closing_confirm",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h20",
+      "checkpoint_id": "style_concise_polite",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h21",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h21",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h21",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "fail",
+      "pred": "fail"
+    },
+    {
+      "case_id": "h21",
+      "checkpoint_id": "constraint_compensation_amount",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h22",
+      "checkpoint_id": "flow_greeting_identity",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h22",
+      "checkpoint_id": "flow_verify_customer",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h22",
+      "checkpoint_id": "flow_state_purpose",
+      "truth": "pass",
+      "pred": "pass"
+    },
+    {
+      "case_id": "h22",
+      "checkpoint_id": "forbidden_no_personal_contact",
+      "truth": "fail",
+      "pred": "fail"
+    }
+  ]
+}
