@@ -193,7 +193,7 @@ runs/
 直接使用 `data/tasks/*.yaml` 中内置的模拟任务（已覆盖外卖催单确认、配送时间预约、商家回访、超时安抚、隐私合规五类场景）。无需任何真实数据即可完整跑通评测流程。
 
 ```bash
-python -m evalcall run --task data/tasks/delivery_confirm.yaml
+python -m evalcall run --task data/tasks/t02_delivery_reschedule.yaml
 ```
 
 ### 路径二：离线轨迹评测（接入真实/脱敏数据）
@@ -201,7 +201,7 @@ python -m evalcall run --task data/tasks/delivery_confirm.yaml
 若已有脱敏对话轨迹，可跳过模拟器直接送入评测引擎：
 
 1. 将脱敏轨迹转换为标准 JSONL 格式（字段映射说明见 `data/README.md`）
-2. 把轨迹文件放入 `runs/<your-dir>/transcripts/`
+2. 把轨迹文件存为 `runs/<your-dir>/transcripts.jsonl`（单文件，每行一条轨迹；`report.py` 直接读取该文件）
 3. 执行报告生成命令
 
 ```bash

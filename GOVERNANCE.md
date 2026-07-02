@@ -101,7 +101,7 @@ Lint 扣分权重（`evalcall/lint.py` 中 `_SEVERITY_WEIGHT` / `_DIMENSION_FACT
 |------|------|---------|
 | `instruction_hash` | 任务指令文件内容的 SHA-256 前 16 位 | 当前**未落盘**，为路线图项 |
 | `target_model_fingerprint` | 被测模型名称+版本（`TARGET_MODEL` 的值） | 当前**未落盘**，为路线图项 |
-| `judge_models_config` | 裁判团配置（`JUDGE_MODELS` 环境变量的值，或"单模型"） | **已落盘**：`calibration.json` 的 `meta.judge_models` 字段（见 `calibrate.py` 第 266 行） |
+| `judge_models_config` | 裁判团配置（`JUDGE_MODELS` 环境变量的值，或"单模型"） | **已落盘**：`calibration.json` 的 `meta.judge_models` 字段（见 `calibrate.py` 的 `run()` 函数中 `meta` 字典的 `judge_models` 赋值逻辑） |
 | `golden_set_version` | 黄金集版本（文件哈希或语义版本号） | 当前**未落盘**，为路线图项 |
 
 ### 3.1 已落地部分
@@ -119,7 +119,7 @@ Lint 扣分权重（`evalcall/lint.py` 中 `_SEVERITY_WEIGHT` / `_DIMENSION_FACT
 }
 ```
 
-`judge.py` 在每条判定的 `judge_votes` 数组里记录了每一票的 `"model"` 字段（第 284 行），可事后追溯单票来源。
+`judge.py` 在每条判定的 `judge_votes` 数组里记录了每一票的 `"model"` 字段（见 `judge_trajectory()` 函数中 `sub["model"] = vote_model` 的赋值逻辑），可事后追溯单票来源。
 
 ### 3.2 路线图（未落地）
 
