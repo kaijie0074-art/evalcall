@@ -252,3 +252,13 @@ class TestEndToEndSmoke:
         judgments = json.loads((out_dir / "judgments.json").read_text(encoding="utf-8"))
         j = next(x for x in judgments if x["checkpoint_id"] == "forbidden_1")
         assert j.get("safety") is True
+
+
+class TestPersonaResolution:
+    def test_all_excludes_mix_config(self):
+        """--personas all 不得把配比配置文件 mix.yaml 当 persona 加载（2026-07-02 真实重跑踩坑）。"""
+        personas = cli._resolve_personas("all")
+        ids = {p.get("id") for p in personas}
+        assert "mix" not in ids
+        assert len(personas) == 6
+        assert all("weights" not in p for p in personas)

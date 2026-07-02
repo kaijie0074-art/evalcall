@@ -66,6 +66,12 @@ def _resolve_personas(personas_arg: str, persona_dir: str = "data/personas") -> 
         for fp in files:
             try:
                 p = _load_yaml(fp)
+                # persona 目录里混着配置文件（mix.yaml 配比表）：凡带 weights 或
+                # 无任何 persona 特征字段的，不是 persona，跳过——否则配置文件会被
+                # 当成一个"用户"下场跑对话（2026-07-02 真实重跑踩坑）
+                if "weights" in p or not any(k in p for k in ("label", "style", "strategy", "profile", "traits", "description")):
+                    print(f"[evalcall] 跳过非 persona 文件：{fp}", file=sys.stderr)
+                    continue
                 p.setdefault("id", os.path.splitext(os.path.basename(fp))[0])
                 personas.append(p)
             except SystemExit:
