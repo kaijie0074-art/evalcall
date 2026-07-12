@@ -1,0 +1,40 @@
+{
+  "task_id": "real_recruit_rider",
+  "total_runs": 1,
+  "avg_score": 0.0,
+  "gate": "无法判定",
+  "gate_reasons": [],
+  "blocked_runs": 0,
+  "needs_human_review_total": 0,
+  "fulfillment_rate": null,
+  "fulfilled_runs": 0,
+  "fulfillment_eval_runs": 0,
+  "critical_failed_runs": 0,
+  "avg_violation_rate_per_100": 0.0,
+  "avg_judge_disagreement_rate": 0.0,
+  "by_persona": {
+    "p01_cooperative_worker": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 0.0
+    }
+  },
+  "total_checkpoints": 43,
+  "ingestion": {
+    "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/runs/real_recruit_20260702/transcripts.jsonl",
+    "source_format": "jsonl",
+    "task_id": "real_recruit_rider",
+    "input_trajectories": 1,
+    "accepted_trajectories": 1,
+    "warnings": [
+      "real_recruit_rider__p01_cooperative_worker__1 turn 缺失/非连续，已按原文顺序重编为 1..17"
+    ],
+    "pii_redacted": true,
+    "redaction_counts": {}
+  },
+  "evaluation_errors": 0,
+  "source_mode": "offline_existing_transcripts",
+  "policy_overrides": [
+    "deny_ai_identity"
+  ]
+}

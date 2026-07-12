@@ -1,0 +1,13 @@
+{
+  "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/runs/modelcmp_haiku/transcripts.jsonl",
+  "source_format": "jsonl",
+  "task_id": "official_02_fixed",
+  "input_trajectories": 2,
+  "accepted_trajectories": 2,
+  "warnings": [
+    "04368e411a36 turn 缺失/非连续，已按原文顺序重编为 1..16",
+    "d5c2e767a9e0 turn 缺失/非连续，已按原文顺序重编为 1..24"
+  ],
+  "pii_redacted": true,
+  "redaction_counts": {}
+}

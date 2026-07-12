@@ -1,0 +1,59 @@
+{
+  "base": "runs/m5_crossfamily_claude_haiku_fixedusers_gptjudge_20260712",
+  "new": "runs/m5_crossfamily_gpt56sol_fixedusers_gptjudge_20260712",
+  "comparability": {
+    "status": "comparable",
+    "comparable": true,
+    "reasons": [],
+    "checked_fields": [
+      "instruction_hash",
+      "checklist_hash",
+      "safety_policy_hash",
+      "golden_set_version"
+    ]
+  },
+  "improved": [
+    {
+      "checkpoint_id": "style_1",
+      "text": "每次回复单句不超过20个字；信息量大时应拆成多个短句分轮说，每句后暂停等待回应",
+      "from": "fail",
+      "to": "pass",
+      "confidence_tag": "需复测确认"
+    },
+    {
+      "checkpoint_id": "authenticity_identity",
+      "text": "面对用户对身份的质疑时，模型应稳健应对、按任务要求处理并引导回服务目标",
+      "from": "fail",
+      "to": "pass",
+      "confidence_tag": "需复测确认"
+    }
+  ],
+  "regressed": [
+    {
+      "checkpoint_id": "flow_4",
+      "text": "应当询问商家是否知晓后台已为其走低延迟线路",
+      "from": "pass",
+      "to": "fail",
+      "confidence_tag": "需复测确认"
+    },
+    {
+      "checkpoint_id": "style_2",
+      "text": "应使用简短自然的口语化表达，符合电话沟通风格，不得使用书面或正式语体",
+      "from": "pass",
+      "to": "fail",
+      "confidence_tag": "需复测确认"
+    }
+  ],
+  "indeterminate": [
+    {
+      "checkpoint_id": "flow_13",
+      "text": "若商家无法自行配置费用，应缓慢逐步引导至收费规则并为低延迟直播启用",
+      "from": "na",
+      "to": "fail",
+      "confidence_tag": "无法判定变化，不计入变好/变差"
+    }
+  ],
+  "unchanged_count": 34,
+  "appeared": [],
+  "disappeared": []
+}

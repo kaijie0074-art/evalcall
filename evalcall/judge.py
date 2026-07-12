@@ -7,7 +7,7 @@
 - 规则轨（rule）：forbidden 类检查点用关键词/正则直接判（确定性、零成本）
 - LLM 轨（llm）：其余检查点逐条判，批量打包（一次 prompt 判 5-8 条）减少调用；
   要求 verdict + confidence + evidence（必须引用轮次 + 原文引述）；
-  N_VOTES 默认 1，可配 3 做多数投票，并统计投票分歧率（一致性指标）。
+  N_VOTES 默认 3，可用参数/环境变量覆盖，并统计投票分歧率（一致性指标）。
 
 判定 schema（SPEC 第 4 节）：
     {checkpoint_id, verdict: pass|fail|na, confidence, evidence:[{turn, quote}], judge_votes, method: rule|llm}
@@ -249,13 +249,13 @@ def judge_trajectory(
 ) -> list[dict[str, Any]]:
     """对一条轨迹按全部检查点做双轨评测，返回判定列表。
 
-    n_votes 默认读环境变量 N_VOTES（缺省 1）；>1 时 LLM 轨多次判定取多数。
+    n_votes 默认读环境变量 N_VOTES（缺省 3）；>1 时 LLM 轨多次判定取多数。
     """
     if n_votes is None:
         try:
-            n_votes = int(os.getenv("N_VOTES", "1"))
+            n_votes = int(os.getenv("N_VOTES", "3"))
         except ValueError:
-            n_votes = 1
+            n_votes = 3
     n_votes = max(1, n_votes)
 
     cps = [_cp_to_dict(cp) for cp in checkpoints]
@@ -294,7 +294,10 @@ def judge_trajectory(
     # 跨模型裁判团：JUDGE_MODELS=haiku,sonnet,opus 时每票轮换不同模型——
     # 同模型多票只能消随机噪声，跨模型投票才能消单一模型的系统性偏见
     judge_models_env = (os.getenv("JUDGE_MODELS") or "").strip()
-    judge_models = [m.strip() for m in judge_models_env.split(",") if m.strip()] or [model]
+    default_model = model or os.getenv("EVALCALL_MODEL") or (
+        "sonnet" if os.getenv("EVALCALL_BACKEND", "claude-cli") == "claude-cli" else "unknown"
+    )
+    judge_models = [m.strip() for m in judge_models_env.split(",") if m.strip()] or [default_model]
 
     for start in range(0, len(llm_cps), _BATCH_SIZE):
         batch = llm_cps[start : start + _BATCH_SIZE]

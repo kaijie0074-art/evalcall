@@ -1,0 +1,21 @@
+{
+  "base": "runs/m2_offline_smoke_20260712",
+  "new": "runs/m2_offline_smoke_20260712",
+  "comparability": {
+    "status": "comparable",
+    "comparable": true,
+    "reasons": [],
+    "checked_fields": [
+      "instruction_hash",
+      "checklist_hash",
+      "safety_policy_hash",
+      "golden_set_version"
+    ]
+  },
+  "improved": [],
+  "regressed": [],
+  "indeterminate": [],
+  "unchanged_count": 43,
+  "appeared": [],
+  "disappeared": []
+}

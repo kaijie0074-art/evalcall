@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "run_id": "real_recruit_rider__offline_existing_transcripts__20260712T032519Z",
+  "task_id": "real_recruit_rider",
+  "source_mode": "offline_existing_transcripts",
+  "started_at": "2026-07-12T03:25:19.324887+00:00",
+  "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/tasks_real/real_recruit_rider.yaml",
+  "task_file_hash": "8e8ef5f8ff931ff438631f52205c17454d924196eee682fa8a505b89bc33d581",
+  "instruction_hash": "26a1ff76211d50e87fd8a1daae6cfaaf0305a2f47df19ea3153e5f7d2885afde",
+  "checklist_hash": "aa8487b35f4329ea9480360da5092762b5f502fdfd94c00d1a39c060eb043b91",
+  "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+  "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+  "identity_policy": "deny_ai_identity",
+  "target_model_fingerprint": {
+    "backend": "mock",
+    "model": "unknown"
+  },
+  "judge_models_config": {
+    "backend": "mock",
+    "models": [
+      "gpt-4o-mini"
+    ],
+    "n_votes": 1
+  },
+  "seed": null,
+  "code_commit": "63b5740f0d5f69aa63ef281fe31bd220f4774d9b",
+  "code_branch": "codex/evalcall-productization-20260712",
+  "code_dirty": true,
+  "completed_at": "2026-07-12T03:32:05.165290+00:00",
+  "runtime": {
+    "calls": 8,
+    "failed_calls": 0,
+    "latency_ms": 2.2,
+    "input_tokens": 15386,
+    "output_tokens": 32,
+    "total_tokens": 15418,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 8,
+    "wall_seconds": 405.84,
+    "n_trajectories": 1,
+    "calls_per_trajectory": 8.0,
+    "tokens_per_trajectory": 15418.0,
+    "cost": {
+      "status": "priced",
+      "currency": "CNY",
+      "total_cost": 0.0,
+      "priced_calls": 8,
+      "total_calls": 8,
+      "unknown_models": [],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+      "by_model": {
+        "mock-model": {
+          "calls": 8,
+          "input_tokens": 15386,
+          "output_tokens": 32,
+          "cost": 0.0
+        }
+      }
+    }
+  }
+}

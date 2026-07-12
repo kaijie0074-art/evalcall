@@ -26,6 +26,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -36,7 +37,7 @@ from typing import Any
 # 让脚本能 import 同目录下的 evalcall 包
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from evalcall import judge  # noqa: E402
+from evalcall import judge, llm, provenance  # noqa: E402
 
 VERDICTS = ("pass", "fail", "na")
 
@@ -178,7 +179,8 @@ def compute_metrics(pairs: list[dict]) -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 # 主流程
 # --------------------------------------------------------------------------- #
-def run(limit: int | None, votes: int, model: str | None) -> dict[str, Any]:
+def run(limit: int | None, votes: int, model: str | None, *, sealed: bool = False) -> dict[str, Any]:
+    llm.reset_telemetry()
     with open(GOLDEN_PATH, "r", encoding="utf-8") as f:
         golden = json.load(f)
 
@@ -266,6 +268,8 @@ def run(limit: int | None, votes: int, model: str | None) -> dict[str, Any]:
 
     total_elapsed = time.time() - t0
     metrics = compute_metrics(pairs)
+    telemetry = llm.telemetry_snapshot()
+    cost = provenance.price_telemetry(telemetry)
 
     # 分检查点类型的准确率（flow/constraint/forbidden/style）
     by_type: dict[str, dict] = defaultdict(lambda: {"correct": 0, "total": 0})
@@ -283,9 +287,14 @@ def run(limit: int | None, votes: int, model: str | None) -> dict[str, Any]:
         for k, v in by_type.items()
     }
 
+    golden_hash = hashlib.sha256(
+        json.dumps(golden, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
     result = {
         "meta": {
-            "golden_set": GOLDEN_PATH,
+            "golden_set": "private_sealed_input" if sealed else GOLDEN_PATH,
+            "golden_set_hash": golden_hash,
+            "sealed": sealed,
             "backend": os.getenv("EVALCALL_BACKEND", "claude-cli"),
             "model": model or os.getenv("EVALCALL_MODEL", "sonnet"),
             # 溯源必须完整：裁判团配置不记录在产物里，事后无法自证
@@ -299,8 +308,15 @@ def run(limit: int | None, votes: int, model: str | None) -> dict[str, Any]:
         },
         "metrics": metrics,
         "accuracy_by_checkpoint_type": by_type_out,
-        "case_details": case_details,
+        "runtime": {
+            **telemetry["totals"],
+            "wall_seconds": round(total_elapsed, 1),
+            "cost": cost,
+        },
+        "telemetry": telemetry,
     }
+    if not sealed:
+        result["case_details"] = case_details
     return result
 
 
@@ -339,15 +355,18 @@ def print_summary(result: dict[str, Any]) -> None:
     for k, v in result["accuracy_by_checkpoint_type"].items():
         print(f"  {k:<12}{v['accuracy']:.1%}  ({v['correct']}/{v['total']})")
     print("-" * 64)
-    print("逐 case 明细 (命中数 / 埋值数):")
-    for cd in result["case_details"]:
-        misses = [it for it in cd["items"] if not it["correct"]]
-        miss_str = ""
-        if misses:
-            miss_str = "  误判: " + ", ".join(
-                f"{it['checkpoint_id']}(真{it['truth']}->判{it['pred']})" for it in misses
-            )
-        print(f"  {cd['case_id']:<32}{cd['n_correct']}/{cd['n_checkpoints']}{miss_str}")
+    if result.get("case_details") is not None:
+        print("逐 case 明细 (命中数 / 埋值数):")
+        for cd in result["case_details"]:
+            misses = [it for it in cd["items"] if not it["correct"]]
+            miss_str = ""
+            if misses:
+                miss_str = "  误判: " + ", ".join(
+                    f"{it['checkpoint_id']}(真{it['truth']}->判{it['pred']})" for it in misses
+                )
+            print(f"  {cd['case_id']:<32}{cd['n_correct']}/{cd['n_checkpoints']}{miss_str}")
+    else:
+        print("sealed 模式：逐 case、真值与误判明细未写入产物。")
     print("=" * 64)
 
 
@@ -358,16 +377,28 @@ def main() -> int:
     ap.add_argument("--model", type=str, default=None, help="裁判模型（默认走环境变量/sonnet）")
     ap.add_argument("--golden", type=str, default=None, help="自定义黄金集路径（held-out 验证用）")
     ap.add_argument("--out", type=str, default=None, help="自定义输出 JSON 路径")
+    ap.add_argument(
+        "--sealed",
+        action="store_true",
+        help="私有盲测模式：输入必须在仓库外，产物只保留聚合指标和输入 hash",
+    )
     args = ap.parse_args()
     global GOLDEN_PATH
     if args.golden:
         GOLDEN_PATH = args.golden
+    if args.sealed:
+        if not args.golden:
+            ap.error("--sealed 必须显式传入仓库外的 --golden 私有文件")
+        repo_root = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+        golden_real = os.path.realpath(GOLDEN_PATH)
+        if os.path.commonpath([repo_root, golden_real]) == repo_root:
+            ap.error("sealed holdout 必须位于仓库外；仓库内文件已经对调参者可见")
     out_path = args.out or OUT_PATH
 
     os.makedirs(OUT_DIR, exist_ok=True)
     # --out 指向新目录时先建好——曾有"跑一小时在最后写盘瞬间崩"的风险
     os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
-    result = run(limit=args.limit, votes=args.votes, model=args.model)
+    result = run(limit=args.limit, votes=args.votes, model=args.model, sealed=args.sealed)
 
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)

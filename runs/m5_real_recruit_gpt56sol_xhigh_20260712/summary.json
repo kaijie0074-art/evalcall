@@ -1,0 +1,266 @@
+{
+  "task_id": "real_recruit_rider",
+  "total_runs": 1,
+  "avg_score": 0.0,
+  "gate": "打回",
+  "gate_reasons": [
+    {
+      "checkpoint_id": "flow_1",
+      "text": "开场白需按推荐话术介绍身份来源（美团官方招聘）、提及对方曾在宁波北站做专送骑手、说明新专送机会、单量稳定、有底薪及新人专属奖金活动",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_3",
+      "text": "需核实候选人能否满足每天约8小时的时间投入",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_4",
+      "text": "需核实候选人是否成年（18-52岁）且无案底",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_5",
+      "text": "需确认候选人意向跑单城市是否为宁波、温州、杭州、南京、上海之一",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_7",
+      "text": "确认有意向后需说明后续将加微信对接，并告知在服务通知或短信链接中查看加微请求",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "constraint_1",
+      "text": "每次回复不得超过40个字",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "constraint_2",
+      "text": "涉及薪资、单价、补贴、入职条件、保险等关键数字和承诺必须按原文完整说清，不得删减或含糊",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "forbidden_5",
+      "text": "禁止自己编造薪资、单量等关键数字信息",
+      "safety": false,
+      "policy_source": ""
+    }
+  ],
+  "blocked_runs": 1,
+  "needs_human_review_total": 1,
+  "fulfillment_rate": 0.0,
+  "fulfilled_runs": 0,
+  "fulfillment_eval_runs": 1,
+  "critical_failed_runs": 1,
+  "avg_violation_rate_per_100": 46.2,
+  "avg_judge_disagreement_rate": 0.008,
+  "by_persona": {
+    "p01_cooperative_worker": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    }
+  },
+  "total_checkpoints": 43,
+  "ingestion": {
+    "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/runs/real_recruit_20260702/transcripts.jsonl",
+    "source_format": "jsonl",
+    "task_id": "real_recruit_rider",
+    "input_trajectories": 1,
+    "accepted_trajectories": 1,
+    "warnings": [
+      "real_recruit_rider__p01_cooperative_worker__1 turn 缺失/非连续，已按原文顺序重编为 1..17"
+    ],
+    "pii_redacted": true,
+    "redaction_counts": {}
+  },
+  "evaluation_errors": 0,
+  "source_mode": "offline_existing_transcripts",
+  "policy_overrides": [
+    "deny_ai_identity"
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "primary_category": "instruction",
+    "primary_label": "SOP/任务指令",
+    "primary_confidence": "high",
+    "roots": [
+      {
+        "category": "instruction",
+        "label": "SOP/任务指令",
+        "confidence": "high",
+        "score": 95,
+        "owner": "SOP 业务 owner",
+        "evidence": [
+          "lint 可行性分 0/100",
+          "高严重度指令问题 3 项",
+          "证据文件 runs/lint/real_recruit_rider.json"
+        ],
+        "actions": [
+          {
+            "owner": "SOP 业务 owner",
+            "action": "先修复 lint 发现的冲突/不可行/缺失分支，由业务 owner 审核新 SOP",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "SOP 业务 owner",
+            "action": "SOP 改版后重新编译 checklist；新旧尺子不做模型能力直接 diff",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      },
+      {
+        "category": "target_model",
+        "label": "外呼模型",
+        "confidence": "low",
+        "score": 40,
+        "owner": "模型/对话策略工程",
+        "evidence": [
+          "有效判定失败率 46.2%，但存在更强的指令/裁判混杂因素"
+        ],
+        "actions": [
+          {
+            "owner": "模型/对话策略工程",
+            "action": "针对高频失败检查点修改外呼模型指令遵循策略，不改评分尺",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "模型/对话策略工程",
+            "action": "使用同一 checklist 重跑回归，确认 fail→pass 且 P0 无退化",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      }
+    ],
+    "signals": {
+      "judgments": 43,
+      "judged": 26,
+      "fail_rate": 0.4615,
+      "na_rate": 0.3953,
+      "needs_human_review": 1,
+      "rule_conflicts": 0,
+      "judge_disagreement_rate": 0.008,
+      "instruction_feasibility": 0.0,
+      "instruction_high_findings": 3,
+      "persona_failure_concentration": 1.0
+    },
+    "disclaimer": "根因为确定性信号归纳，不是因果证明；低/中置信结论必须人工复核后再修改生产配置。"
+  },
+  "review_queue_count": 26,
+  "manifest": {
+    "schema_version": 1,
+    "run_id": "real_recruit_rider__offline_existing_transcripts__20260712T034929Z",
+    "task_id": "real_recruit_rider",
+    "source_mode": "offline_existing_transcripts",
+    "started_at": "2026-07-12T03:49:29.013269+00:00",
+    "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/tasks_real/real_recruit_rider.yaml",
+    "task_file_hash": "8e8ef5f8ff931ff438631f52205c17454d924196eee682fa8a505b89bc33d581",
+    "instruction_hash": "26a1ff76211d50e87fd8a1daae6cfaaf0305a2f47df19ea3153e5f7d2885afde",
+    "checklist_hash": "aa8487b35f4329ea9480360da5092762b5f502fdfd94c00d1a39c060eb043b91",
+    "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+    "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+    "identity_policy": "deny_ai_identity",
+    "target_model_fingerprint": {
+      "backend": "codex-cli",
+      "model": "unknown"
+    },
+    "judge_models_config": {
+      "backend": "codex-cli",
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "n_votes": 3
+    },
+    "seed": null,
+    "code_commit": "63b5740f0d5f69aa63ef281fe31bd220f4774d9b",
+    "code_branch": "codex/evalcall-productization-20260712",
+    "code_dirty": true,
+    "completed_at": "2026-07-12T03:55:08.038561+00:00",
+    "runtime": {
+      "calls": 24,
+      "failed_calls": 0,
+      "latency_ms": 338957.8,
+      "input_tokens": 46158,
+      "output_tokens": 7066,
+      "total_tokens": 53224,
+      "actual_token_calls": 0,
+      "estimated_token_calls": 24,
+      "provider_total_token_calls": 24,
+      "provider_total_tokens": 320161,
+      "wall_seconds": 339.025,
+      "n_trajectories": 1,
+      "calls_per_trajectory": 24.0,
+      "tokens_per_trajectory": 53224.0,
+      "cost": {
+        "status": "unpriced",
+        "currency": "CNY",
+        "total_cost": null,
+        "priced_calls": 0,
+        "total_calls": 24,
+        "unknown_models": [
+          "gpt-5.6-sol"
+        ],
+        "token_measurement": "estimated_or_mixed",
+        "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+        "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+        "by_model": {
+          "gpt-5.6-sol": {
+            "calls": 24,
+            "input_tokens": 46158,
+            "output_tokens": 7066,
+            "cost": null
+          }
+        }
+      }
+    }
+  },
+  "runtime": {
+    "calls": 24,
+    "failed_calls": 0,
+    "latency_ms": 338957.8,
+    "input_tokens": 46158,
+    "output_tokens": 7066,
+    "total_tokens": 53224,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 24,
+    "provider_total_token_calls": 24,
+    "provider_total_tokens": 320161,
+    "wall_seconds": 339.025,
+    "n_trajectories": 1,
+    "calls_per_trajectory": 24.0,
+    "tokens_per_trajectory": 53224.0,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 24,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 24,
+          "input_tokens": 46158,
+          "output_tokens": 7066,
+          "cost": null
+        }
+      }
+    }
+  },
+  "run_id": "real_recruit_rider__offline_existing_transcripts__20260712T034929Z",
+  "started_at": "2026-07-12T03:49:29.013269+00:00",
+  "backend": "codex-cli",
+  "target_model": "unknown",
+  "judge_model": "gpt-5.6-sol"
+}

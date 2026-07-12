@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+.DS_Store
 .playwright-mcp/
 site-*.png
 site-*.txt
@@ -19,4 +20,6 @@ runs/verify/
 runs/smoke/
 runs/t1/
 runs/official01/
+runs/web_live/
+*.pptx.inspect.ndjson
 rejudge_checkpoint.py.orig

@@ -1,0 +1,202 @@
+{
+  "task_id": "real_recruit_rider",
+  "total_runs": 1,
+  "avg_score": 0.0,
+  "gate": "打回",
+  "gate_reasons": [
+    {
+      "checkpoint_id": "flow_1",
+      "text": "开场白需按推荐话术介绍身份来源（美团官方招聘）、提及对方曾在宁波北站做专送骑手、说明新专送机会、单量稳定、有底薪及新人专属奖金活动",
+      "safety": false,
+      "policy_source": ""
+    }
+  ],
+  "blocked_runs": 1,
+  "needs_human_review_total": 0,
+  "fulfillment_rate": null,
+  "fulfilled_runs": 0,
+  "fulfillment_eval_runs": 0,
+  "critical_failed_runs": 1,
+  "avg_violation_rate_per_100": 100.0,
+  "avg_judge_disagreement_rate": 0.0,
+  "by_persona": {
+    "p01_cooperative_worker": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    }
+  },
+  "total_checkpoints": 43,
+  "review_mode": "human_final",
+  "review_source_run": "/Users/kaijie/AI/比赛合集/美团黑客松/runs/m2_offline_smoke_20260712",
+  "human_decisions_applied": 1,
+  "attribution": {
+    "schema_version": 1,
+    "primary_category": "judge",
+    "primary_label": "裁判与判定链路",
+    "primary_confidence": "high",
+    "roots": [
+      {
+        "category": "judge",
+        "label": "裁判与判定链路",
+        "confidence": "high",
+        "score": 100,
+        "owner": "评测算法 + 人工质检",
+        "evidence": [
+          "NA 占比 97.7%，判定链路无法提供足够有效结论"
+        ],
+        "actions": [
+          {
+            "owner": "评测算法 + 人工质检",
+            "action": "先复核分裂票、规则冲突与高 NA 批次，不直接归责外呼模型",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "评测算法 + 人工质检",
+            "action": "将人工拍板案例进黄金集，预注册后修裁判口径并重跑校准",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      },
+      {
+        "category": "instruction",
+        "label": "SOP/任务指令",
+        "confidence": "high",
+        "score": 95,
+        "owner": "SOP 业务 owner",
+        "evidence": [
+          "lint 可行性分 0/100",
+          "高严重度指令问题 3 项",
+          "证据文件 runs/lint/real_recruit_rider.json"
+        ],
+        "actions": [
+          {
+            "owner": "SOP 业务 owner",
+            "action": "先修复 lint 发现的冲突/不可行/缺失分支，由业务 owner 审核新 SOP",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "SOP 业务 owner",
+            "action": "SOP 改版后重新编译 checklist；新旧尺子不做模型能力直接 diff",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      }
+    ],
+    "signals": {
+      "judgments": 43,
+      "judged": 1,
+      "fail_rate": 1.0,
+      "na_rate": 0.9767,
+      "needs_human_review": 0,
+      "rule_conflicts": 0,
+      "judge_disagreement_rate": 0.0,
+      "instruction_feasibility": 0.0,
+      "instruction_high_findings": 3,
+      "persona_failure_concentration": 1.0
+    },
+    "disclaimer": "根因为确定性信号归纳，不是因果证明；低/中置信结论必须人工复核后再修改生产配置。"
+  },
+  "review_queue_count": 43,
+  "manifest": {
+    "schema_version": 1,
+    "run_id": "real_recruit_rider__offline_existing_transcripts__20260712T032519Z",
+    "task_id": "real_recruit_rider",
+    "source_mode": "offline_existing_transcripts",
+    "started_at": "2026-07-12T03:25:19.324887+00:00",
+    "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/tasks_real/real_recruit_rider.yaml",
+    "task_file_hash": "8e8ef5f8ff931ff438631f52205c17454d924196eee682fa8a505b89bc33d581",
+    "instruction_hash": "26a1ff76211d50e87fd8a1daae6cfaaf0305a2f47df19ea3153e5f7d2885afde",
+    "checklist_hash": "aa8487b35f4329ea9480360da5092762b5f502fdfd94c00d1a39c060eb043b91",
+    "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+    "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+    "identity_policy": "deny_ai_identity",
+    "target_model_fingerprint": {
+      "backend": "mock",
+      "model": "unknown"
+    },
+    "judge_models_config": {
+      "backend": "mock",
+      "models": [
+        "gpt-4o-mini"
+      ],
+      "n_votes": 1
+    },
+    "seed": null,
+    "code_commit": "63b5740f0d5f69aa63ef281fe31bd220f4774d9b",
+    "code_branch": "codex/evalcall-productization-20260712",
+    "code_dirty": true,
+    "completed_at": "2026-07-12T03:32:05.165290+00:00",
+    "runtime": {
+      "calls": 8,
+      "failed_calls": 0,
+      "latency_ms": 2.2,
+      "input_tokens": 15386,
+      "output_tokens": 32,
+      "total_tokens": 15418,
+      "actual_token_calls": 0,
+      "estimated_token_calls": 8,
+      "wall_seconds": 405.84,
+      "n_trajectories": 1,
+      "calls_per_trajectory": 8.0,
+      "tokens_per_trajectory": 15418.0,
+      "cost": {
+        "status": "priced",
+        "currency": "CNY",
+        "total_cost": 0.0,
+        "priced_calls": 8,
+        "total_calls": 8,
+        "unknown_models": [],
+        "token_measurement": "estimated_or_mixed",
+        "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+        "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+        "by_model": {
+          "mock-model": {
+            "calls": 8,
+            "input_tokens": 15386,
+            "output_tokens": 32,
+            "cost": 0.0
+          }
+        }
+      }
+    }
+  },
+  "runtime": {
+    "calls": 8,
+    "failed_calls": 0,
+    "latency_ms": 2.2,
+    "input_tokens": 15386,
+    "output_tokens": 32,
+    "total_tokens": 15418,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 8,
+    "wall_seconds": 405.84,
+    "n_trajectories": 1,
+    "calls_per_trajectory": 8.0,
+    "tokens_per_trajectory": 15418.0,
+    "cost": {
+      "status": "priced",
+      "currency": "CNY",
+      "total_cost": 0.0,
+      "priced_calls": 8,
+      "total_calls": 8,
+      "unknown_models": [],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+      "by_model": {
+        "mock-model": {
+          "calls": 8,
+          "input_tokens": 15386,
+          "output_tokens": 32,
+          "cost": 0.0
+        }
+      }
+    }
+  },
+  "run_id": "real_recruit_rider__offline_existing_transcripts__20260712T032519Z",
+  "started_at": "2026-07-12T03:25:19.324887+00:00",
+  "backend": "mock",
+  "target_model": "unknown",
+  "judge_model": "gpt-4o-mini"
+}

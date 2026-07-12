@@ -88,9 +88,15 @@ data/
 2. **运行离线评测**（跳过模拟器，直接对轨迹跑 judge）：
 
    ```bash
-   python -m evalcall.cli report --transcripts runs/官方对话.jsonl \
-       --tasks data/tasks
+   python -m evalcall evaluate \
+       --task data/tasks/t01_overdue_appease.yaml \
+       --transcripts runs/官方对话.jsonl \
+       --out runs/官方离线评测
    ```
+
+   `evaluate` 会自动生成 `checklist.json / judgments.json /
+   judgments_by_run.json / summary.json / report.html`。`report` 只负责根据已有
+   judgments 重新渲染 HTML，不会自动对新对话执行裁判。
 
 > 离线模式的价值：用同一套「检查点编译 + 双轨判定 + 可解释报告」直接量化历史真实
 > 对话的指令遵循质量，无需任何模型调用来生成对话——**官方数据当天到、当天出报告**。

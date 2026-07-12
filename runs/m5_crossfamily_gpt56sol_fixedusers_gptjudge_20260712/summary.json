@@ -1,0 +1,211 @@
+{
+  "task_id": "official_02_fixed",
+  "total_runs": 2,
+  "avg_score": 0.0,
+  "gate": "打回",
+  "gate_reasons": [
+    {
+      "checkpoint_id": "flow_3",
+      "text": "应当告知商家直播产品已升级，新增独立的低延迟直播选项，其他流程不变",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_6",
+      "text": "应当传达升级内容：发布页将分开显示两个选项，可根据课程类型自行选择",
+      "safety": false,
+      "policy_source": ""
+    }
+  ],
+  "blocked_runs": 2,
+  "needs_human_review_total": 0,
+  "fulfillment_rate": 50.0,
+  "fulfilled_runs": 1,
+  "fulfillment_eval_runs": 2,
+  "critical_failed_runs": 2,
+  "avg_violation_rate_per_100": 34.5,
+  "avg_judge_disagreement_rate": 0.0,
+  "by_persona": {
+    "p01_cooperative_worker": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "p02_impatient": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    }
+  },
+  "total_checkpoints": 39,
+  "ingestion": {
+    "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/runs/m5_crossfamily_replay_gpt56sol_xhigh_20260712.jsonl",
+    "source_format": "jsonl",
+    "task_id": "official_02_fixed",
+    "input_trajectories": 2,
+    "accepted_trajectories": 2,
+    "warnings": [
+      "3a6c808c4bfb turn 缺失/非连续，已按原文顺序重编为 1..17",
+      "29543c3a9d24 turn 缺失/非连续，已按原文顺序重编为 1..25"
+    ],
+    "pii_redacted": true,
+    "redaction_counts": {}
+  },
+  "evaluation_errors": 0,
+  "source_mode": "offline_existing_transcripts",
+  "policy_overrides": [],
+  "attribution": {
+    "schema_version": 1,
+    "primary_category": "target_model",
+    "primary_label": "外呼模型",
+    "primary_confidence": "medium",
+    "roots": [
+      {
+        "category": "target_model",
+        "label": "外呼模型",
+        "confidence": "medium",
+        "score": 67,
+        "owner": "模型/对话策略工程",
+        "evidence": [
+          "有效判定 58 项，外呼模型失败率 34.5%",
+          "未发现更强的指令/裁判故障信号"
+        ],
+        "actions": [
+          {
+            "owner": "模型/对话策略工程",
+            "action": "针对高频失败检查点修改外呼模型指令遵循策略，不改评分尺",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "模型/对话策略工程",
+            "action": "使用同一 checklist 重跑回归，确认 fail→pass 且 P0 无退化",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      }
+    ],
+    "signals": {
+      "judgments": 78,
+      "judged": 58,
+      "fail_rate": 0.3448,
+      "na_rate": 0.2564,
+      "needs_human_review": 0,
+      "rule_conflicts": 0,
+      "judge_disagreement_rate": 0.0,
+      "instruction_feasibility": null,
+      "instruction_high_findings": 0,
+      "persona_failure_concentration": 0.55
+    },
+    "disclaimer": "根因为确定性信号归纳，不是因果证明；低/中置信结论必须人工复核后再修改生产配置。"
+  },
+  "review_queue_count": 24,
+  "manifest": {
+    "schema_version": 1,
+    "run_id": "official_02_fixed__offline_existing_transcripts__20260712T042254Z",
+    "task_id": "official_02_fixed",
+    "source_mode": "offline_existing_transcripts",
+    "started_at": "2026-07-12T04:22:54.259331+00:00",
+    "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/tasks_official/official_02_fixed.yaml",
+    "task_file_hash": "b74ac20192370671f89585054b2f635d8eb6d6ce530cf22626ddcd6f3f58a04b",
+    "instruction_hash": "181822447ad9552c012f45c139173620d4f07ebfc1267fbb5ac58150b8fae985",
+    "checklist_hash": "94ef3e2237074463329193c27b8b5eb1843375cfede5ab2fe088eecb10801cd1",
+    "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+    "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+    "identity_policy": "default",
+    "target_model_fingerprint": {
+      "backend": "existing-transcript",
+      "model": "not_applicable"
+    },
+    "judge_models_config": {
+      "backend": "codex-cli",
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "n_votes": 1
+    },
+    "seed": null,
+    "code_commit": "63b5740f0d5f69aa63ef281fe31bd220f4774d9b",
+    "code_branch": "codex/evalcall-productization-20260712",
+    "code_dirty": true,
+    "completed_at": "2026-07-12T04:27:12.989730+00:00",
+    "runtime": {
+      "calls": 14,
+      "failed_calls": 0,
+      "latency_ms": 258642.9,
+      "input_tokens": 25566,
+      "output_tokens": 4246,
+      "total_tokens": 29812,
+      "actual_token_calls": 0,
+      "estimated_token_calls": 14,
+      "provider_total_token_calls": 14,
+      "provider_total_tokens": 55549,
+      "wall_seconds": 258.73,
+      "n_trajectories": 2,
+      "calls_per_trajectory": 7.0,
+      "tokens_per_trajectory": 14906.0,
+      "cost": {
+        "status": "unpriced",
+        "currency": "CNY",
+        "total_cost": null,
+        "priced_calls": 0,
+        "total_calls": 14,
+        "unknown_models": [
+          "gpt-5.6-sol"
+        ],
+        "token_measurement": "estimated_or_mixed",
+        "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+        "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+        "by_model": {
+          "gpt-5.6-sol": {
+            "calls": 14,
+            "input_tokens": 25566,
+            "output_tokens": 4246,
+            "cost": null
+          }
+        }
+      }
+    }
+  },
+  "runtime": {
+    "calls": 14,
+    "failed_calls": 0,
+    "latency_ms": 258642.9,
+    "input_tokens": 25566,
+    "output_tokens": 4246,
+    "total_tokens": 29812,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 14,
+    "provider_total_token_calls": 14,
+    "provider_total_tokens": 55549,
+    "wall_seconds": 258.73,
+    "n_trajectories": 2,
+    "calls_per_trajectory": 7.0,
+    "tokens_per_trajectory": 14906.0,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 14,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 14,
+          "input_tokens": 25566,
+          "output_tokens": 4246,
+          "cost": null
+        }
+      }
+    }
+  },
+  "run_id": "official_02_fixed__offline_existing_transcripts__20260712T042254Z",
+  "started_at": "2026-07-12T04:22:54.259331+00:00",
+  "backend": "codex-cli",
+  "target_model": "not_applicable",
+  "judge_model": "gpt-5.6-sol"
+}

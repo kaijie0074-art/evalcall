@@ -5,7 +5,38 @@
 
 ## 一句话定位
 
-EvalCall 把「任务指令」编译成逐条可溯源的检查点，用对抗式用户模拟器批量跑对话轨迹，再通过双轨判定引擎自动出具可解释评测报告——把原本依赖人工抽听的外呼质检环节，变成可量化、可重复、可审计的自动化流程。
+**上传外呼 SOP 和已有对话，EvalCall 给出“可上线 / 打回 / 无法判定”，并告诉你该改模型、SOP、裁判还是测试数据。**
+
+生产质检的主入口是已有真实/脱敏对话；无真实数据时，才启用对抗式用户模拟器补测试。每次运行都落盘检查尺、逐项证据、P0 门禁、履约、根因、人工复核队列、模型/代码/hash、token/耗时和可比性 manifest。
+
+## 先看产品，再看研究
+
+- 在线四步工作台：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
+- 研究与历史证据：[项目证据首页](https://kaijie0074-art.github.io/evalcall/)
+- 本地启动：`python -m evalcall demo`，打开 `http://127.0.0.1:8765/`
+- 答辩数字索引：[`docs/EvalCall证据索引-20260712.md`](docs/EvalCall证据索引-20260712.md)
+
+四步产品主链：
+
+1. 选择/上传任务 SOP；
+2. 导入 JSONL/JSON/CSV/TXT/MD 对话（默认本地 PII 遮罩）；
+3. 确认 L0 通用红线 + L1 业务检查尺及逐字来源；
+4. 执行评测，输出门禁、履约、证据、归因、成本和复核队列。
+
+```bash
+# 零依赖产品页 + 可选实时单通评测
+python -m evalcall demo
+
+# 生产主入口：直接评测已有真实/脱敏对话，跳过模拟器
+python -m evalcall evaluate \
+  --task data/tasks_real/real_recruit_rider.yaml \
+  --transcripts runs/real_recruit_20260702/transcripts.jsonl \
+  --checklist runs/real_recruit_20260702/checklist.json \
+  --votes 3 \
+  --out runs/real_recruit_offline
+```
+
+> fail-closed：输入坏、裁判整批 NA、尺子不可比或无有效 judgments 时，系统不会包装成“可上线”。
 
 ## 三层质量闭环（核心设计）
 
@@ -117,7 +148,7 @@ pip install rich
 
 ### 配置 LLM 后端
 
-EvalCall 支持三种后端，通过环境变量切换：
+EvalCall 支持四种后端，通过环境变量切换：
 
 **方式一：本地 Claude CLI（开发/演示推荐，无需 API Key）**
 
@@ -131,11 +162,19 @@ export EVALCALL_BACKEND=claude-cli
 ```bash
 export EVALCALL_BACKEND=openai
 export OPENAI_BASE_URL=https://api.openai.com/v1
-export OPENAI_API_KEY=sk-...
+export OPENAI_API_KEY=<your-api-key>
 export EVALCALL_MODEL=gpt-4o
 ```
 
-**方式三：Mock 回放（CI/无网演示兜底）**
+**方式三：Codex CLI（复用本地登录，只读临时会话）**
+
+```bash
+export EVALCALL_BACKEND=codex-cli
+export EVALCALL_MODEL=gpt-5.6-sol
+export EVALCALL_REASONING_EFFORT=xhigh
+```
+
+**方式四：Mock 回放（CI/无网演示兜底）**
 
 ```bash
 export EVALCALL_BACKEND=mock
@@ -153,6 +192,10 @@ export TARGET_MODEL=your-model-name
 ### 运行评测
 
 ```bash
+# 直接评测已有对话（生产主入口）
+python -m evalcall evaluate --task data/tasks/t02_delivery_reschedule.yaml \
+  --transcripts your_transcripts.jsonl --out runs/t02_offline
+
 # 跑一次完整评测（指定任务文件，默认每 persona 3 条轨迹、裁判 3 票多数投票）
 python -m evalcall run --task data/tasks/t01_overdue_appease.yaml
 
@@ -167,6 +210,11 @@ python -m evalcall diff --base runs/v1/ --new runs/v2/
 
 # 活清单增量：提议指令里遗漏的检查点（过溯源硬闸，写入待人工确认区，不自动并入）
 python -m evalcall grow --task data/tasks/t01_overdue_appease.yaml
+
+# 人工复核队列导出 / 回填（不覆写机器原判）
+python -m evalcall review-export --run runs/t02_offline
+python -m evalcall review-apply --run runs/t02_offline \
+  --decisions runs/t02_offline/review_queue.csv --out runs/t02_human_review
 ```
 
 ### 输出产物
@@ -179,6 +227,9 @@ runs/
     ├── judgments.json         # 扁平判定列表（report 直接消费）
     ├── judgments_by_run.json  # 按轨迹嵌套的判定（备查）
     ├── summary.json           # 机器可读聚合结果（平均分/否决数/分歧率/persona切片）
+    ├── manifest.json          # 指令/尺子/安全/黄金集 hash + 模型/代码/票数
+    ├── telemetry.json         # 调用、耗时、token（实际/估算分标），不存 prompt 原文
+    ├── review_queue.json/csv  # P0 / NA / 分裂票 / 规则冲突复核队列
     └── report.html            # HTML 可视化报告（浏览器直接打开）
 ```
 
@@ -202,10 +253,13 @@ python -m evalcall run --task data/tasks/t02_delivery_reschedule.yaml
 
 1. 将脱敏轨迹转换为标准 JSONL 格式（字段映射说明见 `data/README.md`）
 2. 把轨迹文件存为 `runs/<your-dir>/transcripts.jsonl`（单文件，每行一条轨迹；`report.py` 直接读取该文件）
-3. 执行报告生成命令
+3. 执行离线评测命令
 
 ```bash
-python -m evalcall report --run runs/your-data-dir/
+python -m evalcall evaluate \
+  --task data/tasks/your_task.yaml \
+  --transcripts data/your_transcripts.jsonl \
+  --out runs/your-data-dir/
 ```
 
 官方数据到达后，只需按 `data/README.md` 的字段映射表做一次格式转换，无需修改评测逻辑。
@@ -252,4 +306,4 @@ python -m evalcall report --run runs/your-data-dir/
 
 ## 版本
 
-`0.1.0` — 黑客松演示版
+`0.2.0` — 产品化评测、归因、复核、可复现与证据包版本

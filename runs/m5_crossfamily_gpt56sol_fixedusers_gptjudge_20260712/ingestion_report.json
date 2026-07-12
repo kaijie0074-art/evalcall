@@ -1,0 +1,13 @@
+{
+  "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/runs/m5_crossfamily_replay_gpt56sol_xhigh_20260712.jsonl",
+  "source_format": "jsonl",
+  "task_id": "official_02_fixed",
+  "input_trajectories": 2,
+  "accepted_trajectories": 2,
+  "warnings": [
+    "3a6c808c4bfb turn 缺失/非连续，已按原文顺序重编为 1..17",
+    "29543c3a9d24 turn 缺失/非连续，已按原文顺序重编为 1..25"
+  ],
+  "pii_redacted": true,
+  "redaction_counts": {}
+}

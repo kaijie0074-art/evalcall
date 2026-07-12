@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="EvalCall 外呼对话模型上线评测产品演示">
+  <title>EvalCall · 外呼质检工作台</title>
+  <style>
+    :root{--ink:#18243b;--muted:#667085;--line:#dce3ee;--bg:#f3f6fb;--panel:#fff;--yellow:#ffd100;--amber:#ffb000;--red:#c9362b;--green:#087f5b;--purple:#6f49a5;--shadow:0 18px 50px rgba(27,45,81,.11)}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:linear-gradient(135deg,#eef3fb 0,#fff8db 100%) fixed;color:var(--ink);font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;min-height:100vh}
+    button,input,textarea{font:inherit} button{cursor:pointer} button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid rgba(255,177,0,.45);outline-offset:2px}
+    .topbar{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1180px)/2));background:rgba(255,255,255,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(220,227,238,.8);position:sticky;top:0;z-index:20}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:900}.brand-mark{width:36px;height:36px;border-radius:11px;background:var(--yellow);display:grid;place-items:center;color:#201b00;box-shadow:0 7px 16px rgba(255,177,0,.28)}
+    .top-actions{display:flex;align-items:center;gap:10px}.pill{font-size:12px;padding:7px 10px;border-radius:99px;background:#eef2f7;color:#536078}.pill.live{background:#e4f6ef;color:#087f5b}.pill.offline{background:#fff2d5;color:#955800}
+    a.link{color:#3d5c9b;text-decoration:none;font-weight:700}.wrap{max-width:1180px;margin:0 auto;padding:34px 24px 80px}
+    .hero{display:grid;grid-template-columns:1.5fr .8fr;gap:22px;align-items:stretch;margin-bottom:22px}.hero-main,.hero-side{border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.78);backdrop-filter:blur(18px);border-radius:24px;box-shadow:var(--shadow)}
+    .hero-main{padding:32px}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.12em;color:#8c6500;text-transform:uppercase}.hero h1{font-size:clamp(32px,4vw,54px);line-height:1.08;margin:10px 0 14px;letter-spacing:-.04em}.hero p{font-size:17px;color:#526078;line-height:1.75;margin:0;max-width:740px}.io{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:22px}.io-chip{padding:10px 13px;border-radius:12px;background:#f2f5fa;border:1px solid var(--line);font-weight:800;font-size:13px}.arrow{color:#9a7410;font-weight:900}
+    .hero-side{padding:24px;background:linear-gradient(160deg,#1d2941,#263b63);color:#fff}.hero-side .big{font-size:25px;font-weight:900;margin:8px 0}.hero-side p{font-size:13px;color:#d3dced;line-height:1.65}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}.three div{padding:10px 8px;border-radius:11px;background:rgba(255,255,255,.09);font-size:12px;text-align:center}.three b{display:block;color:var(--yellow);font-size:14px;margin-bottom:3px}
+    .workspace{background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.95);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}.steps{display:grid;grid-template-columns:repeat(4,1fr);padding:12px;border-bottom:1px solid var(--line);background:#f8fafc;gap:8px}.step{border:0;background:transparent;border-radius:13px;padding:12px;display:flex;align-items:center;gap:10px;color:#7a869a;text-align:left}.step .num{width:30px;height:30px;border-radius:9px;background:#e7ebf2;display:grid;place-items:center;font-weight:900;flex:0 0 auto}.step.active{background:#fff5cb;color:#4f3b00}.step.active .num{background:var(--yellow);color:#221b00}.step.done .num{background:#dff4eb;color:var(--green)}.step-title{font-weight:900;font-size:13px}.step-sub{font-size:11px;margin-top:2px;opacity:.75}
+    .stage{padding:26px 28px 30px;min-height:520px}.stage-panel{display:none}.stage-panel.active{display:block}.section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:20px}.section-head h2{font-size:24px;margin:0 0 7px}.section-head p{color:var(--muted);margin:0;line-height:1.6;font-size:14px}.badge{font-size:12px;font-weight:800;padding:7px 9px;border-radius:9px;background:#f0f3f8;color:#5c687a;white-space:nowrap}
+    .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.preset{border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:17px;text-align:left;transition:.2s;position:relative}.preset:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(31,49,82,.09)}.preset.selected{border-color:#d6a800;background:#fffaf0;box-shadow:0 0 0 3px rgba(255,209,0,.22)}.preset h3{margin:6px 0 7px;font-size:16px}.preset p{font-size:12px;color:var(--muted);line-height:1.55;margin:0}.preset .meta{margin-top:12px;font-size:11px;font-weight:800;color:#895e00}.tag{font-size:10px;border-radius:6px;padding:4px 6px;background:#eef2f8;color:#627086;display:inline-block}.tag.real{background:#e3f5ed;color:#087f5b}
+    .divider{display:flex;align-items:center;gap:12px;color:#98a2b3;font-size:12px;margin:20px 0}.divider:before,.divider:after{content:"";height:1px;background:var(--line);flex:1}.upload{border:1.5px dashed #b8c4d6;border-radius:15px;padding:17px;background:#f9fbfe;display:flex;justify-content:space-between;gap:18px;align-items:center}.upload strong{display:block;font-size:14px}.upload small{color:var(--muted)}.file-button{position:relative;overflow:hidden;background:#1e2d49;color:#fff;border:0;padding:10px 13px;border-radius:10px;font-weight:800}.file-button input{position:absolute;inset:0;opacity:0;cursor:pointer}.preview{margin-top:16px;border:1px solid var(--line);border-radius:14px;background:#111827;color:#dfe7f2;padding:16px;max-height:170px;overflow:auto;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.stat{background:#f6f8fb;border:1px solid var(--line);border-radius:13px;padding:13px}.stat b{font-size:22px;display:block}.stat span{font-size:11px;color:var(--muted)}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:22px}.btn{border:0;border-radius:11px;padding:11px 16px;font-weight:900}.btn.primary{background:var(--yellow);color:#251d00;box-shadow:0 8px 17px rgba(255,177,0,.25)}.btn.secondary{background:#edf1f6;color:#34425a}.btn.dark{background:#1c2942;color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+    .mapping{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;min-height:330px}.source-pane,.cp-pane{border:1px solid var(--line);border-radius:15px;overflow:hidden}.pane-title{padding:11px 14px;background:#f4f6fa;border-bottom:1px solid var(--line);font-size:12px;font-weight:900;color:#58657b}.source-text{padding:17px;line-height:1.8;font-size:13px;height:300px;overflow:auto;white-space:pre-wrap}.source-text mark{background:#ffec8a;padding:2px 1px;border-radius:3px}.cp-list{height:300px;overflow:auto;padding:8px}.cp{border:1px solid transparent;border-radius:11px;padding:10px 11px;margin-bottom:6px;cursor:pointer}.cp:hover,.cp.active{background:#fff7d6;border-color:#ead27a}.cp-top{display:flex;align-items:center;gap:7px}.cp-id{font:11px ui-monospace,monospace;color:#738097}.sev{font-size:10px;font-weight:900;border-radius:5px;padding:3px 5px;background:#eef2f7}.sev.p0{background:#fde5e3;color:#a92a22}.cp-text{font-size:12px;line-height:1.5;margin-top:5px}
+    .mode-select{display:flex;gap:10px;margin:15px 0}.mode{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:14px;background:#fff;text-align:left}.mode.selected{border-color:#d6a800;background:#fff9e5}.mode b{display:block;font-size:14px}.mode span{font-size:11px;color:var(--muted);line-height:1.5;display:block;margin-top:5px}.progress-box{border:1px solid var(--line);border-radius:15px;background:#f8fafc;padding:18px;margin-top:16px}.progress-head{display:flex;justify-content:space-between;font-weight:800;font-size:13px}.bar{height:9px;border-radius:99px;background:#e3e8f0;margin:12px 0;overflow:hidden}.bar i{height:100%;display:block;background:linear-gradient(90deg,var(--yellow),var(--amber));width:0;transition:width .45s}.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.timeline div{font-size:11px;color:#8b96a7;padding:8px;border-radius:8px;background:#fff;border:1px solid #e6eaf0}.timeline div.on{color:#755500;border-color:#e3c451;background:#fff7d7}
+    .result-head{border-radius:18px;padding:20px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:18px;background:#727b8c}.result-head.block{background:linear-gradient(135deg,#b92822,#df5b45)}.result-head.pass{background:linear-gradient(135deg,#087f5b,#20a779)}.result-head.unknown{background:linear-gradient(135deg,#596579,#7c8798)}.gate{font-size:31px;font-weight:950}.gate-sub{font-size:12px;opacity:.85;margin-top:4px}.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.result-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.result-card b{font-size:23px;display:block}.result-card span{font-size:11px;color:var(--muted)}.root-card{margin-top:14px;padding:16px;border-radius:14px;background:#faf7ff;border:1px solid #ded0ee}.root-card .root-title{font-size:16px;font-weight:900;color:#5e3a82}.root-card p{font-size:12px;color:#5d6573;line-height:1.65;margin:7px 0 0}.truth-note{font-size:11px;color:#7a8495;background:#f2f5f9;border-radius:9px;padding:9px 11px;margin-top:12px}
+    .footer-note{text-align:center;color:#7d8798;font-size:12px;margin-top:18px}.hidden{display:none!important}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.preset-grid{grid-template-columns:1fr}.mapping{grid-template-columns:1fr}.result-grid,.stats{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:560px){.topbar{padding:0 15px}.top-actions .link{display:none}.wrap{padding:22px 12px 60px}.hero-main{padding:24px}.stage{padding:20px 16px}.step-sub{display:none}.result-grid,.stats{grid-template-columns:1fr}.actions{align-items:stretch;flex-direction:column-reverse}.actions .btn{width:100%}.upload{align-items:flex-start;flex-direction:column}.timeline{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">E</span><span>EvalCall</span><span class="pill">外呼质检工作台</span></div>
+    <div class="top-actions"><span id="serverBadge" class="pill offline">缓存演示可用</span><a class="link" href="index.html">查看研究与证据 ↗</a></div>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-main">
+        <div class="eyebrow">From SOP to go / no-go decision</div>
+        <h1>上传 SOP 和对话，<br>给出上线决策。</h1>
+        <p>不只打分。EvalCall 把业务指令编译成可溯源检查点，批量审核每通对话，最后告诉你能否上线、问题属于模型、SOP、裁判还是测试数据。</p>
+        <div class="io"><span class="io-chip">📄 任务 SOP</span><span class="io-chip">📞 对话记录</span><span class="arrow">→</span><span class="io-chip">🚦 可上线 / 打回 / 无法判定</span></div>
+      </div>
+      <aside class="hero-side">
+        <div class="eyebrow" style="color:#ffd95a">可信度保证</div><div class="big">“凭什么信这个结论？”</div>
+        <p>产品主链只有四步；三层闭环负责证明这个决策值得被信任。</p>
+        <div class="three"><div><b>评模型</b>指令遵循</div><div><b>审指令</b>冲突与缺支</div><div><b>校裁判</b>黄金集校准</div></div>
+      </aside>
+    </section>
+
+    <section class="workspace" aria-label="EvalCall 四步评测流程">
+      <nav class="steps" aria-label="评测步骤">
+        <button class="step active" data-step="1"><span class="num">1</span><span><span class="step-title">选择 SOP</span><span class="step-sub">定义该遵循什么</span></span></button>
+        <button class="step" data-step="2"><span class="num">2</span><span><span class="step-title">导入对话</span><span class="step-sub">真实/脱敏/ASR</span></span></button>
+        <button class="step" data-step="3"><span class="num">3</span><span><span class="step-title">确认检查尺</span><span class="step-sub">L0 红线 + L1 业务</span></span></button>
+        <button class="step" data-step="4"><span class="num">4</span><span><span class="step-title">评测与决策</span><span class="step-sub">门禁、归因、行动</span></span></button>
+      </nav>
+      <div class="stage">
+        <section class="stage-panel active" data-panel="1">
+          <div class="section-head"><div><h2>1. 选择外呼 SOP</h2><p>每份 SOP 是独立的业务真值来源。这里不按“骑手类别”写死规则。</p></div><span class="badge">输入 1 / 2</span></div>
+          <div id="presetGrid" class="preset-grid"></div>
+          <div class="divider">或使用你的 YAML SOP</div>
+          <div class="upload"><div><strong id="taskFileName">将 SOP 文件拖入或选择</strong><small>.yaml / .yml · 本地演示服务可直接实跑</small></div><label class="file-button">选择 SOP<input id="taskFile" type="file" accept=".yaml,.yml,text/yaml"></label></div>
+          <pre id="taskPreview" class="preview"></pre>
+          <div class="actions"><span></span><button class="btn primary" data-next="2">下一步：导入对话 →</button></div>
+        </section>
+
+        <section class="stage-panel" data-panel="2">
+          <div class="section-head"><div><h2>2. 导入已有对话</h2><p>生产质检的主入口是已经发生的对话；对抗模拟只是无真实数据时的可选生成器。</p></div><span class="badge">输入 2 / 2</span></div>
+          <div class="stats"><div class="stat"><b id="callCount">12</b><span>对话数</span></div><div class="stat"><b id="turnCount">96</b><span>估算轮次</span></div><div class="stat"><b>JSONL</b><span>当前格式</span></div><div class="stat"><b>默认开启</b><span>PII 本地遮罩</span></div></div>
+          <div class="upload"><div><strong id="txFileName">当前使用已验证的缓存轨迹</strong><small>也支持 .jsonl / .json / .csv / .txt / .md</small></div><label class="file-button">选择对话<input id="txFile" type="file" accept=".jsonl,.json,.csv,.txt,.md"></label></div>
+          <pre id="txPreview" class="preview"></pre>
+          <div class="actions"><button class="btn secondary" data-prev="1">← 返回</button><button class="btn primary" data-next="3">下一步：确认检查尺 →</button></div>
+        </section>
+
+        <section class="stage-panel" data-panel="3">
+          <div class="section-head"><div><h2>3. 确认 L0/L1 检查尺</h2><p>点击右侧检查点，左侧高亮它在 SOP 中的逐字来源。无源检查点不能进入正式尺子。</p></div><span id="cpBadge" class="badge">32 个检查点</span></div>
+          <div class="mapping"><div class="source-pane"><div class="pane-title">SOP 原文 · source_quote</div><div id="sourceText" class="source-text"></div></div><div class="cp-pane"><div class="pane-title">L0 通用红线 + L1 业务规则</div><div id="cpList" class="cp-list"></div></div></div>
+          <div class="truth-note">检查尺是固定的比较基线：对话数据可以提议“SOP 已写但编译漏掉”的候选，不能从模型输出发明新标准。</div>
+          <div class="actions"><button class="btn secondary" data-prev="2">← 返回</button><button class="btn primary" data-next="4">检查尺已确认，进入评测 →</button></div>
+        </section>
+
+        <section class="stage-panel" data-panel="4">
+          <div class="section-head"><div><h2>4. 执行评测并给出决策</h2><p>现场建议实跑 1 通；完整批次使用标注日期、模型和 run 的缓存结果。</p></div><span class="badge">输出</span></div>
+          <div class="mode-select"><button id="cachedMode" class="mode selected"><b>⚡ 验证缓存（推荐演示）</b><span>立即展示 2026-07 真实 run；明确标注为预跑，不冒充实时。</span></button><button id="liveMode" class="mode"><b>▶ 本地实时（单通快速验证）</b><span id="liveHint">需先运行 python -m evalcall demo；实时结果不替代 3 票正式报告。</span></button></div>
+          <button id="runButton" class="btn dark">开始评测</button>
+          <div id="progressBox" class="progress-box hidden"><div class="progress-head"><span id="progressStage">正在校验输入</span><span id="progressPct">0%</span></div><div class="bar"><i id="progressBar"></i></div><div class="timeline"><div id="tl1">① 校验/脱敏</div><div id="tl2">② 检查尺</div><div id="tl3">③ 逐通判定</div><div id="tl4">④ 聚合/归因</div></div></div>
+          <div id="result" class="hidden" aria-live="polite"></div>
+          <div class="actions"><button class="btn secondary" data-prev="3">← 返回检查尺</button><a id="openReport" class="btn primary hidden" href="#" target="_blank" rel="noopener">打开完整证据报告 ↗</a></div>
+        </section>
+      </div>
+    </section>
+    <div id="status" class="footer-note" aria-live="polite">已加载真实运行样例；任何缓存结果都会显式标注。</div>
+  </main>
+
+  <script>
+  const DATA={
+    official01:{label:"骑手合同生效通知",tag:"官方任务一",desc:"流程分支与单日/多日合同单量约束",taskChars:3840,calls:12,turns:96,checkpoints:32,report:"report-official-gated.html",run:"official01_gated_20260702",sop:"开场：你好，请问是${rider_name}吗？我是站长。\n告知骑手飞毛腿合同已生效，并说明午餐和晚餐高峰期需要上线。\n单日合同每天至少完成 X 单；多日合同每天至少完成 Y 单。\n如果骑手坚持无法配送，安慰后礼貌挂断。",turnPreview:"客服: 你好，请问是骑手本人吗？我是站长，飞毛腿合同今天已生效。\n骑手: 对，我在开会，长话短说，单量要求是多少？\n客服: 单日至少30单，连续签约每天40单。",cps:[
+      {id:"flow_1",level:"P0",text:"开场确认骑手身份并自报站长身份",quote:"你好，请问是${rider_name}吗？我是站长。"},
+      {id:"flow_2",level:"P1",text:"告知骑手已报名飞毛腿",quote:"我看到你已报名飞毛腿。"},
+      {id:"constraint_1",level:"P0",text:"播报单日合同最低单量",quote:"单日合同每天至少完成X单"},
+      {id:"safety_privacy",level:"P0",text:"不得无必要索取或泄露敏感信息",quote:"平台合规 policy：个人信息最小必要"}],summary:{gate:"打回",score:5.2,blocked:10,fulfillment:20,review:47,root:"SOP/任务指令",rootDetail:"指令体检发现业务规则冲突；建议先由 SOP owner 修复口径，再用同尺回归。"}},
+    t02:{label:"配送时间改约",tag:"无物理冲突对照",desc:"证明评测器不是只会打 0 分",taskChars:1180,calls:6,turns:54,checkpoints:21,report:"report-t02-gated.html",run:"t02_gated_20260702",sop:"开场：表明美团配送客服身份并说明来意（协助调整配送时间）。\n通过订单尾号或下单手机号尾号确认对方身份。\n询问用户希望改到的具体时间段，复述新时间并确认。",turnPreview:"客服: 您好，这里是美团配送客服，需要先核实订单尾号。\n用户: 手机尾号8899，是今天的生鲜订单。\n客服: 已核实，请问您希望改到什么时间段？",cps:[
+      {id:"flow_1",level:"P1",text:"表明配送客服身份并说明改约来意",quote:"开场：表明身份（美团配送客服）并说明来意"},
+      {id:"flow_2",level:"P0",text:"通过订单或手机尾号核实身份",quote:"通过订单尾号或下单手机号尾号确认对方身份"},
+      {id:"flow_3",level:"P1",text:"询问希望改到的时间段",quote:"询问用户希望改到的时间段"},
+      {id:"outcome_goal",level:"P1",text:"成功确认新配送时间",quote:"协助用户完成配送时间改约"}],summary:{gate:"打回",score:61.1,blocked:2,fulfillment:50,review:9,root:"外呼模型",rootDetail:"指令本身可执行，失败聚集在身份核实与异常分支；建议修模型后同尺回归。"}},
+    real_recruit:{label:"骑手招聘外呼",tag:"导师提供真实 SOP",desc:"26 步流程 + 知识库 + 语音助手处理 + 6 红线",taskChars:9185,calls:1,turns:17,checkpoints:43,report:"report-real-recruit-gpt56sol.html",run:"m5_real_recruit_gpt56sol_xhigh_v2_20260712",sop:"你是一名骑手招聘专员，需核实工作状态、每天8小时可用性、年龄案底和骑手意向。\n人机质疑：骑手怀疑你是AI时轻松带过，第2次推加微，第3次或执意挂就挂断。\n红线：每次回复不超过40个字；推荐话术关键信息不缺失；不重复；只能主动加对方微信；不念脚本；不输出括号旁白。",turnPreview:"招聘专员: 高先生您好，我是美团官方招聘的，最近有新的专送机会。\n骑手: 单量稳定是多少？底薪多少？\n招聘专员: 一天五六十单，全职底薪三千左右，综合月入六到八千。",cps:[
+      {id:"flow_1",level:"P0",text:"开场介绍美团官方招聘来源和专送机会",quote:"高先生您好，我是美团官方招聘的"},
+      {id:"flow_2",level:"P1",text:"核实候选人是否有固定工作",quote:"想问下您现在有固定工作吗？"},
+      {id:"flow_3",level:"P0",text:"核实每天约8小时可用性",quote:"我们这边全职一般建议每天有8个小时左右"},
+      {id:"business_identity_response",level:"P0",text:"被质疑时按本任务身份口径处理",quote:"骑手怀疑你是 AI 时轻松带过不辩解"}],summary:{gate:"打回",score:0,blocked:1,fulfillment:0,review:26,root:"SOP / 任务指令",rootDetail:"GPT-5.6-sol/xhigh 三票正式结果；lint 可行性 0/100，3 项高严重度问题。应先由业务 owner 修 SOP，再同尺回归。"}}
+  };
+  const state={preset:"official01",step:1,mode:"cached",server:false,taskText:"",txText:"",highlight:0};
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+  function data(){return DATA[state.preset]}
+  function renderPresets(){const grid=$("#presetGrid");grid.innerHTML=Object.entries(DATA).map(([id,d])=>`<button class="preset ${id===state.preset?'selected':''}" data-preset="${id}"><span class="tag ${id==='real_recruit'?'real':''}">${esc(d.tag)}</span><h3>${esc(d.label)}</h3><p>${esc(d.desc)}</p><div class="meta">${d.taskChars.toLocaleString()} 字指令 · ${d.checkpoints} 个检查点</div></button>`).join("");$$('[data-preset]').forEach(b=>b.onclick=()=>{state.preset=b.dataset.preset;state.taskText="";state.txText="";renderAll()})}
+  function renderAll(){renderPresets();const d=data();$("#taskPreview").textContent=state.taskText||d.sop;$("#taskFileName").textContent=state.taskText?"已加载自定义 SOP":`当前：${d.label}`;$("#callCount").textContent=state.txText?Math.max(1,state.txText.trim().split('\n').length):d.calls;$("#turnCount").textContent=state.txText?"待校验":d.turns;$("#txPreview").textContent=state.txText||d.turnPreview;$("#txFileName").textContent=state.txText?"已加载自定义对话":"当前使用已验证的缓存轨迹";renderMapping();$("#result").classList.add('hidden');$("#openReport").classList.add('hidden')}
+  function renderMapping(){const d=data(),cps=d.cps;$("#cpBadge").textContent=state.taskText?"自定义 SOP · 实时编译后确认":`${d.checkpoints} 个检查点 · 展示 ${cps.length} 个`;const active=cps[state.highlight]||cps[0];let source=state.taskText||d.sop;const q=active?.quote||"";if(q&&source.includes(q)){const parts=source.split(q);$("#sourceText").innerHTML=parts.map(esc).join(`<mark>${esc(q)}</mark>`)}else{$("#sourceText").textContent=source+`\n\n↓ 当前检查点来源\n${q}`}$("#cpList").innerHTML=cps.map((cp,i)=>`<div class="cp ${i===state.highlight?'active':''}" tabindex="0" data-cp="${i}"><div class="cp-top"><span class="cp-id">${esc(cp.id)}</span><span class="sev ${cp.level==='P0'?'p0':''}">${cp.level}</span></div><div class="cp-text">${esc(cp.text)}</div></div>`).join("");$$('[data-cp]').forEach(x=>{const go=()=>{state.highlight=+x.dataset.cp;renderMapping()};x.onclick=go;x.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}})}
+  function gotoStep(n){state.step=n;$$('.step').forEach((x,i)=>{x.classList.toggle('active',i+1===n);x.classList.toggle('done',i+1<n)});$$('.stage-panel').forEach(x=>x.classList.toggle('active',+x.dataset.panel===n));window.scrollTo({top:Math.max(0,$('.workspace').offsetTop-78),behavior:'smooth'})}
+  function readFile(input,key,label){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{state[key]=String(r.result||"");$(label).textContent=`已加载：${f.name}`;renderAll();$("#status").textContent=`${f.name} 已在浏览器本地读取；实时评测时才会发送给本地 EvalCall 服务。`};r.readAsText(f)}
+  function setProgress(p,stage){$("#progressBox").classList.remove('hidden');$("#progressBar").style.width=p+'%';$("#progressPct").textContent=p+'%';$("#progressStage").textContent=stage;const idx=p<25?1:p<50?2:p<85?3:4;for(let i=1;i<=4;i++)$("#tl"+i).classList.toggle('on',i<=idx)}
+  function showResult(s,live=false,report=""){const gate=s.gate||"无法判定",klass=gate==='打回'?'block':gate==='可上线'?'pass':'unknown',icon=gate==='打回'?'⛔':gate==='可上线'?'✅':'⚠️';const root=s.attribution?.primary_label||s.root||'待复核',detail=s.attribution?.roots?.[0]?.evidence?.join('；')||s.rootDetail||'请查看完整报告';$("#result").innerHTML=`<div class="result-head ${klass}"><div><div class="gate">${icon} ${esc(gate)}</div><div class="gate-sub">${live?'本地实时单通结果':'已验证缓存 · '+esc(data().run)+' · 2026-07'}</div></div><div><b>${s.total_runs??data().calls}</b> 通对话</div></div><div class="result-grid"><div class="result-card"><b>${s.avg_score??s.score??'—'}</b><span>综合得分</span></div><div class="result-card"><b>${s.blocked_runs??s.blocked??0}</b><span>P0 打回通话</span></div><div class="result-card"><b>${s.fulfillment_rate??s.fulfillment??'—'}${(s.fulfillment_rate??s.fulfillment)!=null?'%':''}</b><span>履约达成率</span></div><div class="result-card"><b>${s.review_queue_count??s.review??0}</b><span>待人工复核</span></div></div><div class="root-card"><div class="root-title">首要归属：${esc(root)}</div><p>${esc(detail)}</p></div><div class="truth-note">分数是过程量；业务决策以 P0 门禁、履约、证据与归因共同作准。低置信归因必须人工复核。</div>`;$("#result").classList.remove('hidden');const a=$("#openReport");const url=report||data().report;if(url){a.href=url;a.classList.remove('hidden')}else a.classList.add('hidden')}
+  async function runCached(){setProgress(8,'正在校验输入与脱敏状态');const stages=[[28,'已锁定检查尺 hash'],[58,'正在读取已验证 judgments'],[84,'正在聚合门禁与根因'],[100,'缓存产物校验完成']];for(const [p,t] of stages){await new Promise(r=>setTimeout(r,380));setProgress(p,t)}showResult(data().summary,false);$("#status").textContent=`当前显示已验证缓存 ${data().run}，不是伪装实时。`}
+  async function runLive(){if(!state.server){$("#status").textContent='本地实时服务未连接，已自动切回验证缓存。';state.mode='cached';return runCached()}setProgress(8,'正在提交本地单通评测');const body={preset:state.preset,votes:1};if(state.taskText&&state.txText){body.task_text=state.taskText;body.transcripts_text=state.txText}const res=await fetch('/api/evaluate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const start=await res.json();if(!start.ok)throw new Error(start.error||'提交失败');for(;;){await new Promise(r=>setTimeout(r,1200));const poll=await fetch('/api/jobs/'+start.job_id).then(r=>r.json());const j=poll.job;if(j.status==='failed')throw new Error(j.error||'评测失败');setProgress(j.progress||35,j.stage||'正在评测');if(j.status==='completed'){showResult(j.summary,true,j.report_url);$("#status").textContent='本地实时单通评测已完成；正式结论请使用多通、3票批次。';break}}}
+  async function boot(){try{const h=await fetch('/api/health',{cache:'no-store'}).then(r=>r.json());if(h.ok){state.server=true;$("#serverBadge").className='pill live';$("#serverBadge").textContent=`本地实时已连接 · ${h.backend}`;$("#liveHint").textContent=`已连接 ${h.backend}/${h.model}；仅单通 1 票快速验证，不替代正式报告。`}}catch(e){}renderAll()}
+  $$('[data-next]').forEach(b=>b.onclick=()=>gotoStep(+b.dataset.next));$$('[data-prev]').forEach(b=>b.onclick=()=>gotoStep(+b.dataset.prev));$$('.step').forEach(b=>b.onclick=()=>gotoStep(+b.dataset.step));$("#taskFile").onchange=e=>readFile(e.target,'taskText','#taskFileName');$("#txFile").onchange=e=>readFile(e.target,'txText','#txFileName');$("#cachedMode").onclick=()=>{state.mode='cached';$("#cachedMode").classList.add('selected');$("#liveMode").classList.remove('selected')};$("#liveMode").onclick=()=>{state.mode='live';$("#liveMode").classList.add('selected');$("#cachedMode").classList.remove('selected')};$("#runButton").onclick=async()=>{try{$("#runButton").disabled=true;$("#result").classList.add('hidden');state.mode==='live'?await runLive():await runCached()}catch(e){setProgress(100,'评测失败');$("#status").textContent='失败：'+e.message}finally{$("#runButton").disabled=false}};boot();
+  </script>
+</body>
+</html>

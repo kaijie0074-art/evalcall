@@ -1,8 +1,9 @@
 """LLM 后端抽象层。
 
-提供三种可插拔后端，统一接口：
+提供四种可插拔后端，统一接口：
 - openai     标准 OpenAI 兼容 chat/completions（requests 实现，env 配置）
 - claude-cli 本地 `claude -p <prompt> --model <model>` 子进程（无需 key，本机开发/演示）
+- codex-cli  本地 `codex exec` 子进程（复用 Codex 登录；只读、临时会话、xhigh 可选）
 - mock       从 JSON 文件回放（CI / 无网兜底）
 
 对外主要 API：
@@ -16,10 +17,14 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import subprocess
 import sys
+import time
+from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any, Optional
 
 try:  # requests 仅 openai 后端需要，缺失时延迟到调用处再报错
@@ -46,6 +51,8 @@ class _BaseBackend:
     def __init__(self, model: Optional[str] = None) -> None:
         # 默认模型；调用 chat 时传入的 model 优先于此
         self.default_model: Optional[str] = model
+        self._last_usage: Optional[dict[str, int]] = None
+        self._last_model: Optional[str] = None
 
     def chat(self, messages: list[dict], model: Optional[str] = None) -> str:
         raise NotImplementedError
@@ -99,6 +106,12 @@ class OpenAIBackend(_BaseBackend):
             raise LLMError(f"openai 返回 {resp.status_code}: {resp.text[:500]}")
         try:
             data = resp.json()
+            usage = data.get("usage") or {}
+            self._last_usage = {
+                "input_tokens": int(usage.get("prompt_tokens") or usage.get("input_tokens") or 0),
+                "output_tokens": int(usage.get("completion_tokens") or usage.get("output_tokens") or 0),
+            }
+            self._last_model = str(data.get("model") or payload["model"] or "")
             return data["choices"][0]["message"]["content"] or ""
         except Exception as exc:  # noqa: BLE001
             raise LLMError(f"openai 响应解析失败：{exc}") from exc
@@ -153,6 +166,7 @@ class ClaudeCliBackend(_BaseBackend):
 
     def chat(self, messages: list[dict], model: Optional[str] = None) -> str:
         system_prompt, prompt = self._split(messages)
+        self._last_model = str(model or self.default_model or "sonnet")
         cmd = [
             self.bin_path, "-p", prompt,
             "--model", model or self.default_model or "sonnet",
@@ -180,6 +194,100 @@ class ClaudeCliBackend(_BaseBackend):
         return (proc.stdout or "").strip()
 
 
+class CodexCliBackend(_BaseBackend):
+    """本地 Codex CLI 的只读推理后端。
+
+    该后端用于复用桌面端/CLI 已有登录来做评测实验，不让子进程操作项目：
+    `--ephemeral --sandbox read-only --ignore-user-config --ignore-rules`。
+    Codex CLI 只公开总 token，因此总量记录为 provider 实测，输入/输出拆分仍为估算。
+
+    环境变量：
+    - EVALCALL_MODEL / TARGET_MODEL：模型，默认 gpt-5.6-sol
+    - EVALCALL_REASONING_EFFORT / TARGET_REASONING_EFFORT：默认 xhigh
+    - CODEX_BIN：可执行文件，默认 codex
+    """
+
+    name = "codex-cli"
+    _TOKEN_RE = re.compile(r"tokens used\s*\n\s*([0-9][0-9,]*)", re.IGNORECASE)
+    _DISABLED_FEATURES = (
+        "apps", "browser_use", "browser_use_external", "browser_use_full_cdp_access",
+        "computer_use", "goals", "image_generation", "in_app_browser", "multi_agent",
+        "plugins", "tool_suggest", "workspace_dependencies",
+    )
+
+    def __init__(
+        self,
+        model: Optional[str] = None,
+        model_env: str = "EVALCALL_MODEL",
+        effort_env: str = "EVALCALL_REASONING_EFFORT",
+        timeout: int = 300,
+    ) -> None:
+        super().__init__(model or os.getenv(model_env) or "gpt-5.6-sol")
+        self.reasoning_effort = os.getenv(effort_env) or "xhigh"
+        self.bin_path = os.getenv("CODEX_BIN", "codex")
+        self.timeout = timeout
+        self._last_provider_total_tokens: Optional[int] = None
+
+    @staticmethod
+    def _format_prompt(messages: list[dict]) -> str:
+        parts = [
+            "你是 EvalCall 的纯文本推理后端。不要调用工具，不要读取文件，不要解释任务；"
+            "严格服从下面消息中的输出格式，并且只返回最终答案。"
+        ]
+        for message in messages:
+            role = str(message.get("role") or "user").upper()
+            content = str(message.get("content") or "").strip()
+            if content:
+                parts.append(f"[{role}]\n{content}")
+        return "\n\n".join(parts)
+
+    def chat(self, messages: list[dict], model: Optional[str] = None) -> str:
+        chosen_model = str(model or self.default_model or "gpt-5.6-sol")
+        self._last_model = chosen_model
+        self._last_provider_total_tokens = None
+        cmd = [
+            self.bin_path,
+            "exec",
+            "--ignore-user-config",
+            "--ignore-rules",
+            "--ephemeral",
+            "--skip-git-repo-check",
+            "--sandbox",
+            "read-only",
+            "--model",
+            chosen_model,
+            "--config",
+            f'model_reasoning_effort="{self.reasoning_effort}"',
+        ]
+        for feature in self._DISABLED_FEATURES:
+            cmd += ["--disable", feature]
+        cmd.append("-")
+        try:
+            proc = subprocess.run(
+                cmd,
+                input=self._format_prompt(messages),
+                capture_output=True,
+                text=True,
+                timeout=self.timeout,
+                cwd="/tmp",
+            )
+        except FileNotFoundError as exc:
+            raise LLMError(f"找不到 codex 可执行文件（{self.bin_path}），请安装最新版 Codex CLI") from exc
+        except subprocess.TimeoutExpired as exc:
+            raise LLMError(f"codex-cli 调用超时（>{self.timeout}s）") from exc
+        stderr = proc.stderr or ""
+        match = self._TOKEN_RE.search(stderr)
+        if match:
+            self._last_provider_total_tokens = int(match.group(1).replace(",", ""))
+        if proc.returncode != 0:
+            safe_tail = stderr.strip()[-800:]
+            raise LLMError(f"codex-cli 退出码 {proc.returncode}: {safe_tail}")
+        result = (proc.stdout or "").strip()
+        if not result:
+            raise LLMError("codex-cli 未返回最终答案")
+        return result
+
+
 class MockBackend(_BaseBackend):
     """回放后端：从 JSON 文件按 key 取预录回复，找不到则返回固定话术。
 
@@ -205,6 +313,7 @@ class MockBackend(_BaseBackend):
 
     def chat(self, messages: list[dict], model: Optional[str] = None) -> str:
         # 取最后一条非空消息作为匹配依据
+        self._last_model = str(model or self.default_model or "mock-model")
         last = ""
         for m in reversed(messages):
             if (m.get("content") or "").strip():
@@ -222,12 +331,17 @@ class MockBackend(_BaseBackend):
 _BACKENDS = {
     "openai": OpenAIBackend,
     "claude-cli": ClaudeCliBackend,
+    "codex-cli": CodexCliBackend,
     "mock": MockBackend,
 }
 
 # 主通道 / 被测通道各缓存一个后端实例，避免重复构造
 _main_backend: Optional[_BaseBackend] = None
 _target_backend: Optional[_BaseBackend] = None
+
+# 不记录 prompt 原文，只记录长度/token/耗时/模型，避免把生产对话二次泄露到遥测文件。
+_telemetry_phase: ContextVar[str] = ContextVar("evalcall_telemetry_phase", default="unspecified")
+_telemetry_events: list[dict[str, Any]] = []
 
 
 def _build_backend(name: str, model: Optional[str], *, is_target: bool = False) -> _BaseBackend:
@@ -248,6 +362,12 @@ def _build_backend(name: str, model: Optional[str], *, is_target: bool = False) 
         )
     if name == "claude-cli":
         return ClaudeCliBackend(model=model, model_env="TARGET_MODEL")
+    if name == "codex-cli":
+        return CodexCliBackend(
+            model=model,
+            model_env="TARGET_MODEL",
+            effort_env="TARGET_REASONING_EFFORT",
+        )
     if name == "mock":
         return MockBackend(model=model, mock_file_env="TARGET_MOCK_FILE")
     return cls(model=model)
@@ -282,17 +402,139 @@ def reset_backends() -> None:
     _target_backend = None
 
 
+def reset_telemetry(existing_events: Optional[list[dict[str, Any]]] = None) -> None:
+    """清空调用遥测；断点续评可传入旧 events 继续追加。"""
+    global _telemetry_events
+    _telemetry_events = [dict(e) for e in (existing_events or [])]
+
+
+@contextmanager
+def telemetry_phase(name: str):
+    """为调用标记 compile/simulate/judge 等阶段。"""
+    token = _telemetry_phase.set(name)
+    try:
+        yield
+    finally:
+        _telemetry_phase.reset(token)
+
+
+def _estimate_tokens(text: str) -> int:
+    """无 usage 的 CLI 后端使用透明启发式：汉字按 1 token，其他非空字符每 4 个约 1 token。"""
+    cjk = len(re.findall(r"[\u3400-\u9fff]", text))
+    other = len(re.sub(r"[\s\u3400-\u9fff]", "", text))
+    return max(1, cjk + math.ceil(other / 4)) if text else 0
+
+
+def _call_backend(
+    backend: Any,
+    messages: list[dict],
+    *,
+    model: Optional[str],
+    channel: str,
+) -> str:
+    """统一后端调用与遥测记录。"""
+    started = time.perf_counter()
+    input_text = json.dumps(messages, ensure_ascii=False, separators=(",", ":"))
+    try:
+        setattr(backend, "_last_usage", None)
+    except Exception:  # noqa: BLE001
+        pass
+    event: dict[str, Any] = {
+        "sequence": len(_telemetry_events) + 1,
+        "phase": _telemetry_phase.get(),
+        "channel": channel,
+        "backend": str(getattr(backend, "name", type(backend).__name__)),
+        "model": str(model or getattr(backend, "default_model", None) or "unknown"),
+        "input_chars": len(input_text),
+        "status": "success",
+    }
+    try:
+        output = backend.chat(messages, model=model)
+    except Exception as exc:
+        event.update(
+            {
+                "status": "error",
+                "error_type": type(exc).__name__,
+                "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+                "input_tokens": _estimate_tokens(input_text),
+                "output_tokens": 0,
+                "token_source": "estimated",
+            }
+        )
+        event["total_tokens"] = event["input_tokens"]
+        _telemetry_events.append(event)
+        raise
+
+    actual_model = getattr(backend, "_last_model", None)
+    if actual_model:
+        event["model"] = str(actual_model)
+    usage = getattr(backend, "_last_usage", None)
+    if isinstance(usage, dict) and (usage.get("input_tokens") or usage.get("output_tokens")):
+        input_tokens = int(usage.get("input_tokens") or 0)
+        output_tokens = int(usage.get("output_tokens") or 0)
+        source = "actual"
+    else:
+        input_tokens = _estimate_tokens(input_text)
+        output_tokens = _estimate_tokens(output)
+        source = "estimated"
+    event.update(
+        {
+            "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+            "output_chars": len(output),
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_tokens": input_tokens + output_tokens,
+            "token_source": source,
+        }
+    )
+    provider_total = getattr(backend, "_last_provider_total_tokens", None)
+    if isinstance(provider_total, int) and provider_total > 0:
+        event["provider_total_tokens"] = provider_total
+        event["provider_total_source"] = "actual"
+    _telemetry_events.append(event)
+    return output
+
+
+def telemetry_snapshot() -> dict[str, Any]:
+    events = [dict(event) for event in _telemetry_events]
+    phases: dict[str, dict[str, Any]] = {}
+    for event in events:
+        phase = str(event.get("phase") or "unspecified")
+        row = phases.setdefault(
+            phase,
+            {"calls": 0, "failed_calls": 0, "latency_ms": 0.0, "input_tokens": 0, "output_tokens": 0, "total_tokens": 0},
+        )
+        row["calls"] += 1
+        row["failed_calls"] += int(event.get("status") != "success")
+        row["latency_ms"] = round(row["latency_ms"] + float(event.get("latency_ms") or 0.0), 1)
+        for key in ("input_tokens", "output_tokens", "total_tokens"):
+            row[key] += int(event.get(key) or 0)
+    total = {
+        "calls": len(events),
+        "failed_calls": sum(1 for event in events if event.get("status") != "success"),
+        "latency_ms": round(sum(float(event.get("latency_ms") or 0.0) for event in events), 1),
+        "input_tokens": sum(int(event.get("input_tokens") or 0) for event in events),
+        "output_tokens": sum(int(event.get("output_tokens") or 0) for event in events),
+        "total_tokens": sum(int(event.get("total_tokens") or 0) for event in events),
+        "actual_token_calls": sum(1 for event in events if event.get("token_source") == "actual"),
+        "estimated_token_calls": sum(1 for event in events if event.get("token_source") == "estimated"),
+        "provider_total_token_calls": sum(1 for event in events if event.get("provider_total_source") == "actual"),
+        "provider_total_tokens": sum(int(event.get("provider_total_tokens") or 0) for event in events),
+    }
+    return {"schema_version": 1, "totals": total, "by_phase": phases, "events": events}
+
+
 # ----------------------------------------------------------------------------- #
 # 对外统一接口
 # ----------------------------------------------------------------------------- #
 def chat(messages: list[dict], model: Optional[str] = None) -> str:
     """主通道纯文本对话。"""
-    return get_backend().chat(messages, model=model)
+    return _call_backend(get_backend(), messages, model=model, channel="main")
 
 
 def target_chat(messages: list[dict], model: Optional[str] = None) -> str:
     """被测对话模型通道纯文本对话（独立后端/模型配置）。"""
-    return get_target_backend().chat(messages, model=model)
+    return _call_backend(get_target_backend(), messages, model=model, channel="target")
 
 
 # JSON 围栏剥离正则：匹配 ```json ... ``` 或 ``` ... ```
@@ -395,7 +637,7 @@ def chat_json(
     last_err: Optional[Exception] = None
     for attempt in range(1, max_retries + 1):
         try:
-            raw = get_backend().chat(work_messages, model=model)
+            raw = _call_backend(get_backend(), work_messages, model=model, channel="main")
             return _extract_json(raw)
         except Exception as exc:  # noqa: BLE001  —— 解析或调用失败都重试
             last_err = exc

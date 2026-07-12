@@ -1,0 +1,8 @@
+[
+  {
+    "review_id": "rev_2aacfaeb9c59e3a2",
+    "human_verdict": "fail",
+    "reviewer": "m3_smoke_reviewer",
+    "comment": "M3 回填链路冒烟：仅验证不覆写机器原判，不作为业务真值。"
+  }
+]

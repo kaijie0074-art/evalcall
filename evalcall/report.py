@@ -532,9 +532,16 @@ def _aggregate(
                                  for f in fail_top[:5]],
     }
 
+    runtime = summary.get("runtime") if isinstance(summary.get("runtime"), dict) else None
+    manifest = summary.get("manifest") if isinstance(summary.get("manifest"), dict) else None
+    attribution = summary.get("attribution") if isinstance(summary.get("attribution"), dict) else None
+
     return {
         "meta": meta,
         "decision": decision,
+        "runtime": runtime,
+        "manifest": manifest,
+        "attribution": attribution,
         "weaknesses": weaknesses,
         "call_rows": call_rows,
         "overall_score": overall_score,
@@ -745,6 +752,11 @@ def build_report(run_dir: str) -> str:
 
     transcripts = _read_jsonl(os.path.join(run_dir, "transcripts.jsonl"))
     judgments = _load_judgments(run_dir)
+    if transcripts and not judgments:
+        raise ValueError(
+            "存在 transcripts.jsonl 但没有可用 judgments.json；"
+            "请先使用 evalcall evaluate 对已有对话执行判定"
+        )
     summary = _read_json(os.path.join(run_dir, "summary.json"))
     if not isinstance(summary, dict):
         summary = None

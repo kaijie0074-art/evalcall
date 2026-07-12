@@ -1,0 +1,84 @@
+schema_version: 1
+claims:
+  - id: product_workflow
+    claim: 四步式产品工作台可离线展示并可连接真实本地评测服务
+    evidence:
+      - path: site-deploy/app.html
+      - path: evalcall/demo_server.py
+      - path: tests/test_demo_server.py
+  - id: offline_evaluation
+    claim: 已有真实/脱敏对话可以跳过模拟器生成完整可审计报告
+    evidence:
+      - path: runs/m2_offline_smoke_20260712/summary.json
+        pointer: gate
+        expected: 无法判定
+      - path: runs/m2_offline_smoke_20260712/manifest.json
+        pointer: source_mode
+        expected: offline_existing_transcripts
+  - id: real_recruit_gate
+    claim: 真实招聘 SOP 的留档对话在 GPT-5.6-sol/xhigh 三票评测中触发打回
+    evidence:
+      - path: runs/m5_real_recruit_gpt56sol_xhigh_v2_20260712/summary.json
+        pointer: gate
+        expected: 打回
+      - path: runs/m5_real_recruit_gpt56sol_xhigh_v2_20260712/summary.json
+        pointer: policy_overrides.0
+        expected: deny_ai_identity
+      - path: runs/m5_real_recruit_gpt56sol_xhigh_v2_20260712/manifest.json
+        pointer: judge_models_config.models.0
+        expected: gpt-5.6-sol
+  - id: judge_calibration
+    claim: GPT-5.6-sol/xhigh 在 32-case/165 真值集上准确率 92.73%，P0 fail recall 100%
+    evidence:
+      - path: runs/calibration/calibration_32case_gpt56sol_xhigh_v1.json
+        pointer: metrics.accuracy
+        expected: 0.9273
+      - path: runs/calibration/calibration_32case_gpt56sol_xhigh_v1.json
+        pointer: metrics.p0_fail_recall.p0_fail_recall
+        expected: 1.0
+      - path: runs/calibration/calibration_32case_gpt56sol_xhigh_v1.json
+        pointer: meta.n_cases
+        expected: 32
+  - id: calibration_limit
+    claim: 当前裁判 style 准确率仅 70%，高置信不等于正确
+    evidence:
+      - path: runs/calibration/calibration_32case_gpt56sol_xhigh_v1.json
+        pointer: accuracy_by_checkpoint_type.style.accuracy
+        expected: 0.7
+      - path: runs/calibration/calibration_32case_gpt56sol_xhigh_v1.json
+        pointer: metrics.confidence_calibration.avg_confidence_when_wrong
+        expected: 0.9625
+  - id: cross_family_replay
+    claim: 固定用户轮对照中 GPT 履约 50%、Claude Haiku 0%，但两边均被 P0 打回
+    evidence:
+      - path: runs/m5_crossfamily_gpt56sol_fixedusers_gptjudge_20260712/summary.json
+        pointer: fulfillment_rate
+        expected: 50.0
+      - path: runs/m5_crossfamily_claude_haiku_fixedusers_gptjudge_20260712/summary.json
+        pointer: fulfillment_rate
+        expected: 0.0
+      - path: runs/m5_crossfamily_gpt56sol_fixedusers_gptjudge_20260712/summary.json
+        pointer: gate
+        expected: 打回
+      - path: runs/m5_crossfamily_gpt56sol_fixedusers_gptjudge_20260712/diff_vs_claude_haiku.json
+        pointer: comparability.comparable
+        expected: true
+  - id: compiler_drafts
+    claim: 三类 SOP 的编译器黄金集草稿均保持待人工终审状态
+    evidence:
+      - path: data/calibration/compiler_draft_official01.json
+        pointer: status
+        expected: pending_human_review
+      - path: data/calibration/compiler_draft_t02.json
+        pointer: status
+        expected: pending_human_review
+      - path: data/calibration/compiler_draft_real_recruit.json
+        pointer: status
+        expected: pending_human_review
+  - id: final_materials
+    claim: README、三分钟讲稿、攻防材料包和答辩 PPT 已按当前实测数字收口
+    evidence:
+      - path: README.md
+      - path: docs/EvalCall答辩演示脚本-3分钟-20260712.md
+      - path: docs/EvalCall答辩材料包-一页纸与攻防卡-20260712.md
+      - path: docs/EvalCall答辩稿-可信评测基础设施-20260712.pptx

@@ -223,6 +223,54 @@ tr:hover td{background:#fffdf2}
   {% endif %}
   {% endif %}
 
+  {% if attribution and attribution.roots %}
+  <!-- ============ 确定性根因归属：告诉 owner 该改哪里 ============ -->
+  <div style="margin:16px 0;border:1px solid #d9c7ef;border-radius:12px;background:#fbf8ff;padding:14px 18px">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <div style="font-size:12px;color:#765b91">🩺 根因归属（该改哪里）</div>
+        <div style="font-size:22px;font-weight:800;color:#4f3270;margin-top:2px">
+          首要归属：{{ attribution.primary_label }}
+          <span style="font-size:12px;color:#765b91">· {{ attribution.primary_confidence }} 置信</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#556;background:#fff;border:1px solid #e5dcef;border-radius:8px;padding:7px 10px">
+        建议 owner：<b>{{ attribution.roots[0].owner }}</b>
+      </div>
+    </div>
+    <div style="margin-top:9px;font-size:13px;color:#444;line-height:1.7">
+      <b>证据：</b>{{ attribution.roots[0].evidence|join('；') }}<br>
+      <b>下一步：</b>{% for action in attribution.roots[0].actions %}{{ action.action }}{% if not loop.last %}；{% endif %}{% endfor %}
+    </div>
+    {% if attribution.roots|length > 1 %}
+    <div style="font-size:12px;color:#776;margin-top:7px">次要信号：{% for root in attribution.roots[1:] %}{{ root.label }}（{{ root.confidence }}）{% if not loop.last %} · {% endif %}{% endfor %}</div>
+    {% endif %}
+    <div style="font-size:11px;color:#998;margin-top:7px">{{ attribution.disclaimer }}</div>
+  </div>
+  {% endif %}
+
+  {% if runtime %}
+  <!-- ============ 运行成本与可复现口径 ============ -->
+  <div style="margin:16px 0;border:1px solid #d9e2ef;border-radius:12px;background:#f7f9fc;padding:14px 18px">
+    <div style="font-weight:800;color:#1a2b4a;margin-bottom:8px">🧮 运行成本与可复现口径</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:#445">
+      <span><b>LLM 调用</b> {{ runtime.calls }} 次{% if runtime.failed_calls %}（失败 {{ runtime.failed_calls }}）{% endif %}</span>
+      <span><b>Token</b> {{ runtime.total_tokens }}（输入 {{ runtime.input_tokens }} / 输出 {{ runtime.output_tokens }}）</span>
+      <span><b>单通</b> {{ runtime.calls_per_trajectory if runtime.calls_per_trajectory is not none else '—' }} 次 / {{ runtime.tokens_per_trajectory if runtime.tokens_per_trajectory is not none else '—' }} token</span>
+      <span><b>墙钟</b> {{ runtime.wall_seconds if runtime.wall_seconds is not none else '—' }}s</span>
+      {% if runtime.cost and runtime.cost.total_cost is not none %}
+      <span><b>估算费用</b> {{ runtime.cost.currency }} {{ runtime.cost.total_cost }}</span>
+      {% else %}
+      <span><b>费用</b> 未计价{% if runtime.cost and runtime.cost.unknown_models %}（{{ runtime.cost.unknown_models|join(', ') }}）{% endif %}</span>
+      {% endif %}
+    </div>
+    <div style="font-size:11px;color:#778;margin-top:7px">
+      Token 口径：{% if runtime.actual_token_calls and not runtime.estimated_token_calls %}后端实测{% elif runtime.estimated_token_calls %}含本地估算（CLI 后端不返回 usage）{% else %}无 LLM 调用{% endif %}。
+      {% if manifest %}检查尺 <code>{{ manifest.checklist_hash[:12] }}</code> · 指令 <code>{{ manifest.instruction_hash[:12] }}</code> · commit <code>{{ manifest.code_commit[:8] }}</code>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   {% if critical_fail > 0 %}
   <div class="alert">⛔ 检出 {{ critical_fail }} 项 critical 级违规（一票否决该项满分） · 约束违反共 {{ constraint_violations }} 项</div>
   {% endif %}

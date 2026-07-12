@@ -1,0 +1,12 @@
+# EvalCall 模型价格配置。
+#
+# 单位：人民币 / 100 万 token。价格变动频繁，增加生产模型前必须填写官方来源和核对日期。
+# 未配置模型在报告中显示“未计价”，不得静默按 0 元处理。
+
+currency: CNY
+models:
+  mock-model:
+    input_per_million: 0
+    output_per_million: 0
+    source: EvalCall 内置 mock（无真实 API 费用）
+    verified_at: "2026-07-12"

@@ -1,0 +1,6034 @@
+{
+  "meta": {
+    "golden_set": "data/calibration/golden_set.json",
+    "golden_set_hash": "6f5efc512f391ad7fc3d5259a3286cc71fcc748da9102da9b7b95069d2f55612",
+    "sealed": false,
+    "backend": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "judge_models": "(单模型)",
+    "n_votes": 1,
+    "n_cases": 32,
+    "limit": null,
+    "total_elapsed_sec": 801.6,
+    "ground_truth_distribution": {
+      "pass": 119,
+      "fail": 36,
+      "na": 10
+    }
+  },
+  "metrics": {
+    "total_judgments": 165,
+    "correct": 153,
+    "accuracy": 0.9273,
+    "macro_f1": 0.9155,
+    "per_verdict": {
+      "pass": {
+        "precision": 0.9737,
+        "recall": 0.9328,
+        "f1": 0.9528,
+        "support": 119,
+        "tp": 111,
+        "fp": 3,
+        "fn": 8
+      },
+      "fail": {
+        "precision": 0.7857,
+        "recall": 0.9167,
+        "f1": 0.8462,
+        "support": 36,
+        "tp": 33,
+        "fp": 9,
+        "fn": 3
+      },
+      "na": {
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9474,
+        "support": 10,
+        "tp": 9,
+        "fp": 0,
+        "fn": 1
+      }
+    },
+    "fail_recall_by_severity": {
+      "critical": {
+        "fail_truth_count": 11,
+        "caught": 11,
+        "missed": 0,
+        "fail_recall": 1.0,
+        "miss_rate": 0.0
+      },
+      "major": {
+        "fail_truth_count": 18,
+        "caught": 18,
+        "missed": 0,
+        "fail_recall": 1.0,
+        "miss_rate": 0.0
+      },
+      "minor": {
+        "fail_truth_count": 7,
+        "caught": 4,
+        "missed": 3,
+        "fail_recall": 0.5714,
+        "miss_rate": 0.4286
+      }
+    },
+    "p0_fail_recall": {
+      "p0_fail_recall": 1.0,
+      "p0_miss_rate": 0.0,
+      "p0_missed": 0,
+      "p0_fail_truth_count": 11,
+      "note": "P0=critical 安全/合规红线；口径=注入黄金集，非真实话务分布——勿外推为线上漏判率"
+    },
+    "confusion_matrix": {
+      "pass": {
+        "pass": 111,
+        "fail": 8,
+        "na": 0
+      },
+      "fail": {
+        "pass": 3,
+        "fail": 33,
+        "na": 0
+      },
+      "na": {
+        "pass": 0,
+        "fail": 1,
+        "na": 9
+      }
+    },
+    "confidence_calibration": {
+      "avg_confidence_when_correct": 0.9854,
+      "avg_confidence_when_wrong": 0.9625,
+      "calibration_gap": 0.0229,
+      "n_correct": 153,
+      "n_wrong": 12
+    },
+    "per_model_confidence_calibration": {
+      "gpt-5.6-sol": {
+        "avg_confidence_when_correct": 0.9854,
+        "avg_confidence_when_wrong": 0.9625,
+        "calibration_gap": 0.0229,
+        "n_correct": 153,
+        "n_wrong": 12
+      }
+    }
+  },
+  "accuracy_by_checkpoint_type": {
+    "flow": {
+      "correct": 106,
+      "total": 115,
+      "accuracy": 0.9217
+    },
+    "constraint": {
+      "correct": 32,
+      "total": 32,
+      "accuracy": 1.0
+    },
+    "style": {
+      "correct": 7,
+      "total": 10,
+      "accuracy": 0.7
+    },
+    "forbidden": {
+      "correct": 8,
+      "total": 8,
+      "accuracy": 1.0
+    }
+  },
+  "runtime": {
+    "calls": 64,
+    "failed_calls": 0,
+    "latency_ms": 801489.4,
+    "input_tokens": 86915,
+    "output_tokens": 16210,
+    "total_tokens": 103125,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 64,
+    "provider_total_token_calls": 64,
+    "provider_total_tokens": 406205,
+    "wall_seconds": 801.6,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 64,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "38124fc62d068c676b6e0db26083867ebccc70e8dd3d3139edfaa9cdbdd9847d",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 64,
+          "input_tokens": 86915,
+          "output_tokens": 16210,
+          "cost": null
+        }
+      }
+    }
+  },
+  "telemetry": {
+    "schema_version": 1,
+    "totals": {
+      "calls": 64,
+      "failed_calls": 0,
+      "latency_ms": 801489.4,
+      "input_tokens": 86915,
+      "output_tokens": 16210,
+      "total_tokens": 103125,
+      "actual_token_calls": 0,
+      "estimated_token_calls": 64,
+      "provider_total_token_calls": 64,
+      "provider_total_tokens": 406205
+    },
+    "by_phase": {
+      "unspecified": {
+        "calls": 64,
+        "failed_calls": 0,
+        "latency_ms": 801489.4,
+        "input_tokens": 86915,
+        "output_tokens": 16210,
+        "total_tokens": 103125
+      }
+    },
+    "events": [
+      {
+        "sequence": 1,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2471,
+        "status": "success",
+        "latency_ms": 12179.3,
+        "output_chars": 838,
+        "input_tokens": 1498,
+        "output_tokens": 288,
+        "total_tokens": 1786,
+        "token_source": "estimated",
+        "provider_total_tokens": 3514,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 2,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2200,
+        "status": "success",
+        "latency_ms": 8843.8,
+        "output_chars": 603,
+        "input_tokens": 1334,
+        "output_tokens": 211,
+        "total_tokens": 1545,
+        "token_source": "estimated",
+        "provider_total_tokens": 3302,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 3,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2379,
+        "status": "success",
+        "latency_ms": 11709.7,
+        "output_chars": 754,
+        "input_tokens": 1437,
+        "output_tokens": 260,
+        "total_tokens": 1697,
+        "token_source": "estimated",
+        "provider_total_tokens": 19589,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 4,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2108,
+        "status": "success",
+        "latency_ms": 8604.4,
+        "output_chars": 647,
+        "input_tokens": 1273,
+        "output_tokens": 239,
+        "total_tokens": 1512,
+        "token_source": "estimated",
+        "provider_total_tokens": 3223,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 5,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2455,
+        "status": "success",
+        "latency_ms": 16151.4,
+        "output_chars": 868,
+        "input_tokens": 1482,
+        "output_tokens": 295,
+        "total_tokens": 1777,
+        "token_source": "estimated",
+        "provider_total_tokens": 19798,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 6,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2184,
+        "status": "success",
+        "latency_ms": 10739.3,
+        "output_chars": 644,
+        "input_tokens": 1318,
+        "output_tokens": 233,
+        "total_tokens": 1551,
+        "token_source": "estimated",
+        "provider_total_tokens": 3351,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 7,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2384,
+        "status": "success",
+        "latency_ms": 9444.5,
+        "output_chars": 811,
+        "input_tokens": 1431,
+        "output_tokens": 257,
+        "total_tokens": 1688,
+        "token_source": "estimated",
+        "provider_total_tokens": 1369,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 8,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2113,
+        "status": "success",
+        "latency_ms": 9684.3,
+        "output_chars": 667,
+        "input_tokens": 1267,
+        "output_tokens": 253,
+        "total_tokens": 1520,
+        "token_source": "estimated",
+        "provider_total_tokens": 19416,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 9,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2333,
+        "status": "success",
+        "latency_ms": 21148.8,
+        "output_chars": 829,
+        "input_tokens": 1406,
+        "output_tokens": 275,
+        "total_tokens": 1681,
+        "token_source": "estimated",
+        "provider_total_tokens": 19710,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 10,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2133,
+        "status": "success",
+        "latency_ms": 13416.9,
+        "output_chars": 665,
+        "input_tokens": 1299,
+        "output_tokens": 245,
+        "total_tokens": 1544,
+        "token_source": "estimated",
+        "provider_total_tokens": 19570,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 11,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2313,
+        "status": "success",
+        "latency_ms": 15606.3,
+        "output_chars": 782,
+        "input_tokens": 1386,
+        "output_tokens": 245,
+        "total_tokens": 1631,
+        "token_source": "estimated",
+        "provider_total_tokens": 2396,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 12,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2113,
+        "status": "success",
+        "latency_ms": 12736.0,
+        "output_chars": 588,
+        "input_tokens": 1279,
+        "output_tokens": 189,
+        "total_tokens": 1468,
+        "token_source": "estimated",
+        "provider_total_tokens": 3165,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 13,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2353,
+        "status": "success",
+        "latency_ms": 14758.4,
+        "output_chars": 798,
+        "input_tokens": 1418,
+        "output_tokens": 250,
+        "total_tokens": 1668,
+        "token_source": "estimated",
+        "provider_total_tokens": 3433,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 14,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2082,
+        "status": "success",
+        "latency_ms": 14912.4,
+        "output_chars": 674,
+        "input_tokens": 1254,
+        "output_tokens": 265,
+        "total_tokens": 1519,
+        "token_source": "estimated",
+        "provider_total_tokens": 1252,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 15,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2394,
+        "status": "success",
+        "latency_ms": 14762.6,
+        "output_chars": 859,
+        "input_tokens": 1440,
+        "output_tokens": 286,
+        "total_tokens": 1726,
+        "token_source": "estimated",
+        "provider_total_tokens": 1559,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 16,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2123,
+        "status": "success",
+        "latency_ms": 12901.7,
+        "output_chars": 711,
+        "input_tokens": 1276,
+        "output_tokens": 277,
+        "total_tokens": 1553,
+        "token_source": "estimated",
+        "provider_total_tokens": 19639,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 17,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2414,
+        "status": "success",
+        "latency_ms": 11079.6,
+        "output_chars": 879,
+        "input_tokens": 1467,
+        "output_tokens": 309,
+        "total_tokens": 1776,
+        "token_source": "estimated",
+        "provider_total_tokens": 3499,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 18,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2143,
+        "status": "success",
+        "latency_ms": 12240.6,
+        "output_chars": 734,
+        "input_tokens": 1303,
+        "output_tokens": 301,
+        "total_tokens": 1604,
+        "token_source": "estimated",
+        "provider_total_tokens": 3348,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 19,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2397,
+        "status": "success",
+        "latency_ms": 12748.6,
+        "output_chars": 923,
+        "input_tokens": 1450,
+        "output_tokens": 332,
+        "total_tokens": 1782,
+        "token_source": "estimated",
+        "provider_total_tokens": 11766,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 20,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2126,
+        "status": "success",
+        "latency_ms": 16103.1,
+        "output_chars": 610,
+        "input_tokens": 1286,
+        "output_tokens": 219,
+        "total_tokens": 1505,
+        "token_source": "estimated",
+        "provider_total_tokens": 3426,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 21,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2353,
+        "status": "success",
+        "latency_ms": 34337.0,
+        "output_chars": 819,
+        "input_tokens": 1403,
+        "output_tokens": 266,
+        "total_tokens": 1669,
+        "token_source": "estimated",
+        "provider_total_tokens": 1503,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 22,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2082,
+        "status": "success",
+        "latency_ms": 12345.9,
+        "output_chars": 598,
+        "input_tokens": 1239,
+        "output_tokens": 194,
+        "total_tokens": 1433,
+        "token_source": "estimated",
+        "provider_total_tokens": 3302,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 23,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2570,
+        "status": "success",
+        "latency_ms": 11253.6,
+        "output_chars": 880,
+        "input_tokens": 1616,
+        "output_tokens": 348,
+        "total_tokens": 1964,
+        "token_source": "estimated",
+        "provider_total_tokens": 19730,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 24,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2299,
+        "status": "success",
+        "latency_ms": 13277.4,
+        "output_chars": 691,
+        "input_tokens": 1452,
+        "output_tokens": 318,
+        "total_tokens": 1770,
+        "token_source": "estimated",
+        "provider_total_tokens": 1473,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 25,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2309,
+        "status": "success",
+        "latency_ms": 9153.4,
+        "output_chars": 779,
+        "input_tokens": 1388,
+        "output_tokens": 255,
+        "total_tokens": 1643,
+        "token_source": "estimated",
+        "provider_total_tokens": 19497,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 26,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2038,
+        "status": "success",
+        "latency_ms": 12204.2,
+        "output_chars": 688,
+        "input_tokens": 1224,
+        "output_tokens": 274,
+        "total_tokens": 1498,
+        "token_source": "estimated",
+        "provider_total_tokens": 11527,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 27,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2327,
+        "status": "success",
+        "latency_ms": 10191.8,
+        "output_chars": 815,
+        "input_tokens": 1372,
+        "output_tokens": 254,
+        "total_tokens": 1626,
+        "token_source": "estimated",
+        "provider_total_tokens": 3422,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 28,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2056,
+        "status": "success",
+        "latency_ms": 11449.3,
+        "output_chars": 700,
+        "input_tokens": 1208,
+        "output_tokens": 225,
+        "total_tokens": 1433,
+        "token_source": "estimated",
+        "provider_total_tokens": 3269,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 29,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2425,
+        "status": "success",
+        "latency_ms": 10100.8,
+        "output_chars": 819,
+        "input_tokens": 1468,
+        "output_tokens": 261,
+        "total_tokens": 1729,
+        "token_source": "estimated",
+        "provider_total_tokens": 3475,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 30,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2154,
+        "status": "success",
+        "latency_ms": 10192.4,
+        "output_chars": 725,
+        "input_tokens": 1304,
+        "output_tokens": 291,
+        "total_tokens": 1595,
+        "token_source": "estimated",
+        "provider_total_tokens": 19496,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 31,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2416,
+        "status": "success",
+        "latency_ms": 9574.1,
+        "output_chars": 782,
+        "input_tokens": 1465,
+        "output_tokens": 234,
+        "total_tokens": 1699,
+        "token_source": "estimated",
+        "provider_total_tokens": 1389,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 32,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2216,
+        "status": "success",
+        "latency_ms": 10165.7,
+        "output_chars": 745,
+        "input_tokens": 1358,
+        "output_tokens": 310,
+        "total_tokens": 1668,
+        "token_source": "estimated",
+        "provider_total_tokens": 1356,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 33,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2402,
+        "status": "success",
+        "latency_ms": 12367.4,
+        "output_chars": 872,
+        "input_tokens": 1447,
+        "output_tokens": 314,
+        "total_tokens": 1761,
+        "token_source": "estimated",
+        "provider_total_tokens": 3554,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 34,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2131,
+        "status": "success",
+        "latency_ms": 12071.5,
+        "output_chars": 599,
+        "input_tokens": 1283,
+        "output_tokens": 209,
+        "total_tokens": 1492,
+        "token_source": "estimated",
+        "provider_total_tokens": 3386,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 35,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2364,
+        "status": "success",
+        "latency_ms": 11355.1,
+        "output_chars": 767,
+        "input_tokens": 1441,
+        "output_tokens": 245,
+        "total_tokens": 1686,
+        "token_source": "estimated",
+        "provider_total_tokens": 1439,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 36,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2093,
+        "status": "success",
+        "latency_ms": 9513.4,
+        "output_chars": 556,
+        "input_tokens": 1277,
+        "output_tokens": 197,
+        "total_tokens": 1474,
+        "token_source": "estimated",
+        "provider_total_tokens": 1171,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 37,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2610,
+        "status": "success",
+        "latency_ms": 12697.8,
+        "output_chars": 956,
+        "input_tokens": 1591,
+        "output_tokens": 345,
+        "total_tokens": 1936,
+        "token_source": "estimated",
+        "provider_total_tokens": 3641,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 38,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2339,
+        "status": "success",
+        "latency_ms": 11498.9,
+        "output_chars": 616,
+        "input_tokens": 1427,
+        "output_tokens": 222,
+        "total_tokens": 1649,
+        "token_source": "estimated",
+        "provider_total_tokens": 1390,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 39,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2319,
+        "status": "success",
+        "latency_ms": 9259.5,
+        "output_chars": 758,
+        "input_tokens": 1400,
+        "output_tokens": 236,
+        "total_tokens": 1636,
+        "token_source": "estimated",
+        "provider_total_tokens": 1300,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 40,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2048,
+        "status": "success",
+        "latency_ms": 13144.5,
+        "output_chars": 592,
+        "input_tokens": 1236,
+        "output_tokens": 239,
+        "total_tokens": 1475,
+        "token_source": "estimated",
+        "provider_total_tokens": 1307,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 41,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2334,
+        "status": "success",
+        "latency_ms": 11181.1,
+        "output_chars": 833,
+        "input_tokens": 1401,
+        "output_tokens": 275,
+        "total_tokens": 1676,
+        "token_source": "estimated",
+        "provider_total_tokens": 1459,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 42,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2063,
+        "status": "success",
+        "latency_ms": 11613.6,
+        "output_chars": 491,
+        "input_tokens": 1237,
+        "output_tokens": 158,
+        "total_tokens": 1395,
+        "token_source": "estimated",
+        "provider_total_tokens": 1281,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 43,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2386,
+        "status": "success",
+        "latency_ms": 10611.9,
+        "output_chars": 774,
+        "input_tokens": 1443,
+        "output_tokens": 235,
+        "total_tokens": 1678,
+        "token_source": "estimated",
+        "provider_total_tokens": 19567,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 44,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2187,
+        "status": "success",
+        "latency_ms": 10481.3,
+        "output_chars": 649,
+        "input_tokens": 1337,
+        "output_tokens": 258,
+        "total_tokens": 1595,
+        "token_source": "estimated",
+        "provider_total_tokens": 1330,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 45,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2282,
+        "status": "success",
+        "latency_ms": 10291.8,
+        "output_chars": 775,
+        "input_tokens": 1365,
+        "output_tokens": 250,
+        "total_tokens": 1615,
+        "token_source": "estimated",
+        "provider_total_tokens": 1279,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 46,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2011,
+        "status": "success",
+        "latency_ms": 11120.9,
+        "output_chars": 641,
+        "input_tokens": 1201,
+        "output_tokens": 242,
+        "total_tokens": 1443,
+        "token_source": "estimated",
+        "provider_total_tokens": 3186,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 47,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2318,
+        "status": "success",
+        "latency_ms": 11345.9,
+        "output_chars": 761,
+        "input_tokens": 1388,
+        "output_tokens": 245,
+        "total_tokens": 1633,
+        "token_source": "estimated",
+        "provider_total_tokens": 1303,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 48,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2047,
+        "status": "success",
+        "latency_ms": 7209.6,
+        "output_chars": 468,
+        "input_tokens": 1224,
+        "output_tokens": 135,
+        "total_tokens": 1359,
+        "token_source": "estimated",
+        "provider_total_tokens": 3135,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 49,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2348,
+        "status": "success",
+        "latency_ms": 11952.9,
+        "output_chars": 852,
+        "input_tokens": 1414,
+        "output_tokens": 285,
+        "total_tokens": 1699,
+        "token_source": "estimated",
+        "provider_total_tokens": 19613,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 50,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2077,
+        "status": "success",
+        "latency_ms": 10619.2,
+        "output_chars": 561,
+        "input_tokens": 1250,
+        "output_tokens": 192,
+        "total_tokens": 1442,
+        "token_source": "estimated",
+        "provider_total_tokens": 3210,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 51,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2359,
+        "status": "success",
+        "latency_ms": 10452.4,
+        "output_chars": 839,
+        "input_tokens": 1391,
+        "output_tokens": 263,
+        "total_tokens": 1654,
+        "token_source": "estimated",
+        "provider_total_tokens": 1429,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 52,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2088,
+        "status": "success",
+        "latency_ms": 10842.6,
+        "output_chars": 626,
+        "input_tokens": 1227,
+        "output_tokens": 192,
+        "total_tokens": 1419,
+        "token_source": "estimated",
+        "provider_total_tokens": 1257,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 53,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2418,
+        "status": "success",
+        "latency_ms": 17741.6,
+        "output_chars": 963,
+        "input_tokens": 1478,
+        "output_tokens": 376,
+        "total_tokens": 1854,
+        "token_source": "estimated",
+        "provider_total_tokens": 1737,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 54,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2147,
+        "status": "success",
+        "latency_ms": 11742.1,
+        "output_chars": 576,
+        "input_tokens": 1314,
+        "output_tokens": 225,
+        "total_tokens": 1539,
+        "token_source": "estimated",
+        "provider_total_tokens": 3333,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 55,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2375,
+        "status": "success",
+        "latency_ms": 12928.2,
+        "output_chars": 869,
+        "input_tokens": 1443,
+        "output_tokens": 314,
+        "total_tokens": 1757,
+        "token_source": "estimated",
+        "provider_total_tokens": 19720,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 56,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2104,
+        "status": "success",
+        "latency_ms": 12399.6,
+        "output_chars": 561,
+        "input_tokens": 1279,
+        "output_tokens": 193,
+        "total_tokens": 1472,
+        "token_source": "estimated",
+        "provider_total_tokens": 19417,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 57,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2347,
+        "status": "success",
+        "latency_ms": 12097.9,
+        "output_chars": 898,
+        "input_tokens": 1408,
+        "output_tokens": 310,
+        "total_tokens": 1718,
+        "token_source": "estimated",
+        "provider_total_tokens": 1465,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 58,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2076,
+        "status": "success",
+        "latency_ms": 11811.8,
+        "output_chars": 520,
+        "input_tokens": 1244,
+        "output_tokens": 156,
+        "total_tokens": 1400,
+        "token_source": "estimated",
+        "provider_total_tokens": 1228,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 59,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2376,
+        "status": "success",
+        "latency_ms": 11971.7,
+        "output_chars": 802,
+        "input_tokens": 1441,
+        "output_tokens": 266,
+        "total_tokens": 1707,
+        "token_source": "estimated",
+        "provider_total_tokens": 1400,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 60,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2105,
+        "status": "success",
+        "latency_ms": 25660.6,
+        "output_chars": 547,
+        "input_tokens": 1277,
+        "output_tokens": 194,
+        "total_tokens": 1471,
+        "token_source": "estimated",
+        "provider_total_tokens": 19500,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 61,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2215,
+        "status": "success",
+        "latency_ms": 12203.8,
+        "output_chars": 651,
+        "input_tokens": 1323,
+        "output_tokens": 189,
+        "total_tokens": 1512,
+        "token_source": "estimated",
+        "provider_total_tokens": 3274,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 62,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 1944,
+        "status": "success",
+        "latency_ms": 10334.5,
+        "output_chars": 638,
+        "input_tokens": 1159,
+        "output_tokens": 241,
+        "total_tokens": 1400,
+        "token_source": "estimated",
+        "provider_total_tokens": 1114,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 63,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2471,
+        "status": "success",
+        "latency_ms": 14836.0,
+        "output_chars": 996,
+        "input_tokens": 1466,
+        "output_tokens": 331,
+        "total_tokens": 1797,
+        "token_source": "estimated",
+        "provider_total_tokens": 1645,
+        "provider_total_source": "actual"
+      },
+      {
+        "sequence": 64,
+        "phase": "unspecified",
+        "channel": "main",
+        "backend": "codex-cli",
+        "model": "gpt-5.6-sol",
+        "input_chars": 2200,
+        "status": "success",
+        "latency_ms": 14113.0,
+        "output_chars": 655,
+        "input_tokens": 1302,
+        "output_tokens": 219,
+        "total_tokens": 1521,
+        "token_source": "estimated",
+        "provider_total_tokens": 1371,
+        "provider_total_source": "actual"
+      }
+    ]
+  },
+  "case_details": [
+    {
+      "case_id": "case01_clean_pass",
+      "description": "标准合规通话：身份/核实/目的/收尾全做到，赔付金额明确，礼貌简洁。全 pass 基准。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 21.0,
+      "items": [
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是闪送平台客服，我工号是8821"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是张先生本人吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "麻烦您核对下订单后四位是不是3092？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "这次来电是想跟您说明下，您那单因为天气延误了"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 10,
+              "quote": "感谢您的接听，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "我们给您账户补偿5元无门槛券，今天就能到。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case01_clean_pass",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是闪送平台客服，我工号是8821，请问是张先生本人吗？"
+            },
+            {
+              "turn": 10,
+              "quote": "好的，感谢您的接听，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case02_paraphrased_greeting",
+      "description": "难判：开场白转述而非原文照搬——只说了平台名没报工号身份，但语义上自报了来历。flow_greeting 设为 pass（合理转述应判过），核实环节明确缺失判 fail。",
+      "n_checkpoints": 5,
+      "n_correct": 4,
+      "accuracy": 0.8,
+      "elapsed_sec": 20.3,
+      "items": [
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "喂您好，我这边是美团外卖官方这边的，看到您刚下了个单想跟您对接一下。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "是这样，您这单商家临时缺货了，想问下您是换个菜还是退款？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "是这样，您这单商家临时缺货了，想问下您是换个菜还是退款？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "原路退回的，一般1到3个工作日就到账了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case02_paraphrased_greeting",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "好嘞，那不打扰您了，祝您用餐愉快。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case03_interrupted_then_recovered",
+      "description": "难判：客服报身份时被用户打断，几轮后又补回来完成了核实流程。被打断后补救完成应判 pass，而不是因为第一次没说全就判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 26.9,
+      "items": [
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.88,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是饿了么客——"
+            },
+            {
+              "turn": 6,
+              "quote": "核实通过，我是饿了么客服工号3310。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.88,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "不过为了保护您信息，我先确认下，您是李女士本人吗？"
+            },
+            {
+              "turn": 4,
+              "quote": "好的，再核对下订单尾号是不是7745？"
+            },
+            {
+              "turn": 6,
+              "quote": "核实通过"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "打来是想说明您订单骑手已在路上，预计10分钟到。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case03_interrupted_then_recovered",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "请问还有其他需要帮您的吗？"
+            },
+            {
+              "turn": 10,
+              "quote": "好的感谢您的接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case04_borderline_refund_promise",
+      "description": "难判：模糊接近违规——客服没说标准1-3工作日，而是含糊承诺'很快''今天应该就能到'，属于不按规定口径随口承诺。constraint_no_promise_refund_time 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 19.1,
+      "items": [
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是京东到家客服，工号5567，请问是王先生吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是王先生吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我。"
+            },
+            {
+              "turn": 2,
+              "quote": "核对下订单尾号8801对吧？"
+            },
+            {
+              "turn": 3,
+              "quote": "对8801，退款多久啊？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "您放心，很快的，今天应该就能到您账户，最迟明天肯定到了。"
+            },
+            {
+              "turn": 6,
+              "quote": "肯定的，我跟您保证，比一般情况快多了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case04_borderline_refund_promise",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "好的，还有别的事吗？没有就先这样啦，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case05_phishing_violation",
+      "description": "明确违规：客服诱导用户提供短信验证码和银行卡号。forbidden_no_personal_contact 判 fail（规则轨关键词也会命中，可校验规则轨准确性）。",
+      "n_checkpoints": 3,
+      "n_correct": 3,
+      "accuracy": 1.0,
+      "elapsed_sec": 34.6,
+      "items": [
+        {
+          "case_id": "case05_phishing_violation",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是支付客服，工号2210"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case05_phishing_violation",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是陈女士本人吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我，什么事？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case05_phishing_violation",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "rule+llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我一下。"
+            },
+            {
+              "turn": 2,
+              "quote": "麻烦把刚收到的短信验证码报给我一下。"
+            },
+            {
+              "turn": 4,
+              "quote": "您再把银行卡号也告诉我"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "验证码"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case06_disparage_violation",
+      "description": "明确违规：客服对用户不耐烦、使用攻击性措辞。forbidden_no_disparage 判 fail（关键词'烦不烦''讲不讲理'命中）。同时礼貌风格 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 28.3,
+      "items": [
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是客服中心，工号7788，请问是赵先生吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是赵先生吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "rule+llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这个我看下……您别一直催行不行，烦不烦啊。"
+            },
+            {
+              "turn": 2,
+              "quote": "您别一直催行不行，烦不烦啊。"
+            },
+            {
+              "turn": 4,
+              "quote": "你讲不讲理啊"
+            },
+            {
+              "turn": 6,
+              "quote": "随你便。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "烦不烦"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case06_disparage_violation",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您别一直催行不行，烦不烦啊。"
+            },
+            {
+              "turn": 4,
+              "quote": "我什么态度了？你讲不讲理啊，问题不就在处理嘛。"
+            },
+            {
+              "turn": 6,
+              "quote": "随你便。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case07_na_no_compensation_branch",
+      "description": "难判 na：满意度回访通话，全程没有任何赔付/退款场景，因此赔付金额与退款时间两个检查点根本未触发，应判 na 而非 pass/fail。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 29.7,
+      "items": [
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号3344"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是刘女士本人吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次来电是想做个简短的满意度回访"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 5,
+              "quote": "请问还有其他建议吗？"
+            },
+            {
+              "turn": 6,
+              "quote": "没有了。"
+            },
+            {
+              "turn": 7,
+              "quote": "感谢您的反馈和接听，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case07_na_no_compensation_branch",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case08_vague_compensation_fail",
+      "description": "难判：模糊接近违规——客服承认要补偿但始终不说具体金额或方式，只说'会给您补偿的'。constraint_compensation_amount 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 27.7,
+      "items": [
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号9012"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是孙先生吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "核对下尾号5566。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "您放心，肯定会给您补偿的，我们很重视。"
+            },
+            {
+              "turn": 6,
+              "quote": "都会处理好的，您就放心吧，绝对让您满意。"
+            },
+            {
+              "turn": 8,
+              "quote": "嗯我们会安排的。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case08_vague_compensation_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "还有别的问题吗？没有就先这样，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case09_out_of_scope_correct",
+      "description": "正例：用户问超职责范围问题（发票税务细节），客服正确使用指定话术——先答能答的，超范围承诺核实后回电，不编造。constraint_out_of_scope_reply 判 pass。",
+      "n_checkpoints": 3,
+      "n_correct": 3,
+      "accuracy": 1.0,
+      "elapsed_sec": 23.3,
+      "items": [
+        {
+          "case_id": "case09_out_of_scope_correct",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号6655"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case09_out_of_scope_correct",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "抬头我现在就能帮您改成公司的。不过税率这块涉及财务口径，我需要向相关部门核实后再回电给您，不敢给您乱说。"
+            },
+            {
+              "turn": 6,
+              "quote": "一定，今天之内给您回。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case09_out_of_scope_correct",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "请问还有其他需要吗？"
+            },
+            {
+              "turn": 8,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case10_out_of_scope_fabricate_fail",
+      "description": "难判：用户问超范围问题，客服没用指定话术、反而硬编了一个不确定的答案糊弄。constraint_out_of_scope_reply 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 28.9,
+      "items": [
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是平台客服，工号1133，请问是吴先生吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "来电是想跟您说下您的会员到期提醒。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "退的退的，差价应该是退您一半左右吧，大概几十块，问题不大。"
+            },
+            {
+              "turn": 6,
+              "quote": "差不多就这个数，您按这个理解就行。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case10_out_of_scope_fabricate_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "好的还有别的吗？没有就先这样，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case11_no_purpose_no_closing",
+      "description": "流程缺失：客服身份/核实做了，但全程没说清来电目的（被用户带着走），结尾也没确认是否还有问题就挂了。flow_state_purpose 与 flow_closing_confirm 判 fail。",
+      "n_checkpoints": 4,
+      "n_correct": 3,
+      "accuracy": 0.75,
+      "elapsed_sec": 46.7,
+      "items": [
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好这里是客服中心，工号4422，请问是郑先生本人吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是郑先生本人吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "核对下尾号3300哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "嗯……您是不是有什么问题要反馈？"
+            },
+            {
+              "turn": 6,
+              "quote": "哦那可能系统派的单，那没事了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case11_no_purpose_no_closing",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "嗯就这样，挂了啊。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case12_polite_but_verbose",
+      "description": "难判风格：客服很礼貌、流程都对，但每句话都又臭又长远超40字，明显啰嗦。style_concise_polite 判 fail（风格违规），其余流程 pass。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 24.5,
+      "items": [
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "这里是平台客户服务中心，我的工号是5500"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问我现在通话的这位是不是机主本人钱女士呢？"
+            },
+            {
+              "turn": 2,
+              "quote": "能否麻烦您再帮我核对一下您本次订单尾号的后四位数字是不是2288呢"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "本次非常冒昧地致电给您主要是想就您此前提交的那一笔订单的后续处理进展情况向您做一个详细而全面的说明和同步"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "请问您这边是否还有其他任何需要我们为您提供帮助或者解答的地方呢？"
+            },
+            {
+              "turn": 8,
+              "quote": "再次衷心感谢您的接听与理解，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case12_polite_but_verbose",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "尊敬的客户您好，非常感谢您在百忙之中接听我们的来电，这里是平台客户服务中心，我的工号是5500，为了更好地为您服务请问我现在通话的这位是不是机主本人钱女士呢？"
+            },
+            {
+              "turn": 4,
+              "quote": "好，那么我这边本次非常冒昧地致电给您主要是想就您此前提交的那一笔订单的后续处理进展情况向您做一个详细而全面的说明和同步，希望不会过多地占用您宝贵的时间。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case13_dialect_short_pass",
+      "description": "方言味极短对话(4轮)：川渝口语腔，但身份/核实/目的/收尾都压缩着做到了。考裁判能否透过方言口语识别合规要素。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 21.4,
+      "items": [
+        {
+          "case_id": "case13_dialect_short_pass",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "这头是美团客服哈，工号6602"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case13_dialect_short_pass",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "是王嬢嬢本人不嘛？尾号3344对不对头？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我撒，3344没错。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case13_dialect_short_pass",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "就是给你说一哈，你那单退款走起了哈，原路退1到3个工作日到账"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case13_dialect_short_pass",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "你那单退款走起了哈，原路退1到3个工作日到账"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case13_dialect_short_pass",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "还有啥子需要帮忙的不？没得的话就先这样哈，谢谢接听，拜拜。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case13_dialect_short_pass",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "好嘞，就是给你说一哈，你那单退款走起了哈，原路退1到3个工作日到账，莫慌哈。"
+            },
+            {
+              "turn": 4,
+              "quote": "要得，还有啥子需要帮忙的不？没得的话就先这样哈，谢谢接听，拜拜。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.97,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case14_asr_noise_identity_fail",
+      "description": "ASR转写噪声风格：满是同音错字、断句混乱。语义上没报平台/工号身份，核实也没做。考裁判能否在噪声中识别身份/核实环节确实缺失。",
+      "n_checkpoints": 6,
+      "n_correct": 5,
+      "accuracy": 0.8333,
+      "elapsed_sec": 21.6,
+      "items": [
+        {
+          "case_id": "case14_asr_noise_identity_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "为 你好 我这边 看到你 有个 但 想 跟你 对一哈 啊"
+            },
+            {
+              "turn": 2,
+              "quote": "就 那个 但 嘛 你 上回 那个 退款 的 事 处理 好 了 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case14_asr_noise_identity_fail",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "就 那个 但 嘛 你 上回 那个 退款 的 事 处理 好 了 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case14_asr_noise_identity_fail",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.88,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "就 那个 但 嘛 你 上回 那个 退款 的 事 处理 好 了 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.88,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case14_asr_noise_identity_fail",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "原 璐 退回 一 到 三 个 工作日 就 到 了"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case14_asr_noise_identity_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "好 没 撒 事 我 就 挂 了 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case14_asr_noise_identity_fail",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "fail",
+          "pred": "pass",
+          "correct": false,
+          "confidence": 0.94,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "原 璐 退回 一 到 三 个 工作日 就 到 了"
+            },
+            {
+              "turn": 6,
+              "quote": "好 没 撒 事 我 就 挂 了 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.94,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case15_quote_user_words_not_violation",
+      "description": "边界陷阱：客服复述用户自己说的脏话以确认诉求，看似命中辱骂关键词，实则是引用用户的话、并非客服攻击用户。forbidden_no_disparage 应判 pass。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 20.3,
+      "items": [
+        {
+          "case_id": "case15_quote_user_words_not_violation",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号7120"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case15_quote_user_words_not_violation",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是周先生本人吗？尾号9981对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "对，9981。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case15_quote_user_words_not_violation",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "我们给您账户补偿8元无门槛券，今天到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case15_quote_user_words_not_violation",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "非常抱歉。我跟您确认下您的诉求：您是说骑手配送中导致餐品洒漏，对吗？"
+            },
+            {
+              "turn": 8,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case15_quote_user_words_not_violation",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 8,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case16_self_correct_after_violation",
+      "description": "边界陷阱：客服先口误索要'短信验证码'，下一句立刻自我纠正撤回。违规后立即自纠——禁止项仍判 fail(索要行为已发生)；纠正那句又冗长啰嗦超40字(style fail)。考裁判是否被纠正话术误导成 pass。",
+      "n_checkpoints": 6,
+      "n_correct": 5,
+      "accuracy": 0.8333,
+      "elapsed_sec": 19.7,
+      "items": [
+        {
+          "case_id": "case16_self_correct_after_violation",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团支付客服，工号3055"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case16_self_correct_after_violation",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是李女士本人吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case16_self_correct_after_violation",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "rule+llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我——"
+            },
+            {
+              "turn": 2,
+              "quote": "您这笔退款需要核验，麻烦把刚收到的短信验证码报给我——"
+            },
+            {
+              "turn": 4,
+              "quote": "抱歉抱歉，我说错了！验证码是绝对不能给任何人的，包括客服，请您千万别提供，是我话术错了，您忽略刚才那句。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "验证码"
+            },
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case16_self_correct_after_violation",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "退款我这边后台直接处理就行，原路退回1-3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case16_self_correct_after_violation",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "还有别的需要吗？"
+            },
+            {
+              "turn": 7,
+              "quote": "没有了。"
+            },
+            {
+              "turn": 8,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case16_self_correct_after_violation",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "fail",
+          "pred": "pass",
+          "correct": false,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团支付客服，工号3055，请问是李女士本人吗？"
+            },
+            {
+              "turn": 8,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case17_out_of_order_all_done",
+      "description": "边界陷阱：流程顺序全乱——先说目的、中间才报身份、最后才核实，但所有必需环节其实都完成了。流程乱序但全做到，相关流程检查点应判 pass（检查的是是否做到，不是顺序）。",
+      "n_checkpoints": 5,
+      "n_correct": 3,
+      "accuracy": 0.6,
+      "elapsed_sec": 24.4,
+      "items": [
+        {
+          "case_id": "case17_out_of_order_all_done",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "喂您好，这次打来是想跟您说下您那单延误补偿的事儿。"
+            },
+            {
+              "turn": 2,
+              "quote": "哦对，忘了说，这里是美团客服，我工号是8830。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case17_out_of_order_all_done",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "我们给您补偿6元无门槛券。不过流程上还得跟您核实下，您是赵先生本人吗？尾号是不是4501？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case17_out_of_order_all_done",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "这次打来是想跟您说下您那单延误补偿的事儿。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case17_out_of_order_all_done",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "我们给您补偿6元无门槛券。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case17_out_of_order_all_done",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 8,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case18_user_three_things_at_once",
+      "description": "用户一次说三件事(退款+发票+催单)，客服漏答两件、被追问后还不耐烦怼回去('谁记得住啊')并挂断。来电目的说了(pass)，但出现不耐烦贬低(disparage fail)且遗留问题未解决草草道别(closing fail)。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 20.9,
+      "items": [
+        {
+          "case_id": "case18_user_three_things_at_once",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号2244"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case18_user_three_things_at_once",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是钱女士本人吗？尾号7700对吗？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case18_user_three_things_at_once",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次来电其实是想跟您同步退款进度的"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case18_user_three_things_at_once",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "退款原路退回，1到3个工作日到账，请您留意。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case18_user_three_things_at_once",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "一次说那么多谁记得住啊，退款给您说了就行了，别的您自己app上看吧，挂了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case18_user_three_things_at_once",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "退款给您说了就行了，别的您自己app上看吧，挂了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case19_long_call_all_pass",
+      "description": "超长对话(14轮)：用户反复纠缠、客服全程合规完成所有环节并明确赔付金额。考裁判在长上下文中不漏判、不被冗长拖偏，全 pass 基准的长样本。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 24.2,
+      "items": [
+        {
+          "case_id": "case19_long_call_all_pass",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号5511"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case19_long_call_all_pass",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是孙先生本人吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "麻烦核对下订单尾号是不是6620？"
+            },
+            {
+              "turn": 4,
+              "quote": "好的核实通过。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case19_long_call_all_pass",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "本次来电是想就您那单严重延误向您说明并处理。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case19_long_call_all_pass",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "这次我们给您账户补偿15元无门槛券作为歉意，今天到账。"
+            },
+            {
+              "turn": 10,
+              "quote": "我帮您申请升级到20元券，可以吗？"
+            },
+            {
+              "turn": 12,
+              "quote": "20元无门槛券已为您提交，今天到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case19_long_call_all_pass",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 12,
+              "quote": "请问您还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 14,
+              "quote": "好的，感谢您的理解和接听，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case19_long_call_all_pass",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 10,
+              "quote": "这样，考虑到延误时长较长，我帮您申请升级到20元券，可以吗？"
+            },
+            {
+              "turn": 14,
+              "quote": "好的，感谢您的理解和接听，祝您生活愉快，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case20_borderline_refund_phrase_pass",
+      "description": "边界陷阱：客服说'正常情况下原路退回，一般一到三个工作日，具体以银行处理为准'——口径正确但措辞非标准照搬。转述但语义等价，constraint_no_promise_refund_time 应判 pass。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 22.4,
+      "items": [
+        {
+          "case_id": "case20_borderline_refund_phrase_pass",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号4488"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case20_borderline_refund_phrase_pass",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是吴女士本人吗？尾号1290对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我，1290。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case20_borderline_refund_phrase_pass",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次就是跟您说退款进度。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case20_borderline_refund_phrase_pass",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "钱是按原路退回您支付账户的，正常情况下一般需要一到三个工作日，具体到账时间以银行处理为准哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case20_borderline_refund_phrase_pass",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "好的，请问还有其他需要帮助的吗？没有的话感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case21_borderline_compensation_range_fail",
+      "description": "边界陷阱+收尾草率：客服说'会给您补个几块到十几块的券吧，看系统'——模糊区间未明确金额(compensation fail)；结尾不等用户回答就自顾自挂断(closing fail)。一例埋两处独立违规。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 22.8,
+      "items": [
+        {
+          "case_id": "case21_borderline_compensation_range_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号3399"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case21_borderline_compensation_range_fail",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是郑先生本人吗？尾号5043对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "对，5043。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case21_borderline_compensation_range_fail",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次是为您这单漏送做补偿处理。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case21_borderline_compensation_range_fail",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "大概会给您补个几块到十几块的券吧，具体得看系统最后算多少。"
+            },
+            {
+              "turn": 6,
+              "quote": "反正这个区间内，到账您就看到了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case21_borderline_compensation_range_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "行没事就这样，挂了哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case22_user_offers_card_agent_refuses",
+      "description": "边界陷阱：用户主动要报银行卡号，客服明确拒收并说明无需提供。看似话题涉及卡号关键词，但客服行为是拒绝索要。forbidden_no_personal_contact 应判 pass。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 21.1,
+      "items": [
+        {
+          "case_id": "case22_user_offers_card_agent_refuses",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号6677"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case22_user_offers_card_agent_refuses",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是冯女士本人吗？尾号8120对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我，8120。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case22_user_offers_card_agent_refuses",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "本次来电就是同步这个退款进度。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case22_user_offers_card_agent_refuses",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "原路退回，1到3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case22_user_offers_card_agent_refuses",
+          "checkpoint_id": "forbidden_no_personal_contact",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "银行卡号、密码这些千万不要在电话里提供。退款会按原路退回您原来的支付方式，不需要您的卡号。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "method": "rule",
+              "matched": "银行卡号"
+            },
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case22_user_offers_card_agent_refuses",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "还有其他需要吗？"
+            },
+            {
+              "turn": 6,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case23_na_pure_notification_short",
+      "description": "极短(4轮)纯通知类：仅通知优惠活动，无退款无赔付无超范围问题。多个检查点未触发应判 na。考裁判 na 判定+短样本。",
+      "n_checkpoints": 7,
+      "n_correct": 7,
+      "accuracy": 1.0,
+      "elapsed_sec": 21.4,
+      "items": [
+        {
+          "case_id": "case23_na_pure_notification_short",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号1188"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case23_na_pure_notification_short",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是何先生本人吗？尾号3366对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我，3366。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case23_na_pure_notification_short",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次来电就是通知您，您是老用户，账户里送了张满减券，记得用哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case23_na_pure_notification_short",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case23_na_pure_notification_short",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case23_na_pure_notification_short",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case23_na_pure_notification_short",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "好的，还有其他需要帮助的吗？没有的话感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case24_interrupt_grab_no_verify",
+      "description": "用户全程抢话不让客服核实身份，客服多次被打断后始终未补回核实就办退款(verify fail，与case03'打断后补回'对照)；末尾也不确认其他问题直接挂断(closing fail)。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 18.6,
+      "items": [
+        {
+          "case_id": "case24_interrupt_grab_no_verify",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号9933"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case24_interrupt_grab_no_verify",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "我帮您查，先核对下您的订单尾——"
+            },
+            {
+              "turn": 4,
+              "quote": "好的本次来电就是同步退款，您的退款原路退回1到3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case24_interrupt_grab_no_verify",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "好的本次来电就是同步退款"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case24_interrupt_grab_no_verify",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "您的退款原路退回1到3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case24_interrupt_grab_no_verify",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "嗯那就这样，我挂了哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case25_subtle_impatience_fail",
+      "description": "边界陷阱多违规：客服没用明显脏话但阴阳怪气、不耐烦('这都听不懂?')——实质贬低(disparage fail)且不得体(style fail)；末尾'没事我挂了'不确认其他需求即挂断(closing fail)。",
+      "n_checkpoints": 6,
+      "n_correct": 6,
+      "accuracy": 1.0,
+      "elapsed_sec": 22.6,
+      "items": [
+        {
+          "case_id": "case25_subtle_impatience_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号2255"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case25_subtle_impatience_fail",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是许先生本人吗？尾号4477对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case25_subtle_impatience_fail",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "补5元券，到账您自己看。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case25_subtle_impatience_fail",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "我跟您说几遍了，就是补券，这都听不懂吗？"
+            },
+            {
+              "turn": 4,
+              "quote": "是您理解能力的问题，这么简单的事。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case25_subtle_impatience_fail",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "我跟您说几遍了，就是补券，这都听不懂吗？"
+            },
+            {
+              "turn": 6,
+              "quote": "行了就这样吧，补5元券，到账您自己看。没事我挂了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case25_subtle_impatience_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "行了就这样吧，补5元券，到账您自己看。没事我挂了。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case26_asr_garbled_compensation_pass",
+      "description": "ASR噪声风格但内容合规：错字断句乱，但仔细读能确认报了身份、核实了、明确说了'补十元券'。考裁判能否在噪声中抠出'明确金额'判 pass。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 21.3,
+      "items": [
+        {
+          "case_id": "case26_asr_garbled_compensation_pass",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好 这边 是 美团 客服 工号 三七 二六"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case26_asr_garbled_compensation_pass",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "是 邓 先生 本人 吧 尾号 五八 九 零 对 吧"
+            },
+            {
+              "turn": 1,
+              "quote": "对的对的 五八九零。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case26_asr_garbled_compensation_pass",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.84,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次 给 您 大电话 是 你 那 但 撒漏 了 给 您 道歉 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.84,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case26_asr_garbled_compensation_pass",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "给 您 补 十 元 无门槛 卷 今天 到 账 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case26_asr_garbled_compensation_pass",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "还 有 撒 需要 帮忙 的 莫 得 就 谢谢 接听 再 见"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case27_paraphrased_out_of_scope_pass",
+      "description": "边界陷阱：用户问超范围(法律责任谁担)，客服没照搬话术，但语义等价地说了'这个我不能给您下定论，我记下来转专门同事核实后回您'。转述但语义等价，constraint_out_of_scope_reply 应判 pass。",
+      "n_checkpoints": 4,
+      "n_correct": 4,
+      "accuracy": 1.0,
+      "elapsed_sec": 29.5,
+      "items": [
+        {
+          "case_id": "case27_paraphrased_out_of_scope_pass",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号5544"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case27_paraphrased_out_of_scope_pass",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是萧女士本人吗？尾号2901对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我，2901。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case27_paraphrased_out_of_scope_pass",
+          "checkpoint_id": "constraint_out_of_scope_reply",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "订单本身的退款我现在就能帮您办。但责任认定和医药费这种涉及法律的，我这边不能随口给您下定论，我把情况记下来，转给专门的同事核实清楚后再回电给您"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case27_paraphrased_out_of_scope_pass",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "请问还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 6,
+              "quote": "好的，感谢接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case28_fake_greeting_wrong_company",
+      "description": "流程缺失双违规：客服热情寒暄一大堆却始终不报平台名/工号(greeting fail)；用户两次追问平台仍敷衍回避并直接挂断、不确认其他问题(closing fail)。看似开场热情实则未自报来历。",
+      "n_checkpoints": 5,
+      "n_correct": 5,
+      "accuracy": 1.0,
+      "elapsed_sec": 25.3,
+      "items": [
+        {
+          "case_id": "case28_fake_greeting_wrong_company",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "喂您好呀！今天天气真不错哈，没打扰您休息吧？最近忙不忙呀？"
+            },
+            {
+              "turn": 2,
+              "quote": "嗨就是关心下您嘛。是这样，您那个订单我们想跟您处理一下"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case28_fake_greeting_wrong_company",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "您是张先生本人不？尾号6789对吧？"
+            },
+            {
+              "turn": 3,
+              "quote": "对……你到底哪个平台的？"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case28_fake_greeting_wrong_company",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.86,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "是这样，您那个订单我们想跟您处理一下"
+            },
+            {
+              "turn": 4,
+              "quote": "您这单退款原路退回1到3个工作日到账哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.86,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case28_fake_greeting_wrong_company",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "您这单退款原路退回1到3个工作日到账哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case28_fake_greeting_wrong_company",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "哎呀您别纠结这个啦，反正帮您办好就行，没事我先挂了哈。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case29_promise_faster_refund_fail",
+      "description": "边界陷阱+收尾草率：客服先说标准口径'1-3工作日'，用户一施压立刻越线承诺'今天下午准到'(refund_time fail)；结尾不等用户回应就自行挂断(closing fail)。",
+      "n_checkpoints": 5,
+      "n_correct": 4,
+      "accuracy": 0.8,
+      "elapsed_sec": 23.9,
+      "items": [
+        {
+          "case_id": "case29_promise_faster_refund_fail",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号7733"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case29_promise_faster_refund_fail",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "请问是袁女士本人吗？尾号3412对吗？"
+            },
+            {
+              "turn": 1,
+              "quote": "对，3412。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case29_promise_faster_refund_fail",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号7733，请问是袁女士本人吗？尾号3412对吗？"
+            },
+            {
+              "turn": 2,
+              "quote": "本次就是同步退款，原路退回，正常1到3个工作日到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case29_promise_faster_refund_fail",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 1.0,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "今天下午就能到您账户，放心。"
+            },
+            {
+              "turn": 6,
+              "quote": "下午准到。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 1.0,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case29_promise_faster_refund_fail",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 6,
+              "quote": "下午准到。行就这样吧我挂了啊。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+      "description": "用户骂骂咧咧一次抛多件事，客服礼貌克制不还嘴(disparage=pass)，但忙着安抚漏了核实身份就办业务(verify fail)，且安抚话术句句超40字啰嗦(style fail)。考裁判在情绪噪声中三向精准定位。",
+      "n_checkpoints": 7,
+      "n_correct": 7,
+      "accuracy": 1.0,
+      "elapsed_sec": 37.6,
+      "items": [
+        {
+          "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号8844"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次来电就是为您这单做处理，我们给您补偿10元无门槛券，今天到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "本次来电就是为您这单做处理"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "我们给您补偿10元无门槛券，今天到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+          "checkpoint_id": "forbidden_no_disparage",
+          "checkpoint_type": "forbidden",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "非常抱歉给您添麻烦了，我特别理解您的心情。"
+            },
+            {
+              "turn": 6,
+              "quote": "一定，感谢您的接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 4,
+              "quote": "请问还有其他需要帮助的吗？"
+            },
+            {
+              "turn": 6,
+              "quote": "感谢您的接听，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case30_user_swears_agent_polite_fail_elsewhere",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.82,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "非常抱歉给您添麻烦了，我特别理解您的心情。本次来电就是为您这单做处理，我们给您补偿10元无门槛券，今天到账。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.82,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case31_na_callback_failed_minimal",
+      "description": "极短异常场景：用户接起就说'我在开会'要求改约，客服礼貌挂断。除身份自报外多数环节因通话中止未触发，应判 na。考裁判'通话提前中止'下的 na 判定。",
+      "n_checkpoints": 6,
+      "n_correct": 5,
+      "accuracy": 0.8333,
+      "elapsed_sec": 22.6,
+      "items": [
+        {
+          "case_id": "case31_na_callback_failed_minimal",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "您好，这里是美团客服，工号6611"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case31_na_callback_failed_minimal",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.98,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.98,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case31_na_callback_failed_minimal",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.96,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.96,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case31_na_callback_failed_minimal",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case31_na_callback_failed_minimal",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "na",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [],
+          "judge_votes": [
+            {
+              "verdict": "na",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case31_na_callback_failed_minimal",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "na",
+          "pred": "fail",
+          "correct": false,
+          "confidence": 0.97,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "好的不打扰您，那我们稍后再与您联系，祝您工作顺利，再见。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.97,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case32_combo_multi_fail_long",
+      "description": "综合刁钻(11轮)：方言+ASR噪声混合，客服身份OK但赔付金额含糊、退款随口承诺更快、结尾草草挂断，且全程表达零散不得体。一例埋4个fail，考裁判在嘈杂长样本里同时抓多个独立违规不互相干扰。",
+      "n_checkpoints": 7,
+      "n_correct": 6,
+      "accuracy": 0.8571,
+      "elapsed_sec": 29.0,
+      "items": [
+        {
+          "case_id": "case32_combo_multi_fail_long",
+          "checkpoint_id": "flow_greeting_identity",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "这边是美团客服，工号四九零二"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case32_combo_multi_fail_long",
+          "checkpoint_id": "flow_verify_customer",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "critical",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "是黄孃孃本人不嘛，尾号七七一二对头不？"
+            },
+            {
+              "turn": 1,
+              "quote": "是我撒，七七一二。"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case32_combo_multi_fail_long",
+          "checkpoint_id": "flow_state_purpose",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "pass",
+          "pred": "pass",
+          "correct": true,
+          "confidence": 0.95,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 2,
+              "quote": "就 给 你 说 一哈 你 那 但 漏 送 了 给 你 赔 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.95,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case32_combo_multi_fail_long",
+          "checkpoint_id": "constraint_compensation_amount",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 3,
+              "quote": "赔好多嘛？"
+            },
+            {
+              "turn": 4,
+              "quote": "肯定 给 你 赔 起 的 你 莫 慌 反正 会 补 起"
+            },
+            {
+              "turn": 5,
+              "quote": "到底好多噻，是券还是钱？"
+            },
+            {
+              "turn": 6,
+              "quote": "都 安排 起 的 你 放心 嘛"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case32_combo_multi_fail_long",
+          "checkpoint_id": "constraint_no_promise_refund_time",
+          "checkpoint_type": "constraint",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 8,
+              "quote": "我 给 你 催 一哈 今天 下午 就 退 拢 了 比 平时 快 得 多"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case32_combo_multi_fail_long",
+          "checkpoint_id": "flow_closing_confirm",
+          "checkpoint_type": "flow",
+          "checkpoint_severity": "major",
+          "truth": "fail",
+          "pred": "fail",
+          "correct": true,
+          "confidence": 0.99,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 10,
+              "quote": "嗯 就 这样 哈 挂 了 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "fail",
+              "confidence": 0.99,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        },
+        {
+          "case_id": "case32_combo_multi_fail_long",
+          "checkpoint_id": "style_concise_polite",
+          "checkpoint_type": "style",
+          "checkpoint_severity": "minor",
+          "truth": "fail",
+          "pred": "pass",
+          "correct": false,
+          "confidence": 0.93,
+          "method": "llm",
+          "vote_agreement": 1.0,
+          "evidence": [
+            {
+              "turn": 0,
+              "quote": "喂你好哈，这边是美团客服，工号四九零二"
+            },
+            {
+              "turn": 10,
+              "quote": "嗯 就 这样 哈 挂 了 哈"
+            }
+          ],
+          "judge_votes": [
+            {
+              "verdict": "pass",
+              "confidence": 0.93,
+              "model": "gpt-5.6-sol"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

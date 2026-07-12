@@ -1,0 +1,12 @@
+{
+  "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/runs/real_recruit_20260702/transcripts.jsonl",
+  "source_format": "jsonl",
+  "task_id": "real_recruit_rider",
+  "input_trajectories": 1,
+  "accepted_trajectories": 1,
+  "warnings": [
+    "real_recruit_rider__p01_cooperative_worker__1 turn 缺失/非连续，已按原文顺序重编为 1..17"
+  ],
+  "pii_redacted": true,
+  "redaction_counts": {}
+}

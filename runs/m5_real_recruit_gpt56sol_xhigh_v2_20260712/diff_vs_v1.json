@@ -1,0 +1,29 @@
+{
+  "base": "runs/m5_real_recruit_gpt56sol_xhigh_20260712",
+  "new": "runs/m5_real_recruit_gpt56sol_xhigh_v2_20260712",
+  "comparability": {
+    "status": "comparable",
+    "comparable": true,
+    "reasons": [],
+    "checked_fields": [
+      "instruction_hash",
+      "checklist_hash",
+      "safety_policy_hash",
+      "golden_set_version"
+    ]
+  },
+  "improved": [],
+  "regressed": [
+    {
+      "checkpoint_id": "forbidden_4",
+      "text": "禁止说\"加我微信\"\"扫我码\"\"这是我微信号\"等暗示自己可被添加微信的话术",
+      "from": "pass",
+      "to": "fail",
+      "confidence_tag": "需复测确认"
+    }
+  ],
+  "indeterminate": [],
+  "unchanged_count": 42,
+  "appeared": [],
+  "disappeared": []
+}
