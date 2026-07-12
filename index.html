@@ -99,6 +99,7 @@
       <span class="badge">测试充分性可量化</span>
     </div>
     <div class="cta">
+      <a class="btn btn-primary" href="app.html">🚀 打开四步式产品工作台 · SOP → 对话 → 检查尺 → 上线决策</a>
       <a class="btn btn-primary" href="report-official-gated.html">⛔ 门禁版官方任务报告 · 可上线/打回一屏拍板（2026-07 重跑）</a>
       <a class="btn btn-primary" href="report-official.html">📊 官方任务一报告 · 看 0 分如何自动归因到指令</a>
       <a class="btn btn-secondary" href="report-official2.html">📊 官方任务二实测报告</a>
@@ -112,8 +113,8 @@
       <div style="font-size:13px;color:var(--muted)">评模型 · 审指令 · 校裁判<br>别人交打分器，我们交质量基础设施</div>
     </div>
     <div style="background:var(--card);border:1px solid var(--green);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
-      <div style="font-size:30px;font-weight:800;color:var(--green)">92.1%</div>
-      <div style="font-size:13px;color:var(--muted)">裁判校准主口径（32例全量集）<br>盲标独立集 94.7% 未崩盘佐证</div>
+      <div style="font-size:30px;font-weight:800;color:var(--green)">92.73%</div>
+      <div style="font-size:13px;color:var(--muted)">GPT-5.6-sol/xhigh 裁判校准<br>32例 / 165真值 · P0 11/11</div>
     </div>
     <div style="background:var(--card);border:1px solid var(--accent2);border-radius:14px;padding:18px 26px;text-align:center;min-width:200px">
       <div style="font-size:30px;font-weight:800;color:var(--accent2)">22 处</div>
@@ -125,7 +126,7 @@
     </div>
   </div>
   <div style="text-align:center;font-size:13px;color:var(--muted);margin-top:12px">
-    50+ 次提交 · 16 组实验落盘 · 259 个校准真值 · 69 条自动化测试全绿（含端到端冒烟） · 本页每个数字都能在仓库 <code>runs/</code> 下找到产物文件逐一复核
+    50+ 次提交 · 20+ 组实验落盘 · 165 真值当前全量校准 · 110 条自动化测试全绿（含端到端冒烟） · 本页每个数字都能在仓库 <code>runs/</code> 下找到产物文件逐一复核
   </div>
 
   <h2>为什么这个问题难</h2>
@@ -213,7 +214,8 @@
   <p style="color:var(--muted); font-size:15px;">
     审完指令、评完模型，最后一个问题反噬自己——上面所有结论都依赖 LLM 裁判，可裁判自己也会错。谁来评测评测者？EvalCall 用「已知答案注入」校准自己：向系统投放人工构造、真值已知的合成对话（埋好各类违规、补救、未触发分支等难判情形），跑完整裁判流程，输出裁判的查准率/查全率/混淆矩阵。<strong style="color:var(--text)">我们把自己裁判的准确率印在报告上</strong>——这是评测结果可以被信任的前提。
   </p>
-  <h3 class="sub-h">校准主口径（投稿版 v3 裁判 · 32 例 / 165 真值全量集）：准确率 92.1%、宏 F1 0.892、违规查全 91.7%、违规查准 76.7%——对照「全判 pass」平凡基线 72.1%</h3>
+  <h3 class="sub-h">当前主口径（GPT-5.6-sol/xhigh · 32 例 / 165 真值全量集）：准确率 92.73%、宏 F1 0.9155、P0 fail recall 100%；同时主动披露 style 仅 70%</h3>
+  <p class="note" style="margin-top:0">当前口径产物：<code>runs/calibration/calibration_32case_gpt56sol_xhigh_v1.json</code>。下方 92.1% 为此前跨 Claude 裁判团 v3 的历史对照，仍保留以展示提示词演进证据，不与当前模型口径混写。</p>
   <p class="note" style="margin-top:0">所有标题数字统一用全量集口径；fail 查准 76.7%（误报偏多）原样披露。下表为跨模型机制的小样本探索记录（12 例），仅证方向：</p>
   <table>
     <tr><th>指标</th><th>同模型 3 票（12 例探索性小样本）</th><th>跨模型裁判团（同 12 例；样本小、差异未做显著性检验，结论为方向性而非定论）</th><th>含义</th></tr>
