@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-13T08:01:55.069466+00:00",
+  "status": "PASS",
+  "scope_note": "Historical cache scope is intentionally different from selectable live sample scope for real_recruit and official02; the UI labels the modes separately.",
+  "checks": [
+    {
+      "name": "six_plain_step_labels",
+      "passed": true,
+      "actual": [
+        "上传评测材料",
+        "生成评分标准",
+        "检查每通电话",
+        "查看评测结果",
+        "定位问题原因",
+        "生成修复方案"
+      ],
+      "expected": [
+        "上传评测材料",
+        "生成评分标准",
+        "检查每通电话",
+        "查看评测结果",
+        "定位问题原因",
+        "生成修复方案"
+      ]
+    },
+    {
+      "name": "truthful_mode_labels",
+      "passed": true,
+      "actual": [
+        "历史产物 · 非现场调用",
+        "本地服务 · 六步真实执行"
+      ],
+      "expected": [
+        "历史产物 · 非现场调用",
+        "本地服务 · 六步真实执行"
+      ]
+    },
+    {
+      "name": "preset_count",
+      "passed": true,
+      "actual": 4,
+      "expected": 4
+    },
+    {
+      "name": "official01_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "official01_historical_scope",
+      "passed": true,
+      "actual": 12,
+      "expected": 12
+    },
+    {
+      "name": "t02_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "t02_historical_scope",
+      "passed": true,
+      "actual": 6,
+      "expected": 6
+    },
+    {
+      "name": "real_recruit_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "real_recruit_historical_scope",
+      "passed": true,
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "official02_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "official02_historical_scope",
+      "passed": true,
+      "actual": 6,
+      "expected": 6
+    },
+    {
+      "name": "selectable_sample_batch_counts",
+      "passed": true,
+      "actual": {
+        "official01": 12,
+        "t02": 10,
+        "real_recruit": 10,
+        "official02": 10
+      },
+      "expected": {
+        "official01": 12,
+        "t02": 10,
+        "real_recruit": 10,
+        "official02": 10
+      }
+    }
+  ],
+  "artifacts": {
+    "site-deploy/app.html": "59e0165bfea0e1c87e5906bd5414df099ba629c0cd46779fe3206a6896d7c3a7",
+    "site-deploy/demo-cache.json": "97d513a0ffc2b02e16afb1e0436fd507a183b2b3884d03e6d254ad59c9c0da63",
+    "样例选择包/01_骑手合同生效通知_对话_12通.jsonl": "bd64cd0c1fcaa255ada78962e073755f363497907000d1d8709a2565b76a34d6",
+    "样例选择包/02_配送时间改约_对话_10通.jsonl": "f212d9cc58498d19a57e6c5fd5652590cda6b7823615548984ab91d21109fd18",
+    "样例选择包/03_骑手招聘外呼_对话_10通.jsonl": "c983bed9601694c5a2da3bcb3ef672bdee7e5f0208ecdaa6648e9696f590d9c9",
+    "样例选择包/04_低延迟直播升级通知_对话_10通.jsonl": "88fa10fbdf1a7ebca0a759a1d83b2f1284272e7bac11c751a6bfcba98a0fa7c6"
+  }
+}

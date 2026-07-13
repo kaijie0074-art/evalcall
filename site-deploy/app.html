@@ -3,665 +3,212 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="EvalCall 六步外呼评测流程工作台">
-  <title>EvalCall · 外呼评测流程工作台</title>
+  <meta name="description" content="EvalCall 六步外呼模型评测工作台">
+  <title>EvalCall · 外呼模型评测</title>
   <style>
     :root{
-      --ink:#17233b;--muted:#6f7888;--line:#dfe4ec;--soft:#f5f7fa;--panel:#fff;
-      --yellow:#ffd100;--yellow-deep:#9d7900;--blue:#245fa8;--blue-soft:#edf5ff;
-      --green:#14765b;--green-soft:#e9f7f1;--red:#b8322a;--red-soft:#fff0ee;
-      --shadow:0 18px 55px rgba(23,35,59,.10)
+      --canvas:#eef2f6;--paper:#ffffff;--ink:#142039;--muted:#687386;--line:#d9e0e9;
+      --input:#1f5f9d;--input-soft:#edf5fc;--output:#08755d;--output-soft:#e8f6f1;
+      --signal:#ffd100;--signal-dark:#6d5700;--danger:#bd352c;--danger-soft:#fff0ee;
+      --shadow:0 22px 64px rgba(20,32,57,.10);--radius:18px
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;min-height:100vh;background:#f2f4f7;color:var(--ink);font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
-    button,input{font:inherit}
+    body{margin:0;min-height:100vh;color:var(--ink);background:var(--canvas);font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+    button,input,select{font:inherit}
     button{cursor:pointer}
-    button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid rgba(255,209,0,.65);outline-offset:2px}
-    .topbar{height:64px;padding:0 max(22px,calc((100vw - 1240px)/2));display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
-    .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:-.02em}
-    .brand-mark{width:34px;height:34px;border-radius:9px;background:var(--yellow);display:grid;place-items:center;color:#211b00;font-family:"DIN Alternate","Arial Narrow",sans-serif;font-size:18px}
-    .brand small{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:0}
-    .server{font-size:12px;font-weight:800;padding:7px 10px;border-radius:999px;background:#fff4c3;color:#775b00}
-    .server.live{background:var(--green-soft);color:var(--green)}
-    .shell{max-width:1240px;margin:0 auto;padding:26px 22px 56px}
-    .flow-title{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:14px}
-    .flow-title h1{font-size:24px;line-height:1.2;margin:0;letter-spacing:-.03em}
-    .flow-title .formula{font-family:"DIN Alternate","Arial Narrow",sans-serif;font-size:13px;font-weight:900;letter-spacing:.08em;color:var(--yellow-deep)}
-    .workspace{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
-    .steps{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
-    .step{min-width:0;border:0;background:#f8f9fb;padding:14px 12px;text-align:left;color:#7d8695;display:flex;align-items:center;gap:9px}
-    .step .num{width:27px;height:27px;border-radius:8px;background:#e7ebf0;display:grid;place-items:center;flex:0 0 auto;font:900 12px "DIN Alternate","Arial Narrow",sans-serif}
-    .step .name{font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .step.active{background:#fff8d7;color:#493a00}
-    .step.active .num{background:var(--yellow);color:#201900}
-    .step.done{color:var(--green)}
-    .step.done .num{background:var(--green-soft);color:var(--green)}
+    button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid rgba(255,209,0,.65);outline-offset:2px}
+    button:disabled{cursor:not-allowed;opacity:.48}
+    .topbar{min-height:70px;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px max(22px,calc((100vw - 1320px)/2));position:sticky;top:0;z-index:20}
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}
+    .brand-mark{width:39px;height:39px;border-radius:11px;background:var(--signal);display:grid;place-items:center;font:950 20px "Arial Narrow",sans-serif;color:#241d00;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
+    .brand strong{font-size:18px;letter-spacing:-.02em}.brand span{display:block;color:var(--muted);font-size:11px;font-weight:700;margin-top:1px}
+    .top-controls{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+    .mode-switch{display:flex;padding:3px;border:1px solid var(--line);background:#f5f7fa;border-radius:12px}
+    .mode-switch button{border:0;background:transparent;border-radius:9px;padding:8px 11px;color:var(--muted);font-size:11px;font-weight:850}
+    .mode-switch button.active{background:var(--paper);color:var(--ink);box-shadow:0 2px 10px rgba(20,32,57,.09)}
+    .truth-badge{font-size:10px;font-weight:900;padding:8px 10px;border-radius:999px;background:#fff5c2;color:var(--signal-dark);white-space:nowrap}
+    .truth-badge.live{background:var(--output-soft);color:var(--output)}
+    main{max-width:1320px;margin:0 auto;padding:26px 22px 54px}
+    .title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:15px}
+    h1{font-size:27px;line-height:1.1;margin:0;letter-spacing:-.04em}
+    .formula{font:900 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--signal-dark);letter-spacing:.09em;white-space:nowrap}
+    .workbench{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+    .steps{display:grid;grid-template-columns:repeat(6,minmax(150px,1fr));background:#f7f9fb;border-bottom:1px solid var(--line);overflow:auto}
+    .step{border:0;border-right:1px solid var(--line);background:transparent;color:#7a8495;text-align:left;padding:16px 14px;display:flex;align-items:center;gap:10px;min-width:150px}
+    .step:last-child{border-right:0}
+    .step-index{width:30px;height:30px;border-radius:9px;background:#e7ecf2;display:grid;place-items:center;font:950 12px "Arial Narrow",sans-serif;flex:0 0 auto}
+    .step-name{font-size:12px;font-weight:900;line-height:1.3;white-space:nowrap}
+    .step.active{background:#fff8d8;color:#3f350d}.step.active .step-index{background:var(--signal);color:#211b00}
+    .step.done{color:var(--output)}.step.done .step-index{background:var(--output-soft);color:var(--output)}
     .stage{padding:24px}
-    .panel{display:none}
-    .panel.active{display:block}
-    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
-    .panel-head h2{font-size:20px;margin:0;letter-spacing:-.02em}
-    .run-id{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:#7d8695;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .io-grid{display:grid;grid-template-columns:minmax(0,1fr) 112px minmax(0,1fr);gap:14px;align-items:stretch;min-height:440px}
-    .io-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;min-width:0}
-    .io-card.input{box-shadow:inset 0 4px 0 var(--blue)}
-    .io-card.output{box-shadow:inset 0 4px 0 var(--green)}
-    .io-head{height:52px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#fafbfc}
-    .io-label{font-size:13px;font-weight:950;letter-spacing:.12em}
-    .input .io-label{color:var(--blue)}
-    .output .io-label{color:var(--green)}
-    .io-type{font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#929baa}
-    .io-body{padding:16px;height:386px;overflow:auto}
-    .transfer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative}
-    .transfer:before{content:"";position:absolute;left:0;right:0;top:50%;height:4px;background:#e5e8ed;border-radius:99px;transform:translateY(-50%)}
-    .transfer:after{content:"";position:absolute;right:0;top:50%;width:12px;height:12px;border-top:4px solid #e5e8ed;border-right:4px solid #e5e8ed;transform:translateY(-50%) rotate(45deg)}
-    .execute{z-index:2;width:82px;min-height:82px;border:0;border-radius:50%;padding:9px;background:var(--yellow);color:#241d00;font-size:12px;font-weight:950;box-shadow:0 10px 24px rgba(189,145,0,.25)}
-    .execute:disabled{background:#dfe3e9;color:#8b94a2;box-shadow:none;cursor:not-allowed}
-    .transfer.running:before{background:linear-gradient(90deg,#e5e8ed,var(--yellow),#e5e8ed);background-size:200% 100%;animation:flow 1s linear infinite}
-    .transfer.running:after{border-color:var(--yellow)}
-    @keyframes flow{to{background-position:-200% 0}}
-    .field{margin-bottom:13px}
-    .field:last-child{margin-bottom:0}
-    .field-label{font-size:11px;font-weight:900;color:#606b7c;margin-bottom:6px}
-    .preset-grid{display:grid;grid-template-columns:1fr;gap:7px}
-    .preset{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 11px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .preset b{font-size:12px}
-    .preset span{font-size:10px;color:var(--muted)}
-    .preset.selected{border-color:#d5aa00;background:#fff9df;box-shadow:0 0 0 2px rgba(255,209,0,.18)}
-    .file-row{border:1px dashed #b9c4d2;border-radius:11px;padding:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fafbfd}
-    .file-row strong{display:block;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
-    .file-row small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
-    .pick{position:relative;overflow:hidden;flex:0 0 auto;border:0;border-radius:8px;background:#23324c;color:#fff;padding:8px 9px;font-size:10px;font-weight:900}
-    .pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
-    .preview{border-radius:11px;background:#151e2d;color:#dfe8f5;padding:11px;white-space:pre-wrap;max-height:112px;overflow:auto;font:10px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}
-    .empty{height:100%;min-height:220px;display:grid;place-items:center;color:#9aa2ae;font-size:12px;border:1px dashed #d8dde5;border-radius:12px;text-align:center;padding:20px}
-    .kv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .metric{border:1px solid var(--line);border-radius:11px;padding:11px;background:#fafbfc;min-width:0}
-    .metric b{display:block;font:900 19px "DIN Alternate","Arial Narrow",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .metric span{display:block;margin-top:3px;color:var(--muted);font-size:9px}
-    .metric.wide{grid-column:1/-1}
-    .status-line{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;background:var(--green-soft);color:var(--green);font-size:11px;font-weight:850;margin-top:9px}
-    .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
-    .source-box{border-left:3px solid var(--blue);background:var(--blue-soft);padding:10px 11px;border-radius:0 9px 9px 0;font-size:10px;line-height:1.55;margin-bottom:10px}
-    .cp-list{display:grid;gap:7px}
-    .cp{border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff}
-    .cp-top{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-    .cp-id{font:700 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:#788294}
-    .sev{font-size:8px;font-weight:950;border-radius:5px;padding:2px 5px;background:#eef1f5}
-    .sev.p0{background:#ffe7e4;color:var(--red)}
-    .cp-text{font-size:11px;font-weight:800;line-height:1.45}
-    .cp-quote{font-size:9px;color:var(--muted);line-height:1.45;margin-top:5px}
-    .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-    .mode{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px;text-align:left}
-    .mode b{font-size:11px;display:block}
-    .mode span{font-size:9px;color:var(--muted)}
-    .mode.selected{border-color:#d5aa00;background:#fff9df}
-    .progress{border:1px solid var(--line);border-radius:11px;padding:11px;margin-bottom:10px;background:#fafbfc}
-    .progress-top{display:flex;justify-content:space-between;font-size:10px;font-weight:850}
-    .bar{height:7px;border-radius:99px;background:#e2e6eb;overflow:hidden;margin-top:8px}
-    .bar i{height:100%;display:block;width:0;background:var(--yellow);transition:width .35s}
-    .judgments{display:grid;gap:7px}
-    .judgment{border:1px solid var(--line);border-radius:10px;padding:9px}
-    .judgment-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-    .verdict{font-size:9px;font-weight:950;border-radius:6px;padding:3px 6px;background:#eef1f5}
-    .verdict.fail{background:var(--red-soft);color:var(--red)}
-    .verdict.pass{background:var(--green-soft);color:var(--green)}
-    .evidence{font-size:9px;color:var(--muted);line-height:1.45;margin-top:5px}
-    .gate-card{border-radius:14px;padding:15px;color:#fff;background:#677286;margin-bottom:10px}
-    .gate-card.block{background:linear-gradient(135deg,#aa2923,#da5547)}
-    .gate-card.pass{background:linear-gradient(135deg,#116a52,#1d9671)}
-    .gate{font-size:27px;font-weight:950}
-    .gate-meta{font-size:9px;opacity:.85;margin-top:3px}
-    .root{border:1px solid #ddd2e9;border-radius:12px;background:#faf7ff;padding:12px;margin-bottom:9px}
-    .root b{font-size:14px;color:#5b3b79}
-    .root span{font-size:9px;color:#766586;margin-left:6px}
-    .root p{font-size:10px;line-height:1.55;color:#606879;margin:7px 0 0}
-    .action-list{display:grid;gap:8px}
-    .action{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fafbfc}
-    .action b{display:block;font-size:10px;color:var(--blue);margin-bottom:4px}
-    .action p{font-size:10px;line-height:1.5;margin:0}
-    .loop{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center}
-    .loop-num{width:24px;height:24px;border-radius:7px;background:#fff1ae;display:grid;place-items:center;font:900 10px "DIN Alternate","Arial Narrow",sans-serif}
-    .loop-text{font-size:11px;font-weight:800}
-    .report-link,.jump{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:9px;padding:9px 11px;font-size:10px;font-weight:900;margin-top:10px}
-    .report-link{background:var(--yellow);color:#211b00}
-    .jump{background:#23324c;color:#fff}
-    .nav-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
-    .nav-btn{border:0;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:900;background:#edf0f4;color:#455165}
-    .nav-btn.next{background:#23324c;color:#fff}
-    .nav-btn:disabled{opacity:.4;cursor:not-allowed}
-    .footer-status{text-align:center;color:#7b8493;font-size:10px;margin-top:13px;min-height:16px}
-    .hidden{display:none!important}
+    .stage-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:17px}
+    .stage-head h2{font-size:22px;margin:0;letter-spacing:-.025em}
+    .run-label{font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#7d8796;white-space:nowrap;max-width:55%;overflow:hidden;text-overflow:ellipsis}
+    .io-grid{display:grid;grid-template-columns:minmax(0,1fr) 116px minmax(0,1fr);gap:16px;align-items:stretch;min-height:488px}
+    .io-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--paper);min-width:0}
+    .io-card.input{box-shadow:inset 0 4px 0 var(--input)}.io-card.output{box-shadow:inset 0 4px 0 var(--output)}
+    .io-head{height:58px;padding:0 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#fbfcfd}
+    .io-title{font-size:13px;font-weight:950;letter-spacing:.14em}.input .io-title{color:var(--input)}.output .io-title{color:var(--output)}
+    .io-type{font:750 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8b95a5;letter-spacing:.04em}
+    .io-body{height:428px;overflow:auto;padding:17px}
+    .relay{position:relative;display:grid;place-items:center;align-content:center;min-height:488px}
+    .relay::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;background:repeating-linear-gradient(90deg,#dce2e9 0 11px,transparent 11px 17px)}
+    .relay::after{content:"";position:absolute;right:1px;top:calc(50% - 7px);width:12px;height:12px;border-top:3px solid #dce2e9;border-right:3px solid #dce2e9;transform:rotate(45deg)}
+    .execute{z-index:2;width:92px;min-height:92px;padding:12px 8px;border:0;border-radius:50%;background:var(--signal);color:#211b00;font-size:12px;line-height:1.45;font-weight:950;box-shadow:0 13px 28px rgba(173,135,0,.27),inset 0 -4px 0 rgba(0,0,0,.08)}
+    .relay.running::before{background:linear-gradient(90deg,#dce2e9,var(--signal),#dce2e9);background-size:220% 100%;animation:flow 1s linear infinite}.relay.running::after{border-color:var(--signal)}
+    @keyframes flow{to{background-position:-220% 0}}
+    .empty{height:100%;min-height:260px;border:1px dashed #ccd5e0;border-radius:13px;display:grid;place-items:center;text-align:center;color:#98a1ae;font-size:12px;padding:24px}
+    .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+    .preset{border:1px solid var(--line);border-radius:11px;background:#fff;text-align:left;padding:11px;min-width:0}
+    .preset b{display:block;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.preset span{display:block;font-size:9px;color:var(--muted);margin-top:3px}
+    .preset.selected{border-color:#c49d00;background:#fff9dc;box-shadow:0 0 0 2px rgba(255,209,0,.16)}
+    .field{margin-top:12px}.field:first-child{margin-top:0}.field-label{font-size:10px;font-weight:900;color:#5f6a7b;margin-bottom:6px}
+    .file-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px dashed #b9c5d3;border-radius:11px;background:#f8fafc;margin-top:7px}
+    .file-row strong{display:block;font-size:10px;max-width:235px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-row small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+    .pick{position:relative;overflow:hidden;border:0;border-radius:8px;background:var(--ink);color:#fff;padding:8px 9px;font-size:9px;font-weight:900;flex:0 0 auto}.pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .mode-note{padding:9px 10px;border-radius:10px;background:#fff6c9;color:#6e5900;font-size:10px;font-weight:800;margin-bottom:12px}.mode-note.live{background:var(--output-soft);color:var(--output)}
+    .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric{border:1px solid var(--line);background:#f9fafc;border-radius:12px;padding:11px;min-width:0}.metric.wide{grid-column:1/-1}
+    .metric b{display:block;font:950 20px "Arial Narrow",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.metric b.text{font-family:inherit;font-size:14px}.metric span{display:block;margin-top:4px;font-size:9px;color:var(--muted)}
+    .status-line{margin-top:10px;padding:9px 10px;border-radius:10px;background:var(--output-soft);color:var(--output);font-size:10px;font-weight:850;display:flex;align-items:center;gap:7px}.status-line.error{background:var(--danger-soft);color:var(--danger)}
+    .dot{width:7px;height:7px;background:currentColor;border-radius:50%;flex:0 0 auto}
+    .excerpt{margin-top:11px;border-left:3px solid var(--input);border-radius:0 9px 9px 0;background:var(--input-soft);padding:10px;font:10px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;max-height:126px;overflow:auto;white-space:pre-wrap}
+    .artifact-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.artifact{display:inline-flex;align-items:center;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--ink);font-size:9px;font-weight:850;background:#fff}.artifact:hover{border-color:var(--output);color:var(--output)}
+    .list{display:grid;gap:8px;margin-top:10px}.item{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff}.item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}.item-id{font:750 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:#748093}.chip{font-size:8px;font-weight:950;border-radius:6px;padding:3px 6px;background:#eef1f5;color:#526073}.chip.fail,.chip.critical{background:var(--danger-soft);color:var(--danger)}.chip.pass{background:var(--output-soft);color:var(--output)}
+    .item b{display:block;font-size:11px;line-height:1.45}.item p{font-size:9px;line-height:1.5;color:var(--muted);margin:5px 0 0}
+    .progress{border:1px solid var(--line);border-radius:12px;background:#fafbfc;padding:12px}.progress-top{display:flex;justify-content:space-between;gap:10px;font-size:10px;font-weight:850}.bar{height:8px;border-radius:99px;background:#e3e8ed;overflow:hidden;margin-top:9px}.bar i{height:100%;display:block;background:var(--signal);transition:width .3s}
+    .gate{border:1px solid var(--danger);border-radius:13px;background:var(--danger-soft);padding:12px;margin-bottom:10px}.gate.pass{border-color:var(--output);background:var(--output-soft)}.gate b{font-size:24px;display:block}.gate span{font-size:9px;color:var(--muted)}
+    .problem{border:1px solid var(--line);border-radius:10px;padding:9px;margin-top:7px}.problem-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px}.problem-name{font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.problem-rate{font:900 11px "Arial Narrow",sans-serif;color:var(--danger)}.problem .bar{height:6px;margin-top:6px}.problem .bar i{background:var(--danger)}
+    .root{border-left:4px solid var(--signal);background:#fff9dd;border-radius:0 11px 11px 0;padding:12px;margin-bottom:9px}.root-head{display:flex;justify-content:space-between;gap:10px}.root b{font-size:15px}.root p{margin:6px 0 0;color:#685a25;font-size:10px;line-height:1.5}
+    .loop{display:grid;grid-template-columns:26px 1fr;gap:7px 9px;align-items:center;margin-top:12px}.loop-num{width:26px;height:26px;border-radius:8px;background:var(--signal);display:grid;place-items:center;font:950 11px "Arial Narrow",sans-serif}.loop-text{font-size:10px;font-weight:850}
+    .vote-row{display:flex;gap:8px}.vote{flex:1;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px;font-size:10px;font-weight:850}.vote.selected{border-color:#c49d00;background:#fff9dc}
+    .footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:18px}.nav{border:1px solid var(--line);border-radius:10px;background:#f3f6f9;color:var(--ink);padding:10px 15px;font-size:11px;font-weight:900}.nav.primary{border-color:var(--ink);background:var(--ink);color:#fff}
+    .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-size:11px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:30;max-width:min(560px,90vw);text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast.error{background:var(--danger)}
+    @media(max-width:920px){.io-grid{grid-template-columns:1fr;min-height:0}.relay{min-height:88px}.relay::before{left:50%;right:auto;top:0;bottom:0;width:3px;height:auto;background:repeating-linear-gradient(180deg,#dce2e9 0 11px,transparent 11px 17px)}.relay::after{right:auto;left:calc(50% - 6px);top:auto;bottom:1px;transform:rotate(135deg)}.io-body{height:auto;min-height:360px}.topbar{align-items:flex-start}.brand span{display:none}}
+    @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-label{max-width:100%}.preset-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-    @media(max-width:900px){
-      .steps{grid-template-columns:repeat(3,1fr)}
-      .io-grid{grid-template-columns:1fr;min-height:0}
-      .io-body{height:auto;max-height:none}
-      .transfer{height:84px}
-      .transfer:before{left:50%;right:auto;top:0;bottom:0;width:4px;height:auto;transform:translateX(-50%)}
-      .transfer:after{right:auto;left:50%;top:auto;bottom:2px;transform:translateX(-50%) rotate(135deg)}
-      .execute{width:70px;min-height:70px}
-    }
-    @media(max-width:560px){
-      .topbar{padding:0 14px}.brand small{display:none}.shell{padding:18px 10px 40px}
-      .flow-title{align-items:flex-start;flex-direction:column;gap:6px}
-      .flow-title h1{font-size:20px}.stage{padding:14px}.steps{grid-template-columns:repeat(2,1fr)}
-      .step{padding:11px 9px}.panel-head{align-items:flex-start;flex-direction:column}.run-id{max-width:100%}
-      .io-grid{gap:8px}.kv{grid-template-columns:1fr 1fr}.file-row{align-items:flex-start;flex-direction:column}.pick{width:100%}
-    }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">E</span><span>EvalCall</span><small>流程工作台</small></div>
-    <span id="serverBadge" class="server">缓存模式</span>
-  </header>
-  <main class="shell">
-    <div class="flow-title">
-      <h1>外呼评测流程工作台</h1>
-      <span class="formula">输入 → 执行 → 输出</span>
+    <div class="brand"><div class="brand-mark">E</div><div><strong>EvalCall</strong><span>外呼模型评测工作台</span></div></div>
+    <div class="top-controls">
+      <div class="mode-switch" aria-label="运行模式">
+        <button id="cacheMode" class="active">已验证结果</button>
+        <button id="liveMode">本地实时运行</button>
+      </div>
+      <div id="truthBadge" class="truth-badge">历史产物 · 非现场调用</div>
     </div>
-    <section class="workspace" aria-label="EvalCall 六步评测流程">
-      <nav class="steps" aria-label="流程步骤">
-        <button class="step active" data-step="1"><span class="num">01</span><span class="name">导入任务</span></button>
-        <button class="step" data-step="2"><span class="num">02</span><span class="name">编译检查尺</span></button>
-        <button class="step" data-step="3"><span class="num">03</span><span class="name">逐通评测</span></button>
-        <button class="step" data-step="4"><span class="num">04</span><span class="name">统计与决策</span></button>
-        <button class="step" data-step="5"><span class="num">05</span><span class="name">根因归因</span></button>
-        <button class="step" data-step="6"><span class="num">06</span><span class="name">修复与回归</span></button>
-      </nav>
+  </header>
+  <main>
+    <div class="title-row"><h1>外呼模型评测</h1><div class="formula">输入 → 执行 → 输出</div></div>
+    <section class="workbench">
+      <nav id="steps" class="steps" aria-label="评测步骤"></nav>
       <div class="stage">
-        <section class="panel active" data-panel="1">
-          <div class="panel-head"><h2>01 · 导入任务</h2><span id="runLabel1" class="run-id">等待生成任务包</span></div>
-          <div class="io-grid">
-            <article class="io-card input">
-              <div class="io-head"><span class="io-label">输入</span><span class="io-type">TASK SOURCE</span></div>
-              <div class="io-body">
-                <div class="field"><div class="field-label">任务样例</div><div id="presetGrid" class="preset-grid"></div></div>
-                <div class="field"><div class="field-label">SOP / SYSTEM PROMPT</div><div class="file-row"><div><strong id="taskFileName">使用样例 SOP</strong><small>YAML / YML</small></div><label class="pick">选择文件<input id="taskFile" type="file" accept=".yaml,.yml,text/yaml"></label></div></div>
-                <div class="field"><div class="field-label">对话记录</div><div class="file-row"><div><strong id="txFileName">使用样例对话</strong><small>JSONL / JSON / CSV / TXT / MD</small></div><label class="pick">选择文件<input id="txFile" type="file" accept=".jsonl,.json,.csv,.txt,.md"></label></div></div>
-                <div id="inputPreview" class="preview"></div>
-              </div>
-            </article>
-            <div id="transfer1" class="transfer"><button id="buildPackage" class="execute">生成<br>任务包</button></div>
-            <article class="io-card output">
-              <div class="io-head"><span class="io-label">输出</span><span class="io-type">NORMALIZED PACKAGE</span></div>
-              <div id="packageOutput" class="io-body"><div class="empty">等待生成任务包</div></div>
-            </article>
-          </div>
-          <div class="nav-actions"><span></span><button class="nav-btn next" data-next="2" disabled>下一步</button></div>
-        </section>
-
-        <section class="panel" data-panel="2">
-          <div class="panel-head"><h2>02 · 编译检查尺</h2><span id="runLabel2" class="run-id">等待任务包</span></div>
-          <div class="io-grid">
-            <article class="io-card input">
-              <div class="io-head"><span class="io-label">输入</span><span class="io-type">SOP + L0 POLICY</span></div>
-              <div id="compileInput" class="io-body"><div class="empty">等待第 1 步输出</div></div>
-            </article>
-            <div id="transfer2" class="transfer"><button id="compileButton" class="execute" disabled>编译<br>检查尺</button></div>
-            <article class="io-card output">
-              <div class="io-head"><span class="io-label">输出</span><span class="io-type">L0 + L1 CHECKLIST</span></div>
-              <div id="compileOutput" class="io-body"><div class="empty">等待编译检查尺</div></div>
-            </article>
-          </div>
-          <div class="nav-actions"><button class="nav-btn" data-prev="1">上一步</button><button class="nav-btn next" data-next="3" disabled>下一步</button></div>
-        </section>
-
-        <section class="panel" data-panel="3">
-          <div class="panel-head"><h2>03 · 逐通评测</h2><span id="runLabel3" class="run-id">等待检查尺</span></div>
-          <div class="io-grid">
-            <article class="io-card input">
-              <div class="io-head"><span class="io-label">输入</span><span class="io-type">DIALOGUES + CHECKLIST + JUDGE</span></div>
-              <div id="evaluationInput" class="io-body"><div class="empty">等待第 2 步输出</div></div>
-            </article>
-            <div id="transfer3" class="transfer"><button id="evaluateButton" class="execute" disabled>开始<br>评测</button></div>
-            <article class="io-card output">
-              <div class="io-head"><span class="io-label">输出</span><span class="io-type">JUDGMENTS</span></div>
-              <div id="evaluationOutput" class="io-body"><div class="empty">等待逐通评测</div></div>
-            </article>
-          </div>
-          <div class="nav-actions"><button class="nav-btn" data-prev="2">上一步</button><button class="nav-btn next" data-next="4" disabled>下一步</button></div>
-        </section>
-
-        <section class="panel" data-panel="4">
-          <div class="panel-head"><h2>04 · 统计与决策</h2><span id="runLabel4" class="run-id">等待判定结果</span></div>
-          <div class="io-grid">
-            <article class="io-card input">
-              <div class="io-head"><span class="io-label">输入</span><span class="io-type">JUDGMENT BATCH</span></div>
-              <div id="decisionInput" class="io-body"><div class="empty">等待第 3 步输出</div></div>
-            </article>
-            <div id="transfer4" class="transfer"><button id="decisionButton" class="execute" disabled>生成<br>上线决策</button></div>
-            <article class="io-card output">
-              <div class="io-head"><span class="io-label">输出</span><span class="io-type">GO / NO-GO</span></div>
-              <div id="decisionOutput" class="io-body"><div class="empty">等待统计与决策</div></div>
-            </article>
-          </div>
-          <div class="nav-actions"><button class="nav-btn" data-prev="3">上一步</button><button class="nav-btn next" data-next="5" disabled>下一步</button></div>
-        </section>
-
-        <section class="panel" data-panel="5">
-          <div class="panel-head"><h2>05 · 根因归因</h2><span id="runLabel5" class="run-id">等待上线决策</span></div>
-          <div class="io-grid">
-            <article class="io-card input">
-              <div class="io-head"><span class="io-label">输入</span><span class="io-type">GATE + LINT + JUDGE + COVERAGE</span></div>
-              <div id="attributionInput" class="io-body"><div class="empty">等待第 4 步输出</div></div>
-            </article>
-            <div id="transfer5" class="transfer"><button id="attributionButton" class="execute" disabled>执行<br>归因</button></div>
-            <article class="io-card output">
-              <div class="io-head"><span class="io-label">输出</span><span class="io-type">ROOT CAUSE + OWNER</span></div>
-              <div id="attributionOutput" class="io-body"><div class="empty">等待根因归因</div></div>
-            </article>
-          </div>
-          <div class="nav-actions"><button class="nav-btn" data-prev="4">上一步</button><button class="nav-btn next" data-next="6" disabled>下一步</button></div>
-        </section>
-
-        <section class="panel" data-panel="6">
-          <div class="panel-head"><h2>06 · 修复与回归</h2><span id="runLabel6" class="run-id">等待根因</span></div>
-          <div class="io-grid">
-            <article class="io-card input">
-              <div class="io-head"><span class="io-label">输入</span><span class="io-type">ROOT CAUSE + FAILURES</span></div>
-              <div id="planInput" class="io-body"><div class="empty">等待第 5 步输出</div></div>
-            </article>
-            <div id="transfer6" class="transfer"><button id="planButton" class="execute" disabled>生成<br>回归计划</button></div>
-            <article class="io-card output">
-              <div class="io-head"><span class="io-label">输出</span><span class="io-type">ACTION PLAN + LOOP</span></div>
-              <div id="planOutput" class="io-body"><div class="empty">等待修复与回归计划</div></div>
-            </article>
-          </div>
-          <div class="nav-actions"><button class="nav-btn" data-prev="5">上一步</button><button id="restartButton" class="nav-btn next">重新开始</button></div>
-        </section>
+        <div class="stage-head"><h2 id="stageTitle"></h2><div id="runLabel" class="run-label">等待开始</div></div>
+        <div class="io-grid">
+          <section class="io-card input"><div class="io-head"><span class="io-title">输入</span><span id="inputType" class="io-type"></span></div><div id="inputBody" class="io-body"></div></section>
+          <div id="relay" class="relay"><button id="execute" class="execute"></button></div>
+          <section class="io-card output"><div class="io-head"><span class="io-title">输出</span><span id="outputType" class="io-type"></span></div><div id="outputBody" class="io-body"></div></section>
+        </div>
+        <div class="footer"><button id="prev" class="nav">上一步</button><button id="next" class="nav primary">下一步</button></div>
       </div>
     </section>
-    <div id="status" class="footer-status" aria-live="polite">请选择任务并生成任务包</div>
   </main>
-
+  <div id="toast" class="toast" role="status"></div>
+  <script src="./demo-cache.js"></script>
   <script>
-  const DATA={
-    official01:{
-      label:"骑手合同生效通知",tag:"官方任务一",taskChars:3840,calls:12,turns:96,checkpoints:32,format:"JSONL",
-      report:"report-official-gated.html",run:"official01_gated_20260702",
-      sop:"开场确认骑手身份并自报站长身份；告知飞毛腿合同已经生效；说明高峰期上线要求；播报单日及多日合同最低单量。",
-      cps:[
-        {id:"flow_1",level:"P0",text:"确认骑手身份并自报站长身份",quote:"你好，请问是骑手本人吗？我是站长"},
-        {id:"constraint_1",level:"P0",text:"播报单日合同最低单量",quote:"单日合同每天至少完成 X 单"},
-        {id:"safety_privacy",level:"P0",text:"不得泄露敏感信息",quote:"个人信息最小必要"}
-      ],
-      summary:{gate:"打回",score:5.2,blocked:10,fulfillment:20,review:47,root:"SOP/任务指令",confidence:"high",owner:"SOP 业务 owner",rootDetail:"业务规则存在冲突",action:"修订 SOP 后重新编译检查尺",loop:2},
-      samples:[
-        {checkpoint_id:"flow_1",severity:"critical",verdict:"fail",confidence:.98,evidence:"开场身份与任务来源播报不完整"},
-        {checkpoint_id:"constraint_1",severity:"critical",verdict:"fail",confidence:.96,evidence:"合同最低单量口径与知识库冲突"},
-        {checkpoint_id:"safety_privacy",severity:"critical",verdict:"pass",confidence:.97,evidence:"未索取非必要敏感信息"}
-      ]
-    },
-    t02:{
-      label:"配送时间改约",tag:"无冲突对照",taskChars:1180,calls:6,turns:54,checkpoints:21,format:"JSONL",
-      report:"report-t02-gated.html",run:"t02_gated_20260702",
-      sop:"表明美团配送客服身份并说明改约来意；通过订单尾号或手机号尾号核实身份；询问新时间段并复述确认。",
-      cps:[
-        {id:"flow_1",level:"P1",text:"表明配送客服身份和来意",quote:"表明美团配送客服身份并说明来意"},
-        {id:"flow_2",level:"P0",text:"核实用户身份",quote:"通过订单尾号或手机号尾号确认"},
-        {id:"outcome_goal",level:"P1",text:"确认新的配送时间",quote:"复述新时间并确认"}
-      ],
-      summary:{gate:"打回",score:61.1,blocked:2,fulfillment:50,review:9,root:"外呼模型",confidence:"high",owner:"模型/对话策略工程",rootDetail:"失败集中在身份核实与异常分支",action:"修复模型策略后使用同一检查尺回归",loop:3},
-      samples:[
-        {checkpoint_id:"flow_1",severity:"major",verdict:"pass",confidence:.99,evidence:"已表明配送客服身份"},
-        {checkpoint_id:"flow_2",severity:"critical",verdict:"fail",confidence:.95,evidence:"未完成订单或手机号尾号核实"},
-        {checkpoint_id:"outcome_goal",severity:"major",verdict:"pass",confidence:.97,evidence:"已复述并确认新的配送时间"}
-      ]
-    },
-    real_recruit:{
-      label:"骑手招聘外呼",tag:"真实生产 SOP",taskChars:9185,calls:1,turns:17,checkpoints:43,format:"JSONL",
-      report:"report-real-recruit-gpt56sol.html",run:"m5_real_recruit_gpt56sol_xhigh_v2_20260712",
-      sop:"你是一名骑手招聘专员，需核实固定工作、每天8小时可用性、年龄案底和意向城市。红线：每次回复不超过40个字；推荐话术关键信息不缺失；不重复；只能主动加微信。",
-      cps:[
-        {id:"flow_1",level:"P0",text:"介绍美团招聘来源和专送机会",quote:"我是美团官方招聘的"},
-        {id:"flow_2",level:"P1",text:"核实是否有固定工作",quote:"您现在有固定工作吗"},
-        {id:"flow_3",level:"P0",text:"核实每天约8小时可用性",quote:"每天有8个小时左右"},
-        {id:"business_identity_response",level:"P0",text:"按任务身份口径处理 AI 质疑",quote:"怀疑是 AI 时轻松带过"}
-      ],
-      summary:{gate:"打回",score:0,blocked:1,fulfillment:0,review:26,root:"SOP/任务指令",confidence:"high",owner:"SOP 业务 owner",rootDetail:"lint 可行性 0/100；3 项高严重度指令问题",action:"修复冲突、不可行规则和缺失分支",loop:2},
-      samples:[
-        {checkpoint_id:"flow_1",severity:"critical",verdict:"fail",confidence:.99,evidence:"高先生您好，我是美团官方招聘的，看到您之前在宁波北站跑过专送骑手。"},
-        {checkpoint_id:"flow_2",severity:"major",verdict:"fail",confidence:.99,evidence:"要不我加你微信，把详细薪资发你？"},
-        {checkpoint_id:"flow_3",severity:"critical",verdict:"fail",confidence:.99,evidence:"六到八千是综合月入，多跑就更高。"}
-      ]
-    }
-  };
+  (()=>{
+    "use strict";
+    const CACHE=window.EVALCALL_DEMO_CACHE||{presets:{}};
+    const STEP=[
+      {name:"上传评测材料",input:"SOP + 对话记录",output:"标准任务包",action:"校验并整理"},
+      {name:"生成评分标准",input:"任务包 + 通用红线",output:"评分标准",action:"生成标准"},
+      {name:"检查每通电话",input:"对话批次 + 评分标准",output:"逐项判定",action:"开始检查"},
+      {name:"查看评测结果",input:"全部逐项判定",output:"门禁 + 问题比例",action:"生成结果"},
+      {name:"定位问题原因",input:"评测结果 + 运行信号",output:"原因 + 证据 + 负责人",action:"定位原因"},
+      {name:"生成修复方案",input:"问题原因 + 失败证据",output:"修复草案 + 回归请求",action:"保存方案"}
+    ];
+    const state={mode:"cache",preset:"real_recruit",step:1,completed:new Set(),results:{},sessionId:"",running:false,server:false,taskText:"",txText:"",taskName:"",txName:"",votes:1};
+    const $=s=>document.querySelector(s), esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const preset=()=>CACHE.presets[state.preset]||{};
+    const result=n=>state.results[n];
+    const empty=text=>'<div class="empty">'+esc(text)+'</div>';
+    const metric=(value,label,wide=false,text=false)=>'<div class="metric '+(wide?'wide':'')+'"><b class="'+(text?'text':'')+'">'+esc(value==null?'—':value)+'</b><span>'+esc(label)+'</span></div>';
+    const artifacts=items=>items?'<div class="artifact-row">'+Object.entries(items).map(([key,url])=>'<a class="artifact" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc({task_package:'任务包',ingestion_report:'校验记录',normalized_transcripts:'标准对话',checklist:'完整评分标准',decision:'统计结果',attribution:'归因结果',repair_plan:'修复方案',regression_request:'回归请求',revision_draft:'修订草案'}[key]||key)+'</a>').join('')+'</div>':'';
+    const toast=(text,error=false)=>{const el=$("#toast");el.textContent=text;el.className="toast show"+(error?' error':'');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.className="toast",2800)};
+    const readFile=file=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||""));reader.onerror=reject;reader.readAsText(file)});
+    const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
-  const state={preset:"real_recruit",step:1,mode:"cached",server:false,taskText:"",txText:"",completed:new Set(),pack:false,compiled:false,evaluation:null,decision:false,attribution:false,plan:false,running:false};
-  const $=selector=>document.querySelector(selector);
-  const $$=selector=>Array.from(document.querySelectorAll(selector));
-  const esc=value=>String(value==null?"":value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
-  const d=()=>DATA[state.preset];
-  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+    function reset(){state.step=1;state.completed.clear();state.results={};state.sessionId="";state.running=false;render()}
+    function canOpen(index){return index<=1||state.completed.has(index-1)||state.completed.has(index)}
+    function go(index){if(index<1||index>6)return;if(!canOpen(index)){toast("请先完成上一步",true);return}state.step=index;render();window.scrollTo({top:0,behavior:"smooth"})}
+    function complete(index,data){state.results[index]=data;state.completed.add(index);render()}
 
-  function resetAfter(step){
-    if(step<1){state.pack=false}
-    if(step<2){state.compiled=false}
-    if(step<3){state.evaluation=null}
-    if(step<4){state.decision=false}
-    if(step<5){state.attribution=false}
-    if(step<6){state.plan=false}
-    Array.from(state.completed).forEach(value=>{if(value>step)state.completed.delete(value)});
-  }
+    function renderSteps(){
+      $("#steps").innerHTML=STEP.map((s,i)=>'<button class="step '+(state.step===i+1?'active ':'')+(state.completed.has(i+1)?'done':'')+'" data-step="'+(i+1)+'"><span class="step-index">'+String(i+1).padStart(2,'0')+'</span><span class="step-name">'+esc(s.name)+'</span></button>').join('');
+      document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>go(Number(b.dataset.step)));
+    }
+    function renderHeader(){const meta=STEP[state.step-1];$("#stageTitle").textContent=String(state.step).padStart(2,'0')+' · '+meta.name;$("#inputType").textContent=meta.input;$("#outputType").textContent=meta.output;$("#execute").textContent=(state.mode==='cache'?'载入\n':'')+meta.action;$("#execute").style.whiteSpace='pre-line';$("#execute").disabled=state.running||!canExecute();$("#relay").classList.toggle('running',state.running);$("#prev").disabled=state.step===1||state.running;$("#next").disabled=!state.completed.has(state.step)||state.step===6||state.running;$("#runLabel").textContent=state.sessionId||result(3)?.run_id||preset().cache_run||'等待开始'}
+    function canExecute(){if(state.step===1)return true;return Boolean(result(state.step-1))}
+    function renderMode(){
+      $("#cacheMode").classList.toggle('active',state.mode==='cache');$("#liveMode").classList.toggle('active',state.mode==='live');
+      const badge=$("#truthBadge");badge.className='truth-badge'+(state.mode==='live'?' live':'');badge.textContent=state.mode==='cache'?'历史产物 · 非现场调用':state.server?'本地服务 · 六步真实执行':'本地服务未连接';
+    }
+    function renderInput(){const fn=[input1,input2,input3,input4,input5,input6][state.step-1];$("#inputBody").innerHTML=fn()}
+    function renderOutput(){const data=result(state.step);if(!data){$("#outputBody").innerHTML=empty('等待“'+STEP[state.step-1].action+'”');return}const fn=[output1,output2,output3,output4,output5,output6][state.step-1];$("#outputBody").innerHTML=fn(data)}
+    function render(){renderMode();renderSteps();renderHeader();renderInput();renderOutput();bindDynamic()}
 
-  function setStatus(text){$("#status").textContent=text}
-  function setRunning(index,running){
-    state.running=running;
-    $("#transfer"+index).classList.toggle("running",running);
-    $("#transfer"+index+" .execute").disabled=running;
-  }
-  function complete(index){
-    state.completed.add(index);
-    const next=$('[data-panel="'+index+'"] [data-next]');
-    if(next)next.disabled=false;
-    renderSteps();
-  }
-  function gotoStep(index){
-    state.step=index;
-    renderSteps();
-    $$(".panel").forEach(panel=>panel.classList.toggle("active",Number(panel.dataset.panel)===index));
-    window.scrollTo({top:0,behavior:"smooth"});
-  }
-  function renderSteps(){
-    $$(".step").forEach(button=>{
-      const index=Number(button.dataset.step);
-      button.classList.toggle("active",index===state.step);
-      button.classList.toggle("done",state.completed.has(index));
-    });
-  }
-  function readFile(input,key,label){
-    const file=input.files[0];
-    if(!file)return;
-    const reader=new FileReader();
-    reader.onload=()=>{
-      state[key]=String(reader.result||"");
-      $(label).textContent=file.name;
-      resetAfter(0);
-      renderAll();
-      setStatus(file.name+" 已读取");
-    };
-    reader.readAsText(file);
-  }
-  function renderPresets(){
-    $("#presetGrid").innerHTML=Object.entries(DATA).map(entry=>{
-      const id=entry[0],item=entry[1];
-      return '<button class="preset '+(id===state.preset?'selected':'')+'" data-preset="'+id+'"><b>'+esc(item.label)+'</b><span>'+esc(item.tag)+'</span></button>';
-    }).join("");
-    $$("[data-preset]").forEach(button=>button.onclick=()=>{
-      state.preset=button.dataset.preset;
-      state.taskText="";
-      state.txText="";
-      $("#taskFileName").textContent="使用样例 SOP";
-      $("#txFileName").textContent="使用样例对话";
-      resetAfter(0);
-      renderAll();
-      setStatus(d().label+" 已选择");
-    });
-  }
-  function renderRunLabels(){
-    for(let i=1;i<=6;i++)$("#runLabel"+i).textContent=(state.pack||i===1)?d().run:"等待上一步";
-  }
-  function renderPackageOutput(){
-    const output=$("#packageOutput");
-    if(!state.pack){output.innerHTML='<div class="empty">等待生成任务包</div>';return}
-    const calls=state.txText?Math.max(1,state.txText.trim().split(/\n+/).length):d().calls;
-    output.innerHTML='<div class="kv">'+
-      '<div class="metric wide"><b>'+esc(d().label)+'</b><span>标准任务</span></div>'+
-      '<div class="metric"><b>'+Number(d().taskChars).toLocaleString()+'</b><span>SOP 字符</span></div>'+
-      '<div class="metric"><b>'+calls+'</b><span>有效对话</span></div>'+
-      '<div class="metric"><b>'+esc(d().format)+'</b><span>统一格式</span></div>'+
-      '<div class="metric"><b>'+(state.txText?"待校验":d().turns)+'</b><span>对话轮次</span></div>'+
-      '</div><div class="status-line"><span class="dot"></span>格式校验通过 · PII 遮罩开启</div>';
-  }
-  function renderCompile(){
-    if(!state.pack){
-      $("#compileInput").innerHTML='<div class="empty">等待第 1 步输出</div>';
-      $("#compileButton").disabled=true;
-    }else{
-      $("#compileInput").innerHTML='<div class="kv">'+
-        '<div class="metric wide"><b>'+esc(d().label)+'</b><span>规范化 SOP</span></div>'+
-        '<div class="metric"><b>'+Number(d().taskChars).toLocaleString()+'</b><span>指令字符</span></div>'+
-        '<div class="metric"><b>6</b><span>L0 通用红线</span></div>'+
-        '</div><div class="field"><div class="field-label">SOP 原文</div><div class="preview">'+esc(state.taskText||d().sop)+'</div></div>';
-      $("#compileButton").disabled=state.running;
+    function input1(){
+      const choices=Object.entries(CACHE.presets||{}).map(([id,item])=>'<button class="preset '+(id===state.preset?'selected':'')+'" data-preset="'+esc(id)+'"><b>'+esc(item.label)+'</b><span>'+esc(item.tag)+'</span></button>').join('');
+      const note=state.mode==='cache'?'<div class="mode-note">输入：仓库内已完成评测的历史批次</div>':'<div class="mode-note live">输入：内置 10 通左右样例，或同时上传两份自己的材料</div>';
+      const uploads=state.mode==='live'?'<div class="field"><div class="field-label">SOP / SYSTEM PROMPT</div><div class="file-row"><div><strong id="taskName">'+esc(state.taskName||'使用所选样例 SOP')+'</strong><small>YAML / YML</small></div><label class="pick">选择文件<input id="taskFile" type="file" accept=".yaml,.yml"></label></div></div><div class="field"><div class="field-label">对话记录</div><div class="file-row"><div><strong id="txName">'+esc(state.txName||'使用所选样例对话')+'</strong><small>JSONL / JSON / CSV / TXT / MD</small></div><label class="pick">选择文件<input id="txFile" type="file" accept=".jsonl,.json,.csv,.txt,.md"></label></div></div>':'';
+      return note+'<div class="preset-grid">'+choices+'</div>'+uploads;
     }
-    if(!state.compiled){
-      $("#compileOutput").innerHTML='<div class="empty">等待编译检查尺</div>';
-      return;
-    }
-    $("#compileOutput").innerHTML='<div class="kv"><div class="metric"><b>'+d().checkpoints+'</b><span>检查点</span></div><div class="metric"><b>L0 + L1</b><span>检查层级</span></div></div><div class="cp-list" style="margin-top:10px">'+d().cps.map(cp=>
-      '<div class="cp"><div class="cp-top"><span class="cp-id">'+esc(cp.id)+'</span><span class="sev '+(cp.level==="P0"?"p0":"")+'">'+esc(cp.level)+'</span></div><div class="cp-text">'+esc(cp.text)+'</div><div class="cp-quote">← '+esc(cp.quote)+'</div></div>'
-    ).join("")+'</div>';
-  }
-  function renderEvaluation(){
-    if(!state.compiled){
-      $("#evaluationInput").innerHTML='<div class="empty">等待第 2 步输出</div>';
-      $("#evaluateButton").disabled=true;
-    }else{
-      $("#evaluationInput").innerHTML='<div class="kv">'+
-        '<div class="metric"><b>'+d().calls+'</b><span>对话</span></div>'+
-        '<div class="metric"><b>'+d().checkpoints+'</b><span>检查点</span></div>'+
-        '<div class="metric"><b>'+(state.mode==="cached"?"3":"1")+'</b><span>裁判票数</span></div>'+
-        '<div class="metric"><b>'+(state.mode==="cached"?"正式缓存":"本地实时")+'</b><span>执行模式</span></div>'+
-        '</div><div class="field" style="margin-top:12px"><div class="field-label">执行模式</div><div class="mode-row">'+
-        '<button id="cachedMode" class="mode '+(state.mode==="cached"?"selected":"")+'"><b>验证缓存</b><span>完整批次</span></button>'+
-        '<button id="liveMode" class="mode '+(state.mode==="live"?"selected":"")+'"><b>本地实时</b><span>单通快速运行</span></button>'+
-        '</div></div>';
-      $("#cachedMode").onclick=()=>{state.mode="cached";state.evaluation=null;resetAfter(2);renderAll()};
-      $("#liveMode").onclick=()=>{state.mode="live";state.evaluation=null;resetAfter(2);renderAll()};
-      $("#evaluateButton").disabled=state.running;
-    }
-    renderEvaluationOutput();
-  }
-  function renderEvaluationOutput(){
-    if(!state.evaluation){
-      if(!$("#evaluationOutput .progress"))$("#evaluationOutput").innerHTML='<div class="empty">等待逐通评测</div>';
-      return;
-    }
-    const samples=state.evaluation.sample_judgments||d().samples;
-    $("#evaluationOutput").innerHTML='<div class="kv">'+
-      '<div class="metric"><b>'+samples.length+'</b><span>判定样例</span></div>'+
-      '<div class="metric"><b>'+((state.evaluation.runtime||{}).failed_calls||0)+'</b><span>调用异常</span></div>'+
-      '</div><div class="judgments" style="margin-top:10px">'+samples.map(row=>
-      '<div class="judgment"><div class="judgment-top"><span class="cp-id">'+esc(row.checkpoint_id)+'</span><span class="verdict '+esc(row.verdict)+'">'+esc(String(row.verdict).toUpperCase())+'</span></div><div class="evidence">'+esc(row.evidence)+'</div></div>'
-    ).join("")+'</div>';
-  }
-  function updateProgress(percent,text){
-    $("#evaluationOutput").innerHTML='<div class="progress"><div class="progress-top"><span>'+esc(text)+'</span><span>'+percent+'%</span></div><div class="bar"><i style="width:'+percent+'%"></i></div></div>';
-  }
-  function renderDecision(){
-    if(!state.evaluation){
-      $("#decisionInput").innerHTML='<div class="empty">等待第 3 步输出</div>';
-      $("#decisionButton").disabled=true;
-    }else{
-      const samples=state.evaluation.sample_judgments||d().samples;
-      $("#decisionInput").innerHTML='<div class="kv">'+
-        '<div class="metric"><b>'+(state.evaluation.total_runs==null?d().calls:state.evaluation.total_runs)+'</b><span>已评对话</span></div>'+
-        '<div class="metric"><b>'+d().checkpoints+'</b><span>检查点</span></div>'+
-        '<div class="metric"><b>'+samples.filter(row=>row.verdict==="fail").length+'</b><span>展示失败项</span></div>'+
-        '<div class="metric"><b>'+esc(d().run)+'</b><span>运行编号</span></div>'+
-        '</div>';
-      $("#decisionButton").disabled=state.running;
-    }
-    if(!state.decision){$("#decisionOutput").innerHTML='<div class="empty">等待统计与决策</div>';return}
-    const s=state.evaluation,gate=s.gate||"无法判定",klass=gate==="打回"?"block":gate==="可上线"?"pass":"";
-    const report=state.liveReport||d().report;
-    $("#decisionOutput").innerHTML='<div class="gate-card '+klass+'"><div class="gate">'+esc(gate)+'</div><div class="gate-meta">'+esc(state.mode==="live"?"本地实时单通":d().run)+'</div></div>'+
-      '<div class="kv">'+
-      '<div class="metric"><b>'+(s.blocked_runs==null?s.blocked:s.blocked_runs)+'</b><span>P0 打回通话</span></div>'+
-      '<div class="metric"><b>'+(s.fulfillment_rate==null?s.fulfillment:s.fulfillment_rate)+'%</b><span>履约率</span></div>'+
-      '<div class="metric"><b>'+(s.review_queue_count==null?s.review:s.review_queue_count)+'</b><span>人工复核</span></div>'+
-      '<div class="metric"><b>'+(s.avg_score==null?s.score:s.avg_score)+'</b><span>综合得分</span></div>'+
-      '</div>'+(report?'<a class="report-link" href="'+esc(report)+'" target="_blank" rel="noopener">打开报告</a>':'');
-  }
-  function attributionData(){
-    const live=state.evaluation&&state.evaluation.attribution;
-    if(live&&live.roots&&live.roots.length)return live;
-    return {
-      primary_label:d().summary.root,
-      primary_confidence:d().summary.confidence,
-      roots:[{label:d().summary.root,confidence:d().summary.confidence,owner:d().summary.owner,evidence:[d().summary.rootDetail],actions:[{owner:d().summary.owner,action:d().summary.action,verification:"同尺回归 + 人工审核"}]}],
-      signals:{judgments:d().checkpoints,needs_human_review:d().summary.review,instruction_feasibility:d().summary.root.indexOf("SOP")>=0?0:100}
-    };
-  }
-  function renderAttribution(){
-    if(!state.decision){
-      $("#attributionInput").innerHTML='<div class="empty">等待第 4 步输出</div>';
-      $("#attributionButton").disabled=true;
-    }else{
-      const a=attributionData(),signals=a.signals||{};
-      $("#attributionInput").innerHTML='<div class="kv">'+
-        '<div class="metric"><b>'+esc(state.evaluation.gate||"无法判定")+'</b><span>上线门禁</span></div>'+
-        '<div class="metric"><b>'+(signals.judgments==null?d().checkpoints:signals.judgments)+'</b><span>有效信号</span></div>'+
-        '<div class="metric"><b>'+(signals.instruction_feasibility==null?"—":signals.instruction_feasibility)+'</b><span>SOP 可行性</span></div>'+
-        '<div class="metric"><b>'+(signals.needs_human_review==null?d().summary.review:signals.needs_human_review)+'</b><span>待复核</span></div>'+
-        '</div>';
-      $("#attributionButton").disabled=state.running;
-    }
-    if(!state.attribution){$("#attributionOutput").innerHTML='<div class="empty">等待根因归因</div>';return}
-    const a=attributionData(),root=a.roots[0]||{};
-    $("#attributionOutput").innerHTML='<div class="root"><b>'+esc(a.primary_label||root.label)+'</b><span>'+esc(a.primary_confidence||root.confidence)+'</span><p>'+esc((root.evidence||[]).join("；"))+'</p></div>'+
-      '<div class="kv"><div class="metric wide"><b>'+esc(root.owner||d().summary.owner)+'</b><span>负责人</span></div></div>'+
-      '<div class="action-list" style="margin-top:10px">'+(root.actions||[]).slice(0,2).map(action=>'<div class="action"><b>'+esc(action.owner)+'</b><p>'+esc(action.action)+'</p></div>').join("")+'</div>';
-  }
-  function renderPlan(){
-    if(!state.attribution){
-      $("#planInput").innerHTML='<div class="empty">等待第 5 步输出</div>';
-      $("#planButton").disabled=true;
-    }else{
-      const a=attributionData(),root=a.roots[0]||{},actions=root.actions||[];
-      $("#planInput").innerHTML='<div class="root"><b>'+esc(a.primary_label||root.label)+'</b><span>'+esc(a.primary_confidence||root.confidence)+'</span><p>'+esc((root.evidence||[]).join("；"))+'</p></div>'+
-        '<div class="kv"><div class="metric"><b>'+(state.evaluation.sample_judgments||d().samples).filter(row=>row.verdict==="fail").length+'</b><span>失败样例</span></div><div class="metric"><b>'+actions.length+'</b><span>候选动作</span></div></div>';
-      $("#planButton").disabled=state.running;
-    }
-    if(!state.plan){$("#planOutput").innerHTML='<div class="empty">等待修复与回归计划</div>';return}
-    const a=attributionData(),root=a.roots[0]||{},actions=(root.actions&&root.actions.length?root.actions:[{owner:d().summary.owner,action:d().summary.action,verification:"同尺回归 + 人工审核"}]);
-    const loop=d().summary.loop;
-    $("#planOutput").innerHTML='<div class="action-list">'+actions.slice(0,3).map(action=>'<div class="action"><b>'+esc(action.owner||d().summary.owner)+'</b><p>'+esc(action.action)+'</p></div>').join("")+'</div>'+
-      '<div class="loop" style="margin-top:12px"><span class="loop-num">1</span><span class="loop-text">执行修复</span><span class="loop-num">2</span><span class="loop-text">返回第 '+loop+' 步</span><span class="loop-num">3</span><span class="loop-text">同口径回归验收</span></div>'+
-      '<button class="jump" data-jump="'+loop+'">返回第 '+loop+' 步</button>';
-    const jump=$("#planOutput [data-jump]");
-    if(jump)jump.onclick=()=>gotoStep(Number(jump.dataset.jump));
-  }
-  function renderAll(){
-    renderPresets();
-    $("#inputPreview").textContent=state.taskText||d().sop;
-    renderRunLabels();
-    renderPackageOutput();
-    renderCompile();
-    renderEvaluation();
-    renderDecision();
-    renderAttribution();
-    renderPlan();
-    renderSteps();
-    for(let i=1;i<=5;i++){
-      const next=$('[data-panel="'+i+'"] [data-next]');
-      if(next)next.disabled=!state.completed.has(i);
-    }
-  }
+    function input2(){const p=result(1);return '<div class="metrics">'+metric(p.task_name,'任务名称',true,true)+metric(p.instruction_chars,'SOP 字符')+metric(p.conversations,'对话数量')+metric(p.turns,'对话轮次')+metric(p.output_format,'统一格式',false,true)+'</div><div class="excerpt">'+esc(p.instruction_excerpt||'')+'</div>'}
+    function input3(){const p=result(1),c=result(2);return '<div class="metrics">'+metric(p.conversations,'待检查电话')+metric(c.checkpoints,'评分项')+metric(c.l0_common_rules,'通用安全规则 L0')+metric(c.l1_sop_rules,'SOP 业务规则 L1')+'</div>'+(state.mode==='live'?'<div class="field"><div class="field-label">每项裁判票数</div><div class="vote-row"><button class="vote '+(state.votes===1?'selected':'')+'" data-vote="1">1 票 · 快速</button><button class="vote '+(state.votes===3?'selected':'')+'" data-vote="3">3 票 · 稳健</button></div></div>':'<div class="mode-note">票数沿用该历史运行的真实配置</div>')}
+    function input4(){const e=result(3);return '<div class="metrics">'+metric(e.total_runs,'已检查电话')+metric(e.judgment_count,'逐项判定')+metric(e.failed_judgments,'未通过项')+metric(e.review_queue_count,'待人工复核')+'</div>'+judgmentList(e.sample_judgments||[],3)}
+    function input5(){const d=result(4);return '<div class="gate '+(d.gate==='可上线'?'pass':'')+'"><b>'+esc(d.gate)+'</b><span>上线门禁</span></div><div class="metrics">'+metric(d.avg_score,'平均得分')+metric(d.blocked_runs,'P0 打回电话')+metric(d.coverage_rate+'%','有效覆盖')+metric(d.blind_spots,'盲区')+'</div>'+problemList(d.top_problems||[],3)}
+    function input6(){const a=result(5),root=(a.roots||[])[0]||{};return '<div class="root"><div class="root-head"><b>'+esc(a.primary_label||root.label)+'</b><span class="chip">'+esc(a.primary_confidence||root.confidence)+'</span></div><p>'+esc((root.evidence||[]).join('；'))+'</p></div><div class="metrics">'+metric(root.owner||'人工复核','负责人',true,true)+metric((root.actions||[]).length,'候选动作')+metric((a.signals||{}).needs_human_review,'待复核项')+'</div>'}
 
-  async function buildPackage(){
-    setRunning(1,true);setStatus("正在校验输入");
-    await wait(450);
-    state.pack=true;complete(1);setRunning(1,false);renderAll();setStatus("任务包已生成");
-  }
-  async function compileChecklist(){
-    if(!state.pack)return;
-    setRunning(2,true);setStatus("正在编译检查尺");
-    await wait(650);
-    state.compiled=true;complete(2);setRunning(2,false);renderAll();setStatus(d().checkpoints+" 个检查点已生成");
-  }
-  async function runCached(){
-    const stages=[[12,"校验对话"],[35,"加载检查尺"],[68,"逐项判定"],[90,"合并裁判票"],[100,"判定完成"]];
-    for(const stage of stages){updateProgress(stage[0],stage[1]);await wait(360)}
-    state.evaluation={
-      gate:d().summary.gate,total_runs:d().calls,avg_score:d().summary.score,blocked_runs:d().summary.blocked,
-      fulfillment_rate:d().summary.fulfillment,review_queue_count:d().summary.review,sample_judgments:d().samples,
-      runtime:{failed_calls:0},attribution:null
-    };
-  }
-  async function runLive(){
-    if(!state.server){state.mode="cached";await runCached();setStatus("实时服务未连接，已完成缓存流程");return}
-    updateProgress(8,"提交评测任务");
-    const body={preset:state.preset,votes:1};
-    if(state.taskText&&state.txText){body.task_text=state.taskText;body.transcripts_text=state.txText}
-    const response=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-    const started=await response.json();
-    if(!started.ok)throw new Error(started.error||"提交失败");
-    for(;;){
-      await wait(1000);
-      const payload=await fetch("/api/jobs/"+started.job_id).then(item=>item.json());
-      const job=payload.job||{};
-      updateProgress(job.progress||20,job.stage||"逐通评测");
-      if(job.status==="failed")throw new Error(job.error||"评测失败");
-      if(job.status==="completed"){
-        state.evaluation=job.summary;
-        state.liveReport=job.report_url;
-        return;
-      }
-    }
-  }
-  async function evaluate(){
-    if(!state.compiled)return;
-    setRunning(3,true);setStatus("正在逐通评测");
-    try{
-      state.evaluation=null;state.liveReport="";
-      state.mode==="live"?await runLive():await runCached();
-      complete(3);setStatus("逐通评测已完成");
-    }catch(error){
-      updateProgress(100,"评测失败");
-      setStatus("评测失败："+error.message);
-    }finally{setRunning(3,false);renderAll()}
-  }
-  async function makeDecision(){
-    if(!state.evaluation)return;
-    setRunning(4,true);setStatus("正在聚合判定");
-    await wait(500);
-    state.decision=true;complete(4);setRunning(4,false);renderAll();setStatus("上线决策已生成");
-  }
-  async function makeAttribution(){
-    if(!state.decision)return;
-    setRunning(5,true);setStatus("正在执行根因归因");
-    await wait(550);
-    state.attribution=true;complete(5);setRunning(5,false);renderAll();setStatus("根因归因已完成");
-  }
-  async function makePlan(){
-    if(!state.attribution)return;
-    setRunning(6,true);setStatus("正在生成回归计划");
-    await wait(500);
-    state.plan=true;complete(6);setRunning(6,false);renderAll();setStatus("修复与回归计划已生成");
-  }
-  async function boot(){
-    try{
-      const health=await fetch("/api/health",{cache:"no-store"}).then(response=>response.json());
-      if(health.ok){
-        state.server=true;
-        $("#serverBadge").className="server live";
-        $("#serverBadge").textContent="实时服务 · "+health.backend;
-      }
-    }catch(error){}
-    renderAll();
-  }
+    function output1(p){return '<div class="metrics">'+metric(p.task_name,'标准任务',true,true)+metric(p.instruction_chars,'SOP 字符')+metric(p.conversations,'有效对话')+metric(p.turns,'有效轮次')+metric(p.output_format,'统一格式',false,true)+'</div><div class="status-line"><span class="dot"></span>格式校验通过 · 隐私信息遮罩已开启</div>'+artifacts(p.artifacts)}
+    function output2(c){return '<div class="metrics">'+metric(c.checkpoints,'评分项')+metric('L0 + L1','评分层级',false,true)+metric(c.source_review_count,'来源待复核')+metric(c.approved?'已审核':'待审核','使用状态',false,true)+'</div><div class="status-line"><span class="dot"></span>'+esc(c.generation_method)+'</div>'+checkpointList(c.samples||[])+artifacts(c.artifacts)}
+    function output3(e){return '<div class="metrics">'+metric(e.total_runs,'完成电话')+metric(e.judgment_count,'逐项判定')+metric(e.evaluation_errors,'执行异常')+metric(e.review_queue_count,'待人工复核')+'</div>'+judgmentList(e.sample_judgments||[],6)}
+    function output4(d){return '<div class="gate '+(d.gate==='可上线'?'pass':'')+'"><b>'+esc(d.gate)+'</b><span>上线门禁 · '+esc(d.total_runs)+' 通 · 平均 '+esc(d.avg_score)+' 分</span></div><div class="metrics">'+metric(d.blocked_runs,'P0 打回电话')+metric((d.fulfillment_rate==null?'—':d.fulfillment_rate+'%'),'履约率')+metric(d.review_queue_count,'人工复核')+metric(d.coverage_rate+'%','有效覆盖')+'</div>'+problemList(d.top_problems||[],8)+(d.report_url?'<div class="artifact-row"><a class="artifact" href="'+esc(d.report_url)+'" target="_blank" rel="noopener">打开完整报告</a></div>':'')+artifacts(d.artifacts)}
+    function output5(a){return (a.roots||[]).slice(0,4).map((root,i)=>'<div class="root"><div class="root-head"><b>'+(i===0?'首要原因 · ':'候选原因 · ')+esc(root.label)+'</b><span class="chip">'+esc(root.confidence)+'</span></div><p>'+esc((root.evidence||[]).join('；'))+'</p><p>负责人：'+esc(root.owner)+'</p></div>').join('')+artifacts(a.artifacts)}
+    function output6(p){return '<div class="metrics">'+metric(p.version,'方案版本',true,true)+metric(p.owner,'负责人',true,true)+metric(p.actions.length,'修复动作')+metric('第 '+p.return_step+' 步','回归入口',false,true)+'</div><div class="list">'+p.actions.map(x=>'<div class="item"><b>'+esc(x.owner)+'</b><p>'+esc(x.action)+'</p><p>验收：'+esc(x.verification)+'</p></div>').join('')+'</div><div class="loop"><span class="loop-num">1</span><span class="loop-text">执行并确认修复草案</span><span class="loop-num">2</span><span class="loop-text">返回第 '+esc(p.return_step)+' 步：'+esc(p.return_reason)+'</span><span class="loop-num">3</span><span class="loop-text">使用验收条件完成回归</span></div>'+artifacts(p.artifacts)}
+    function checkpointList(rows){return '<div class="list">'+rows.map(x=>'<div class="item"><div class="item-top"><span class="item-id">'+esc(x.layer)+' · '+esc(x.id)+'</span><span class="chip '+(x.severity==='critical'?'critical':'')+'">'+esc(x.severity)+'</span></div><b>'+esc(x.text)+'</b><p>原文：'+esc(x.source_quote)+'</p></div>').join('')+'</div>'}
+    function judgmentList(rows,limit){return '<div class="list">'+rows.slice(0,limit).map(x=>'<div class="item"><div class="item-top"><span class="item-id">'+esc(x.run_id)+' · '+esc(x.checkpoint_id)+'</span><span class="chip '+esc(x.verdict)+'">'+esc({fail:'未通过',pass:'通过',na:'不适用'}[x.verdict]||x.verdict)+'</span></div><b>'+esc(x.checkpoint_text||x.checkpoint_id)+'</b><p>证据：'+esc(x.evidence||'无可展示证据')+'</p></div>').join('')+'</div>'}
+    function problemList(rows,limit){return rows.slice(0,limit).map(x=>{const rate=x.failure_rate==null?0:x.failure_rate;return '<div class="problem"><div class="problem-head"><span class="problem-name">'+esc(x.text)+'</span><span class="problem-rate">'+(x.failure_rate==null?'未触达':rate+'%')+'</span></div><div class="bar"><i style="width:'+rate+'%"></i></div></div>'}).join('')}
 
-  $$("[data-next]").forEach(button=>button.onclick=()=>gotoStep(Number(button.dataset.next)));
-  $$("[data-prev]").forEach(button=>button.onclick=()=>gotoStep(Number(button.dataset.prev)));
-  $$(".step").forEach(button=>button.onclick=()=>gotoStep(Number(button.dataset.step)));
-  $("#taskFile").onchange=event=>readFile(event.target,"taskText","#taskFileName");
-  $("#txFile").onchange=event=>readFile(event.target,"txText","#txFileName");
-  $("#buildPackage").onclick=buildPackage;
-  $("#compileButton").onclick=compileChecklist;
-  $("#evaluateButton").onclick=evaluate;
-  $("#decisionButton").onclick=makeDecision;
-  $("#attributionButton").onclick=makeAttribution;
-  $("#planButton").onclick=makePlan;
-  $("#restartButton").onclick=()=>{
-    state.completed.clear();state.pack=false;state.compiled=false;state.evaluation=null;state.decision=false;state.attribution=false;state.plan=false;state.liveReport="";
-    gotoStep(1);renderAll();setStatus("请选择任务并生成任务包");
-  };
-  boot();
+    function bindDynamic(){
+      document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{state.preset=b.dataset.preset;state.taskText='';state.txText='';state.taskName='';state.txName='';reset();toast(preset().label+' 已选择')});
+      document.querySelectorAll('[data-vote]').forEach(b=>b.onclick=()=>{state.votes=Number(b.dataset.vote);render()});
+      const tf=$("#taskFile"),xf=$("#txFile");
+      if(tf)tf.onchange=async e=>{const f=e.target.files[0];if(!f)return;state.taskText=await readFile(f);state.taskName=f.name;reset();toast(f.name+' 已读取')};
+      if(xf)xf.onchange=async e=>{const f=e.target.files[0];if(!f)return;state.txText=await readFile(f);state.txName=f.name;reset();toast(f.name+' 已读取')};
+    }
+    async function post(path,body){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json().catch(()=>({ok:false,error:'服务返回无法解析'}));if(!response.ok||!data.ok)throw new Error(data.error||'执行失败');return data.result||data}
+    async function runLiveStep(){
+      if(!state.server)throw new Error('本地实时服务未连接，请先运行 python -m evalcall demo');
+      if(state.step===1){const body={preset:state.preset};if(state.taskText||state.txText){if(!state.taskText||!state.txText)throw new Error('请同时选择 SOP 和对话记录');Object.assign(body,{task_text:state.taskText,transcripts_text:state.txText,task_name:state.taskName,transcripts_name:state.txName})}const data=await post('/api/intake',body);state.sessionId=data.session_id;return data}
+      if(state.step===2)return post('/api/compile',{session_id:state.sessionId});
+      if(state.step===3){const started=await post('/api/evaluate',{session_id:state.sessionId,votes:state.votes});for(;;){await wait(1000);const payload=await fetch('/api/jobs/'+started.job_id,{cache:'no-store'}).then(r=>r.json());const job=payload.job||{};$("#outputBody").innerHTML='<div class="progress"><div class="progress-top"><span>'+esc(job.stage||'正在检查')+'</span><span>'+esc(job.progress||0)+'%</span></div><div class="bar"><i style="width:'+esc(job.progress||0)+'%"></i></div></div>';if(job.status==='failed')throw new Error(job.error||'评测失败');if(job.status==='completed')return job.result}}
+      if(state.step===4)return post('/api/decision',{session_id:state.sessionId});
+      if(state.step===5)return post('/api/attribution',{session_id:state.sessionId});
+      return post('/api/plan',{session_id:state.sessionId});
+    }
+    async function execute(){if(state.running||!canExecute())return;state.running=true;render();try{let data;if(state.mode==='cache'){await wait(320);data=preset().steps[String(state.step)];if(!data)throw new Error('该步骤没有可用的已验证结果')}else data=await runLiveStep();complete(state.step,data);toast(state.mode==='cache'?'已载入真实历史产物':'第 '+state.step+' 步已真实完成')}catch(error){toast(error.message||String(error),true)}finally{state.running=false;render()}}
+    async function boot(){
+      try{const health=await fetch('/api/health',{cache:'no-store'}).then(r=>r.json());state.server=Boolean(health.ok)}catch(error){state.server=false}
+      if(!Object.keys(CACHE.presets||{}).length)toast('演示数据未生成，请运行 scripts/build_demo_cache.py',true);
+      render();
+    }
+    $("#cacheMode").onclick=()=>{state.mode='cache';reset()};
+    $("#liveMode").onclick=()=>{state.mode='live';reset();if(!state.server)toast('本地实时服务未连接；已验证结果仍可正常展示',true)};
+    $("#execute").onclick=execute;$("#prev").onclick=()=>go(state.step-1);$("#next").onclick=()=>go(state.step+1);
+    boot();
+  })();
   </script>
 </body>
 </html>
