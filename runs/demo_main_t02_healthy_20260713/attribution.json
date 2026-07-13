@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "primary_category": "target_model",
+  "primary_label": "外呼模型",
+  "primary_confidence": "medium",
+  "roots": [
+    {
+      "category": "target_model",
+      "label": "外呼模型",
+      "confidence": "medium",
+      "score": 95,
+      "owner": "模型/对话策略工程",
+      "evidence": [
+        "通话打回率 100.0%（10/10）",
+        "履约率 10.0%",
+        "P0 触发率 100.0%（10/10）",
+        "关键流程失败率 62.3%",
+        "严重度加权失败率 44.1%（critical 41.1% / major 57.0%）",
+        "全部有效判定失败率 45.2%（225/498）",
+        "裁判健康：NA 40.0%、分歧 0.0%",
+        "未发现更强的 SOP、裁判或测试分布故障信号"
+      ],
+      "actions": [
+        {
+          "owner": "模型/对话策略工程",
+          "action": "针对高频失败检查点修改外呼模型指令遵循策略，不改评分尺",
+          "verification": "同尺回归 + 人工审核"
+        },
+        {
+          "owner": "模型/对话策略工程",
+          "action": "使用同一 checklist 重跑回归，确认 fail→pass 且 P0 无退化",
+          "verification": "同尺回归 + 人工审核"
+        }
+      ]
+    },
+    {
+      "category": "judge",
+      "label": "裁判与判定链路",
+      "confidence": "medium",
+      "score": 55,
+      "owner": "评测算法 + 人工质检",
+      "evidence": [
+        "NA 占比 40.0%，有效判定覆盖偏低",
+        "规则/LLM 冲突 2 项"
+      ],
+      "actions": [
+        {
+          "owner": "评测算法 + 人工质检",
+          "action": "先复核分裂票、规则冲突与高 NA 批次，不直接归责外呼模型",
+          "verification": "同尺回归 + 人工审核"
+        },
+        {
+          "owner": "评测算法 + 人工质检",
+          "action": "将人工拍板案例进黄金集，预注册后修裁判口径并重跑校准",
+          "verification": "同尺回归 + 人工审核"
+        }
+      ]
+    }
+  ],
+  "signals": {
+    "judgments": 830,
+    "judged": 498,
+    "fail_rate": 0.4518,
+    "na_rate": 0.4,
+    "review_rate": 0.0024,
+    "needs_human_review": 2,
+    "rule_conflicts": 2,
+    "judge_disagreement_rate": 0.0,
+    "instruction_feasibility": null,
+    "instruction_high_findings": 0,
+    "persona_failure_concentration": 0.2267,
+    "call_block_rate": 1.0,
+    "fulfillment_rate": 0.1,
+    "p0_trigger_rate": 1.0,
+    "key_failure_rate": 0.6228,
+    "critical_failure_rate": 0.4108,
+    "major_failure_rate": 0.5703,
+    "severity_weighted_fail_rate": 0.4407,
+    "target_model_score": 95,
+    "judge_healthy": false
+  },
+  "disclaimer": "根因为确定性信号归纳，不是因果证明；低/中置信结论必须人工复核后再修改生产配置。"
+}

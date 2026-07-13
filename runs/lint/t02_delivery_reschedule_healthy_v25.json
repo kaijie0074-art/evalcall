@@ -1,0 +1,6 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [],
+  "feasibility_score": 100,
+  "summary": "指令「t02_delivery_reschedule」未发现明显可执行性缺陷，可遵循度 100/100。"
+}

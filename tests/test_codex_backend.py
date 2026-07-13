@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import pytest
 
 from evalcall import llm
@@ -13,12 +11,25 @@ from evalcall import judge
 def test_codex_backend_is_readonly_ephemeral_and_parses_provider_tokens(monkeypatch):
     captured = {}
 
-    def fake_run(cmd, **kwargs):
+    class FakePopen:
+        returncode = 0
+        pid = 123
+
+        def __init__(self, cmd, **kwargs):
+            captured["cmd"] = cmd
+            captured["kwargs"] = kwargs
+
+        def communicate(self, input=None, timeout=None):
+            captured["input"] = input
+            captured["timeout"] = timeout
+            return '{"ok":true}\n', "tokens used\n17,800\n"
+
+    def fake_popen(cmd, **kwargs):
         captured["cmd"] = cmd
         captured["kwargs"] = kwargs
-        return SimpleNamespace(returncode=0, stdout='{"ok":true}\n', stderr="tokens used\n17,800\n")
+        return FakePopen(cmd, **kwargs)
 
-    monkeypatch.setattr(llm.subprocess, "run", fake_run)
+    monkeypatch.setattr(llm.subprocess, "Popen", fake_popen)
     backend = llm.CodexCliBackend(model="gpt-5.6-sol")
     result = backend.chat([{"role": "system", "content": "只输出 JSON"}, {"role": "user", "content": "开始"}])
     assert result == '{"ok":true}'
@@ -27,18 +38,48 @@ def test_codex_backend_is_readonly_ephemeral_and_parses_provider_tokens(monkeypa
     assert "--ignore-user-config" in captured["cmd"]
     assert "--ignore-rules" in captured["cmd"]
     assert captured["cmd"][-1] == "-"
-    assert "[SYSTEM]" in captured["kwargs"]["input"]
+    assert captured["kwargs"]["start_new_session"] is True
+    assert "[SYSTEM]" in captured["input"]
     assert backend._last_provider_total_tokens == 17800
 
 
 def test_codex_backend_error_is_fail_closed(monkeypatch):
-    monkeypatch.setattr(
-        llm.subprocess,
-        "run",
-        lambda *args, **kwargs: SimpleNamespace(returncode=1, stdout="", stderr="model unavailable"),
-    )
+    class FailedPopen:
+        returncode = 1
+        pid = 123
+
+        def communicate(self, input=None, timeout=None):
+            return "", "model unavailable"
+
+    monkeypatch.setattr(llm.subprocess, "Popen", lambda *args, **kwargs: FailedPopen())
     with pytest.raises(llm.LLMError, match="model unavailable"):
         llm.CodexCliBackend().chat([{"role": "user", "content": "x"}])
+
+
+def test_codex_timeout_kills_entire_process_group(monkeypatch):
+    calls = []
+
+    class TimedOutPopen:
+        returncode = -9
+        pid = 456
+
+        def communicate(self, input=None, timeout=None):
+            if timeout is not None:
+                raise llm.subprocess.TimeoutExpired("codex", timeout)
+            calls.append("drained")
+            return "", ""
+
+        def kill(self):
+            calls.append("kill")
+
+    monkeypatch.setattr(llm.subprocess, "Popen", lambda *args, **kwargs: TimedOutPopen())
+    monkeypatch.setattr(llm.os, "killpg", lambda pid, sig: calls.append((pid, sig)))
+    backend = llm.CodexCliBackend()
+    backend.timeout = 1
+    with pytest.raises(llm.LLMError, match="调用超时"):
+        backend.chat([{"role": "user", "content": "x"}])
+    assert (456, llm.signal.SIGKILL) in calls
+    assert "drained" in calls
 
 
 def test_codex_provider_total_is_preserved_in_telemetry(monkeypatch):

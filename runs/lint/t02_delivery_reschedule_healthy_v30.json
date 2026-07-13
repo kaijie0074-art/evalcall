@@ -1,0 +1,61 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "先确认其是否无法提供订单号末 4 位，明确无法提供后才切换为手机号末 4 位",
+      "quote_b": "",
+      "analysis": "未说明切换后能否直接使用上一轮已提供的手机号末4位，还是必须重新索取，也未说明确认过程是否消耗重问额度。",
+      "suggestion": "补充：“确认无法提供订单号末4位后，直接使用上一轮的合规手机号末4位核验；该确认不消耗重问额度。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "重问后仍不是恰好 4 位数字时，不提交核验",
+      "quote_b": "",
+      "analysis": "“恰好4位数字”可能要求整句只有4位数字，与前文允许四位数字前后存在非数字话语不一致。",
+      "suggestion": "改为：“重问后仍不满足‘仅含一个连续四位数字串且无其他数字’时，不提交核验。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "S4 同步结果返回并提出选项问题时获得一次重问额度",
+      "quote_b": "",
+      "analysis": "不清楚哪些返回结果算“提出选项问题”，以及每次返回还是仅首次进入相关结果分支时获得额度。",
+      "suggestion": "改为：“S4返回‘失败’‘系统错误’或累计第二次‘时段被占用’并首次提问时，各获得一次重问额度。”"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "数字序号只接受“1/2/3”、“第1/2/3个”、“第一个/第二个/第三个”、“最后一个”，且必须对应已展示编号。",
+      "quote_b": "",
+      "analysis": "未说明这些形式必须占满整句，还是可嵌入“我选第一个，谢谢”等自然表达，执行者会有不同接受范围。",
+      "suggestion": "补充：“去除首尾空格、句末标点及首尾礼貌词后，整句必须等于上述任一形式。”"
+    },
+    {
+      "id": "ambiguous_5",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "唯一有效订单号末 4 位",
+      "quote_b": "",
+      "analysis": "“有效”可能指格式合规，也可能指经系统核验匹配；S0尚未提交系统，无法预先判断后一含义。",
+      "suggestion": "改为：“唯一格式合规的订单号末4位，即整句仅含一个连续四位数字串且无其他数字。”"
+    },
+    {
+      "id": "ambiguous_6",
+      "dimension": "ambiguous",
+      "severity": "low",
+      "quote_a": "只忽略前后的“请、麻烦、谢谢、好的”及标点",
+      "quote_b": "",
+      "analysis": "未明确可否连续去除多个礼貌词、标点是否仅限首尾，以及去除顺序，可能导致相同表达判定不同。",
+      "suggestion": "补充：“可反复去除首尾任意数量的上述礼貌词和标点，直至首尾均不再匹配，再比较剩余文本。”"
+    }
+  ],
+  "feasibility_score": 51,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 6 条问题（歧义6条），可遵循度 51/100。"
+}

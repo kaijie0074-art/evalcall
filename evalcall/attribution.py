@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import glob
 import json
 import os
 from collections import Counter, defaultdict
@@ -55,7 +54,6 @@ _ACTIONS = {
 def _load_lint(task_id: str, lint_path: str | None = None) -> dict[str, Any] | None:
     candidates = [lint_path] if lint_path else []
     if not lint_path:
-        candidates.extend(sorted(glob.glob(os.path.join("runs", "lint", f"*{task_id}*.json"))))
         aliases = {
             "official_01_feimaotui": "runs/lint/official_01_lint.json",
             "official_02_lowlatency": "runs/lint/official_02_lint.json",
@@ -110,8 +108,48 @@ def analyze(
     fail_rate = verdicts["fail"] / judged if judged else 0.0
     na_rate = verdicts["na"] / len(judgments) if judgments else 1.0
     needs_review = sum(1 for j in judgments if j.get("needs_human_review"))
+    review_rate = needs_review / len(judgments) if judgments else 1.0
     rule_conflicts = sum(1 for j in judgments if j.get("rule_conflict"))
     disagreement = float(summary.get("avg_judge_disagreement_rate") or summary.get("judge_disagreement_rate") or 0.0)
+
+    severity_weight = {"critical": 3.0, "major": 2.0, "minor": 1.0}
+    weighted_fail = 0.0
+    weighted_judged = 0.0
+    severity_fail: Counter[str] = Counter()
+    severity_judged: Counter[str] = Counter()
+    key_fail = 0
+    key_judged = 0
+    for item in judgments:
+        verdict = str(item.get("verdict") or "na").lower()
+        if verdict not in {"pass", "fail"}:
+            continue
+        severity = str(item.get("severity") or "minor").lower()
+        weight = severity_weight.get(severity, 1.0)
+        severity_judged[severity] += 1
+        weighted_judged += weight
+        if verdict == "fail":
+            severity_fail[severity] += 1
+            weighted_fail += weight
+        if str(item.get("type") or "").lower() in {"flow", "outcome", "constraint"}:
+            key_judged += 1
+            if verdict == "fail":
+                key_fail += 1
+    weighted_fail_rate = weighted_fail / weighted_judged if weighted_judged else 0.0
+    key_failure_rate = key_fail / key_judged if key_judged else 0.0
+    critical_failure_rate = severity_fail["critical"] / severity_judged["critical"] if severity_judged["critical"] else 0.0
+    major_failure_rate = severity_fail["major"] / severity_judged["major"] if severity_judged["major"] else 0.0
+
+    total_runs = int(summary.get("total_runs") or 0)
+    blocked_runs = int(summary.get("blocked_runs") or summary.get("critical_failed_runs") or 0)
+    critical_failed_runs = int(summary.get("critical_failed_runs") or blocked_runs)
+    call_block_rate = blocked_runs / total_runs if total_runs else 0.0
+    p0_trigger_rate = critical_failed_runs / total_runs if total_runs else 0.0
+    raw_fulfillment = summary.get("fulfillment_rate")
+    try:
+        fulfillment_rate = float(raw_fulfillment) / 100.0 if raw_fulfillment is not None else None
+    except (TypeError, ValueError):
+        fulfillment_rate = None
+    fulfillment_gap = 1.0 - fulfillment_rate if fulfillment_rate is not None else 0.0
 
     lint = _load_lint(task_id, lint_path)
     feasibility = None
@@ -160,46 +198,102 @@ def analyze(
         judge_evidence.append(f"NA 占比 {na_rate:.1%}，判定链路无法提供足够有效结论")
         if na_rate >= 0.8:
             judge_score += 30  # 近乎整批无效时，判定链路是阻断性首因
+    elif na_rate >= 0.25:
+        judge_score += 35
+        judge_evidence.append(f"NA 占比 {na_rate:.1%}，有效判定覆盖偏低")
     if disagreement >= 0.2:
+        judge_score += 60
+        judge_evidence.append(f"裁判平均分歧率 {disagreement:.1%}")
+    elif disagreement >= 0.1:
         judge_score += 25
         judge_evidence.append(f"裁判平均分歧率 {disagreement:.1%}")
-    if needs_review and judgments and needs_review / len(judgments) >= 0.2:
-        judge_score += 20
+    if review_rate >= 0.3:
+        judge_score += 30
+        judge_evidence.append(f"待人工复核 {needs_review}/{len(judgments)} 项")
+    elif review_rate >= 0.15:
+        judge_score += 15
         judge_evidence.append(f"待人工复核 {needs_review}/{len(judgments)} 项")
     if rule_conflicts:
         judge_score += 20
         judge_evidence.append(f"规则/LLM 冲突 {rule_conflicts} 项")
-    if judge_score:
+    if judge_score >= 25:
         roots.append(_root("judge", "high" if judge_score >= 60 else "medium", min(judge_score, 100), judge_evidence))
 
+    test_data_score = 0
+    test_data_evidence: list[str] = []
     if len(total_by_persona) >= 3 and total_fail >= 3 and concentration >= 0.7:
-        roots.append(
-            _root(
-                "test_data",
-                "medium",
-                65,
-                [f"{top_persona} 承担 {concentration:.1%} 的失败，失败过度集中", f"本批共 {len(total_by_persona)} 类 persona"],
-            )
+        test_data_score += 70
+        test_data_evidence.extend(
+            [f"{top_persona} 承担 {concentration:.1%} 的失败，失败过度集中", f"本批共 {len(total_by_persona)} 类 persona"]
         )
+    if test_data_score:
+        roots.append(_root("test_data", "high" if test_data_score >= 80 else "medium", min(test_data_score, 100), test_data_evidence))
 
     strong_instruction = any(r["category"] == "instruction" and r["confidence"] == "high" for r in roots)
     strong_judge = any(r["category"] == "judge" and r["confidence"] == "high" for r in roots)
-    if judged >= 10 and fail_rate >= 0.2 and not strong_instruction and not strong_judge:
-        roots.append(
-            _root(
-                "target_model",
-                "high" if fail_rate >= 0.4 else "medium",
-                min(90, round(50 + fail_rate * 50)),
-                [f"有效判定 {judged} 项，外呼模型失败率 {fail_rate:.1%}", "未发现更强的指令/裁判故障信号"],
-            )
+    strong_test_data = any(r["category"] == "test_data" and r["score"] >= 65 for r in roots)
+    judge_healthy = na_rate < 0.25 and disagreement < 0.15 and review_rate < 0.3 and rule_conflicts == 0
+    model_score = round(
+        min(
+            95.0,
+            call_block_rate * 35
+            + fulfillment_gap * 25
+            + p0_trigger_rate * 30
+            + key_failure_rate * 20
+            + weighted_fail_rate * 15
+            + fail_rate * 40,
         )
-    elif judged >= 10 and fail_rate >= 0.4:
+    )
+    strong_model_signal = (
+        call_block_rate >= 0.25
+        or p0_trigger_rate >= 0.15
+        or fulfillment_gap >= 0.4
+        or key_failure_rate >= 0.3
+        or fail_rate >= 0.3
+    )
+    model_evidence = [
+        f"通话打回率 {call_block_rate:.1%}（{blocked_runs}/{total_runs}）" if total_runs else "通话打回率无批次数据",
+        f"履约率 {fulfillment_rate:.1%}" if fulfillment_rate is not None else "履约率无可判定数据",
+        f"P0 触发率 {p0_trigger_rate:.1%}（{critical_failed_runs}/{total_runs}）" if total_runs else "P0 触发率无批次数据",
+        f"关键流程失败率 {key_failure_rate:.1%}",
+        f"严重度加权失败率 {weighted_fail_rate:.1%}（critical {critical_failure_rate:.1%} / major {major_failure_rate:.1%}）",
+        f"全部有效判定失败率 {fail_rate:.1%}（{verdicts['fail']}/{judged}）",
+        f"裁判健康：NA {na_rate:.1%}、分歧 {disagreement:.1%}",
+    ]
+    if judged >= 10 and model_score >= 30 and strong_model_signal:
+        if strong_instruction or strong_judge or strong_test_data:
+            mixed = []
+            if strong_instruction:
+                mixed.append("SOP")
+            if strong_judge:
+                mixed.append("裁判")
+            if strong_test_data:
+                mixed.append("测试分布")
+            roots.append(
+                _root(
+                    "target_model",
+                    "low",
+                    min(model_score, 45),
+                    model_evidence + [f"存在更强的{'/'.join(mixed)}混杂信号，模型归因降级"],
+                )
+            )
+        else:
+            confidence = "high" if model_score >= 60 and judge_healthy else "medium"
+            roots.append(
+                _root(
+                    "target_model",
+                    confidence,
+                    model_score,
+                    model_evidence + ["未发现更强的 SOP、裁判或测试分布故障信号"],
+                )
+            )
+    elif judged >= 10 and fail_rate >= 0.2 and not strong_instruction and not strong_judge and not strong_test_data:
         roots.append(
             _root(
                 "target_model",
-                "low",
-                40,
-                [f"有效判定失败率 {fail_rate:.1%}，但存在更强的指令/裁判混杂因素"],
+                "medium",
+                max(30, model_score),
+                model_evidence + ["失败信号达到模型候选阈值，但批次级证据仍偏弱"],
             )
         )
 
@@ -209,15 +303,19 @@ def analyze(
                 "uncertain",
                 "low",
                 20,
-                [f"有效判定 {judged} 项、失败率 {fail_rate:.1%}、NA 占比 {na_rate:.1%}，未达到稳健归因阈值"],
+                [
+                    f"有效判定 {judged} 项、失败率 {fail_rate:.1%}、NA 占比 {na_rate:.1%}",
+                    f"通话打回率 {call_block_rate:.1%}、履约缺口 {fulfillment_gap:.1%}、P0 触发率 {p0_trigger_rate:.1%}",
+                    "所有分支均未达到稳健归因阈值",
+                ],
             )
         )
 
     confidence_rank = {"high": 2, "medium": 1, "low": 0}
-    roots.sort(key=lambda item: (confidence_rank[item["confidence"]], item["score"]), reverse=True)
+    roots.sort(key=lambda item: (item["score"], confidence_rank[item["confidence"]]), reverse=True)
     primary = roots[0]
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "primary_category": primary["category"],
         "primary_label": primary["label"],
         "primary_confidence": primary["confidence"],
@@ -227,12 +325,22 @@ def analyze(
             "judged": judged,
             "fail_rate": round(fail_rate, 4),
             "na_rate": round(na_rate, 4),
+            "review_rate": round(review_rate, 4),
             "needs_human_review": needs_review,
             "rule_conflicts": rule_conflicts,
             "judge_disagreement_rate": disagreement,
             "instruction_feasibility": feasibility,
             "instruction_high_findings": high_findings,
             "persona_failure_concentration": round(concentration, 4),
+            "call_block_rate": round(call_block_rate, 4),
+            "fulfillment_rate": round(fulfillment_rate, 4) if fulfillment_rate is not None else None,
+            "p0_trigger_rate": round(p0_trigger_rate, 4),
+            "key_failure_rate": round(key_failure_rate, 4),
+            "critical_failure_rate": round(critical_failure_rate, 4),
+            "major_failure_rate": round(major_failure_rate, 4),
+            "severity_weighted_fail_rate": round(weighted_fail_rate, 4),
+            "target_model_score": model_score,
+            "judge_healthy": judge_healthy,
         },
         "disclaimer": "根因为确定性信号归纳，不是因果证明；低/中置信结论必须人工复核后再修改生产配置。",
     }

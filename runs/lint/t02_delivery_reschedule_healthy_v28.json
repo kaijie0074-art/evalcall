@@ -1,0 +1,70 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "infeasible_1",
+      "dimension": "infeasible",
+      "severity": "high",
+      "quote_a": "检测到挂断则立即结束流程",
+      "quote_b": "",
+      "analysis": "已声明系统仅提供四项同步能力，其中没有挂断事件；模型无法获知用户是否已经挂断，因而无法主动执行该要求。",
+      "suggestion": "新增能力5：平台实时向模型发送“用户挂断”事件；收到后立即停止播报并结束流程。"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "选择继续改约则重新展示当前列表并留在 S2",
+      "quote_b": "",
+      "analysis": "当前列表可能为0个时段；此时会重新展示空列表，却未明确回到“保留原安排或转人工”，执行可能卡住或产生不同收口。",
+      "suggestion": "补充：“若当前列表为空，不重新展示列表，改问保留原安排还是转人工；其余处理沿用0时段分支。”"
+    },
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "medium",
+      "quote_a": "选择人工则转人工，其他回复均引导从 App 查询并结束。",
+      "quote_b": "答非所问或未听清时换一种表述重问一次",
+      "analysis": "未覆盖问题分支中，答非所问既属于“其他回复”而应立即引导 App，又被通用规则要求重问一次，动作互斥。",
+      "suggestion": "改为：选择人工则转人工；沉默、答非所问或未听清时重问一次；仍无效或选择 App 时引导 App 后结束。"
+    },
+    {
+      "id": "conflict_2",
+      "dimension": "conflict",
+      "severity": "medium",
+      "quote_a": "选择人工则转人工，其余\n回复引导从 App 处理并结束。",
+      "quote_b": "答非所问或未听清时换一种表述重问一次",
+      "analysis": "第二次时段被占用后，答非所问同时触发立即引导 App 结束和重问一次，执行者无法确定应继续还是结束。",
+      "suggestion": "改为：选择人工则转人工；沉默、答非所问或未听清时重问一次；仍无效及其他回复引导 App 后结束。"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "凡不是恰好 4 位数字均不提交核验",
+      "quote_b": "",
+      "analysis": "“数字”未说明仅指0–9字符，还是也接受“一二三四”等中文数字，语音转写不同时会产生不同核验结果。",
+      "suggestion": "改为“只识别连续4个0–9字符”，或补充中文数字的唯一归一化规则后再校验。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "只接受用户说出完整时段、数字序号，或“第 N 个 / 第一个 / 最后一个”来唯一选择已展示时段",
+      "quote_b": "",
+      "analysis": "“完整时段”和“数字序号”的匹配标准未定义，语义等价时间、中文数字及带客套话的选择可能被接受或判为含糊。",
+      "suggestion": "明确可忽略哪些前后话语、时段是否须逐字匹配，并穷举可接受的1–3序号表达。"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "用户说方便则进入 S1",
+      "quote_b": "",
+      "analysis": "未规定用户同一句同时表示方便并给出唯一有效订单尾号时，是进入S1后直接核验，还是重新询问尾号。",
+      "suggestion": "补充：“若同一句含方便意图和唯一有效订单号末4位，进入S1后直接核验；否则再询问末4位。”"
+    }
+  ],
+  "feasibility_score": 10,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 7 条问题（不可行约束1条、缺失分支2条、自相矛盾2条、歧义2条），可遵循度 10/100。"
+}

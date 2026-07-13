@@ -1,0 +1,97 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "选择保留、拒绝或沉默则确认未变更并结束",
+      "quote_b": "除 S4 等待同步结果外，用户沉默、答非所问或未听清时换一种表述重问一次",
+      "analysis": "S2 无时段时，沉默既要求立即结束，又要求换种表述重问一次；同一分支无法同时执行。",
+      "suggestion": "改为：“选择保留或拒绝则结束；沉默时换一种表述重问一次，仍沉默则确认未变更并结束。”"
+    },
+    {
+      "id": "conflict_2",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "除以上返回外不会出现其他系统状态。",
+      "quote_b": "系统返回“完全匹配”才进入 S2；首次“不匹配”时重问一次末 4 位，第二次仍不匹配、用户拒绝、系统错误或找不到订单时",
+      "analysis": "封闭状态声明未列出核验返回值，S1 却依赖“完全匹配、不匹配、找不到订单、系统错误”，接口契约互相矛盾。",
+      "suggestion": "把能力 1 改为：“核验身份，并只返回‘完全匹配 / 不匹配 / 找不到订单 / 系统错误’之一。”"
+    },
+    {
+      "id": "infeasible_1",
+      "dimension": "infeasible",
+      "severity": "high",
+      "quote_a": "说不方便、拒绝、停止联系或挂断则礼貌结束",
+      "quote_b": "",
+      "analysis": "用户挂断后语音通道已经关闭，执行者无法再向用户播报礼貌收尾。",
+      "suggestion": "改为：“说不方便、拒绝或停止联系则礼貌结束；检测到挂断则立即结束流程，不再播报。”"
+    },
+    {
+      "id": "infeasible_2",
+      "dimension": "infeasible",
+      "severity": "high",
+      "quote_a": "通话已断则只写入本次执行日志。",
+      "quote_b": "",
+      "analysis": "已声明系统只提供核验、查时段、提交和转人工四项能力，没有日志写入接口，模型无执行通道。",
+      "suggestion": "改为：“通话已断则直接结束；执行日志由平台自动记录，不要求外呼模型写入。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "除以上返回外不会出现其他系统状态。",
+      "quote_b": "",
+      "analysis": "能力1未定义核验返回值，S1却使用“完全匹配、不匹配、系统错误、找不到订单”，系统状态契约前后不一致。",
+      "suggestion": "将能力1补为“仅返回完全匹配 / 不匹配 / 系统错误 / 找不到订单之一”，并明确无其他核验状态。"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "只提醒“仅需末 4 位”并重问一次。",
+      "quote_b": "",
+      "analysis": "未规定重问后用户再次提供非4位数字或敏感信息时如何处理，可能被反复追问或错误进入核验。",
+      "suggestion": "补充“重问后仍非恰好4位数字时，不提交核验，引导从美团 App 核实并结束；明确要求人工则转人工”。"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "选择多个、表述含糊或选择未展示时段时，只重问一次",
+      "quote_b": "",
+      "analysis": "有可选时段时，未覆盖用户直接表示不改、拒绝、没兴趣或要求停止联系，执行者可能误重问或无法收口。",
+      "suggestion": "补充“用户表示不改、拒绝或停止联系时，说明本次未提交并立即结束”。"
+    },
+    {
+      "id": "missing_branch_4",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "并问继续改约还是转人工。",
+      "quote_b": "",
+      "analysis": "该提问后未规定用户选择继续改约或转人工各自进入哪个状态，也未规定拒绝等其他回答的处理。",
+      "suggestion": "补充“选择继续改约则重新展示当前列表并留在 S2；选择人工则转人工；拒绝则说明未提交并结束”。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "用户唯一选择已展示的完整时段才进入 S3",
+      "quote_b": "",
+      "analysis": "不清楚用户必须逐字说出完整时段，还是说“第一个”等能唯一定位的表达也算有效选择。",
+      "suggestion": "改为“用户逐字说出时段，或用序号等方式无歧义地唯一指向一个已展示时段，即进入 S3”。"
+    },
+    {
+      "id": "missing_branch_3",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "用户要求次日配送时说明本通只支持当日时段，并问从当前列表选择还是转人工。",
+      "quote_b": "",
+      "analysis": "当系统返回0个时段时“当前列表”为空，此分支仍要求用户从列表选择，缺少空列表下要求次日配送的处理。",
+      "suggestion": "补充“若当前列表为空且用户要求次日配送，只可询问保留原安排还是转人工，不再要求从列表选择”。"
+    }
+  ],
+  "feasibility_score": 0,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 10 条问题（自相矛盾2条、不可行约束2条、歧义2条、缺失分支4条），可遵循度 0/100。"
+}

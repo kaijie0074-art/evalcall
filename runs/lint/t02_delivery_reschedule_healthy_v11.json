@@ -1,0 +1,88 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "infeasible_1",
+      "dimension": "infeasible",
+      "severity": "high",
+      "quote_a": "提交持续无返回、返回“处理中”或未知状态时，等到提交满 30 秒再查询一次",
+      "quote_b": "",
+      "analysis": "系统能力没有计时器或30秒超时事件；纯对话模型无法可靠判断提交是否已满30秒，不能保证在指定时点查询。",
+      "suggestion": "改为：“系统在提交满30秒时返回超时事件；模型收到该事件后查询一次状态。”"
+    },
+    {
+      "id": "infeasible_2",
+      "dimension": "infeasible",
+      "severity": "high",
+      "quote_a": "D 之前通话中断：不得提交；重连后重新核验、重新读取完整列表，从 B 开始，只保留最近目标时间。",
+      "quote_b": "",
+      "analysis": "能力清单没有自动重连和跨通话状态存储，且不提供回拨；断线后模型无法发起重连并保留最近目标时间。",
+      "suggestion": "增加自动重连、会话ID和状态存储能力；否则改为：“通话中断即结束，用户需从 App 重新发起办理。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "用户拒绝部分候选时只标记被拒绝项；拒绝整批时标记整批；",
+      "quote_b": "",
+      "analysis": "只规定了记录方式，未规定随后展示剩余候选、展示下一批还是重新询问，流程可能停滞或执行不一致。",
+      "suggestion": "补充：部分拒绝后询问是否从本批剩余项选择；整批拒绝后展示下一批，无下一批则进入无可接受时段分支。"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "只有回复同时包含无条件肯定、提交/执行含义，并明确指向刚复述时段时才提交，例如“确认提交”“按这个时段提交”。",
+      "quote_b": "",
+      "analysis": "“确认提交”未在字面上指向所复述时段，却被列为合格示例，执行者可能对同类回复作出相反判断。",
+      "suggestion": "明确规定“紧接唯一时段确认问题的‘确认提交’视为指向该时段”，或将示例改为“确认按这个时段提交”。"
+    },
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "medium",
+      "quote_a": "用户拒绝部分候选时只标记被拒绝项；",
+      "quote_b": "要求更多时，保留用户明确要求保留的候选，其余本批候选标记为已拒绝",
+      "analysis": "用户可能同轮说“第一个不要，再看看别的”。前句要求只拒绝第一个，后句却要求把同批其他未保留项也拒绝，无法同时满足。",
+      "suggestion": "改为：“同时出现部分拒绝与要求更多时，仅标记明确拒绝项；其余项默认保留，再展示下一批。”"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "用户指出复述错误或改选时，更新后重新复述；",
+      "quote_b": "",
+      "analysis": "用户可能只说“你说错了”而不提供正确时段，此时无法执行“更新”，也未规定应如何继续。",
+      "suggestion": "补充：若仅指出错误但未给出正确时段，则回到 B，重新展示有效候选并要求唯一选择。"
+    },
+    {
+      "id": "missing_branch_3",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "要求人工则转接。",
+      "quote_b": "",
+      "analysis": "直接要求人工时只规定发起转接，未规定转接失败、超时或不可用后的话术和结束路径。",
+      "suggestion": "补充全局规则：转接成功则结束机器人流程；转接失败、超时或不可用时，引导从 App 官方入口处理并结束。"
+    },
+    {
+      "id": "missing_branch_4",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "无可接受时段或要求次日配送：说明本次未变更，询问保留原安排还是转人工；未选择、拒绝或转接不可用时说明保留原安排并引导 App 后结束。",
+      "quote_b": "",
+      "analysis": "该节点询问两个选项，却未明确用户选择“保留原安排”时的收尾，也未直写选择人工后的处理。",
+      "suggestion": "补充：选择保留原安排时确认未变更并结束；选择人工时立即转接，转接不可用则引导 App 后结束。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "新时段记为未展示，再回到 B；",
+      "quote_b": "",
+      "analysis": "“新时段”可能指刷新后全部有效时段，也可能仅指相较旧列表新增的时段，会影响候选是否被重复展示。",
+      "suggestion": "改为：刷新后首次出现且不在旧列表中的时段记为未展示；旧列表中仍有效的时段保留原展示与拒绝状态。"
+    }
+  ],
+  "feasibility_score": 0,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 9 条问题（不可行约束2条、缺失分支4条、歧义2条、自相矛盾1条），可遵循度 0/100。"
+}

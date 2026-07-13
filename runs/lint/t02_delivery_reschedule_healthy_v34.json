@@ -1,0 +1,52 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "同一通话累计两次返回“时段被占用”后，不再提交，询问转人工还是从美团 App 处理；选择人工则转人工；",
+      "quote_b": "",
+      "analysis": "该节点未处理用户表示“不再改约、结束”或要求停止联系的回应，可能被误判为无效并继续重问或引导 App。",
+      "suggestion": "补充：若表示不再改约或结束，告知原安排未变更并结束；若要求停止联系，立即静默结束。"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "同时表示方便并明确说明所给四位数是订单号末 4 位，且整句仅含一个连续四位 0–9 数字串、无其他数字，则进入 S1 后直接提交订单号末 4 位核验；",
+      "quote_b": "",
+      "analysis": "同句若还含无数字的完整地址等敏感信息，既符合直接提交条件，又触发 S1“敏感输入优先”，提交与重问路径冲突。",
+      "suggestion": "改为：满足数字条件且不含任何敏感信息时才直接提交；否则进入 S1 后先按敏感信息规则处理。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "仅当整句含一个连续四位 0–9 数字串且无其他数字时提交核验，前后可有非数字话语。",
+      "quote_b": "",
+      "analysis": "“这不是订单尾号，1234只是举例”格式合规但语义否定；规则未明确是否提交，可能造成错误核验。",
+      "suggestion": "补充：数字被否定、声明为示例或明确标注为其他用途时不得提交，须重新确认凭据用途。"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "仅否定当前时段且要求换另一个时段时回 S2；",
+      "quote_b": "",
+      "analysis": "前文规定任何明确换时段意图都回 S2，此处又要求同时否定当前时段；“换一个”是否满足条件不明确。",
+      "suggestion": "统一改为：“凡明确要求更换时段，包括仅说‘换一个’，均回 S2；明确取消整个改约才结束。”"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "其余回复引导 App 后结束；",
+      "quote_b": "",
+      "analysis": "对“不要转人工”等仅拒绝一个选项的回复，本句要求直接引导 App，通用收口却要求重问一次，执行不一致。",
+      "suggestion": "改为：“选择 App 时引导 App 后结束；仅拒绝一个选项时按通用规则重问一次，仍不明确再失败收口。”"
+    }
+  ],
+  "feasibility_score": 35,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 5 条问题（缺失分支1条、歧义4条），可遵循度 35/100。"
+}

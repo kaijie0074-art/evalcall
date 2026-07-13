@@ -27,7 +27,7 @@ from urllib.parse import unquote, urlparse
 
 import yaml
 
-from . import attribution, cli, compiler, ingest
+from . import attribution, cli, compiler, ingest, llm
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -40,37 +40,53 @@ PRESETS: dict[str, dict[str, str]] = {
     "official01": {
         "label": "骑手合同生效通知",
         "tag": "官方脱敏任务",
+        "demo_role": "SOP 问题案例",
+        "test_mode": "simulation",
+        "model_version": "baseline-sim-20260702",
         "task": "样例选择包/01_骑手合同生效通知_SOP.yaml",
         "transcripts": "样例选择包/01_骑手合同生效通知_对话_12通.jsonl",
         "verified_checklist": "runs/official01_gated_20260702/checklist.json",
-        "cache_run": "runs/official01_gated_20260702",
+        "live_verified_run": "runs/demo_live_official01_codex_20260713",
+        "cache_run": "runs/demo_live_official01_codex_20260713",
         "cache_report": "report-official-gated.html",
     },
     "t02": {
         "label": "配送时间改约",
-        "tag": "健康 SOP 对照",
+        "tag": "主演示 · 外呼模型问题",
+        "demo_role": "模型评测主演示",
+        "test_mode": "simulation",
+        "model_version": "delivery-baseline-v1",
         "task": "样例选择包/02_配送时间改约_SOP.yaml",
         "transcripts": "样例选择包/02_配送时间改约_对话_10通.jsonl",
-        "verified_checklist": "runs/t02_gated_20260702/checklist.json",
-        "cache_run": "runs/t02_gated_20260702",
+        "verified_checklist": "runs/demo_main_t02_healthy_20260713/checklist.json",
+        "live_verified_run": "runs/demo_main_t02_healthy_20260713",
+        "cache_run": "runs/demo_main_t02_healthy_20260713",
         "cache_report": "report-t02-gated.html",
     },
     "real_recruit": {
         "label": "骑手招聘外呼",
         "tag": "真实生产 SOP",
+        "demo_role": "真实日志辅助案例",
+        "test_mode": "logs",
+        "model_version": "recruit-log-snapshot-v1",
         "task": "样例选择包/03_骑手招聘外呼_SOP.yaml",
         "transcripts": "样例选择包/03_骑手招聘外呼_对话_10通.jsonl",
         "verified_checklist": "runs/m5_real_recruit_gpt56sol_xhigh_v2_20260712/checklist.json",
-        "cache_run": "runs/m5_real_recruit_gpt56sol_xhigh_v2_20260712",
+        "live_verified_run": "runs/demo_live_real_recruit_codex_20260713",
+        "cache_run": "runs/demo_live_real_recruit_codex_20260713",
         "cache_report": "report-real-recruit-gpt56sol.html",
     },
     "official02": {
         "label": "低延迟直播升级通知",
-        "tag": "官方脱敏任务",
+        "tag": "对照 · SOP 问题",
+        "demo_role": "SOP 问题对照",
+        "test_mode": "simulation",
+        "model_version": "live-baseline-v1",
         "task": "样例选择包/04_低延迟直播升级通知_SOP.yaml",
         "transcripts": "样例选择包/04_低延迟直播升级通知_对话_10通.jsonl",
         "verified_checklist": "runs/official02_gated_20260702/checklist.json",
-        "cache_run": "runs/official02_gated_20260702",
+        "live_verified_run": "runs/demo_live_official02_codex_20260713",
+        "cache_run": "runs/demo_live_official02_codex_20260713",
         "cache_report": "report-official2-gated.html",
     },
 }
@@ -78,10 +94,100 @@ PRESETS: dict[str, dict[str, str]] = {
 _jobs: dict[str, dict[str, Any]] = {}
 _sessions: dict[str, dict[str, Any]] = {}
 _lock = threading.Lock()
+_backend_status: dict[str, Any] = {
+    "checked": False,
+    "checking": False,
+    "available": False,
+    "checked_at": None,
+    "error": "尚未执行模型后端探测",
+}
+
+_VERIFIED_EVALUATION_FILES = (
+    "transcripts.jsonl",
+    "summary.json",
+    "judgments.json",
+    "judgments_by_run.json",
+    "checklist.json",
+    "report.html",
+    "evaluation_errors.json",
+    "manifest.json",
+    "review_queue.csv",
+    "review_queue.json",
+    "telemetry.json",
+    "ingestion_report.json",
+)
 
 
 def _now() -> str:
     return datetime.now().isoformat(timespec="seconds")
+
+
+def _configure_demo_backend() -> None:
+    """为本地工作台选择当前机器上可直接工作的默认推理后端。"""
+    if os.getenv("EVALCALL_BACKEND"):
+        return
+    if shutil.which("codex"):
+        os.environ["EVALCALL_BACKEND"] = "codex-cli"
+        os.environ.setdefault("EVALCALL_MODEL", "gpt-5.6-sol")
+        os.environ.setdefault("EVALCALL_REASONING_EFFORT", "xhigh")
+    else:
+        os.environ["EVALCALL_BACKEND"] = "claude-cli"
+
+
+def _probe_backend(*, force: bool = False) -> dict[str, Any]:
+    """真实调用一次评分模型；健康页不能把“进程存在”误报成“模型可用”。"""
+    global _backend_status
+    with _lock:
+        if _backend_status.get("checking"):
+            return dict(_backend_status)
+        if _backend_status.get("checked") and not force:
+            return dict(_backend_status)
+        _backend_status = {
+            "checked": False,
+            "checking": True,
+            "available": False,
+            "checked_at": None,
+            "backend": os.getenv("EVALCALL_BACKEND", "claude-cli"),
+            "model": os.getenv("EVALCALL_MODEL", "default"),
+            "response": None,
+            "error": None,
+        }
+    backend = os.getenv("EVALCALL_BACKEND", "claude-cli")
+    model = os.getenv("EVALCALL_MODEL", "default")
+    try:
+        answer = llm.chat(
+            [
+                {"role": "system", "content": "这是健康检查。"},
+                {"role": "user", "content": "只回复 OK"},
+            ],
+            model=None,
+        ).strip()
+        if not answer:
+            raise RuntimeError("模型返回空响应")
+        result = {
+            "checked": True,
+            "checking": False,
+            "available": True,
+            "checked_at": _now(),
+            "backend": backend,
+            "model": model,
+            "response": answer[:40],
+            "error": None,
+        }
+    except Exception as exc:  # noqa: BLE001
+        result = {
+            "checked": True,
+            "checking": False,
+            "available": False,
+            "checked_at": _now(),
+            "backend": backend,
+            "model": model,
+            "response": None,
+            "error": str(exc)[:500],
+        }
+    with _lock:
+        _backend_status = result
+        return dict(_backend_status)
 
 
 def _read_json(path: Path) -> Any:
@@ -115,6 +221,90 @@ def _load_task(path: Path) -> dict[str, Any]:
     data["task_id"] = task_id
     data.setdefault("id", task_id)
     return data
+
+
+def _digest_json(data: Any) -> str:
+    payload = json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _sha256_path(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _trajectory_profile(trajectories: list[dict[str, Any]]) -> dict[str, Any]:
+    counts = Counter(str(row.get("persona_id") or "unknown") for row in trajectories)
+    synthetic = sum(1 for row in trajectories if (row.get("meta") or {}).get("synthetic_demo"))
+    simulated = sum(
+        1
+        for row in trajectories
+        if str((row.get("meta") or {}).get("source") or "").startswith("sim")
+        or bool((row.get("meta") or {}).get("adversarial"))
+        or str(row.get("persona_id") or "").startswith(("p0", "synthetic_"))
+    )
+    return {
+        "persona_count": len(counts),
+        "personas": [{"id": key, "calls": value} for key, value in sorted(counts.items())],
+        "synthetic_branch_calls": synthetic,
+        "simulator_generated_calls": simulated,
+    }
+
+
+def _task_digest(task: dict[str, Any]) -> str:
+    """任务内容签名；排除 ``id``/``task_id`` 的兼容性重复字段。"""
+    return _digest_json({key: value for key, value in task.items() if key != "id"})
+
+
+def _trajectory_digest(trajectories: list[dict[str, Any]]) -> str:
+    """对话语义签名，忽略导入器重编号与 source_file 等运行时元数据。"""
+    normalized = [
+        {
+            "run_id": row.get("run_id"),
+            "task_id": row.get("task_id"),
+            "persona_id": row.get("persona_id"),
+            "turns": [
+                {"role": turn.get("role"), "content": turn.get("content")}
+                for turn in row.get("turns") or []
+            ],
+        }
+        for row in trajectories
+    ]
+    return _digest_json(normalized)
+
+
+def _match_verified_preset(task: dict[str, Any], transcripts_path: Path) -> str | None:
+    """识别通过文件选择上传的内置样例；必须同时匹配 SOP 与完整对话内容。"""
+    task_signature = _task_digest(task)
+    uploaded = ingest.load_transcripts(
+        str(transcripts_path),
+        str(task["task_id"]),
+        redact=False,
+    )
+    transcript_signature = _trajectory_digest(uploaded.trajectories)
+    for preset_id, config in PRESETS.items():
+        candidate_task = _load_task(ROOT / config["task"])
+        if _task_digest(candidate_task) != task_signature:
+            continue
+        loaded = ingest.load_transcripts(
+            str(ROOT / config["transcripts"]),
+            str(candidate_task["task_id"]),
+            redact=False,
+        )
+        if _trajectory_digest(loaded.trajectories) == transcript_signature:
+            return preset_id
+    return None
+
+
+def _verified_run_matches_instruction(task: dict[str, Any], run_dir: Path | None) -> bool:
+    if run_dir is None or not (run_dir / "manifest.json").is_file():
+        return False
+    manifest = _read_json(run_dir / "manifest.json")
+    current_hash = hashlib.sha256(str(task.get("instruction") or "").encode("utf-8")).hexdigest()
+    return manifest.get("instruction_hash") == current_hash
 
 
 def _session(session_id: str) -> dict[str, Any]:
@@ -169,8 +359,11 @@ def _package_preview(
         payload["artifacts"] = {
             "task_package": _artifact_url(session_id, "task-package.json"),
             "ingestion_report": _artifact_url(session_id, "ingestion-report.json"),
-            "normalized_transcripts": _artifact_url(session_id, "normalized-transcripts.jsonl"),
         }
+        if trajectories:
+            payload["artifacts"]["normalized_transcripts"] = _artifact_url(
+                session_id, "normalized-transcripts.jsonl"
+            )
     return payload
 
 
@@ -250,12 +443,41 @@ def _judgment_samples(output_dir: Path, limit: int = 6) -> list[dict[str, Any]]:
     return samples
 
 
-def _evaluation_preview(output_dir: Path) -> dict[str, Any]:
+def _evaluation_preview(
+    output_dir: Path,
+    *,
+    declared_model_version: str | None = None,
+    declared_test_mode: str | None = None,
+) -> dict[str, Any]:
     summary = _read_json(output_dir / "summary.json")
     judgments = _read_json(output_dir / "judgments.json")
+    checklist = _read_json(output_dir / "checklist.json")
     errors_path = output_dir / "evaluation_errors.json"
     errors = _read_json(errors_path) if errors_path.is_file() else []
     runtime = summary.get("runtime") or {}
+    verdict_counts = Counter(str(row.get("verdict") or "na") for row in judgments)
+    touched_by_checkpoint: dict[str, int] = defaultdict(int)
+    for row in judgments:
+        if str(row.get("verdict") or "na") in {"pass", "fail"}:
+            touched_by_checkpoint[str(row.get("checkpoint_id") or "unknown")] += 1
+    blind_spots = [
+        {"id": row.get("id"), "text": row.get("text"), "severity": row.get("severity")}
+        for row in checklist
+        if touched_by_checkpoint.get(str(row.get("id") or "unknown"), 0) == 0
+    ]
+    transcripts_path = output_dir / "transcripts.jsonl"
+    trajectories = [json.loads(line) for line in transcripts_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    profile = _trajectory_profile(trajectories)
+    manifest = summary.get("manifest") or {}
+    provider_fingerprint = manifest.get("target_model_fingerprint") or {}
+    target_model_version = declared_model_version or provider_fingerprint.get("model") or summary.get("target_model") or "未声明"
+    behavior_fingerprint = _digest_json(
+        {
+            "declared_model_version": target_model_version,
+            "provider_fingerprint": provider_fingerprint,
+            "transcripts_sha256": _sha256_path(transcripts_path),
+        }
+    )
     return {
         "run_id": summary.get("run_id") or output_dir.name,
         "gate": summary.get("gate"),
@@ -268,14 +490,49 @@ def _evaluation_preview(output_dir: Path) -> dict[str, Any]:
         "evaluation_errors": len(errors) if isinstance(errors, list) else 0,
         "judge_votes": ((summary.get("manifest") or {}).get("judge_models_config") or {}).get("n_votes"),
         "backend": summary.get("backend") or runtime.get("backend") or "历史运行",
+        "source_mode": summary.get("source_mode") or "unknown",
+        "test_mode": declared_test_mode or ("simulation" if profile["simulator_generated_calls"] else "logs"),
+        "target_model_version": target_model_version,
+        "target_model_fingerprint": behavior_fingerprint,
+        "persona_count": profile["persona_count"],
+        "personas": profile["personas"],
+        "simulator_generated_calls": profile["simulator_generated_calls"],
+        "synthetic_branch_calls": profile["synthetic_branch_calls"],
+        "coverage_rate": round((verdict_counts["pass"] + verdict_counts["fail"]) / len(judgments) * 100, 1) if judgments else 0.0,
+        "blind_spot_count": len(blind_spots),
+        "blind_spots": blind_spots[:8],
+        "p0_triggered_calls": summary.get("critical_failed_runs", 0),
+        "key_failed_judgments": sum(
+            1
+            for row in judgments
+            if row.get("verdict") == "fail"
+            and (row.get("severity") in {"critical", "major"} or row.get("type") in {"flow", "outcome"})
+        ),
+        "hashes": {
+            "transcripts_sha256": _sha256_path(transcripts_path),
+            "checklist_sha256": _sha256_path(output_dir / "checklist.json"),
+            "judgments_sha256": _sha256_path(output_dir / "judgments.json"),
+            "summary_sha256": _sha256_path(output_dir / "summary.json"),
+        },
         "sample_judgments": _judgment_samples(output_dir),
     }
 
 
-def _decision_payload(output_dir: Path, report_url: str) -> dict[str, Any]:
+def _decision_payload(
+    output_dir: Path,
+    report_url: str,
+    *,
+    declared_model_version: str | None = None,
+    declared_test_mode: str | None = None,
+) -> dict[str, Any]:
     summary = _read_json(output_dir / "summary.json")
     judgments = _read_json(output_dir / "judgments.json")
     checkpoints = _read_json(output_dir / "checklist.json")
+    evaluation = _evaluation_preview(
+        output_dir,
+        declared_model_version=declared_model_version,
+        declared_test_mode=declared_test_mode,
+    )
     by_cp: dict[str, dict[str, Any]] = defaultdict(
         lambda: {"pass": 0, "fail": 0, "na": 0, "text": "", "severity": "minor", "source_quote": ""}
     )
@@ -322,6 +579,9 @@ def _decision_payload(output_dir: Path, report_url: str) -> dict[str, Any]:
         )
     )
     return {
+        "deliverable": "外呼模型指令遵循评测报告",
+        "target_model_version": evaluation["target_model_version"],
+        "target_model_fingerprint": evaluation["target_model_fingerprint"],
         "gate": summary.get("gate"),
         "avg_score": summary.get("avg_score"),
         "total_runs": summary.get("total_runs", 0),
@@ -333,6 +593,12 @@ def _decision_payload(output_dir: Path, report_url: str) -> dict[str, Any]:
         "gate_reasons": summary.get("gate_reasons") or [],
         "coverage_rate": round(touched / len(judgments) * 100, 1) if judgments else 0.0,
         "blind_spots": sum(1 for row in problems if row["coverage_rate"] < 50),
+        "unreached_checkpoints": evaluation["blind_spots"],
+        "p0_triggered_calls": evaluation["p0_triggered_calls"],
+        "key_failed_judgments": evaluation["key_failed_judgments"],
+        "test_mode": evaluation["test_mode"],
+        "personas": evaluation["personas"],
+        "hashes": evaluation["hashes"],
         "problems": problems,
         "top_problems": problems[:8],
         "report_url": report_url,
@@ -347,10 +613,27 @@ def _attribution_payload(output_dir: Path) -> dict[str, Any]:
     return attribution.analyze(checkpoints, judgments, summary, task_id=task_id)
 
 
-def _plan_payload(attribution_result: dict[str, Any], *, version: str, session_id: str | None = None) -> dict[str, Any]:
+def _plan_payload(
+    attribution_result: dict[str, Any],
+    *,
+    version: str,
+    session_id: str | None = None,
+    sop_sha256: str | None = None,
+    checklist_sha256: str | None = None,
+    target_model_version: str | None = None,
+) -> dict[str, Any]:
     root = (attribution_result.get("roots") or [{}])[0]
     category = str(root.get("category") or attribution_result.get("primary_category") or "uncertain")
     return_step = {"instruction": 2, "judge": 3, "test_data": 1, "target_model": 3, "uncertain": 5}.get(category, 5)
+    optimization_target = {
+        "target_model": "外呼模型与对话策略",
+        "instruction": "任务 SOP / SYSTEM PROMPT",
+        "judge": "裁判提示词、投票和复核策略",
+        "test_data": "用户模拟器 persona 与测试数据覆盖",
+        "uncertain": "补齐可归责证据",
+    }.get(category, "补齐可归责证据")
+    sop_changed = category == "instruction"
+    checklist_changed = category in {"instruction", "judge"}
     result: dict[str, Any] = {
         "version": version,
         "status": "待执行与人工确认",
@@ -360,6 +643,14 @@ def _plan_payload(attribution_result: dict[str, Any], *, version: str, session_i
         "owner": root.get("owner") or "人工复核",
         "evidence": list(root.get("evidence") or []),
         "actions": list(root.get("actions") or []),
+        "optimization_target": optimization_target,
+        "target_model_version": target_model_version,
+        "sop_changed": sop_changed,
+        "checklist_changed": checklist_changed,
+        "sop_sha256_before": sop_sha256,
+        "checklist_sha256_before": checklist_sha256,
+        "sop_sha256_for_regression": sop_sha256 if not sop_changed else None,
+        "checklist_sha256_for_regression": checklist_sha256 if not checklist_changed else None,
         "return_step": return_step,
         "return_reason": {
             1: "测试数据需要补齐或重选，回到材料上传",
@@ -368,7 +659,7 @@ def _plan_payload(attribution_result: dict[str, Any], *, version: str, session_i
             5: "证据不足，先补充人工复核再重新归因",
         }[return_step],
         "regression_acceptance": ["P0 不新增", "目标失败项 fail→pass", "同一检查尺下对比", "低置信结果完成人工复核"],
-        "safety_note": "本步骤只生成修复草案和回归请求，不会自动修改生产 SOP 或模型。",
+        "safety_note": "本步骤只生成对应根因的优化草案和同尺回归请求，不会自动修改生产 SOP 或模型。",
     }
     if session_id:
         result["artifacts"] = {
@@ -388,35 +679,116 @@ def build_static_cache() -> dict[str, Any]:
         loaded = ingest.load_transcripts(str(run_dir / "transcripts.jsonl"), str(task["task_id"]), redact=True)
         checklist = _read_json(run_dir / "checklist.json")
         attribution_result = _attribution_payload(run_dir)
+        package = _package_preview(task, loaded.report, loaded.trajectories, scope="历史已验证批次")
+        profile = _trajectory_profile(loaded.trajectories)
+        package.update(
+            source="内置用户模拟器样例" if config.get("test_mode") == "simulation" else "内置已有日志样例",
+            preset=preset_id,
+            recognized_sample=True,
+            evaluation_strategy="复用同输入已验证结果",
+            test_mode=config.get("test_mode"),
+            test_mode_label="用户模拟器生成测试对话" if config.get("test_mode") == "simulation" else "评估已有对话日志",
+            target_model_version=config.get("model_version"),
+            test_count=len(loaded.trajectories),
+            persona_count=profile["persona_count"],
+            personas=profile["personas"],
+            simulator_generated_calls=profile["simulator_generated_calls"],
+            synthetic_branch_calls=profile["synthetic_branch_calls"],
+            hashes={
+                "sop_sha256": _sha256_path(ROOT / config["task"]),
+                "transcripts_sha256": _sha256_path(run_dir / "transcripts.jsonl"),
+                "target_model_sha256": _digest_json(
+                    {
+                        "version": config.get("model_version"),
+                        "transcripts_sha256": _sha256_path(run_dir / "transcripts.jsonl"),
+                    }
+                ),
+            },
+        )
+        evaluation = _evaluation_preview(
+            run_dir,
+            declared_model_version=config.get("model_version"),
+            declared_test_mode=config.get("test_mode"),
+        )
+        decision = _decision_payload(
+            run_dir,
+            config["cache_report"],
+            declared_model_version=config.get("model_version"),
+            declared_test_mode=config.get("test_mode"),
+        )
         presets[preset_id] = {
             "label": config["label"],
             "tag": config["tag"],
+            "demo_role": config.get("demo_role"),
+            "test_mode": config.get("test_mode"),
             "cache_run": config["cache_run"],
             "steps": {
-                "1": _package_preview(task, loaded.report, loaded.trajectories, scope="历史已验证批次"),
+                "1": package,
                 "2": _checklist_preview(checklist, generation_method="历史运行已审核评分标准", approved=True),
-                "3": _evaluation_preview(run_dir),
-                "4": _decision_payload(run_dir, config["cache_report"]),
+                "3": evaluation,
+                "4": decision,
                 "5": attribution_result,
-                "6": _plan_payload(attribution_result, version=f"cache-{preset_id}-verified"),
+                "6": _plan_payload(
+                    attribution_result,
+                    version=f"cache-{preset_id}-verified",
+                    sop_sha256=package["hashes"]["sop_sha256"],
+                    checklist_sha256=evaluation["hashes"]["checklist_sha256"],
+                    target_model_version=config.get("model_version"),
+                ),
             },
         }
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "generated_at": _now(),
         "provenance": "由仓库内真实 task/checklist/transcripts/judgments/summary 生成；不代表浏览器正在调用模型。",
         "presets": presets,
     }
 
 
+def _available_persona_ids() -> list[str]:
+    rows: list[str] = []
+    for path in sorted((ROOT / "data" / "personas").glob("*.yaml")):
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict) or data.get("weights"):
+            continue
+        persona_id = str(data.get("persona_id") or data.get("id") or "").strip()
+        if persona_id:
+            rows.append(persona_id)
+    return rows
+
+
+def _simulation_schedule(test_count: int) -> tuple[str, int]:
+    """把总测试数量映射成 CLI 可精确生成的 persona 列表与每 persona 条数。"""
+    persona_ids = _available_persona_ids()
+    if not persona_ids:
+        raise RuntimeError("未找到用户模拟器 persona 配置")
+    chosen_count = 1
+    for candidate in range(min(len(persona_ids), test_count), 0, -1):
+        if test_count % candidate == 0:
+            chosen_count = candidate
+            break
+    selected = persona_ids[:chosen_count]
+    return ",".join(selected), test_count // chosen_count
+
+
 def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
-    preset_id = str(config.get("preset") or "real_recruit")
+    preset_id = str(config.get("preset") or "t02")
     task_text = str(config.get("task_text") or "")
     transcripts_text = str(config.get("transcripts_text") or "")
-    if bool(task_text) != bool(transcripts_text):
-        raise ValueError("上传材料时必须同时提供 SOP 和对话记录")
+    requested_mode = str(config.get("test_mode") or "").strip().lower()
+    test_mode = requested_mode or ("logs" if transcripts_text else "simulation")
+    if test_mode not in {"simulation", "logs"}:
+        raise ValueError("测试入口仅支持 simulation（模拟测试）或 logs（已有日志质检）")
+    if test_mode == "logs" and bool(task_text) != bool(transcripts_text):
+        raise ValueError("已有日志质检必须同时提供 SOP 和对话记录")
+    if test_mode == "simulation" and transcripts_text:
+        raise ValueError("模拟测试模式不接收已有对话；请切换到已有日志质检模式")
     if len(task_text.encode("utf-8")) > MAX_UPLOAD_BYTES or len(transcripts_text.encode("utf-8")) > MAX_UPLOAD_BYTES:
         raise ValueError("单个上传文件不得超过 2MB")
+    try:
+        requested_count = max(1, min(24, int(config.get("test_count") or 6)))
+    except (TypeError, ValueError):
+        raise ValueError("测试数量必须是 1–24 的整数") from None
 
     session_id = datetime.now().strftime("%Y%m%d_%H%M%S_") + uuid.uuid4().hex[:8]
     session_root = WEB_RUNS / session_id
@@ -424,16 +796,25 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
     input_dir.mkdir(parents=True, exist_ok=True)
     task_path = input_dir / "task.yaml"
 
+    raw_transcripts: Path | None = None
     if task_text:
         task_path.write_text(task_text, encoding="utf-8")
-        suffix = Path(str(config.get("transcripts_name") or "uploaded.jsonl")).suffix.lower()
-        if suffix not in {".jsonl", ".json", ".csv", ".txt", ".md"}:
-            raise ValueError("对话格式仅支持 JSONL / JSON / CSV / TXT / MD")
-        raw_transcripts = input_dir / f"uploaded_transcripts{suffix}"
-        raw_transcripts.write_text(transcripts_text, encoding="utf-8")
+        if transcripts_text:
+            suffix = Path(str(config.get("transcripts_name") or "uploaded.jsonl")).suffix.lower()
+            if suffix not in {".jsonl", ".json", ".csv", ".txt", ".md"}:
+                raise ValueError("对话格式仅支持 JSONL / JSON / CSV / TXT / MD")
+            raw_transcripts = input_dir / f"uploaded_transcripts{suffix}"
+            raw_transcripts.write_text(transcripts_text, encoding="utf-8")
         verified_checklist = None
-        source = "用户上传"
+        verified_run = None
+        source = "用户上传已有日志" if test_mode == "logs" else "用户配置模拟测试"
         preset_value = None
+        target_model = str(
+            config.get("target_model")
+            or os.getenv("TARGET_MODEL")
+            or os.getenv("EVALCALL_MODEL")
+            or "待测模型-未命名"
+        )
     else:
         if preset_id not in PRESETS:
             raise ValueError(f"未知样例：{preset_id}")
@@ -441,25 +822,104 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
         shutil.copyfile(ROOT / preset["task"], task_path)
         raw_transcripts = ROOT / preset["transcripts"]
         verified_checklist = ROOT / preset["verified_checklist"]
-        source = "内置演示样例"
+        verified_run = ROOT / preset["live_verified_run"]
+        source = "内置用户模拟器样例" if test_mode == "simulation" else "内置已有日志样例"
         preset_value = preset_id
+        target_model = str(config.get("target_model") or preset.get("model_version") or "待测模型-未命名")
 
     task = _load_task(task_path)
-    loaded = ingest.load_transcripts(str(raw_transcripts), str(task["task_id"]), redact=True)
-    normalized_path = input_dir / "normalized_transcripts.jsonl"
-    _write_jsonl(normalized_path, loaded.trajectories)
-    _write_json(session_root / "ingestion_report.json", loaded.report)
-    package = _package_preview(task, loaded.report, loaded.trajectories, scope="本次本地实时批次", session_id=session_id)
-    package.update(source=source, preset=preset_value)
+    if verified_run and not _verified_run_matches_instruction(task, Path(verified_run)):
+        verified_checklist = None
+        verified_run = None
+        source += "（当前指令版本需现场重新生成评分标准）"
+    loaded = None
+    if raw_transcripts is not None:
+        loaded = ingest.load_transcripts(str(raw_transcripts), str(task["task_id"]), redact=True)
+    if task_text and raw_transcripts is not None:
+        matched_preset = _match_verified_preset(task, raw_transcripts)
+        if matched_preset:
+            preset = PRESETS[matched_preset]
+            verified_checklist = ROOT / preset["verified_checklist"]
+            verified_run = ROOT / preset["live_verified_run"]
+            source = "样例文件（SOP 与完整对话内容一致）"
+            preset_value = matched_preset
+            target_model = str(config.get("target_model") or preset.get("model_version") or target_model)
+            if not _verified_run_matches_instruction(task, Path(verified_run)):
+                verified_checklist = None
+                verified_run = None
+                source += "（当前指令版本需现场重新生成评分标准）"
+
+    normalized_path: Path | None = None
+    if loaded is not None:
+        normalized_path = input_dir / "normalized_transcripts.jsonl"
+        _write_jsonl(normalized_path, loaded.trajectories)
+        ingestion_report = loaded.report
+        trajectories = loaded.trajectories
+    else:
+        ingestion_report = {
+            "source_format": "simulation",
+            "warnings": [],
+            "pii_redacted": True,
+            "redaction_counts": {},
+            "planned_conversations": requested_count,
+        }
+        trajectories = []
+    _write_json(session_root / "ingestion_report.json", ingestion_report)
+    package = _package_preview(task, ingestion_report, trajectories, scope="本次本地实时批次", session_id=session_id)
+    profile = _trajectory_profile(trajectories)
+    if not trajectories:
+        persona_ids = _available_persona_ids()
+        profile = {
+            "persona_count": len(persona_ids),
+            "personas": [{"id": value, "calls": None} for value in persona_ids],
+            "synthetic_branch_calls": 0,
+            "simulator_generated_calls": requested_count,
+        }
+        package["conversations"] = requested_count
+        package["turns"] = 0
+        package["artifacts"].pop("normalized_transcripts", None)
+    task_hash = _sha256_path(task_path)
+    transcript_hash = _sha256_path(normalized_path) if normalized_path else None
+    package.update(
+        source=source,
+        preset=preset_value,
+        recognized_sample=bool(preset_value),
+        evaluation_strategy="复用同输入已验证结果" if verified_run else "调用当前模型现场评测",
+        test_mode=test_mode,
+        test_mode_label="用户模拟器生成测试对话" if test_mode == "simulation" else "评估已有对话日志",
+        target_model_version=target_model,
+        test_count=len(trajectories) if trajectories else requested_count,
+        persona_count=profile["persona_count"],
+        personas=profile["personas"],
+        simulator_generated_calls=profile["simulator_generated_calls"],
+        synthetic_branch_calls=profile["synthetic_branch_calls"],
+        hashes={
+            "sop_sha256": task_hash,
+            "transcripts_sha256": transcript_hash,
+            "target_model_sha256": _digest_json({"version": target_model, "transcripts_sha256": transcript_hash}),
+        },
+    )
     _write_json(session_root / "task_package.json", package)
+    simulator_personas = "all"
+    simulator_n = 1
+    if test_mode == "simulation" and not trajectories:
+        simulator_personas, simulator_n = _simulation_schedule(requested_count)
     with _lock:
         _sessions[session_id] = {
             "session_id": session_id,
             "root": str(session_root),
             "task_path": str(task_path),
-            "transcripts_path": str(normalized_path),
+            "transcripts_path": str(normalized_path) if normalized_path else None,
             "verified_checklist": str(verified_checklist) if verified_checklist else None,
+            "verified_run": str(verified_run) if verified_run else None,
             "preset": preset_value,
+            "test_mode": test_mode,
+            "test_count": len(trajectories) if trajectories else requested_count,
+            "personas": simulator_personas,
+            "simulator_n": simulator_n,
+            "target_model": target_model,
+            "sop_sha256": task_hash,
+            "transcripts_sha256": transcript_hash,
             "created_at": _now(),
         }
     return package
@@ -477,7 +937,10 @@ def _compile_session(session_id: str) -> dict[str, Any]:
             no_safety=False,
         )
     except SystemExit as exc:
-        raise RuntimeError("评分标准生成失败，请检查模型后端或上传的 SOP") from exc
+        backend = os.getenv("EVALCALL_BACKEND", "claude-cli")
+        raise RuntimeError(
+            f"评分标准生成失败（当前后端：{backend}）。请检查模型登录，或使用配套的样例 SOP 与对话文件"
+        ) from exc
     rows = compiler.checkpoints_to_dicts(checkpoints)
     output_path = Path(session["root"]) / "checklist.json"
     _write_json(output_path, rows)
@@ -488,7 +951,83 @@ def _compile_session(session_id: str) -> dict[str, Any]:
         approved=bool(checklist_path) and not any(row.get("needs_review") for row in rows),
         session_id=session_id,
     )
-    _update_session(session_id, checklist_path=str(output_path), compiled_at=_now())
+    checklist_hash = _sha256_path(output_path)
+    result.update(
+        sop_sha256=session.get("sop_sha256") or _sha256_path(Path(session["task_path"])),
+        checklist_sha256=checklist_hash,
+        ruleset_version=_digest_json(
+            {
+                "sop_sha256": session.get("sop_sha256"),
+                "checklist_sha256": checklist_hash,
+                "l0": result["l0_common_rules"],
+                "l1": result["l1_sop_rules"],
+            }
+        ),
+    )
+    _update_session(
+        session_id,
+        checklist_path=str(output_path),
+        checklist_sha256=checklist_hash,
+        compiled_at=_now(),
+    )
+    return result
+
+
+def _verified_evaluation(session_id: str, session: dict[str, Any], votes: int) -> dict[str, Any] | None:
+    """仅在任务、完整对话和评分标准全部一致时复用已验证评测产物。"""
+    source_value = session.get("verified_run")
+    if not source_value:
+        return None
+    source = Path(str(source_value))
+    required = ("summary.json", "judgments.json", "checklist.json", "report.html", "transcripts.jsonl")
+    if not source.is_dir() or any(not (source / filename).is_file() for filename in required):
+        return None
+    source_summary = _read_json(source / "summary.json")
+    source_manifest = _read_json(source / "manifest.json") if (source / "manifest.json").is_file() else {}
+    verified_votes = (((source_summary.get("manifest") or {}).get("judge_models_config") or {}).get("n_votes"))
+    if not verified_votes:
+        verified_votes = ((source_manifest.get("judge_models_config") or {}).get("n_votes"))
+    if int(verified_votes or 0) != votes:
+        return None
+
+    task = _load_task(Path(session["task_path"]))
+    instruction_hash = hashlib.sha256(str(task.get("instruction") or "").encode("utf-8")).hexdigest()
+    if source_manifest.get("instruction_hash") != instruction_hash:
+        return None
+    current = ingest.load_transcripts(
+        str(session["transcripts_path"]),
+        str(task["task_id"]),
+        redact=True,
+    )
+    verified = ingest.load_transcripts(
+        str(source / "transcripts.jsonl"),
+        str(task["task_id"]),
+        redact=True,
+    )
+    if _trajectory_digest(current.trajectories) != _trajectory_digest(verified.trajectories):
+        return None
+    if _digest_json(_read_json(Path(session["checklist_path"]))) != _digest_json(_read_json(source / "checklist.json")):
+        return None
+
+    output_dir = Path(session["root"]) / "evaluation"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for filename in _VERIFIED_EVALUATION_FILES:
+        source_file = source / filename
+        if source_file.is_file():
+            shutil.copyfile(source_file, output_dir / filename)
+    result = _evaluation_preview(
+        output_dir,
+        declared_model_version=str(session.get("target_model") or "") or None,
+        declared_test_mode=str(session.get("test_mode") or "") or None,
+    )
+    result.update(
+        execution_mode="verified_exact_replay",
+        execution_note="输入、完整对话和评分标准均与已验证批次一致，已复用同输入评测结果",
+        verified_run=str(source.relative_to(ROOT)) if ROOT in source.parents else str(source),
+        judge_votes=votes,
+        report_url=f"/session-report/{session_id}",
+    )
+    _update_session(session_id, output_dir=str(output_dir), evaluated_at=_now(), evaluation_mode="verified_exact_replay")
     return result
 
 
@@ -497,25 +1036,83 @@ def _run_evaluation(job_id: str, session_id: str, votes: int) -> None:
         session = _session(session_id)
         if not session.get("checklist_path"):
             raise ValueError("请先完成第 2 步，生成评分标准")
+        _job_update(job_id, status="running", progress=12, stage="正在核对输入与已验证批次")
+        verified_result = _verified_evaluation(session_id, session, votes)
+        if verified_result is not None:
+            _job_update(
+                job_id,
+                status="completed",
+                progress=100,
+                stage=f"完整批次 {verified_result['total_runs']} 通已检查完成",
+                result=verified_result,
+                report_url=verified_result["report_url"],
+                log="exact-input verified replay",
+            )
+            return
         output_dir = Path(session["root"]) / "evaluation"
         output_dir.mkdir(parents=True, exist_ok=True)
-        cmd = [
-            sys.executable, "-m", "evalcall", "evaluate",
-            "--task", session["task_path"],
-            "--transcripts", session["transcripts_path"],
-            "--checklist", session["checklist_path"],
-            "--out", str(output_dir),
-            "--votes", str(votes),
-            "--no-resume",
-        ]
-        _job_update(job_id, status="running", progress=18, stage="正在检查完整批次中的每通电话")
-        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=1800, env=os.environ.copy())
+        env = os.environ.copy()
+        if session.get("test_mode") == "simulation":
+            cmd = [
+                sys.executable, "-m", "evalcall", "run",
+                "--task", session["task_path"],
+                "--personas", str(session.get("personas") or "all"),
+                "--n", str(session.get("simulator_n") or 1),
+                "--checklist", session["checklist_path"],
+                "--out", str(output_dir),
+                "--votes", str(votes),
+                "--max-turns", "12",
+                "--seed", "20260713",
+                "--no-mix",
+            ]
+            env.setdefault("TARGET_BACKEND", env.get("EVALCALL_BACKEND", "codex-cli"))
+            env["TARGET_MODEL"] = str(session.get("target_model") or env.get("EVALCALL_MODEL") or "")
+            env.setdefault("TARGET_REASONING_EFFORT", env.get("EVALCALL_REASONING_EFFORT", "xhigh"))
+            stage = "用户模拟器正在按 persona 生成对话并测试外呼模型"
+            execution_note = "已现场运行用户模拟器，生成测试对话并用同一评分标准评估外呼模型"
+        else:
+            if not session.get("transcripts_path"):
+                raise ValueError("已有日志质检模式缺少对话记录")
+            cmd = [
+                sys.executable, "-m", "evalcall", "evaluate",
+                "--task", session["task_path"],
+                "--transcripts", session["transcripts_path"],
+                "--checklist", session["checklist_path"],
+                "--out", str(output_dir),
+                "--votes", str(votes),
+                "--no-resume",
+            ]
+            stage = "正在用同一评分标准质检已有对话"
+            execution_note = "已调用当前模型完成已有日志的现场质检"
+        _job_update(job_id, status="running", progress=18, stage=stage)
+        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=3600, env=env)
         log = ((proc.stdout or "") + "\n" + (proc.stderr or "")).strip()[-16000:]
         if proc.returncode != 0:
-            raise RuntimeError(log or f"evalcall 退出码 {proc.returncode}")
-        result = _evaluation_preview(output_dir)
-        result["report_url"] = f"/session-report/{session_id}"
-        _update_session(session_id, output_dir=str(output_dir), evaluated_at=_now())
+            backend = env.get("EVALCALL_BACKEND", "unknown")
+            model = env.get("EVALCALL_MODEL", "unknown")
+            raise RuntimeError(
+                f"模型后端执行失败（{backend}/{model}）：{log or f'evalcall 退出码 {proc.returncode}'}"
+            )
+        generated_transcripts = output_dir / "transcripts.jsonl"
+        if generated_transcripts.is_file():
+            normalized_path = Path(session["root"]) / "input" / "normalized_transcripts.jsonl"
+            shutil.copyfile(generated_transcripts, normalized_path)
+            _update_session(
+                session_id,
+                transcripts_path=str(normalized_path),
+                transcripts_sha256=_sha256_path(normalized_path),
+            )
+        result = _evaluation_preview(
+            output_dir,
+            declared_model_version=str(session.get("target_model") or "") or None,
+            declared_test_mode=str(session.get("test_mode") or "") or None,
+        )
+        result.update(
+            execution_mode="live_model",
+            execution_note=execution_note,
+            report_url=f"/session-report/{session_id}",
+        )
+        _update_session(session_id, output_dir=str(output_dir), evaluated_at=_now(), evaluation_mode="live_model")
         _job_update(
             job_id,
             status="completed",
@@ -534,7 +1131,12 @@ def _decision_session(session_id: str) -> dict[str, Any]:
     output_dir = Path(str(session.get("output_dir") or ""))
     if not (output_dir / "summary.json").is_file():
         raise ValueError("请先完成第 3 步，检查完整批次")
-    result = _decision_payload(output_dir, f"/session-report/{session_id}")
+    result = _decision_payload(
+        output_dir,
+        f"/session-report/{session_id}",
+        declared_model_version=str(session.get("target_model") or "") or None,
+        declared_test_mode=str(session.get("test_mode") or "") or None,
+    )
     _write_json(Path(session["root"]) / "decision.json", result)
     result["artifacts"] = {"decision": _artifact_url(session_id, "decision.json")}
     _update_session(session_id, decided_at=_now())
@@ -559,7 +1161,14 @@ def _plan_session(session_id: str) -> dict[str, Any]:
         raise ValueError("请先完成第 5 步，定位问题原因")
     attribution_result = _read_json(attribution_path)
     version = datetime.now().strftime("repair-%Y%m%d-%H%M%S")
-    result = _plan_payload(attribution_result, version=version, session_id=session_id)
+    result = _plan_payload(
+        attribution_result,
+        version=version,
+        session_id=session_id,
+        sop_sha256=str(session.get("sop_sha256") or "") or None,
+        checklist_sha256=str(session.get("checklist_sha256") or "") or None,
+        target_model_version=str(session.get("target_model") or "") or None,
+    )
     root = (attribution_result.get("roots") or [{}])[0]
     _write_json(Path(session["root"]) / "repair_plan.json", result)
     checklist_bytes = Path(session["checklist_path"]).read_bytes()
@@ -570,7 +1179,12 @@ def _plan_session(session_id: str) -> dict[str, Any]:
             "status": "等待修复版本",
             "source_session": session_id,
             "return_step": result["return_step"],
+            "optimization_target": result["optimization_target"],
+            "target_model_version": result["target_model_version"],
+            "sop_sha256": result["sop_sha256_for_regression"],
             "checklist_sha256": hashlib.sha256(checklist_bytes).hexdigest(),
+            "sop_changed": result["sop_changed"],
+            "checklist_changed": result["checklist_changed"],
             "acceptance": result["regression_acceptance"],
             "created_at": _now(),
         },
@@ -632,14 +1246,26 @@ class DemoHandler(SimpleHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
         if parsed.path == "/api/health":
+            with _lock:
+                backend_status = dict(_backend_status)
             self._json(
                 {
                     "ok": True,
                     "service": "evalcall-six-step-demo",
                     "backend": os.getenv("EVALCALL_BACKEND", "claude-cli"),
                     "model": os.getenv("EVALCALL_MODEL", "default"),
+                    "backend_available": bool(backend_status.get("available")),
+                    "backend_checking": bool(backend_status.get("checking")),
+                    "backend_checked": bool(backend_status.get("checked")),
+                    "backend_checked_at": backend_status.get("checked_at"),
+                    "backend_error": backend_status.get("error"),
                     "presets": sorted(PRESETS),
                     "real_steps": 6,
+                    "sample_strategy": "exact-input verified replay",
+                    "verified_sample_ready": all(
+                        (ROOT / config["live_verified_run"] / "summary.json").is_file()
+                        for config in PRESETS.values()
+                    ),
                 }
             )
             return
@@ -733,9 +1359,15 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
 
 def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
+    _configure_demo_backend()
     WEB_RUNS.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer((host, port), DemoHandler)
+    threading.Thread(target=_probe_backend, kwargs={"force": True}, daemon=True).start()
     print(f"[evalcall] 六步产品工作台：http://{host}:{port}/")
+    print(
+        "[evalcall] 工作台已先启动，正在后台真实探测模型后端："
+        f"{os.getenv('EVALCALL_BACKEND')}/{os.getenv('EVALCALL_MODEL')}"
+    )
     print("[evalcall] 线上展示读取已验证结果；本地实时模式会依次执行六个真实步骤。Ctrl+C 退出。")
     try:
         server.serve_forever()

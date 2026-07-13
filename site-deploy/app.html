@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="EvalCall 六步外呼模型评测工作台">
   <title>EvalCall · 外呼模型评测</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ffd100'/%3E%3Ctext x='20' y='45' font-size='40' font-family='Arial' font-weight='900' fill='%23142039'%3EE%3C/text%3E%3C/svg%3E">
   <style>
     :root{
       --canvas:#eef2f6;--paper:#ffffff;--ink:#142039;--muted:#687386;--line:#d9e0e9;
@@ -41,6 +42,7 @@
     .step-name{font-size:12px;font-weight:900;line-height:1.3;white-space:nowrap}
     .step.active{background:#fff8d8;color:#3f350d}.step.active .step-index{background:var(--signal);color:#211b00}
     .step.done{color:var(--output)}.step.done .step-index{background:var(--output-soft);color:var(--output)}
+    .step.core:not(.active){box-shadow:inset 0 -3px 0 var(--signal)}
     .stage{padding:24px}
     .stage-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:17px}
     .stage-head h2{font-size:22px;margin:0;letter-spacing:-.025em}
@@ -68,6 +70,8 @@
     .file-row strong{display:block;font-size:10px;max-width:235px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-row small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
     .pick{position:relative;overflow:hidden;border:0;border-radius:8px;background:var(--ink);color:#fff;padding:8px 9px;font-size:9px;font-weight:900;flex:0 0 auto}.pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
     .mode-note{padding:9px 10px;border-radius:10px;background:#fff6c9;color:#6e5900;font-size:10px;font-weight:800;margin-bottom:12px}.mode-note.live{background:var(--output-soft);color:var(--output)}
+    .entry-switch{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}.entry-switch button{border:1px solid var(--line);border-radius:10px;background:#f7f9fb;color:var(--muted);padding:9px 8px;font-size:10px;font-weight:900}.entry-switch button.selected{border-color:#c49d00;background:#fff9dc;color:#4d3e00}.entry-switch.disabled button{cursor:default}
+    .inline-fields{display:grid;grid-template-columns:1fr 100px;gap:8px;margin-top:10px}.text-input{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:#fff;color:var(--ink);font-size:10px;font-weight:750}
     .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric{border:1px solid var(--line);background:#f9fafc;border-radius:12px;padding:11px;min-width:0}.metric.wide{grid-column:1/-1}
     .metric b{display:block;font:950 20px "Arial Narrow",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.metric b.text{font-family:inherit;font-size:14px}.metric span{display:block;margin-top:4px;font-size:9px;color:var(--muted)}
     .status-line{margin-top:10px;padding:9px 10px;border-radius:10px;background:var(--output-soft);color:var(--output);font-size:10px;font-weight:850;display:flex;align-items:center;gap:7px}.status-line.error{background:var(--danger-soft);color:var(--danger)}
@@ -122,20 +126,20 @@
     "use strict";
     const CACHE=window.EVALCALL_DEMO_CACHE||{presets:{}};
     const STEP=[
-      {name:"上传评测材料",input:"SOP + 对话记录",output:"标准任务包",action:"校验并整理"},
-      {name:"生成评分标准",input:"任务包 + 通用红线",output:"评分标准",action:"生成标准"},
-      {name:"检查每通电话",input:"对话批次 + 评分标准",output:"逐项判定",action:"开始检查"},
-      {name:"查看评测结果",input:"全部逐项判定",output:"门禁 + 问题比例",action:"生成结果"},
-      {name:"定位问题原因",input:"评测结果 + 运行信号",output:"原因 + 证据 + 负责人",action:"定位原因"},
-      {name:"生成修复方案",input:"问题原因 + 失败证据",output:"修复草案 + 回归请求",action:"保存方案"}
+      {name:"配置测试任务",input:"任务指令 + 被测模型 / 已有对话",output:"版本化测试任务",action:"生成任务"},
+      {name:"建立评分标准",input:"任务指令 + L0 通用规则",output:"L0 + L1 评分标准",action:"建立标准"},
+      {name:"测试外呼模型",input:"用户模拟器 / 已有日志 + 评分标准",output:"测试对话 + 逐项判定",action:"运行测试"},
+      {name:"输出模型评测报告",input:"模型版本 + 全部判定",output:"门禁 + 履约 + P0 + 覆盖",action:"生成报告"},
+      {name:"分析失败原因",input:"模型报告 + SOP / 裁判 / 数据信号",output:"模型 / SOP / 裁判 / 测试数据根因",action:"分析根因"},
+      {name:"生成优化与回归计划",input:"根因 + 失败证据 + 固定版本",output:"对应优化 + 同尺回归请求",action:"生成计划"}
     ];
-    const state={mode:"cache",preset:"real_recruit",step:1,completed:new Set(),results:{},sessionId:"",running:false,server:false,taskText:"",txText:"",taskName:"",txName:"",votes:1};
+    const state={mode:"cache",preset:"t02",testMode:"simulation",targetModel:"delivery-baseline-v1",testCount:10,step:1,completed:new Set(),results:{},sessionId:"",running:false,server:false,backend:false,backendChecking:false,backendError:"",taskText:"",txText:"",taskName:"",txName:"",votes:1};
     const $=s=>document.querySelector(s), esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     const preset=()=>CACHE.presets[state.preset]||{};
     const result=n=>state.results[n];
     const empty=text=>'<div class="empty">'+esc(text)+'</div>';
     const metric=(value,label,wide=false,text=false)=>'<div class="metric '+(wide?'wide':'')+'"><b class="'+(text?'text':'')+'">'+esc(value==null?'—':value)+'</b><span>'+esc(label)+'</span></div>';
-    const artifacts=items=>items?'<div class="artifact-row">'+Object.entries(items).map(([key,url])=>'<a class="artifact" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc({task_package:'任务包',ingestion_report:'校验记录',normalized_transcripts:'标准对话',checklist:'完整评分标准',decision:'统计结果',attribution:'归因结果',repair_plan:'修复方案',regression_request:'回归请求',revision_draft:'修订草案'}[key]||key)+'</a>').join('')+'</div>':'';
+    const artifacts=items=>items?'<div class="artifact-row">'+Object.entries(items).map(([key,url])=>'<a class="artifact" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc({task_package:'测试任务包',ingestion_report:'输入校验记录',normalized_transcripts:'测试对话',checklist:'完整评分标准',decision:'模型评测报告数据',attribution:'根因分析',repair_plan:'优化计划',regression_request:'同尺回归请求',revision_draft:'优化草案'}[key]||key)+'</a>').join('')+'</div>':'';
     const toast=(text,error=false)=>{const el=$("#toast");el.textContent=text;el.className="toast show"+(error?' error':'');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.className="toast",2800)};
     const readFile=file=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||""));reader.onerror=reject;reader.readAsText(file)});
     const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -146,14 +150,14 @@
     function complete(index,data){state.results[index]=data;state.completed.add(index);render()}
 
     function renderSteps(){
-      $("#steps").innerHTML=STEP.map((s,i)=>'<button class="step '+(state.step===i+1?'active ':'')+(state.completed.has(i+1)?'done':'')+'" data-step="'+(i+1)+'"><span class="step-index">'+String(i+1).padStart(2,'0')+'</span><span class="step-name">'+esc(s.name)+'</span></button>').join('');
+      $("#steps").innerHTML=STEP.map((s,i)=>'<button class="step '+(i===3?'core ':'')+(state.step===i+1?'active ':'')+(state.completed.has(i+1)?'done':'')+'" data-step="'+(i+1)+'"><span class="step-index">'+String(i+1).padStart(2,'0')+'</span><span class="step-name">'+esc(s.name)+'</span></button>').join('');
       document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>go(Number(b.dataset.step)));
     }
     function renderHeader(){const meta=STEP[state.step-1];$("#stageTitle").textContent=String(state.step).padStart(2,'0')+' · '+meta.name;$("#inputType").textContent=meta.input;$("#outputType").textContent=meta.output;$("#execute").textContent=(state.mode==='cache'?'载入\n':'')+meta.action;$("#execute").style.whiteSpace='pre-line';$("#execute").disabled=state.running||!canExecute();$("#relay").classList.toggle('running',state.running);$("#prev").disabled=state.step===1||state.running;$("#next").disabled=!state.completed.has(state.step)||state.step===6||state.running;$("#runLabel").textContent=state.sessionId||result(3)?.run_id||preset().cache_run||'等待开始'}
     function canExecute(){if(state.step===1)return true;return Boolean(result(state.step-1))}
     function renderMode(){
       $("#cacheMode").classList.toggle('active',state.mode==='cache');$("#liveMode").classList.toggle('active',state.mode==='live');
-      const badge=$("#truthBadge");badge.className='truth-badge'+(state.mode==='live'?' live':'');badge.textContent=state.mode==='cache'?'历史产物 · 非现场调用':state.server?'本地服务 · 六步真实执行':'本地服务未连接';
+      const badge=$("#truthBadge");badge.className='truth-badge'+(state.mode==='live'?' live':'');badge.textContent=state.mode==='cache'?'缓存结果 · 已验证产物':!state.server?'本地服务未连接':state.backendChecking?'实时模式 · 正在验证模型后端':state.backend?'实时模式 · 模型后端已验证':'实时模式 · 模型后端不可用';
     }
     function renderInput(){const fn=[input1,input2,input3,input4,input5,input6][state.step-1];$("#inputBody").innerHTML=fn()}
     function renderOutput(){const data=result(state.step);if(!data){$("#outputBody").innerHTML=empty('等待“'+STEP[state.step-1].action+'”');return}const fn=[output1,output2,output3,output4,output5,output6][state.step-1];$("#outputBody").innerHTML=fn(data)}
@@ -161,51 +165,64 @@
 
     function input1(){
       const choices=Object.entries(CACHE.presets||{}).map(([id,item])=>'<button class="preset '+(id===state.preset?'selected':'')+'" data-preset="'+esc(id)+'"><b>'+esc(item.label)+'</b><span>'+esc(item.tag)+'</span></button>').join('');
-      const note=state.mode==='cache'?'<div class="mode-note">输入：仓库内已完成评测的历史批次</div>':'<div class="mode-note live">输入：内置 10 通左右样例，或同时上传两份自己的材料</div>';
-      const uploads=state.mode==='live'?'<div class="field"><div class="field-label">SOP / SYSTEM PROMPT</div><div class="file-row"><div><strong id="taskName">'+esc(state.taskName||'使用所选样例 SOP')+'</strong><small>YAML / YML</small></div><label class="pick">选择文件<input id="taskFile" type="file" accept=".yaml,.yml"></label></div></div><div class="field"><div class="field-label">对话记录</div><div class="file-row"><div><strong id="txName">'+esc(state.txName||'使用所选样例对话')+'</strong><small>JSONL / JSON / CSV / TXT / MD</small></div><label class="pick">选择文件<input id="txFile" type="file" accept=".jsonl,.json,.csv,.txt,.md"></label></div></div>':'';
-      return note+'<div class="preset-grid">'+choices+'</div>'+uploads;
+      const modeSwitch='<div class="entry-switch '+(state.mode==='cache'?'disabled':'')+'"><button class="'+(state.testMode==='simulation'?'selected':'')+'" data-test-mode="simulation">模拟测试模式</button><button class="'+(state.testMode==='logs'?'selected':'')+'" data-test-mode="logs">已有日志质检模式</button></div>';
+      const note=state.mode==='cache'?'<div class="mode-note">缓存输入：同一版本 SOP、对话、Checklist 与正式报告</div>':'<div class="mode-note live">实时输入：模拟模式由用户模拟器生成对话；日志模式评估上传对话</div>';
+      const sop='<div class="field"><div class="field-label">任务指令 / SOP</div><div class="file-row"><div><strong id="taskName">'+esc(state.taskName||'使用所选样例 SOP')+'</strong><small>YAML / YML</small></div><label class="pick">选择文件<input id="taskFile" type="file" accept=".yaml,.yml"></label></div></div>';
+      const transcript=state.testMode==='logs'?'<div class="field"><div class="field-label">已有对话记录</div><div class="file-row"><div><strong id="txName">'+esc(state.txName||'使用所选样例对话')+'</strong><small>JSONL / JSON / CSV / TXT / MD</small></div><label class="pick">选择文件<input id="txFile" type="file" accept=".jsonl,.json,.csv,.txt,.md"></label></div></div>':'';
+      const model=state.testMode==='simulation'?'<div class="inline-fields"><div><div class="field-label">被测模型版本</div><input id="targetModel" class="text-input" value="'+esc(state.targetModel)+'"></div><div><div class="field-label">测试数量</div><input id="testCount" class="text-input" type="number" min="1" max="24" value="'+esc(state.testCount)+'"></div></div>':'';
+      return modeSwitch+note+'<div class="preset-grid">'+choices+'</div>'+(state.mode==='live'?sop+transcript+model:'');
     }
-    function input2(){const p=result(1);return '<div class="metrics">'+metric(p.task_name,'任务名称',true,true)+metric(p.instruction_chars,'SOP 字符')+metric(p.conversations,'对话数量')+metric(p.turns,'对话轮次')+metric(p.output_format,'统一格式',false,true)+'</div><div class="excerpt">'+esc(p.instruction_excerpt||'')+'</div>'}
-    function input3(){const p=result(1),c=result(2);return '<div class="metrics">'+metric(p.conversations,'待检查电话')+metric(c.checkpoints,'评分项')+metric(c.l0_common_rules,'通用安全规则 L0')+metric(c.l1_sop_rules,'SOP 业务规则 L1')+'</div>'+(state.mode==='live'?'<div class="field"><div class="field-label">每项裁判票数</div><div class="vote-row"><button class="vote '+(state.votes===1?'selected':'')+'" data-vote="1">1 票 · 快速</button><button class="vote '+(state.votes===3?'selected':'')+'" data-vote="3">3 票 · 稳健</button></div></div>':'<div class="mode-note">票数沿用该历史运行的真实配置</div>')}
-    function input4(){const e=result(3);return '<div class="metrics">'+metric(e.total_runs,'已检查电话')+metric(e.judgment_count,'逐项判定')+metric(e.failed_judgments,'未通过项')+metric(e.review_queue_count,'待人工复核')+'</div>'+judgmentList(e.sample_judgments||[],3)}
-    function input5(){const d=result(4);return '<div class="gate '+(d.gate==='可上线'?'pass':'')+'"><b>'+esc(d.gate)+'</b><span>上线门禁</span></div><div class="metrics">'+metric(d.avg_score,'平均得分')+metric(d.blocked_runs,'P0 打回电话')+metric(d.coverage_rate+'%','有效覆盖')+metric(d.blind_spots,'盲区')+'</div>'+problemList(d.top_problems||[],3)}
-    function input6(){const a=result(5),root=(a.roots||[])[0]||{};return '<div class="root"><div class="root-head"><b>'+esc(a.primary_label||root.label)+'</b><span class="chip">'+esc(a.primary_confidence||root.confidence)+'</span></div><p>'+esc((root.evidence||[]).join('；'))+'</p></div><div class="metrics">'+metric(root.owner||'人工复核','负责人',true,true)+metric((root.actions||[]).length,'候选动作')+metric((a.signals||{}).needs_human_review,'待复核项')+'</div>'}
+    function input2(){const p=result(1);return '<div class="metrics">'+metric(p.task_name,'任务名称',true,true)+metric(p.test_mode==='simulation'?'模拟测试':'已有日志','测试入口',false,true)+metric(p.target_model_version,'被测模型版本',true,true)+metric(p.test_count,'测试数量')+metric(p.instruction_chars,'SOP 字符')+'</div><div class="excerpt">'+esc(p.instruction_excerpt||'')+'</div>'}
+    function input3(){const p=result(1),c=result(2),people=(p.personas||[]).map(x=>x.id).join('、');return '<div class="metrics">'+metric(p.target_model_version,'被测模型',true,true)+metric(p.test_count,'计划测试')+metric(p.persona_count,'Persona')+metric(c.checkpoints,'评分项')+metric('L0 '+c.l0_common_rules+' / L1 '+c.l1_sop_rules,'评分层级',true,true)+'</div><div class="excerpt">'+esc(people||'已有日志不启用 Persona')+'</div>'+(state.mode==='live'?'<div class="field"><div class="field-label">每项裁判票数</div><div class="vote-row"><button class="vote '+(state.votes===1?'selected':'')+'" data-vote="1">1 票 · 快速</button><button class="vote '+(state.votes===3?'selected':'')+'" data-vote="3">3 票 · 稳健</button></div></div>':'<div class="mode-note">缓存结果沿用正式运行票数</div>')}
+    function input4(){const e=result(3);return '<div class="metrics">'+metric(e.target_model_version,'模型版本',true,true)+metric(e.total_runs,'正式测试数量')+metric(e.judgment_count,'逐项判定')+metric(e.failed_judgments,'未通过项')+metric(e.coverage_rate+'%','检查点覆盖')+metric(e.blind_spot_count,'未触达检查点')+'</div>'+judgmentList(e.sample_judgments||[],3)}
+    function input5(){const d=result(4);return '<div class="gate '+(d.gate==='可上线'?'pass':'')+'"><b>'+esc(d.gate)+'</b><span>外呼模型上线门禁</span></div><div class="metrics">'+metric(d.target_model_version,'模型版本',true,true)+metric(d.fulfillment_rate==null?'—':d.fulfillment_rate+'%','履约率')+metric(d.p0_triggered_calls,'P0 触发电话')+metric(d.coverage_rate+'%','检查点覆盖')+'</div>'+problemList(d.top_problems||[],3)}
+    function input6(){const a=result(5),root=(a.roots||[])[0]||{};return '<div class="root"><div class="root-head"><b>'+esc(a.primary_label||root.label)+'</b><span class="chip">'+esc(a.primary_confidence||root.confidence)+'</span></div><p>'+esc((root.evidence||[]).join('；'))+'</p></div><div class="metrics">'+metric(root.owner||'人工复核','优化负责人',true,true)+metric((root.actions||[]).length,'候选动作')+metric((a.signals||{}).needs_human_review,'待复核项')+'</div>'}
 
-    function output1(p){return '<div class="metrics">'+metric(p.task_name,'标准任务',true,true)+metric(p.instruction_chars,'SOP 字符')+metric(p.conversations,'有效对话')+metric(p.turns,'有效轮次')+metric(p.output_format,'统一格式',false,true)+'</div><div class="status-line"><span class="dot"></span>格式校验通过 · 隐私信息遮罩已开启</div>'+artifacts(p.artifacts)}
-    function output2(c){return '<div class="metrics">'+metric(c.checkpoints,'评分项')+metric('L0 + L1','评分层级',false,true)+metric(c.source_review_count,'来源待复核')+metric(c.approved?'已审核':'待审核','使用状态',false,true)+'</div><div class="status-line"><span class="dot"></span>'+esc(c.generation_method)+'</div>'+checkpointList(c.samples||[])+artifacts(c.artifacts)}
-    function output3(e){return '<div class="metrics">'+metric(e.total_runs,'完成电话')+metric(e.judgment_count,'逐项判定')+metric(e.evaluation_errors,'执行异常')+metric(e.review_queue_count,'待人工复核')+'</div>'+judgmentList(e.sample_judgments||[],6)}
-    function output4(d){return '<div class="gate '+(d.gate==='可上线'?'pass':'')+'"><b>'+esc(d.gate)+'</b><span>上线门禁 · '+esc(d.total_runs)+' 通 · 平均 '+esc(d.avg_score)+' 分</span></div><div class="metrics">'+metric(d.blocked_runs,'P0 打回电话')+metric((d.fulfillment_rate==null?'—':d.fulfillment_rate+'%'),'履约率')+metric(d.review_queue_count,'人工复核')+metric(d.coverage_rate+'%','有效覆盖')+'</div>'+problemList(d.top_problems||[],8)+(d.report_url?'<div class="artifact-row"><a class="artifact" href="'+esc(d.report_url)+'" target="_blank" rel="noopener">打开完整报告</a></div>':'')+artifacts(d.artifacts)}
-    function output5(a){return (a.roots||[]).slice(0,4).map((root,i)=>'<div class="root"><div class="root-head"><b>'+(i===0?'首要原因 · ':'候选原因 · ')+esc(root.label)+'</b><span class="chip">'+esc(root.confidence)+'</span></div><p>'+esc((root.evidence||[]).join('；'))+'</p><p>负责人：'+esc(root.owner)+'</p></div>').join('')+artifacts(a.artifacts)}
-    function output6(p){return '<div class="metrics">'+metric(p.version,'方案版本',true,true)+metric(p.owner,'负责人',true,true)+metric(p.actions.length,'修复动作')+metric('第 '+p.return_step+' 步','回归入口',false,true)+'</div><div class="list">'+p.actions.map(x=>'<div class="item"><b>'+esc(x.owner)+'</b><p>'+esc(x.action)+'</p><p>验收：'+esc(x.verification)+'</p></div>').join('')+'</div><div class="loop"><span class="loop-num">1</span><span class="loop-text">执行并确认修复草案</span><span class="loop-num">2</span><span class="loop-text">返回第 '+esc(p.return_step)+' 步：'+esc(p.return_reason)+'</span><span class="loop-num">3</span><span class="loop-text">使用验收条件完成回归</span></div>'+artifacts(p.artifacts)}
+    function output1(p){const h=p.hashes||{};return '<div class="metrics">'+metric(p.task_name,'版本化测试任务',true,true)+metric(p.test_mode==='simulation'?'用户模拟器':'已有日志','测试入口',false,true)+metric(p.target_model_version,'被测模型版本',true,true)+metric(p.test_count,'测试数量')+metric(p.persona_count,'Persona')+'</div><div class="status-line"><span class="dot"></span>SOP '+esc(String(h.sop_sha256||'').slice(0,12))+' · 对话 '+esc(String(h.transcripts_sha256||'待生成').slice(0,12))+'</div>'+artifacts(p.artifacts)}
+    function output2(c){return '<div class="metrics">'+metric(c.checkpoints,'评分项')+metric(c.l0_common_rules,'L0 通用安全规则')+metric(c.l1_sop_rules,'L1 业务规则')+metric(c.approved?'已审核':'待审核','使用状态',false,true)+'</div><div class="status-line"><span class="dot"></span>'+esc(c.generation_method)+' · Checklist '+esc(String(c.checklist_sha256||'').slice(0,12))+'</div>'+checkpointList(c.samples||[])+artifacts(c.artifacts)}
+    function output3(e){const people=(e.personas||[]).map(x=>x.id+'×'+x.calls).join('、');return '<div class="metrics">'+metric(e.target_model_version,'被测模型版本',true,true)+metric(e.total_runs,'完成测试')+metric(e.persona_count,'Persona')+metric(e.coverage_rate+'%','检查点覆盖')+metric(e.blind_spot_count,'未触达检查点')+metric(e.evaluation_errors,'执行异常')+'</div><div class="excerpt">'+esc(people||'已有日志')+'</div>'+(e.execution_note?'<div class="status-line"><span class="dot"></span>'+esc(e.execution_note)+'</div>':'')+judgmentList(e.sample_judgments||[],5)}
+    function output4(d){return '<div class="gate '+(d.gate==='可上线'?'pass':'')+'"><b>'+esc(d.gate)+'</b><span>模型 '+esc(d.target_model_version)+' · '+esc(d.total_runs)+' 通正式结果</span></div><div class="metrics">'+metric(d.fulfillment_rate==null?'—':d.fulfillment_rate+'%','履约率')+metric(d.p0_triggered_calls,'P0 触发电话')+metric(d.key_failed_judgments,'关键失败项')+metric(d.coverage_rate+'%','检查点覆盖')+metric(d.blocked_runs,'打回电话')+metric(d.review_queue_count,'人工复核')+'</div>'+problemList(d.top_problems||[],8)+(d.report_url?'<div class="artifact-row"><a class="artifact" href="'+esc(d.report_url)+'" target="_blank" rel="noopener">下载 / 打开模型评测报告</a></div>':'')+artifacts(d.artifacts)}
+    function output5(a){const labels={target_model:'外呼模型',instruction:'SOP / 任务指令',judge:'裁判',test_data:'测试数据',uncertain:'证据不足'};return (a.roots||[]).slice(0,4).map((root,i)=>'<div class="root"><div class="root-head"><b>'+(i===0?'首要根因 · ':'候选根因 · ')+esc(labels[root.category]||root.label)+'</b><span class="chip">'+esc(root.confidence)+'</span></div><p>'+esc((root.evidence||[]).join('；'))+'</p><p>负责人：'+esc(root.owner)+'</p></div>').join('')+artifacts(a.artifacts)}
+    function output6(p){const same=!p.sop_changed&&!p.checklist_changed;return '<div class="metrics">'+metric(p.optimization_target,'优化对象',true,true)+metric(p.target_model_version,'模型版本',true,true)+metric(p.actions.length,'优化动作')+metric('第 '+p.return_step+' 步','回归入口',false,true)+metric(p.sop_changed?'变化':'不变','SOP',false,true)+metric(p.checklist_changed?'变化':'不变','Checklist',false,true)+'</div><div class="list">'+p.actions.map(x=>'<div class="item"><b>'+esc(x.owner)+'</b><p>'+esc(x.action)+'</p><p>验收：'+esc(x.verification)+'</p></div>').join('')+'</div>'+(same?'<div class="status-line"><span class="dot"></span>同尺回归：SOP 与 Checklist 哈希保持不变</div>':'')+'<div class="loop"><span class="loop-num">1</span><span class="loop-text">执行对应根因的优化</span><span class="loop-num">2</span><span class="loop-text">返回第 '+esc(p.return_step)+' 步</span><span class="loop-num">3</span><span class="loop-text">固定版本与评分尺完成回归</span></div>'+artifacts(p.artifacts)}
     function checkpointList(rows){return '<div class="list">'+rows.map(x=>'<div class="item"><div class="item-top"><span class="item-id">'+esc(x.layer)+' · '+esc(x.id)+'</span><span class="chip '+(x.severity==='critical'?'critical':'')+'">'+esc(x.severity)+'</span></div><b>'+esc(x.text)+'</b><p>原文：'+esc(x.source_quote)+'</p></div>').join('')+'</div>'}
     function judgmentList(rows,limit){return '<div class="list">'+rows.slice(0,limit).map(x=>'<div class="item"><div class="item-top"><span class="item-id">'+esc(x.run_id)+' · '+esc(x.checkpoint_id)+'</span><span class="chip '+esc(x.verdict)+'">'+esc({fail:'未通过',pass:'通过',na:'不适用'}[x.verdict]||x.verdict)+'</span></div><b>'+esc(x.checkpoint_text||x.checkpoint_id)+'</b><p>证据：'+esc(x.evidence||'无可展示证据')+'</p></div>').join('')+'</div>'}
     function problemList(rows,limit){return rows.slice(0,limit).map(x=>{const rate=x.failure_rate==null?0:x.failure_rate;return '<div class="problem"><div class="problem-head"><span class="problem-name">'+esc(x.text)+'</span><span class="problem-rate">'+(x.failure_rate==null?'未触达':rate+'%')+'</span></div><div class="bar"><i style="width:'+rate+'%"></i></div></div>'}).join('')}
 
     function bindDynamic(){
-      document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{state.preset=b.dataset.preset;state.taskText='';state.txText='';state.taskName='';state.txName='';reset();toast(preset().label+' 已选择')});
+      document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{state.preset=b.dataset.preset;const item=preset(),p=item.steps&&item.steps['1']||{};state.testMode=item.test_mode||p.test_mode||'simulation';state.targetModel=p.target_model_version||state.targetModel;state.testCount=p.test_count||p.conversations||state.testCount;state.taskText='';state.txText='';state.taskName='';state.txName='';reset();toast(preset().label+' 已选择')});
+      document.querySelectorAll('[data-test-mode]').forEach(b=>b.onclick=()=>{if(state.mode==='cache')return;state.testMode=b.dataset.testMode;state.txText='';state.txName='';reset()});
       document.querySelectorAll('[data-vote]').forEach(b=>b.onclick=()=>{state.votes=Number(b.dataset.vote);render()});
       const tf=$("#taskFile"),xf=$("#txFile");
       if(tf)tf.onchange=async e=>{const f=e.target.files[0];if(!f)return;state.taskText=await readFile(f);state.taskName=f.name;reset();toast(f.name+' 已读取')};
       if(xf)xf.onchange=async e=>{const f=e.target.files[0];if(!f)return;state.txText=await readFile(f);state.txName=f.name;reset();toast(f.name+' 已读取')};
+      const tm=$("#targetModel"),tc=$("#testCount");
+      if(tm)tm.onchange=e=>{state.targetModel=e.target.value.trim()||state.targetModel};
+      if(tc)tc.onchange=e=>{state.testCount=Math.max(1,Math.min(24,Number(e.target.value)||6))};
     }
     async function post(path,body){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json().catch(()=>({ok:false,error:'服务返回无法解析'}));if(!response.ok||!data.ok)throw new Error(data.error||'执行失败');return data.result||data}
     async function runLiveStep(){
-      if(!state.server)throw new Error('本地实时服务未连接，请先运行 python -m evalcall demo');
-      if(state.step===1){const body={preset:state.preset};if(state.taskText||state.txText){if(!state.taskText||!state.txText)throw new Error('请同时选择 SOP 和对话记录');Object.assign(body,{task_text:state.taskText,transcripts_text:state.txText,task_name:state.taskName,transcripts_name:state.txName})}const data=await post('/api/intake',body);state.sessionId=data.session_id;return data}
+      if(!state.server)throw new Error('本地实时服务未连接，请先运行 python3 -m evalcall demo');
+      if(state.step===1){const body={preset:state.preset,test_mode:state.testMode,target_model:state.targetModel,test_count:state.testCount};if(state.testMode==='simulation'&&state.taskText)Object.assign(body,{task_text:state.taskText,task_name:state.taskName});if(state.testMode==='logs'&&(state.taskText||state.txText)){if(!state.taskText||!state.txText)throw new Error('已有日志模式必须同时选择 SOP 和对话记录');Object.assign(body,{task_text:state.taskText,transcripts_text:state.txText,task_name:state.taskName,transcripts_name:state.txName})}const data=await post('/api/intake',body);state.sessionId=data.session_id;return data}
       if(state.step===2)return post('/api/compile',{session_id:state.sessionId});
       if(state.step===3){const started=await post('/api/evaluate',{session_id:state.sessionId,votes:state.votes});for(;;){await wait(1000);const payload=await fetch('/api/jobs/'+started.job_id,{cache:'no-store'}).then(r=>r.json());const job=payload.job||{};$("#outputBody").innerHTML='<div class="progress"><div class="progress-top"><span>'+esc(job.stage||'正在检查')+'</span><span>'+esc(job.progress||0)+'%</span></div><div class="bar"><i style="width:'+esc(job.progress||0)+'%"></i></div></div>';if(job.status==='failed')throw new Error(job.error||'评测失败');if(job.status==='completed')return job.result}}
       if(state.step===4)return post('/api/decision',{session_id:state.sessionId});
       if(state.step===5)return post('/api/attribution',{session_id:state.sessionId});
       return post('/api/plan',{session_id:state.sessionId});
     }
-    async function execute(){if(state.running||!canExecute())return;state.running=true;render();try{let data;if(state.mode==='cache'){await wait(320);data=preset().steps[String(state.step)];if(!data)throw new Error('该步骤没有可用的已验证结果')}else data=await runLiveStep();complete(state.step,data);toast(state.mode==='cache'?'已载入真实历史产物':'第 '+state.step+' 步已真实完成')}catch(error){toast(error.message||String(error),true)}finally{state.running=false;render()}}
+    async function execute(){if(state.running||!canExecute())return;state.running=true;render();try{let data;if(state.mode==='cache'){await wait(320);data=preset().steps[String(state.step)];if(!data)throw new Error('该步骤没有可用的已验证结果')}else data=await runLiveStep();complete(state.step,data);toast(state.mode==='cache'?'已载入真实历史产物':'第 '+state.step+' 步已完成')}catch(error){toast(error.message||String(error),true)}finally{state.running=false;render()}}
+    async function refreshHealth(){
+      try{const health=await fetch('/api/health',{cache:'no-store'}).then(r=>r.json());state.server=Boolean(health.ok);state.backend=Boolean(health.backend_available);state.backendChecking=Boolean(health.backend_checking);state.backendError=health.backend_error||''}catch(error){state.server=false;state.backend=false;state.backendChecking=false;state.backendError=String(error)}
+      render();
+      return state.server&&!state.backendChecking;
+    }
     async function boot(){
-      try{const health=await fetch('/api/health',{cache:'no-store'}).then(r=>r.json());state.server=Boolean(health.ok)}catch(error){state.server=false}
+      await refreshHealth();
+      for(let i=0;i<45&&state.server&&state.backendChecking;i+=1){await wait(2000);await refreshHealth()}
       if(!Object.keys(CACHE.presets||{}).length)toast('演示数据未生成，请运行 scripts/build_demo_cache.py',true);
       render();
     }
     $("#cacheMode").onclick=()=>{state.mode='cache';reset()};
-    $("#liveMode").onclick=()=>{state.mode='live';reset();if(!state.server)toast('本地实时服务未连接；已验证结果仍可正常展示',true)};
+    $("#liveMode").onclick=()=>{state.mode='live';reset();if(!state.server)toast('本地实时服务未连接；已验证结果仍可正常展示',true);else if(!state.backend)toast('服务已连接，但模型后端不可用：'+state.backendError,true)};
     $("#execute").onclick=execute;$("#prev").onclick=()=>go(state.step-1);$("#next").onclick=()=>go(state.step+1);
     boot();
   })();

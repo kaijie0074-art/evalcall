@@ -20,6 +20,7 @@ import json
 import math
 import os
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -220,12 +221,12 @@ class CodexCliBackend(_BaseBackend):
         model: Optional[str] = None,
         model_env: str = "EVALCALL_MODEL",
         effort_env: str = "EVALCALL_REASONING_EFFORT",
-        timeout: int = 300,
+        timeout: Optional[int] = None,
     ) -> None:
         super().__init__(model or os.getenv(model_env) or "gpt-5.6-sol")
         self.reasoning_effort = os.getenv(effort_env) or "xhigh"
         self.bin_path = os.getenv("CODEX_BIN", "codex")
-        self.timeout = timeout
+        self.timeout = timeout or int(os.getenv("EVALCALL_CODEX_TIMEOUT") or "600")
         self._last_provider_total_tokens: Optional[int] = None
 
     @staticmethod
@@ -263,26 +264,40 @@ class CodexCliBackend(_BaseBackend):
             cmd += ["--disable", feature]
         cmd.append("-")
         try:
-            proc = subprocess.run(
+            proc = subprocess.Popen(
                 cmd,
-                input=self._format_prompt(messages),
-                capture_output=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
-                timeout=self.timeout,
                 cwd="/tmp",
+                start_new_session=True,
+            )
+            stdout, stderr = proc.communicate(
+                input=self._format_prompt(messages),
+                timeout=self.timeout,
             )
         except FileNotFoundError as exc:
             raise LLMError(f"找不到 codex 可执行文件（{self.bin_path}），请安装最新版 Codex CLI") from exc
         except subprocess.TimeoutExpired as exc:
+            # codex 的 Node 包装进程还会派生原生子进程。只 kill 外层会让原生
+            # 子进程继续占用 stdout/stderr 管道，subprocess.run 随后永久卡在
+            # communicate。用独立进程组并整体终止，保证健康检查和实时评测
+            # 在超时时能准确失败并释放资源。
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                proc.kill()
+            proc.communicate()
             raise LLMError(f"codex-cli 调用超时（>{self.timeout}s）") from exc
-        stderr = proc.stderr or ""
+        stderr = stderr or ""
         match = self._TOKEN_RE.search(stderr)
         if match:
             self._last_provider_total_tokens = int(match.group(1).replace(",", ""))
         if proc.returncode != 0:
             safe_tail = stderr.strip()[-800:]
             raise LLMError(f"codex-cli 退出码 {proc.returncode}: {safe_tail}")
-        result = (proc.stdout or "").strip()
+        result = (stdout or "").strip()
         if not result:
             raise LLMError("codex-cli 未返回最终答案")
         return result

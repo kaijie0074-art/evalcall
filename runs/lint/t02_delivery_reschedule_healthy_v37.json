@@ -1,0 +1,52 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "返回 0 个时段时，说明当前没有可预约时段，问保留原安排还是转人工。",
+      "quote_b": "",
+      "analysis": "只规定了提问，未规定用户选择保留原安排后的话术和结束动作，可能造成重复询问或直接挂断。",
+      "suggestion": "补充：用户选择保留原安排时，确认未提交改约、原配送安排不变，然后礼貌结束。"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "首次返回“时段被占用”时，说明该时段不可用，重新调用系统能力 B 并回到第 4 步",
+      "quote_b": "",
+      "analysis": "重新查询可能返回0个时段，但第4步仅适用于1–3个时段，执行者可能强行选时段或套用第3步。",
+      "suggestion": "改为：重新查询后，返回0个时段则执行第3步的0时段分支；返回1–3个时段则回到第4步。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "只有用户回复“确认提交”或“确认按这个时段提交”时，才调用系统能力 C",
+      "quote_b": "",
+      "analysis": "未说明必须整句精确匹配及如何处理空格、标点或附加语，可能导致是否执行改约这一有副作用动作不一致。",
+      "suggestion": "改为：去除首尾空格及句末标点后，回复必须完全等于上述两句之一；含其他文字均不得提交。"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "用户明确方便后，只问订单号末 4 位。",
+      "quote_b": "",
+      "analysis": "“明确方便”没有判定标准，“你说吧”“什么事”“快点说”等回复可能被不同执行者归类为方便或未表态。",
+      "suggestion": "补充：仅将“方便、可以、你说”等明确许可视为方便；追问来意或含糊回复不视为方便，并重问是否方便。"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "核验前用户追问来意时，答“为保护隐私，核验通过后再说明具体事项”，随后继续当前核验步骤。",
+      "quote_b": "",
+      "analysis": "用户可能在尚未回答是否方便时追问来意，此时“当前核验步骤”不明确，可能跳过方便确认直接索取末四位。",
+      "suggestion": "改为：若尚未确认方便，则答复后重问是否方便；若已确认方便，则答复后继续索取订单号末4位。"
+    }
+  ],
+  "feasibility_score": 35,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 5 条问题（缺失分支1条、歧义4条），可遵循度 35/100。"
+}

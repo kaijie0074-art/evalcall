@@ -23,7 +23,7 @@ _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-from evalcall import arena, cli, compiler, grow, judge, llm, report  # noqa: E402
+from evalcall import arena, cli, compiler, grow, judge, lint, llm, report  # noqa: E402
 
 
 # =========================================================================== #
@@ -71,6 +71,15 @@ def _cp(cid, severity="major", **kw):
 
 
 class TestGateFailClosed:
+    def test_instruction_lint_backend_failure_is_not_reported_as_healthy(self, monkeypatch):
+        def fail_chat_json(*args, **kwargs):
+            raise llm.LLMError("codex-cli 401 Unauthorized")
+
+        monkeypatch.setattr(llm, "chat_json", fail_chat_json)
+        task = {"id": "lint_fail_closed", "instruction": "必须问候并说明来意。"}
+        with pytest.raises(llm.LLMError, match="401 Unauthorized"):
+            lint.lint_instruction(task)
+
     def test_all_na_gate_undecidable(self):
         cps = [_cp("c1"), _cp("c2", severity="critical")]
         judgments = [

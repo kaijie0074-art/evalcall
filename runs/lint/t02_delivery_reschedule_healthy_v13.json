@@ -1,0 +1,88 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "D 之后未归类的用户回复不改变提交流程：继续等待 30 秒超时事件并查询一次",
+      "quote_b": "每次提交查询一次状态",
+      "analysis": "唯一查询返回无终态后会询问转人工；若用户答非所问，前条又要求查询，导致同一提交执行第二次查询。",
+      "suggestion": "改为：“尚未查询且仍处理中时，未归类回复不改变等待流程；唯一查询完成后，不再等待或查询。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "核验后询问继续改约还是转人工。继续则回中断状态，人工则转接，均不需要则说明本次未变更并结束。",
+      "quote_b": "",
+      "analysis": "该分支未区分B/C与已提交的D状态；D中提交可能已成功或仍处理中，此时声称“未变更”可能与系统结果冲突。",
+      "suggestion": "补充：“D状态提出超能力事项时，说明该事项无法办理；不得称未变更，继续按第9条查询收口或按用户要求转人工。”"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "继续使用用户最初表达的具体开始时间作为排序目标",
+      "quote_b": "",
+      "analysis": "用户最初可能只给出模糊时间且追问后仍不明确，或直接从列表选定，此时不存在“具体开始时间”，刷新后无法排序。",
+      "suggestion": "补充：“若用户最初没有具体开始时间，刷新后按列表开始时间从早到晚排序。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "得到明确确认后只提交一次。",
+      "quote_b": "",
+      "analysis": "“一次”可能指整通电话仅允许一次，也可能指每个已确认时段仅提交一次；时段被占用后能否重选再提交不够明确。",
+      "suggestion": "改为：“每次进入D仅对本次确认的时段提交一次；因时段被占用返回B并重新确认后，可发起一次新的提交。”"
+    },
+    {
+      "id": "conflict_2",
+      "dimension": "conflict",
+      "severity": "medium",
+      "quote_a": "核验成功前不得\n   披露订单详情、配送或改约事项",
+      "quote_b": "仍无法归类时，D 之前说明本次未变更并结束。",
+      "analysis": "A 状态也属于 D 之前；用户两次答非所问时，说明“本次未变更”会在核验前暴露存在变更事项。",
+      "suggestion": "改为：“A 状态仍无法归类时仅礼貌结束；B、C 状态说明本次未提交改约并结束。”"
+    },
+    {
+      "id": "infeasible_1",
+      "dimension": "infeasible",
+      "severity": "medium",
+      "quote_a": "继续使用用户最初表达的具体开始时间作为排序目标",
+      "quote_b": "",
+      "analysis": "用户可只说“你替我选”，由系统代选首项；该时段被占用后，用户从未表达具体开始时间，无法沿用目标。",
+      "suggestion": "改为：“若用户曾给出具体开始时间则沿用；否则刷新后按开始时间从早到晚排序。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "用户指出复述错误或改选且给出正确时段时，更新后重新复述",
+      "quote_b": "",
+      "analysis": "“正确时段”可能指格式正确的时间，也可能指最新列表中的完整可预约时段，执行者可能接受不可预约的改选。",
+      "suggestion": "改为：“改选时段必须是最新完整列表中仍有效的唯一完整时段；否则回到B要求重新选择。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "D 之后通话中断：不得重复提交；只记录系统随后返回的状态",
+      "quote_b": "",
+      "analysis": "未说明记录到何处、保存多久；且系统不支持跨通话状态存储，执行者可能选择临时记录、持久记录或不记录。",
+      "suggestion": "改为：“仅写入平台现有的本次执行日志，不创建跨通话状态；若平台无日志能力，则不执行额外记录动作。”"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "刷新后首次出现且不在旧列表中的时段记为未展示，旧列表中仍有效的时段保留原展示与拒绝状态",
+      "quote_b": "",
+      "analysis": "多次发生占用并刷新时，“旧列表”可能指最初列表或本次刷新前的最近列表，候选展示和拒绝状态会不同。",
+      "suggestion": "改为：“旧列表始终指本次刷新前最近一次成功读取的完整列表。”"
+    }
+  ],
+  "feasibility_score": 0,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 9 条问题（自相矛盾2条、缺失分支2条、歧义4条、不可行约束1条），可遵循度 0/100。"
+}

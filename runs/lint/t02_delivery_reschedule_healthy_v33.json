@@ -1,0 +1,43 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "用户给出未标注用途的四位数时不得提交；先确认是否为订单号末 4 位，确认后再按对应凭据规则处理。",
+      "quote_b": "",
+      "analysis": "只规定了确认“是”后的处理；若用户回答“不是”且未说明凭据类型，后续应重新索取还是切换手机号流程未定义。",
+      "suggestion": "补充：“若回答不是，先问是否能提供订单号末4位；能则重新索取，不能则再索取手机号末4位。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "系统返回“成功”时才说改约已生效并复述新时段；若等待期用户已要求人工，播报成功后转人工，否则结束。",
+      "quote_b": "",
+      "analysis": "“否则结束”要求成功后非人工情形直接结束，但后文又要求等待期提出撤销、换时段或其他事项时引导App，路径冲突。",
+      "suggestion": "改为：“成功后先播报结果；等待期要求人工则转人工，要求撤销、换时段或其他事项则引导App，否则结束。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "凡明确表达不提交或不改意图均说明未提交并结束；凡明确表达更换时段意图均回 S2 并重新展示",
+      "quote_b": "",
+      "analysis": "同句既称“不改了”又要求“换一个”时同时命中结束和返回S2，现有优先级未规定两者谁优先。",
+      "suggestion": "补充：“取消整个改约与换时段意图并存时，以取消整个改约为准，说明未提交并结束。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "S0 遇到此类问题时不回应事项内容，只问转人工还是结束；选择人工则转人工，其余回复礼貌结束。",
+      "quote_b": "",
+      "analysis": "“其余回复”包含沉默和答非所问时会立即结束，但通用收口又要求这两类回复重问一次，执行结果不一致。",
+      "suggestion": "改为：“选择人工则转人工，选择结束则礼貌结束；沉默、答非所问或未听清时重问一次，仍无效再结束。”"
+    }
+  ],
+  "feasibility_score": 52,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 4 条问题（缺失分支1条、歧义3条），可遵循度 52/100。"
+}

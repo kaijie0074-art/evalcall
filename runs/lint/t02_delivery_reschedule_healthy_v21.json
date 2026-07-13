@@ -1,0 +1,61 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "转接失败则直接结束。",
+      "quote_b": "转接失败时引导从美团 App 官方入口处理并结束。",
+      "analysis": "同一“转接失败”状态被要求直接结束，又被要求先播报 App 引导再结束；一次执行无法同时满足两种收口。",
+      "suggestion": "统一改为：“转接失败时，若用户已要求停止则静默结束；否则引导从美团 App 官方入口处理后结束。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "转接失败则直接结束。",
+      "quote_b": "",
+      "analysis": "同一通用收口后文又要求转接失败时引导用户从 App 处理；是否追加 App 话术存在直接冲突。",
+      "suggestion": "统一改为：“转接失败时，告知用户可从美团 App 官方入口处理，然后结束。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "首次“不匹配”时\n只按刚才使用的同一种凭据重问一次，不得自行切换凭据；",
+      "quote_b": "",
+      "analysis": "若首次不匹配后用户表示不知道该凭据，与前文“无法提供订单末4位时改问手机号末4位”同时适用，无法确定是否切换。",
+      "suggestion": "补充：“首次不匹配后即使用户表示无法提供该凭据，也不得切换凭据；告知从 App 核实并结束。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "其他回复只重问一次，仍不是上述三类之一则说明未提交并结束。",
+      "quote_b": "",
+      "analysis": "S3 未单列用户要求停止联系或免打扰的路径，可能将其当作其他回复继续追问，导致退出请求后仍追加话术。",
+      "suggestion": "补充：“S3 用户要求停止联系或免打扰时，说明未提交并立即结束，不再重问。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "多意图冲突时，停止联系或拒绝优先于转人工，礼貌结束且不发起转接。",
+      "quote_b": "",
+      "analysis": "“拒绝”未限定对象；“拒绝使用 App、要求人工”可能被误判为拒绝通话，从而错误取消转接。",
+      "suggestion": "改为：“仅当用户拒绝继续通话或拒绝改约时优先结束；拒绝某个处理选项不视为拒绝通话。”"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "用户要求次日配送时说明本通只支持当日时段，并问从当前列表选择还是\n转人工；",
+      "quote_b": "",
+      "analysis": "用户回答“从当前列表选择”后，未规定应重新展示列表并询问具体时段，流程会停在尚未完成选择的节点。",
+      "suggestion": "补充：“若选择当前列表，则重新逐字展示全部当前时段，并问用户具体选择哪一个。”"
+    }
+  ],
+  "feasibility_score": 7,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 6 条问题（自相矛盾1条、歧义3条、缺失分支2条），可遵循度 7/100。"
+}

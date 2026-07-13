@@ -1,0 +1,70 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "转接失败、超时或不可用时，引导\n用户从美团 App 官方入口处理并结束。",
+      "quote_b": "转接失败、\n超时或不可用时继续等待 30 秒超时事件并按第 9 条唯一查询规则收口。",
+      "analysis": "同一 D 状态转接失败后，一处要求立即引导 App 并结束，另一处要求继续等待并查询，无法同时执行。",
+      "suggestion": "改为：“A/B/C 转接失败时引导 App 并结束；D 已提交且无终态时，转接失败后等待满30秒并唯一查询。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "转接失败、超时或不可用时，引导",
+      "quote_b": "",
+      "analysis": "总则要求转接失败后引导App并结束，但D状态要求转接失败后继续等待并查询；未声明覆盖关系，执行会分叉。",
+      "suggestion": "改为“除D状态仍在等待提交结果外，转接失败、超时或不可用时，引导用户从App处理并结束”。"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "D 状态尚未查询且仍处理中时，未归类回复不改变等待流程",
+      "quote_b": "",
+      "analysis": "提交处理中时，用户可能要求撤销改约或更换时段；现规则未规定回应方式，用户可能误以为请求已撤销或更新。",
+      "suggestion": "补充：“若用户要求撤销或换时段，说明提交已发出、当前无法撤回或改选；不得重复提交，继续按第9条收口。”"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "返回“失败”或“系统错误”时说明未完成并询问转人工",
+      "quote_b": "",
+      "analysis": "该提问只写了同意、拒绝或转接不可用的走向；用户持续沉默或答非所问时，D状态缺少明确结束动作。",
+      "suggestion": "补充：“重问一次仍未明确选择时，说明本次未完成，引导从美团App官方入口处理并进入E。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "同时包含无条件肯定、提交/执行含义",
+      "quote_b": "",
+      "analysis": "“提交/执行含义”的边界不明确，如“可以，就按这个时间安排”是否合格，不同执行者可能作出相反判断。",
+      "suggestion": "补充：“‘提交、办理、改到、安排到、就按该时段执行’均算执行含义；仅说‘可以、行、这个’不算。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "用户曾给出具体开始时间时沿用该时间排序",
+      "quote_b": "",
+      "analysis": "用户可能先后给出多个具体时间，或在选择、改选时提到时间；“该时间”未说明取哪一次，刷新后的排序会不一致。",
+      "suggestion": "改为“沿用用户最近一次明确表达为期望开始时间的时刻；仅复述或选择候选时段不更新排序目标”。"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "用户明确撤回对某候选的拒绝",
+      "quote_b": "",
+      "analysis": "未说明后来直接唯一选择已拒绝候选是否算“明确撤回”；可能分别被判为有效选择或继续保持拒绝。",
+      "suggestion": "补充：“用户后来唯一选择该已拒绝候选，即视为明确撤回拒绝；若该时段仍有效，则取消标记并进入C。”"
+    }
+  ],
+  "feasibility_score": 10,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 7 条问题（自相矛盾1条、歧义4条、缺失分支2条），可遵循度 10/100。"
+}

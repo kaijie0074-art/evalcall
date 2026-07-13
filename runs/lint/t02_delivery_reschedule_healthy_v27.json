@@ -1,0 +1,61 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "凡明确表达不提交或不改意图\n均说明未提交并结束；凡明确表达更换时段意图均回 S2 并重新展示\n当前列表。",
+      "quote_b": "",
+      "analysis": "“这个不提交，换另一个”同时命中结束和返回S2，现有优先级把两者并列，无法确定走向。",
+      "suggestion": "补充：“仅否定当前时段且要求换时段时回S2；明确取消整个改约时才结束。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "返回“失败”或“系统错误”时说明未完成，问转人工\n还是从美团 App 处理",
+      "quote_b": "",
+      "analysis": "播报结果并提问后，用户再要求停止联系或直接挂断的路径未规定，可能仍重问或播报App引导。",
+      "suggestion": "补充：“提出选择后，若用户要求停止联系或挂断，立即静默结束，不重问、不再引导App。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "每进入\nS0、S1、S2 或 S3 状态时获得一次重问额度",
+      "quote_b": "",
+      "analysis": "S4结果分支要求按通用规则重问，但额度只授予S0至S3，导致S4是否允许重问无法判定。",
+      "suggestion": "补充：“S4同步结果返回并提出选项问题时获得一次重问额度；等待同步结果期间不重问。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "明确无法提供后才切换为手机号末 4 位。",
+      "quote_b": "",
+      "analysis": "用户同一句说“订单号不知道，手机号末4位是1234”时，不清楚应直接核验还是必须再次询问。",
+      "suggestion": "补充：“若同一句已明确无法提供订单号末4位且给出唯一有效手机号末4位，直接按手机号提交核验。”"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "匹配前只去除首尾空格及句末标点",
+      "quote_b": "",
+      "analysis": "“句末标点”未定义字符范围及是否移除连续多个标点，不同实现的严格匹配结果会不一致。",
+      "suggestion": "改为：“去除首尾空格，并移除句末连续的。！？.!?；除此之外不做规范化。”"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "用户说方便则进入 S1；说不方便、拒绝或停止联系则礼貌结束",
+      "quote_b": "",
+      "analysis": "用户在S0表示不方便并要求稍后回拨时，仅规定结束，未要求说明系统不支持回拨，容易形成回拨预期。",
+      "suggestion": "补充：“若用户表示不方便并要求稍后回拨，明确说明本通不支持回拨，再礼貌结束。”"
+    }
+  ],
+  "feasibility_score": 28,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 6 条问题（歧义4条、缺失分支2条），可遵循度 28/100。"
+}

@@ -1,0 +1,17 @@
+{
+  "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/样例选择包/04_低延迟直播升级通知_对话_10通.jsonl",
+  "source_format": "jsonl",
+  "task_id": "official_02_lowlatency",
+  "input_trajectories": 10,
+  "accepted_trajectories": 10,
+  "warnings": [
+    "official_02_lowlatency__p01_cooperative_worker__1 turn 缺失/非连续，已按原文顺序重编为 1..20",
+    "official_02_lowlatency__p01_cooperative_worker__2 turn 缺失/非连续，已按原文顺序重编为 1..14",
+    "official_02_lowlatency__p02_impatient__1 turn 缺失/非连续，已按原文顺序重编为 1..12",
+    "official_02_lowlatency__p03_rambling_elder__1 turn 缺失/非连续，已按原文顺序重编为 1..25",
+    "official_02_lowlatency__p04_privacy_guard__1 turn 缺失/非连续，已按原文顺序重编为 1..24",
+    "official_02_lowlatency__p06_distracted_silent__1 turn 缺失/非连续，已按原文顺序重编为 1..25"
+  ],
+  "pii_redacted": true,
+  "redaction_counts": {}
+}

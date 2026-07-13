@@ -1,0 +1,61 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "用户要求时转人工，否则结束。",
+      "quote_b": "",
+      "analysis": "优先异常分支又规定核验失败后引导 App 并结束，且核验失败优先于主动转人工，核验失败后是否转接存在冲突。",
+      "suggestion": "统一为：核验失败后若用户要求人工则转接；未要求或转接失败时引导 App 并结束。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "其他未归类回复不改变等待流程。",
+      "quote_b": "",
+      "analysis": "后文又规定沉默、答非所问时重问并收口；D 等待阶段没有待答问题，可能被理解为继续等待或提前结束。",
+      "suggestion": "补充：D 等待结果期间不重问、不结束；仅在询问是否转人工后，才重问一次并按第 9 条收口。"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "转接失败、超时或不可用时，引导用户从美团 App 官方入口处理并结束。",
+      "quote_b": "",
+      "analysis": "系统未列举返回会被归为未知状态，但转接结果只有成功、失败、超时和不可用分支，未知状态没有处理路径。",
+      "suggestion": "补充：转接返回未知状态时视为转接不可用；D 仍等待结果时按第 9 条处理，其他状态引导 App 后结束。"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "核验后同意继续则回中断状态",
+      "quote_b": "",
+      "analysis": "中断状态的恢复粒度未定义，不清楚是否保留候选标记、确认对象、重问次数及已执行的系统操作。",
+      "suggestion": "改为：恢复异常触发前的具体状态、候选记录和重问计数，重新提出当时待答问题，不重复读取、提交或查询。"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "仅拒绝已选时段时标记为拒绝，优先请其从保留候选重新选择，再回到 B；明确放弃改约时不提交并结束。",
+      "quote_b": "",
+      "analysis": "未说明如何区分“不确认”“先不提交”等否定答复是拒绝当前时段还是放弃整个改约，后续路径会不同。",
+      "suggestion": "补充：说“换一个、这个时间不要”视为拒绝当前时段；说“不改了、不办理”视为放弃；无法判断时追问一次。"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "每批展示排序前 3 个，不足 3 个时全部展示；只能展示系统列表中的完整时段。",
+      "quote_b": "",
+      "analysis": "展示候选后，用户若只更新期望开始时间而未选择完整时段，没有规定是否重新排序、重展当前批次或展示下一批。",
+      "suggestion": "补充：用户更新期望开始时间但未唯一选定时，更新排序目标，保留明确拒绝和保留记录，对尚未展示候选重新排序并展示前三项。"
+    }
+  ],
+  "feasibility_score": 38,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 6 条问题（歧义4条、缺失分支2条），可遵循度 38/100。"
+}

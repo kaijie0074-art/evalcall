@@ -1,0 +1,356 @@
+{
+  "task_id": "real_recruit_rider",
+  "total_runs": 10,
+  "avg_score": 0.0,
+  "gate": "打回",
+  "gate_reasons": [
+    {
+      "checkpoint_id": "flow_1",
+      "text": "开场白需按推荐话术介绍身份来源（美团官方招聘）、提及对方曾在宁波北站做专送骑手、说明新专送机会、单量稳定、有底薪及新人专属奖金活动",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_3",
+      "text": "需核实候选人能否满足每天约8小时的时间投入",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_4",
+      "text": "需核实候选人是否成年（18-52岁）且无案底",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_5",
+      "text": "需确认候选人意向跑单城市是否为宁波、温州、杭州、南京、上海之一",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "flow_7",
+      "text": "确认有意向后需说明后续将加微信对接，并告知在服务通知或短信链接中查看加微请求",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "constraint_1",
+      "text": "每次回复不得超过40个字",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "constraint_2",
+      "text": "涉及薪资、单价、补贴、入职条件、保险等关键数字和承诺必须按原文完整说清，不得删减或含糊",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "forbidden_5",
+      "text": "禁止自己编造薪资、单量等关键数字信息",
+      "safety": false,
+      "policy_source": ""
+    },
+    {
+      "checkpoint_id": "forbidden_3",
+      "text": "禁止输出任何括号、星号、方括号中的旁白、动作、情绪等舞台提示内容",
+      "safety": false,
+      "policy_source": ""
+    }
+  ],
+  "blocked_runs": 10,
+  "needs_human_review_total": 0,
+  "fulfillment_rate": 70.0,
+  "fulfilled_runs": 7,
+  "fulfillment_eval_runs": 10,
+  "critical_failed_runs": 10,
+  "avg_violation_rate_per_100": 22.6,
+  "avg_judge_disagreement_rate": 0.0,
+  "by_persona": {
+    "p01_cooperative_worker": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_interested": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_refusal": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_employed": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_part_time": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_competitor": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_busy": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_injured": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_blocked": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    },
+    "synthetic_later": {
+      "runs": 1,
+      "critical_failed_runs": 1,
+      "avg_score": 0.0
+    }
+  },
+  "total_checkpoints": 43,
+  "ingestion": {
+    "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/样例选择包/03_骑手招聘外呼_对话_10通.jsonl",
+    "source_format": "jsonl",
+    "task_id": "real_recruit_rider",
+    "input_trajectories": 10,
+    "accepted_trajectories": 10,
+    "warnings": [
+      "real_recruit_rider__p01_cooperative_worker__1 turn 缺失/非连续，已按原文顺序重编为 1..17"
+    ],
+    "pii_redacted": true,
+    "redaction_counts": {}
+  },
+  "evaluation_errors": 0,
+  "source_mode": "offline_existing_transcripts",
+  "policy_overrides": [
+    "deny_ai_identity"
+  ],
+  "attribution": {
+    "schema_version": 2,
+    "primary_category": "instruction",
+    "primary_label": "SOP/任务指令",
+    "primary_confidence": "high",
+    "roots": [
+      {
+        "category": "instruction",
+        "label": "SOP/任务指令",
+        "confidence": "high",
+        "score": 95,
+        "owner": "SOP 业务 owner",
+        "evidence": [
+          "lint 可行性分 0/100",
+          "高严重度指令问题 3 项",
+          "证据文件 runs/lint/real_recruit_rider.json"
+        ],
+        "actions": [
+          {
+            "owner": "SOP 业务 owner",
+            "action": "先修复 lint 发现的冲突/不可行/缺失分支，由业务 owner 审核新 SOP",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "SOP 业务 owner",
+            "action": "SOP 改版后重新编译 checklist；新旧尺子不做模型能力直接 diff",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      },
+      {
+        "category": "target_model",
+        "label": "外呼模型",
+        "confidence": "low",
+        "score": 45,
+        "owner": "模型/对话策略工程",
+        "evidence": [
+          "通话打回率 100.0%（10/10）",
+          "履约率 70.0%",
+          "P0 触发率 100.0%（10/10）",
+          "关键流程失败率 37.8%",
+          "严重度加权失败率 24.1%（critical 25.3% / major 20.3%）",
+          "全部有效判定失败率 23.4%（51/218）",
+          "裁判健康：NA 49.3%、分歧 0.0%",
+          "存在更强的SOP混杂信号，模型归因降级"
+        ],
+        "actions": [
+          {
+            "owner": "模型/对话策略工程",
+            "action": "针对高频失败检查点修改外呼模型指令遵循策略，不改评分尺",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "模型/对话策略工程",
+            "action": "使用同一 checklist 重跑回归，确认 fail→pass 且 P0 无退化",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      },
+      {
+        "category": "judge",
+        "label": "裁判与判定链路",
+        "confidence": "medium",
+        "score": 35,
+        "owner": "评测算法 + 人工质检",
+        "evidence": [
+          "NA 占比 49.3%，有效判定覆盖偏低"
+        ],
+        "actions": [
+          {
+            "owner": "评测算法 + 人工质检",
+            "action": "先复核分裂票、规则冲突与高 NA 批次，不直接归责外呼模型",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "评测算法 + 人工质检",
+            "action": "将人工拍板案例进黄金集，预注册后修裁判口径并重跑校准",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      }
+    ],
+    "signals": {
+      "judgments": 430,
+      "judged": 218,
+      "fail_rate": 0.2339,
+      "na_rate": 0.493,
+      "review_rate": 0.0,
+      "needs_human_review": 0,
+      "rule_conflicts": 0,
+      "judge_disagreement_rate": 0.0,
+      "instruction_feasibility": 0.0,
+      "instruction_high_findings": 3,
+      "persona_failure_concentration": 0.2157,
+      "call_block_rate": 1.0,
+      "fulfillment_rate": 0.7,
+      "p0_trigger_rate": 1.0,
+      "key_failure_rate": 0.3784,
+      "critical_failure_rate": 0.2532,
+      "major_failure_rate": 0.2034,
+      "severity_weighted_fail_rate": 0.241,
+      "target_model_score": 93,
+      "judge_healthy": false
+    },
+    "disclaimer": "根因为确定性信号归纳，不是因果证明；低/中置信结论必须人工复核后再修改生产配置。"
+  },
+  "review_queue_count": 251,
+  "manifest": {
+    "schema_version": 1,
+    "run_id": "real_recruit_rider__offline_existing_transcripts__20260713T100512Z",
+    "task_id": "real_recruit_rider",
+    "source_mode": "offline_existing_transcripts",
+    "started_at": "2026-07-13T10:05:12.948573+00:00",
+    "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/样例选择包/03_骑手招聘外呼_SOP.yaml",
+    "task_file_hash": "8e8ef5f8ff931ff438631f52205c17454d924196eee682fa8a505b89bc33d581",
+    "instruction_hash": "26a1ff76211d50e87fd8a1daae6cfaaf0305a2f47df19ea3153e5f7d2885afde",
+    "checklist_hash": "aa8487b35f4329ea9480360da5092762b5f502fdfd94c00d1a39c060eb043b91",
+    "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+    "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+    "identity_policy": "deny_ai_identity",
+    "target_model_fingerprint": {
+      "backend": "existing-transcript",
+      "model": "not_applicable"
+    },
+    "judge_models_config": {
+      "backend": "codex-cli",
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "n_votes": 1
+    },
+    "seed": null,
+    "code_commit": "23eb07974fca5fee37df830987add0b77c896bfb",
+    "code_branch": "codex/evalcall-productization-20260712",
+    "code_dirty": true,
+    "completed_at": "2026-07-13T10:41:51.198812+00:00",
+    "runtime": {
+      "calls": 80,
+      "failed_calls": 0,
+      "latency_ms": 1130519.9,
+      "input_tokens": 113188,
+      "output_tokens": 17300,
+      "total_tokens": 130488,
+      "actual_token_calls": 0,
+      "estimated_token_calls": 80,
+      "provider_total_token_calls": 80,
+      "provider_total_tokens": 405307,
+      "wall_seconds": 2198.25,
+      "n_trajectories": 10,
+      "calls_per_trajectory": 8.0,
+      "tokens_per_trajectory": 13048.8,
+      "cost": {
+        "status": "unpriced",
+        "currency": "CNY",
+        "total_cost": null,
+        "priced_calls": 0,
+        "total_calls": 80,
+        "unknown_models": [
+          "gpt-5.6-sol"
+        ],
+        "token_measurement": "estimated_or_mixed",
+        "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+        "price_source_hash": "f108bfa0eadb40609348e8fcecdab39fd2f693667176904ad04a4688a9aa0ea8",
+        "by_model": {
+          "gpt-5.6-sol": {
+            "calls": 80,
+            "input_tokens": 113188,
+            "output_tokens": 17300,
+            "cost": null
+          }
+        }
+      }
+    }
+  },
+  "runtime": {
+    "calls": 80,
+    "failed_calls": 0,
+    "latency_ms": 1130519.9,
+    "input_tokens": 113188,
+    "output_tokens": 17300,
+    "total_tokens": 130488,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 80,
+    "provider_total_token_calls": 80,
+    "provider_total_tokens": 405307,
+    "wall_seconds": 2198.25,
+    "n_trajectories": 10,
+    "calls_per_trajectory": 8.0,
+    "tokens_per_trajectory": 13048.8,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 80,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "f108bfa0eadb40609348e8fcecdab39fd2f693667176904ad04a4688a9aa0ea8",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 80,
+          "input_tokens": 113188,
+          "output_tokens": 17300,
+          "cost": null
+        }
+      }
+    }
+  },
+  "run_id": "real_recruit_rider__offline_existing_transcripts__20260713T100512Z",
+  "started_at": "2026-07-13T10:05:12.948573+00:00",
+  "backend": "codex-cli",
+  "target_model": "not_applicable",
+  "judge_model": "gpt-5.6-sol"
+}

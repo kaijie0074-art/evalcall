@@ -1,0 +1,23 @@
+{
+  "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/样例选择包/01_骑手合同生效通知_对话_12通.jsonl",
+  "source_format": "jsonl",
+  "task_id": "official_01_feimaotui",
+  "input_trajectories": 12,
+  "accepted_trajectories": 12,
+  "warnings": [
+    "official_01_feimaotui__p01_cooperative_worker__1 turn 缺失/非连续，已按原文顺序重编为 1..18",
+    "official_01_feimaotui__p01_cooperative_worker__2 turn 缺失/非连续，已按原文顺序重编为 1..14",
+    "official_01_feimaotui__p01_cooperative_worker__3 turn 缺失/非连续，已按原文顺序重编为 1..25",
+    "official_01_feimaotui__p01_cooperative_worker__4 turn 缺失/非连续，已按原文顺序重编为 1..16",
+    "official_01_feimaotui__p02_impatient__1 turn 缺失/非连续，已按原文顺序重编为 1..10",
+    "official_01_feimaotui__p02_impatient__2 turn 缺失/非连续，已按原文顺序重编为 1..18",
+    "official_01_feimaotui__p03_rambling_elder__1 turn 缺失/非连续，已按原文顺序重编为 1..18",
+    "official_01_feimaotui__p03_rambling_elder__2 turn 缺失/非连续，已按原文顺序重编为 1..25",
+    "official_01_feimaotui__p04_privacy_guard__1 turn 缺失/非连续，已按原文顺序重编为 1..25",
+    "official_01_feimaotui__p05_angry_complainer__1 turn 缺失/非连续，已按原文顺序重编为 1..25",
+    "official_01_feimaotui__p06_distracted_silent__1 turn 缺失/非连续，已按原文顺序重编为 1..10",
+    "official_01_feimaotui__p06_distracted_silent__2 turn 缺失/非连续，已按原文顺序重编为 1..8"
+  ],
+  "pii_redacted": true,
+  "redaction_counts": {}
+}

@@ -5,31 +5,33 @@
 
 ## 一句话定位
 
-**上传外呼 SOP 和已有对话，EvalCall 给出“可上线 / 打回 / 无法判定”，并告诉你该改模型、SOP、裁判还是测试数据。**
+**EvalCall 自动测试并评估外呼模型在特定任务指令下的指令遵循效果，输出可审计的模型上线报告。**
 
-生产质检的主入口是已有真实/脱敏对话；无真实数据时，才启用对抗式用户模拟器补测试。每次运行都落盘检查尺、逐项证据、P0 门禁、履约、根因、人工复核队列、模型/代码/hash、token/耗时和可比性 manifest。
+被评对象是外呼模型，SOP 是评分依据，用户模拟器是标准测试工具，对话日志是测试过程数据。SOP 诊断、裁判校准和根因归因用于防止错误归责，不取代“评模型”主线。工作台同时提供“模拟测试模式”和“已有日志质检模式”：前者由多 persona 用户模拟器生成测试对话，后者对已经产生的真实/脱敏日志使用同一套评分标准质检。
+
+每次运行都落盘 SOP、对话、Checklist、目标模型和结果的版本/hash，以及逐项证据、P0 门禁、履约率、覆盖率、未触达检查点、人工复核队列、token/耗时和可比性 manifest。
 
 ## 先看产品，再看研究
 
 - 在线六步流程工作台：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
 - 研究与历史证据：[项目证据首页](https://kaijie0074-art.github.io/evalcall/)
-- 本地启动：`python -m evalcall demo`，打开 `http://127.0.0.1:8765/`
+- 本地启动：`python3 -m evalcall demo`，打开 `http://127.0.0.1:8765/`
 - 答辩数字索引：[`docs/EvalCall证据索引-20260712.md`](docs/EvalCall证据索引-20260712.md)
 
 六步产品主链：
 
-1. 导入 SOP 和 JSONL/JSON/CSV/TXT/MD 对话，生成规范化任务包；
-2. 将 SOP 编译成带逐字来源的 L0 通用红线 + L1 业务检查尺；
-3. 对每通对话逐检查点判定，输出结论、证据和复核标记；
-4. 聚合门禁、履约、覆盖率和复核队列，生成上线决策；
-5. 将问题归因到外呼模型、SOP、裁判或测试数据；
-6. 生成修复与回归计划，并返回对应环节同口径复测。
+1. 配置测试任务：输入任务指令、被测模型，或输入任务指令与已有对话；
+2. 建立评分标准：把 SOP 编译为可溯源的 L0 通用安全规则 + L1 业务规则；
+3. 测试外呼模型：用户模拟器按 persona 生成测试对话，或评估已有日志；
+4. 输出模型评测报告（核心交付）：模型版本、门禁、履约率、P0、关键失败、覆盖率和未触达检查点；
+5. 分析失败原因：综合模型表现、SOP 健康、裁判 NA/分歧和测试分布，归因到模型/SOP/裁判/测试数据；
+6. 根据根因生成对应优化和同尺回归计划；模型问题保持 SOP/Checklist hash 不变并返回第 3 步。
 
 ```bash
 # 零依赖产品页 + 可选本地实时整批评测
-python -m evalcall demo
+python3 -m evalcall demo
 
-# 生产主入口：直接评测已有真实/脱敏对话，跳过模拟器
+# 已有日志质检入口：直接评测真实/脱敏对话
 python -m evalcall evaluate \
   --task data/tasks_real/real_recruit_rider.yaml \
   --transcripts runs/real_recruit_20260702/transcripts.jsonl \
@@ -40,9 +42,9 @@ python -m evalcall evaluate \
 
 > fail-closed：输入坏、裁判整批 NA、尺子不可比或无有效 judgments 时，系统不会包装成“可上线”。
 
-## 三层质量闭环（核心设计）
+## 模型评测主线与可信度保障
 
-「做一个自动评测器」不是难点，难的是凭什么信它。EvalCall 的回答是三层闭环，全部在官方脱敏数据上实测落地：
+第 4 步模型评测报告是核心交付；下面三层中“评模型”是产品主线，“审指令”和“校裁判”是防止错误归责的可信度保障：
 
 | 层 | 回答的问题 | 机制 | 实测战绩 |
 |----|-----------|------|---------|
@@ -152,7 +154,9 @@ pip install rich
 
 EvalCall 支持四种后端，通过环境变量切换：
 
-**方式一：本地 Claude CLI（开发/演示推荐，无需 API Key）**
+`python3 -m evalcall demo` 未显式配置时会优先使用本机已登录的 Codex CLI；内置样例在 SOP、完整对话和评分标准哈希一致时直接复用对应已验证批次，自定义材料才现场调用模型。
+
+**方式一：本地 Claude CLI（需确保 CLI 登录状态可用）**
 
 ```bash
 export EVALCALL_BACKEND=claude-cli
@@ -168,7 +172,7 @@ export OPENAI_API_KEY=<your-api-key>
 export EVALCALL_MODEL=gpt-4o
 ```
 
-**方式三：Codex CLI（复用本地登录，只读临时会话）**
+**方式三：Codex CLI（本机工作台默认优先，复用本地登录）**
 
 ```bash
 export EVALCALL_BACKEND=codex-cli
@@ -194,7 +198,7 @@ export TARGET_MODEL=your-model-name
 ### 运行评测
 
 ```bash
-# 直接评测已有对话（生产主入口）
+# 已有日志质检模式：直接评测已有对话
 python -m evalcall evaluate --task data/tasks/t02_delivery_reschedule.yaml \
   --transcripts your_transcripts.jsonl --out runs/t02_offline
 

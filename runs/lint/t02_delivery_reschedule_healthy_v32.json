@@ -1,0 +1,97 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "转接等待期间除停止联系或撤回转人工外，其他输入均不处理、不提问，只等待转接结果并按成功或失败路径结束。",
+      "quote_b": "除 S4 等待同步结果外，用户沉默、\n答非所问或未听清时换一种表述重问一次",
+      "analysis": "转接等待期若用户答非所问，前者要求不处理、不提问，后者因仅豁免S4等待而要求重问，同一时点无法同时执行。",
+      "suggestion": "改为：“除S4等待同步结果和转接等待期间外，用户沉默、答非所问或未听清时换一种表述重问一次。”"
+    },
+    {
+      "id": "infeasible_1",
+      "dimension": "infeasible",
+      "severity": "high",
+      "quote_a": "沉默、答非所问、未听清或无法归类回复都消耗该额度，不得按原因重复计次。",
+      "quote_b": "",
+      "analysis": "平台明确只提供“用户挂断”事件，未提供无输入超时或ASR未听清事件；模型无法识别沉默、未听清并据此计次。",
+      "suggestion": "新增“无输入超时”和“ASR未听清”平台事件并规定触发时长；否则删除沉默、未听清分支。"
+    },
+    {
+      "id": "conflict_2",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "系统返回“成功”时才说改约已生效并复述新时段，然后结束",
+      "quote_b": "若等待期间要求人工则转人工",
+      "analysis": "成功返回且用户在等待期已要求人工时，前者要求播报后结束，后者要求继续转接；结束与发起转接无法同时执行。",
+      "suggestion": "改为：“成功后播报改约已生效并复述新时段；等待期要求人工的，播报后转人工，否则结束。”"
+    },
+    {
+      "id": "conflict_3",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "重新读取列表并回 S2",
+      "quote_b": "同一通话累计两次返回“时段被占用”后，不再提交，询问转人工还是从美团 App 处理",
+      "analysis": "第二次时段被占用时，前者仍要求回S2继续选时段，后者禁止再次提交并要求转人工或App，两条路径互斥。",
+      "suggestion": "将前者改为：“首次返回‘时段被占用’时，重新读取列表并回S2；第二次按转人工或App路径处理。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "S0 单独请求回拨时说明本通不支持安排回拨，再问继续还是结束。",
+      "quote_b": "",
+      "analysis": "未规定用户选择“继续”或“结束”后的走向，可能分别被理解为进入S1、留在S0或直接结束。",
+      "suggestion": "补充：选择“继续”则进入S1；选择“结束”则礼貌结束；未明确选择时按S0通用收口处理。"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "未标注四位数用途或称为手机号末 4 位时，进入 S1 后按 S1 规则确认。",
+      "quote_b": "",
+      "analysis": "S1没有未标注四位数的确认规则，执行者可能将其当订单号直接核验，也可能重新询问凭据类型。",
+      "suggestion": "改为：未标注用途的四位数不得提交；先确认是否为订单号末4位，确认后再按对应凭据规则处理。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "肯定提交短语与反向意图并存时，以反向意图为准，说明未提交并结束，不再重问；",
+      "quote_b": "",
+      "analysis": "“反向意图”未定义，换时段也可能被视为反向意图，导致回S2与直接结束两种不同处理。",
+      "suggestion": "改为：“反向意图”仅指明确不提交或取消整个改约；确认短语与换时段意图并存时回S2。"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "拒绝某个处理选项不视为拒绝通话。",
+      "quote_b": "",
+      "analysis": "只说明不能结束通话，未规定应推断选择另一项还是重新提问，多个二选一节点会出现不同走向。",
+      "suggestion": "补充：只拒绝一个选项且未明确选择另一项时不作推断，消耗当前额度重问一次，仍不明确则按节点失败收口。"
+    },
+    {
+      "id": "missing_branch_3",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "S1 任意节点检测到停止联系意图时立即结束且不再播报；与其他意图并存时仍优先结束。",
+      "quote_b": "",
+      "analysis": "只覆盖要求停止联系，未覆盖仅咨询免打扰功能的用户；该问题也不明确属于兜底所称的订单或配送问题。",
+      "suggestion": "补充S0和S1：仅咨询免打扰且未要求停止联系时，说明无法登记并问转人工还是结束。"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "仅当用户明确表示不知道或无法提供订单号末 4 位时，才改问下单手机号末 4 位。",
+      "quote_b": "",
+      "analysis": "“无法提供”与“拒绝提供”的边界未定义，如“不方便提供”会导致切换手机号或直接结束两种处理。",
+      "suggestion": "补充：“不知道、找不到、手边没有”按无法处理；“不愿、不想给”按拒绝处理；其他表述澄清一次。"
+    }
+  ],
+  "feasibility_score": 0,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 10 条问题（自相矛盾3条、不可行约束1条、缺失分支3条、歧义3条），可遵循度 0/100。"
+}

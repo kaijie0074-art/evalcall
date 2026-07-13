@@ -1,0 +1,70 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "核验成功前不得提及配送、\n订单详情或改约。",
+      "quote_b": "只请用户提供订单号末 4 位；无法提供时改问下单手机号末 4 位。",
+      "analysis": "S1发生在核验成功前，却必须提及订单号或下单手机号；这些属于订单相关信息，无法同时遵守禁止提及的要求。",
+      "suggestion": "改为“核验成功前不得提及配送内容或改约，仅可为身份核验询问订单号或下单手机号末4位。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "选择保留或拒绝则确认未变更并结束；",
+      "quote_b": "",
+      "analysis": "“拒绝”可能指拒绝保留原安排，也可能指拒绝改约；两种相反意图却被统一确认为未变更。",
+      "suggestion": "改为“明确选择保留原安排时确认未变更并结束；拒绝保留时询问是否转人工”。"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "读取并逐字展示系统返回的全部可预约时段，再问用户选择哪一个。",
+      "quote_b": "",
+      "analysis": "列表非空时，用户不选时段而直接要求人工的处理路径未规定，可能被当作含糊选择并结束。",
+      "suggestion": "补充：“在 S2 的任何节点明确要求人工时，立即调用转人工能力。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "拒绝或其他回答则说明未提交并结束。",
+      "quote_b": "",
+      "analysis": "“其他回答”范围不明，并与通用规则中答非所问需重问一次冲突，执行者可能立即结束或先重问。",
+      "suggestion": "改为“明确拒绝继续改约则结束；沉默、答非所问或未听清按通用规则重问一次”。"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "质疑身份时明确自己是智能客服且不会索取验证码，再问是否继续，拒绝则结束。",
+      "quote_b": "",
+      "analysis": "只规定拒绝后的路径，未明确用户同意继续后的状态流转，可能停留在 S0 或重复询问。",
+      "suggestion": "补充：“用户明确同意继续则进入 S1；其他无法归类的回复按通用规则处理。”"
+    },
+    {
+      "id": "missing_branch_3",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "用户要求修改地址或电话、取消订单、赔付或折扣时，说明本通不能办理，并问继续改约还是转人工；",
+      "quote_b": "",
+      "analysis": "系统还明确不支持回拨和免打扰登记，但此处遗漏了这两类请求的应答与收口路径。",
+      "suggestion": "补充：“要求回拨或免打扰登记时，明确本通无法登记，并询问转人工或结束。”"
+    },
+    {
+      "id": "missing_branch_4",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "你只能依据本通系统返回作答；",
+      "quote_b": "",
+      "analysis": "用户提出未覆盖的订单或配送问题时，没有“不知道或超出范围”的处理路径，可能编造答案或生硬重问。",
+      "suggestion": "补充：“遇到未覆盖问题时说明本通无法核实且不作猜测，询问转人工或从 App 查询。”"
+    }
+  ],
+  "feasibility_score": 10,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 7 条问题（自相矛盾1条、歧义2条、缺失分支4条），可遵循度 10/100。"
+}

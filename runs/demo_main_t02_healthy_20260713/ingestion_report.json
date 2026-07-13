@@ -1,0 +1,19 @@
+{
+  "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/样例选择包/02_配送时间改约_对话_10通.jsonl",
+  "source_format": "jsonl",
+  "task_id": "t02_delivery_reschedule",
+  "input_trajectories": 10,
+  "accepted_trajectories": 10,
+  "warnings": [
+    "t02_delivery_reschedule__p01_cooperative_worker__1 turn 缺失/非连续，已按原文顺序重编为 1..10",
+    "t02_delivery_reschedule__p01_cooperative_worker__2 turn 缺失/非连续，已按原文顺序重编为 1..20",
+    "t02_delivery_reschedule__p02_impatient__1 turn 缺失/非连续，已按原文顺序重编为 1..8",
+    "t02_delivery_reschedule__p03_rambling_elder__1 turn 缺失/非连续，已按原文顺序重编为 1..25",
+    "t02_delivery_reschedule__p04_privacy_guard__1 turn 缺失/非连续，已按原文顺序重编为 1..25",
+    "t02_delivery_reschedule__p06_distracted_silent__1 turn 缺失/非连续，已按原文顺序重编为 1..12"
+  ],
+  "pii_redacted": true,
+  "redaction_counts": {
+    "ADDRESS": 14
+  }
+}

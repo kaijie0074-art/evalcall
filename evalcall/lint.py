@@ -24,8 +24,8 @@
 设计原则：
 1. 提示词只描述「如何找问题的方法论」，不硬编码任何具体结论（不许泄题）。
 2. 把「冲突类」与「单条缺陷类」拆成两次调用，各自专注，降低漏检。
-3. 所有 LLM 输出都做 schema 归一 + 溯源校验（quote 必须能在原文找到），
-   失败兜底为空列表而非崩溃，保证一次坏输出不影响整体。
+3. 所有 LLM 输出都做 schema 归一 + 溯源校验（quote 必须能在原文找到）。
+   后端调用失败必须 fail-closed，避免把模型不可用伪装成「未发现问题」。
 4. feasibility_score 由确定性公式计算，不交给 LLM 拍脑袋，保证可复现、可解释。
 """
 
@@ -75,7 +75,8 @@ _SYS_CONFLICT = """\
 - quote_a / quote_b 必须是指令原文里【逐字连续摘抄】的片段，不得改写、不得自造。
 - analysis 要讲清「为什么冲突/为什么不可行」，让没看过指令的运营也能秒懂。
 - suggestion 要给【具体可照抄的改法】（如「把字数上限放宽到 X 字」「拆成多轮，每轮只讲一个区别」），不要泛泛说「优化一下」。
-- 只报真实存在的硬缺陷，不要为凑数编造；没有就返回空数组。"""
+- 只报真实存在的硬缺陷，不要为凑数编造；没有就返回空数组。
+- 最多返回 6 条，只保留严重度最高、最影响执行的不同问题；analysis 和 suggestion 各不超过 120 个中文字符。"""
 
 _SCHEMA_CONFLICT = """\
 输出一个 JSON 对象，含字段 "findings"，值为问题数组。每个对象字段：
@@ -114,7 +115,8 @@ B) 缺失分支（missing_branch）：逐条检查对话流程里每个会向对
 - quote_b 一律填空字符串 ""（这两类都是单点问题）。
 - analysis 说清「会产生什么不一致 / 漏了哪条路径会导致什么后果」。
 - suggestion 给具体补法（如「把『频繁』改为『每 2-3 轮至少给商家一次发言机会』」「补一条：若对方明确拒绝，则礼貌致歉并结束通话」）。
-- 只报真实缺陷，没有就返回空数组；不要把已经写清楚的分支误报为缺失。"""
+- 只报真实缺陷，没有就返回空数组；不要把已经写清楚的分支误报为缺失。
+- 最多返回 6 条，只保留严重度最高、最影响执行的不同问题；analysis 和 suggestion 各不超过 120 个中文字符。"""
 
 _SCHEMA_AMBIGUOUS = """\
 输出一个 JSON 对象，含字段 "findings"，值为问题数组。每个对象字段：
@@ -181,18 +183,17 @@ def _run_dimension(
     source_body: str,
     model: Optional[str],
 ) -> list[dict]:
-    """跑一次某组维度的体检调用，返回归一后的 findings（失败兜底空列表）。"""
+    """跑一次某组维度的体检调用，返回归一后的 findings。
+
+    这里故意不吞掉 LLM/backend 异常。体检结果会直接进入归因和演示门禁；
+    如果后端 401、超时或 JSON 连续解析失败后被当成空 findings，页面会错误显示
+    100/100 的健康 SOP。真实运行宁可失败并给出准确错误，也不能产出假阳性。
+    """
     messages = [
         {"role": "system", "content": sys_prompt},
         {"role": "user", "content": f"请对下面这条外呼任务指令做体检：\n\n{full_text}"},
     ]
-    try:
-        data = llm.chat_json(messages, schema_hint=schema_hint, model=model)
-    except Exception as exc:  # noqa: BLE001 —— 一次维度失败不应让整体体检崩溃
-        import sys as _sys
-
-        print(f"[lint] 维度调用失败，跳过该组：{exc}", file=_sys.stderr)
-        return []
+    data = llm.chat_json(messages, schema_hint=schema_hint, model=model)
 
     if isinstance(data, dict):
         raw_list = data.get("findings") or data.get("issues") or []

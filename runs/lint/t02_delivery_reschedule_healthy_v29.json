@@ -1,0 +1,52 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "凡不是恰好 4 位 0–9 字符均不提交核验",
+      "quote_b": "",
+      "analysis": "此处可理解为整句只能有4个字符，但后文又允许数字前后有非数字话语，导致同一句输入可能被接受或拒绝。",
+      "suggestion": "改为“从整句提取数字；仅含一个连续四位0–9数字串且无其他数字时提交，前后可有非数字话语”。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "先确认其是否无法提供订单号末 4 位，明确无法提供后才切换为手机号末 4 位。",
+      "quote_b": "",
+      "analysis": "只规定了用户回答“无法提供”的走向，未规定其确认“可以提供订单号末4位”后如何继续，可能造成停滞或错误收口。",
+      "suggestion": "补充：“若用户明确表示可以提供订单号末4位，则请其提供；同句给出唯一合规末4位时直接提交核验。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "用户提出以上各状态均未覆盖的订单或配送问题时，说明本通无法核实且不作猜测，问转人工还是从美团 App\n查询",
+      "quote_b": "",
+      "analysis": "该通用规则未排除S0，与核验前不得提及或询问其他订单事项的限制冲突，S0收到此类问题时处理方式不唯一。",
+      "suggestion": "补充：“本条仅适用于S1至S4；S0遇到此类问题时不回应事项内容，仅询问是否转人工或结束。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "S0 为停止联系＞转人工＞身份质疑＞方便；",
+      "quote_b": "",
+      "analysis": "优先级未列入“不方便”和“拒绝”。当其与身份质疑或方便意图并存时，无法确定应结束、答疑后追问还是进入S1。",
+      "suggestion": "改为“S0为停止联系＞转人工＞不方便或拒绝＞身份质疑＞方便”，并明确每类并存意图的动作。"
+    },
+    {
+      "id": "ambiguous_4",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "可忽略选择话语前后的礼貌词",
+      "quote_b": "",
+      "analysis": "“礼貌词”没有范围，不同执行者可能对“麻烦选”“我想要”“帮我改成”等前后缀作出不同接受判断。",
+      "suggestion": "改为“仅忽略‘请、麻烦、谢谢、好的’及其标点；其他字符存在时均视为不逐字匹配”。”"
+    }
+  ],
+  "feasibility_score": 35,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 5 条问题（歧义4条、缺失分支1条），可遵循度 35/100。"
+}

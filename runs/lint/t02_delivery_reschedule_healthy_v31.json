@@ -1,0 +1,43 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "唯一格式合规的订单号末 4 位（整句仅含一个连续四位 0–9 数字串且无其他数字）",
+      "quote_b": "",
+      "analysis": "条件只定义数字格式，未规定未标注的四位数是否视为订单号；若用户称其为手机号，还会与S1的切换规则产生分歧。",
+      "suggestion": "补充：“S0仅在用户明确说明这是订单号末4位时直提；未标注或称为手机号时，进入S1后按S1规则确认。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "可反复去除首尾任意数量的“请、麻烦、谢谢、好的”和标点",
+      "quote_b": "",
+      "analysis": "“标点”没有明确字符集合，且完整时段规则未说明是否去除首尾空格，同一回答可能得到不同匹配结果。",
+      "suggestion": "改为：“仅循环去除首尾空格、，。！？,.!?及完整礼貌词‘请/麻烦/谢谢/好的’，再比较剩余文本。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "用户在 S0 表示不方便并要求稍后回拨时，明确说明本通不支持安排回拨，再礼貌结束。",
+      "quote_b": "",
+      "analysis": "这里只覆盖“不方便且要求回拨”和S2回拨；用户单独要求回拨或在S1、S3提出回拨时，没有明确的后续路径。",
+      "suggestion": "补充：“S0、S1、S3单独请求回拨时先说明不支持；S0问继续或结束，S1、S3回到当前问题；与拒绝并存则结束。”"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "low",
+      "quote_a": "转接等待期间用户要求停止时不再追加话术，待返回后不继续机器人流程",
+      "quote_b": "",
+      "analysis": "等待期仅覆盖停止联系和撤回转接；用户提问、选择App或提出其他事项时，未规定是回应、忽略还是恢复原流程。",
+      "suggestion": "补充：“转接等待期间除停止或撤回外，其他输入均不处理、不提问，只等待转接结果并按成功或失败路径结束。”"
+    }
+  ],
+  "feasibility_score": 66,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 4 条问题（歧义2条、缺失分支2条），可遵循度 66/100。"
+}

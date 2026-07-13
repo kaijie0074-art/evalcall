@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -15,18 +16,18 @@ APP = ROOT / "site-deploy" / "app.html"
 CACHE = ROOT / "site-deploy" / "demo-cache.json"
 
 STEP_LABELS = [
-    "上传评测材料",
-    "生成评分标准",
-    "检查每通电话",
-    "查看评测结果",
-    "定位问题原因",
-    "生成修复方案",
+    "配置测试任务",
+    "建立评分标准",
+    "测试外呼模型",
+    "输出模型评测报告",
+    "分析失败原因",
+    "生成优化与回归计划",
 ]
 EXPECTED_CONVERSATIONS = {
     "official01": 12,
-    "t02": 6,
-    "real_recruit": 1,
-    "official02": 6,
+    "t02": 10,
+    "real_recruit": 10,
+    "official02": 10,
 }
 SELECTABLE_SAMPLE_FILES = {
     "official01": ROOT / "样例选择包" / "01_骑手合同生效通知_对话_12通.jsonl",
@@ -34,6 +35,13 @@ SELECTABLE_SAMPLE_FILES = {
     "real_recruit": ROOT / "样例选择包" / "03_骑手招聘外呼_对话_10通.jsonl",
     "official02": ROOT / "样例选择包" / "04_低延迟直播升级通知_对话_10通.jsonl",
 }
+LIVE_VERIFIED_RUNS = {
+    "official01": ROOT / "runs" / "demo_live_official01_codex_20260713",
+    "t02": ROOT / "runs" / "demo_main_t02_healthy_20260713",
+    "real_recruit": ROOT / "runs" / "demo_live_real_recruit_codex_20260713",
+    "official02": ROOT / "runs" / "demo_live_official02_codex_20260713",
+}
+LIVE_EXPECTED = {"official01": 12, "t02": 10, "real_recruit": 10, "official02": 10}
 
 
 def sha256(path: Path) -> str:
@@ -46,6 +54,33 @@ def sha256(path: Path) -> str:
 
 def jsonl_count(path: Path) -> int:
     return sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
+
+
+def conversation_signature(path: Path) -> str:
+    def normalize_text(value: object) -> str:
+        text = str(value or "")
+        text = re.sub(r"<ADDRESS_\d+>", "<ADDRESS>", text)
+        text = re.sub(r"地址[^，。！？,.!?\\n]*", "地址<ADDRESS>", text)
+        text = re.sub(r"地址<ADDRESS>[^。！？\\n]*", "地址<ADDRESS>", text)
+        if "地址<ADDRESS>" in text:
+            text = text.split("地址<ADDRESS>", 1)[0] + "地址<ADDRESS>"
+        return text
+
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    semantic = [
+        {
+            "run_id": row.get("run_id"),
+            "task_id": row.get("task_id"),
+            "persona_id": row.get("persona_id"),
+            "turns": [
+                {"role": turn.get("role"), "content": normalize_text(turn.get("content"))}
+                for turn in row.get("turns") or []
+            ],
+        }
+        for row in rows
+    ]
+    payload = json.dumps(semantic, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def main() -> int:
@@ -72,9 +107,15 @@ def main() -> int:
     )
     record(
         "truthful_mode_labels",
-        "历史产物 · 非现场调用" in app_text and "本地服务 · 六步真实执行" in app_text,
-        ["历史产物 · 非现场调用", "本地服务 · 六步真实执行"],
-        ["历史产物 · 非现场调用", "本地服务 · 六步真实执行"],
+        "缓存结果 · 已验证产物" in app_text and "实时模式 · 模型后端已验证" in app_text,
+        ["缓存结果 · 已验证产物", "实时模式 · 模型后端已验证"],
+        ["缓存结果 · 已验证产物", "实时模式 · 模型后端已验证"],
+    )
+    record(
+        "dual_test_entries_visible",
+        "模拟测试模式" in app_text and "已有日志质检模式" in app_text,
+        [label for label in ("模拟测试模式", "已有日志质检模式") if label in app_text],
+        ["模拟测试模式", "已有日志质检模式"],
     )
 
     presets = cache.get("presets") or {}
@@ -84,6 +125,49 @@ def main() -> int:
         record(f"{preset_id}_six_cached_steps", set(steps) == set("123456"), sorted(steps), list("123456"))
         actual = (steps.get("1") or {}).get("conversations")
         record(f"{preset_id}_historical_scope", actual == expected, actual, expected)
+        record(
+            f"{preset_id}_version_hashes",
+            all(
+                bool(value)
+                for value in (
+                    ((steps.get("1") or {}).get("hashes") or {}).get("sop_sha256"),
+                    ((steps.get("3") or {}).get("hashes") or {}).get("transcripts_sha256"),
+                    ((steps.get("3") or {}).get("hashes") or {}).get("checklist_sha256"),
+                    (steps.get("3") or {}).get("target_model_fingerprint"),
+                )
+            ),
+            {
+                "sop": ((steps.get("1") or {}).get("hashes") or {}).get("sop_sha256"),
+                "transcripts": ((steps.get("3") or {}).get("hashes") or {}).get("transcripts_sha256"),
+                "checklist": ((steps.get("3") or {}).get("hashes") or {}).get("checklist_sha256"),
+                "model": (steps.get("3") or {}).get("target_model_fingerprint"),
+            },
+            "all non-empty",
+        )
+
+    record(
+        "main_demo_primary_target_model",
+        (((presets.get("t02") or {}).get("steps") or {}).get("5") or {}).get("primary_category") == "target_model",
+        (((presets.get("t02") or {}).get("steps") or {}).get("5") or {}).get("primary_category"),
+        "target_model",
+    )
+    record(
+        "instruction_contrast_primary_instruction",
+        (((presets.get("official02") or {}).get("steps") or {}).get("5") or {}).get("primary_category") == "instruction",
+        (((presets.get("official02") or {}).get("steps") or {}).get("5") or {}).get("primary_category"),
+        "instruction",
+    )
+    main_plan = (((presets.get("t02") or {}).get("steps") or {}).get("6") or {})
+    record(
+        "model_plan_returns_step3_same_ruler",
+        main_plan.get("return_step") == 3
+        and main_plan.get("sop_changed") is False
+        and main_plan.get("checklist_changed") is False
+        and main_plan.get("sop_sha256_before") == main_plan.get("sop_sha256_for_regression")
+        and main_plan.get("checklist_sha256_before") == main_plan.get("checklist_sha256_for_regression"),
+        main_plan,
+        "step 3 with identical SOP/checklist hashes",
+    )
 
     selectable_counts = {key: jsonl_count(path) for key, path in SELECTABLE_SAMPLE_FILES.items()}
     record(
@@ -93,19 +177,41 @@ def main() -> int:
         {"official01": 12, "t02": 10, "real_recruit": 10, "official02": 10},
     )
 
+    for preset_id, run_dir in LIVE_VERIFIED_RUNS.items():
+        required = [run_dir / name for name in ("transcripts.jsonl", "checklist.json", "judgments.json", "summary.json", "report.html")]
+        record(
+            f"{preset_id}_live_verified_artifacts",
+            all(path.is_file() for path in required),
+            [path.name for path in required if path.is_file()],
+            [path.name for path in required],
+        )
+        if all(path.is_file() for path in required):
+            summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+            actual_runs = int(summary.get("total_runs") or 0)
+            record(f"{preset_id}_live_verified_run_count", actual_runs == LIVE_EXPECTED[preset_id], actual_runs, LIVE_EXPECTED[preset_id])
+            record(
+                f"{preset_id}_live_input_semantic_match",
+                conversation_signature(SELECTABLE_SAMPLE_FILES[preset_id]) == conversation_signature(run_dir / "transcripts.jsonl"),
+                conversation_signature(run_dir / "transcripts.jsonl"),
+                conversation_signature(SELECTABLE_SAMPLE_FILES[preset_id]),
+            )
+
     result = {
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "status": "PASS" if all(item["passed"] for item in checks) else "FAIL",
-        "scope_note": (
-            "Historical cache scope is intentionally different from selectable live sample scope "
-            "for real_recruit and official02; the UI labels the modes separately."
-        ),
+        "scope_note": "Every selectable sample, cache report and verified run uses the same full batch count.",
         "checks": checks,
         "artifacts": {
             str(APP.relative_to(ROOT)): sha256(APP),
             str(CACHE.relative_to(ROOT)): sha256(CACHE),
             **{str(path.relative_to(ROOT)): sha256(path) for path in SELECTABLE_SAMPLE_FILES.values()},
+            **{
+                str((run_dir / filename).relative_to(ROOT)): sha256(run_dir / filename)
+                for run_dir in LIVE_VERIFIED_RUNS.values()
+                for filename in ("summary.json", "report.html")
+                if (run_dir / filename).is_file()
+            },
         },
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)

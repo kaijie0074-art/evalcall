@@ -1,0 +1,52 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "用户回复“确认提交”或“确认按这个时段提交”",
+      "quote_b": "",
+      "analysis": "未说明必须逐字匹配还是识别确认意图；“好的，提交吧”等同义回复可能被提交或拒绝，直接影响用户授权。",
+      "suggestion": "改为“仅当用户整句逐字等于‘确认提交’或‘确认按这个时段提交’时提交；增删或同义表达均重问一次”。"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "多意图冲突时，仅当用户拒绝继续通话或拒绝改约，才优先于转人工并礼貌结束",
+      "quote_b": "",
+      "analysis": "只规定了拒绝与转人工冲突的优先级，未覆盖“确认提交但又换时段”等冲突，可能导致误提交。",
+      "suggestion": "补充“停止或拒绝继续＞转人工＞撤回或换时段＞提交；确认与任何反向意图并存时不得提交，重问一次”。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "要求回拨或免打扰登记时，明确本通无法登记，并问\n转人工还是结束",
+      "quote_b": "",
+      "analysis": "“免打扰”与前文“停止联系”语义重叠，前者要求继续提问，后者要求立即结束，执行路径不一致。",
+      "suggestion": "补充“含‘别再联系、不要再打’等停止意图时立即结束；仅咨询免打扰功能且愿意继续通话时才询问转人工或结束”。"
+    },
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "medium",
+      "quote_a": "选择人工则转人工，其他回复均引导 App 后结束。",
+      "quote_b": "除 S4 等待同步结果外，用户沉默、答非所问或未听清时换一种表述重问一次",
+      "analysis": "S4返回失败或系统错误并发问后，沉默等既属于“其他回复”应立即结束，又因已非等待期必须重问；两者无法同时执行。",
+      "suggestion": "改为：“选择人工则转人工；沉默、答非所问或未听清按通用收口重问一次；其余回复引导 App 后结束。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "每次发出一个新问题即建立一次重问额度",
+      "quote_b": "",
+      "analysis": "未说明换一种表述的重问是否也算“新问题”；若算，会不断重置额度，无法落实只重问一次。",
+      "suggestion": "改为“每个流程节点的首次提问产生一次重问额度；重述同一问题不产生新额度，进入新节点或明确重新进入 S2 才重置”。"
+    }
+  ],
+  "feasibility_score": 30,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 5 条问题（歧义3条、缺失分支1条、自相矛盾1条），可遵循度 30/100。"
+}

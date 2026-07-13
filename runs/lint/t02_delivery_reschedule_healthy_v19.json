@@ -1,0 +1,70 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "仅可为身份核验询问订单号或下单手机号末 4 位",
+      "quote_b": "固定说：“您好，我是美团智能客服，有一项服务事项需要核实，请问现在方便吗？”",
+      "analysis": "核验前被限定只能询问末4位，但固定开场必须询问是否方便，执行开场即违反前一限制。",
+      "suggestion": "改为：“核验成功前可询问是否方便、是否继续及身份核验末4位，不得询问或提及其他订单事项。”"
+    },
+    {
+      "id": "conflict_2",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "系统返回“成功”时才说改约已生效并复述新时段，然后结束",
+      "quote_b": "进入 S4 后用户要求撤销、换时段、办理其他事项、停止联系或\n挂断，都不得再次提交或声称结果",
+      "analysis": "用户在等待中提出所列要求后，若系统返回成功，一条要求必须播报结果，另一条却禁止声称结果。",
+      "suggestion": "改为：“进入S4后不得再次提交；同步返回前不得声称结果。仍在线则按实际返回播报，已挂断则不再播报。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "只接受恰好 4 位数字。",
+      "quote_b": "",
+      "analysis": "只规定了超长或敏感信息的处理，未覆盖少于4位、含字母或其他非敏感无效输入，可能导致重问、换凭据或结束不一致。",
+      "suggestion": "补充：凡不是恰好4位数字，均不提交；提醒格式并重问一次，仍无效则引导 App 核实后结束。"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "首次“不匹配”时重问一次末 4 位",
+      "quote_b": "",
+      "analysis": "未说明重问订单号还是手机号末4位，执行者可能沿用原凭据或切换凭据，导致核验路径不一致。",
+      "suggestion": "改为：首次不匹配时，仅按刚才使用的同一种凭据重问一次，不得自行切换凭据。"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "检测到挂断则立即结束流程、",
+      "quote_b": "",
+      "analysis": "挂断规则仅写在S0，S1至S3及转接等待期间检测到挂断后的处理未规定，可能继续播报、等待或推进流程。",
+      "suggestion": "补充全局规则：S1至S3及转接等待期间检测到挂断，立即结束且不再播报；已提交的请求不得重复提交。"
+    },
+    {
+      "id": "missing_branch_3",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "以上失败情形中，用户明确要求人工才转人工。",
+      "quote_b": "",
+      "analysis": "用户在S1尚未产生核验失败时直接要求人工没有分支，可能被当作无效输入、拒绝或无法归类回复。",
+      "suggestion": "补充：S1任意节点用户明确要求人工时立即转人工，无需先触发核验失败。"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "选择多个、表述含糊或选择未展示时段时，只重问一次；仍未唯一选择则说明本次未提交并结束。",
+      "quote_b": "",
+      "analysis": "局部重问规则与通用沉默等重问规则叠加，未说明是否共用一次额度，可能出现一次或多次连续重问。",
+      "suggestion": "补充：每个提问节点共用一次重问额度，任意无效、沉默或无法归类回复均消耗该额度，不得按原因重复计次。"
+    }
+  ],
+  "feasibility_score": 0,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 7 条问题（自相矛盾2条、缺失分支3条、歧义2条），可遵循度 0/100。"
+}

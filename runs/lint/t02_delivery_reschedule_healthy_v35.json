@@ -1,0 +1,79 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "conflict_1",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "返回“时段被占用”时，说明该时段不可用，重新调用系统能力 B 并回到第 4 步",
+      "quote_b": "同一通话最多因“时段被占用”回到第 4 步一次",
+      "analysis": "第二次返回“时段被占用”时，前者要求再次回到第4步，后者又禁止再次返回，该路径必然违反一条。",
+      "suggestion": "改为：“首次被占用时重新查询；若再次被占用，说明本次未完成，问转人工还是从 App 处理。”"
+    },
+    {
+      "id": "conflict_2",
+      "dimension": "conflict",
+      "severity": "high",
+      "quote_a": "用户表示不方便、拒绝继续、停止联系、免打扰、挂断或不想改约时，礼貌结束；不得继续追问",
+      "quote_b": "用户要求修改地址或电话、取消订单、赔付、折扣、回拨或免打扰登记时，说明本通不能办理，问转人工还是结束",
+      "analysis": "用户要求登记免打扰时同时属于两条：一条禁止继续追问，另一条要求询问转人工还是结束，无法同时执行。",
+      "suggestion": "改为：“用户提出停止联系或免打扰（含登记请求）时，直接礼貌结束，不追问；不得声称已登记。”"
+    },
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "只有系统能力 A 返回“完全匹配”后，才说明来意是调整当日配送时间，并调用系统能力 B。",
+      "quote_b": "",
+      "analysis": "未规定“不匹配、找不到订单、系统错误”三种返回的处理方式，可能导致继续核验、泄露来意或直接中断等不同执行。",
+      "suggestion": "补充：“A 返回不匹配或找不到订单时告知核验未通过并结束；返回系统错误时告知暂无法核验，建议从 App 核实并结束。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "high",
+      "quote_a": "S0/S1 礼貌结束，S2/S3/S4 说明本次未提交并结束",
+      "quote_b": "",
+      "analysis": "S0至S4在全文中没有定义，无法判断各流程节点对应哪个状态，导致无法归类时的收尾话术不一致。",
+      "suggestion": "明确状态映射，例如：“S0=开场，S1=核验，S2=查询时段，S3=选择时段，S4=确认提交”，或直接改用步骤编号。"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "同一通话最多因“时段被占用”回到第 4 步一次。",
+      "quote_b": "",
+      "analysis": "未规定重新选时段并再次提交后仍返回“时段被占用”时如何处理，机器人可能违规再次查询或无话术可执行。",
+      "suggestion": "补充：“第二次返回时段被占用时，说明本次改约未完成，问转人工还是从美团 App 处理，不再查询时段。”"
+    },
+    {
+      "id": "infeasible_1",
+      "dimension": "infeasible",
+      "severity": "medium",
+      "quote_a": "第二次仍无法归类时，S0/S1 礼貌结束，S2/S3/S4 说明本次未提交并结束",
+      "quote_b": "",
+      "analysis": "正文没有定义 S0–S4 分别对应哪个流程阶段，执行者无法判断当前应使用哪种结束话术。",
+      "suggestion": "改为：“身份核验通过前礼貌结束；核验通过后的选时段、确认和提交阶段，说明本次未提交并结束。”"
+    },
+    {
+      "id": "missing_branch_3",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "返回“失败”或“系统错误”时，说明未完成，问转人工还是从美团 App 处理。",
+      "quote_b": "",
+      "analysis": "只明确了选择转人工的通用路径，未规定用户选择从 App 处理后的回复和结束动作。",
+      "suggestion": "补充：“用户选择从美团 App 处理时，告知可从订单详情页操作，确认本次未提交并结束。”"
+    },
+    {
+      "id": "missing_branch_4",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "你只能依据本通系统返回作答",
+      "quote_b": "",
+      "analysis": "未规定用户提出四项系统能力及已列业务之外的问题时如何回应，也未说明应继续当前流程、转人工还是结束。",
+      "suggestion": "补充：“用户提出本指令未覆盖的问题时，说明本通无法查询或办理，问其继续当前改约流程、转人工还是结束。”"
+    }
+  ],
+  "feasibility_score": 0,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 8 条问题（自相矛盾2条、缺失分支4条、歧义1条、不可行约束1条），可遵循度 0/100。"
+}

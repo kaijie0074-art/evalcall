@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "run_id": "official_01_feimaotui__offline_existing_transcripts__20260713T101801Z",
+  "task_id": "official_01_feimaotui",
+  "source_mode": "offline_existing_transcripts",
+  "started_at": "2026-07-13T10:18:01.646613+00:00",
+  "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/样例选择包/01_骑手合同生效通知_SOP.yaml",
+  "task_file_hash": "8f0e40477e56a3bd5df1a4ba996b44532eaff7c77d11126135e67a84da9f1d79",
+  "instruction_hash": "7217c52f72286126d1113e0cd0699156b835344dd3dd50960fedf40523826e0f",
+  "checklist_hash": "c01e9ece9f2554db74441d9e501e6376c065cb134bc20799672367d81adeab25",
+  "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+  "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+  "identity_policy": "default",
+  "target_model_fingerprint": {
+    "backend": "existing-transcript",
+    "model": "not_applicable"
+  },
+  "judge_models_config": {
+    "backend": "codex-cli",
+    "models": [
+      "gpt-5.6-sol"
+    ],
+    "n_votes": 1
+  },
+  "seed": null,
+  "code_commit": "23eb07974fca5fee37df830987add0b77c896bfb",
+  "code_branch": "codex/evalcall-productization-20260712",
+  "code_dirty": true,
+  "completed_at": "2026-07-13T10:42:04.945903+00:00",
+  "runtime": {
+    "calls": 72,
+    "failed_calls": 0,
+    "latency_ms": 1289201.3,
+    "input_tokens": 122256,
+    "output_tokens": 20417,
+    "total_tokens": 142673,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 72,
+    "provider_total_token_calls": 72,
+    "provider_total_tokens": 328313,
+    "wall_seconds": 1443.299,
+    "n_trajectories": 12,
+    "calls_per_trajectory": 6.0,
+    "tokens_per_trajectory": 11889.4,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 72,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "f108bfa0eadb40609348e8fcecdab39fd2f693667176904ad04a4688a9aa0ea8",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 72,
+          "input_tokens": 122256,
+          "output_tokens": 20417,
+          "cost": null
+        }
+      }
+    }
+  }
+}

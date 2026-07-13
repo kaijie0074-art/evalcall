@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "run_id": "t02_delivery_reschedule__offline_existing_transcripts__20260713T185636Z",
+  "task_id": "t02_delivery_reschedule",
+  "source_mode": "offline_existing_transcripts",
+  "started_at": "2026-07-13T18:56:36.749904+00:00",
+  "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/样例选择包/02_配送时间改约_SOP.yaml",
+  "task_file_hash": "1d9ac1ec1c7113a8e9e5f7ddb2936fc9f91b28dea00c2ca81c553b4736272c50",
+  "instruction_hash": "ccae489d0a331f2d38d2d3169fa7fda893038bd9043ecd95d874b9c00ea508e5",
+  "checklist_hash": "33dbf95b68af5895686537669f77b43f7f29f1be8f2acb69c86102c7efc640a7",
+  "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+  "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+  "identity_policy": "default",
+  "target_model_fingerprint": {
+    "backend": "existing-transcript",
+    "model": "not_applicable"
+  },
+  "judge_models_config": {
+    "backend": "codex-cli",
+    "models": [
+      "gpt-5.6-sol"
+    ],
+    "n_votes": 1
+  },
+  "seed": null,
+  "code_commit": "23eb07974fca5fee37df830987add0b77c896bfb",
+  "code_branch": "codex/evalcall-productization-20260712",
+  "code_dirty": true,
+  "completed_at": "2026-07-13T19:35:19.964472+00:00",
+  "runtime": {
+    "calls": 141,
+    "failed_calls": 0,
+    "latency_ms": 2468008.5,
+    "input_tokens": 260408,
+    "output_tokens": 46181,
+    "total_tokens": 306589,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 141,
+    "provider_total_token_calls": 141,
+    "provider_total_tokens": 885218,
+    "wall_seconds": 2323.215,
+    "n_trajectories": 10,
+    "calls_per_trajectory": 14.1,
+    "tokens_per_trajectory": 30658.9,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 141,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "f108bfa0eadb40609348e8fcecdab39fd2f693667176904ad04a4688a9aa0ea8",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 141,
+          "input_tokens": 260408,
+          "output_tokens": 46181,
+          "cost": null
+        }
+      }
+    }
+  }
+}

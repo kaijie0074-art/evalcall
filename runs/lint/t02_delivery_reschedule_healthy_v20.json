@@ -1,0 +1,61 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "findings": [
+    {
+      "id": "missing_branch_1",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "其他回复只重问一次，仍不是上述三类之一则说明未提交并结束。",
+      "quote_b": "",
+      "analysis": "S3 未规定用户直接要求人工的处理方式，可能被当作普通无效回复，重问后错误结束。",
+      "suggestion": "补充：“S3 任意节点用户明确要求人工时，停止确认流程并立即转人工。”"
+    },
+    {
+      "id": "missing_branch_2",
+      "dimension": "missing_branch",
+      "severity": "high",
+      "quote_a": "进入 S4 后用户要求撤销、换时段、办理其他事项或停止联系时，不得再次提交；同步返回前不得声称结果，用户仍在线则按实际返回播报。",
+      "quote_b": "",
+      "analysis": "未规定这些请求及人工请求在结果返回后的去向，可能继续提问、回 S2 或直接结束，执行不一致。",
+      "suggestion": "补充：“先播报实际结果；要求停止联系则结束，要求人工则转人工，其他请求引导 App 或转人工后结束。”"
+    },
+    {
+      "id": "ambiguous_1",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "只请用户提供订单号末 4 位；无法提供时改问下单手机号末 4 位。凡不是恰好 4 位数字均不提交核验",
+      "quote_b": "",
+      "analysis": "“无法提供”边界不清，三位数字、含字母或答非所问可被理解为切换凭据，也可理解为重问订单末四位。",
+      "suggestion": "改为：“仅当用户明确表示不知道或无法提供订单末4位时改问手机号末4位；格式错误只重问原凭据一次。”"
+    },
+    {
+      "id": "ambiguous_2",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "说不方便、拒绝或停止联系则礼貌结束",
+      "quote_b": "",
+      "analysis": "用户同时表示停止联系并要求人工时，结束与转人工两条规则同时命中，缺少优先级。",
+      "suggestion": "补充：“多意图冲突时，停止联系或拒绝优先于转人工，礼貌结束且不发起转接。”"
+    },
+    {
+      "id": "ambiguous_3",
+      "dimension": "ambiguous",
+      "severity": "medium",
+      "quote_a": "每个提问节点共用一次重问额度",
+      "quote_b": "",
+      "analysis": "“提问节点”未说明按状态、问题类型还是每次重新进入计算，S2 回流后重问额度是否重置无法判定。",
+      "suggestion": "改为：“每次发出一个新问题即建立一次重问额度；重新进入 S2 并重新提问时额度重置为一次。”"
+    },
+    {
+      "id": "missing_branch_3",
+      "dimension": "missing_branch",
+      "severity": "medium",
+      "quote_a": "S1 至 S3 及转接等待期间检测到挂断时，立即结束且不再播报",
+      "quote_b": "",
+      "analysis": "转接等待期间只处理了挂断，未处理用户口头表示不再转接、拒绝或停止联系的路径。",
+      "suggestion": "补充：“转接等待期间用户要求停止时，不再追加话术；待返回后不继续机器人流程，转接失败则直接结束。”"
+    }
+  ],
+  "feasibility_score": 38,
+  "summary": "指令「t02_delivery_reschedule」存在致命缺陷，共发现 6 条问题（缺失分支3条、歧义3条），可遵循度 38/100。"
+}
