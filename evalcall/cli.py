@@ -1218,7 +1218,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_review_apply.add_argument("--out", default=None, help="终审版输出目录，默认 <run>/human_review")
     p_review_apply.set_defaults(func=cmd_review_apply)
 
-    p_demo = sub.add_parser("demo", help="启动四步式本地产品演示页（含缓存与实时模式）")
+    p_demo = sub.add_parser("demo", help="启动六步式输入/输出流程演示页（含缓存与实时模式）")
     p_demo.add_argument("--host", default="127.0.0.1", help="监听地址，默认 127.0.0.1")
     p_demo.add_argument("--port", type=int, default=8765, help="端口，默认 8765")
     p_demo.set_defaults(func=cmd_demo)

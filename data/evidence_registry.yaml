@@ -1,7 +1,7 @@
 schema_version: 1
 claims:
   - id: product_workflow
-    claim: 四步式产品工作台可离线展示并可连接真实本地评测服务
+    claim: 六步输入/输出工作台可离线展示并可连接真实本地评测服务
     evidence:
       - path: site-deploy/app.html
       - path: evalcall/demo_server.py

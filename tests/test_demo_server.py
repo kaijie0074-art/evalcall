@@ -46,14 +46,47 @@ def test_first_transcript_extracts_exactly_one_jsonl_row(tmp_path):
     assert target.read_text(encoding="utf-8") == '{"run_id":"one"}\n'
 
 
+def test_judgment_samples_prioritize_fail_and_strip_to_preview(tmp_path):
+    output = tmp_path / "output"
+    output.mkdir()
+    (output / "judgments.json").write_text(
+        json.dumps(
+            [
+                {"checkpoint_id": "pass_1", "severity": "major", "verdict": "pass", "confidence": 0.9, "evidence": []},
+                {
+                    "checkpoint_id": "fail_1",
+                    "severity": "critical",
+                    "verdict": "fail",
+                    "confidence": 0.99,
+                    "evidence": [{"turn": 2, "quote": "逐字证据"}],
+                    "votes": [{"raw": "不得进入预览"}],
+                },
+            ],
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    samples = demo_server._judgment_samples(output, limit=1)
+    assert samples == [
+        {
+            "checkpoint_id": "fail_1",
+            "severity": "critical",
+            "verdict": "fail",
+            "confidence": 0.99,
+            "evidence": "逐字证据",
+        }
+    ]
+
+
 def test_health_root_and_missing_job(demo_http):
     health = _get_json(f"{demo_http}/api/health")
     assert health["ok"] is True
     assert set(health["presets"]) == set(demo_server.PRESETS)
     with urlopen(f"{demo_http}/", timeout=3) as response:  # noqa: S310 - localhost fixture only
         html = response.read().decode("utf-8")
-    assert "外呼质检工作台" in html
-    assert "SOP to go / no-go decision" in html
+    assert "外呼评测流程工作台" in html
+    assert "输入 → 执行 → 输出" in html
+    assert "06 · 修复与回归" in html
     with pytest.raises(HTTPError) as error:
         urlopen(f"{demo_http}/api/jobs/not-found", timeout=3)  # noqa: S310
     assert error.value.code == 404

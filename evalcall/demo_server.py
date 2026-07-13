@@ -1,7 +1,7 @@
 """EvalCall 本地产品演示服务器（零额外依赖）。
 
 静态缓存模式可直接打开 site-deploy/app.html；本服务器额外提供：
-- 四步式界面的 health 检查；
+- 六步式输入/输出界面的 health 检查；
 - 对内置样例或用户上传内容启动真实 `evalcall evaluate`；
 - 轮询任务状态并在完成后安全地打开该次 report.html。
 """
@@ -67,6 +67,34 @@ def _first_transcript(source: Path, destination: Path) -> None:
     raise ValueError(f"对话文件为空：{source}")
 
 
+def _judgment_samples(output_dir: Path, limit: int = 3) -> list[dict[str, Any]]:
+    """Return a small, prompt-free judgment preview for the process UI."""
+    path = output_dir / "judgments.json"
+    if not path.is_file():
+        return []
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(rows, list):
+        return []
+    samples: list[dict[str, Any]] = []
+    ranked = sorted(rows, key=lambda row: 0 if row.get("verdict") == "fail" else 1)
+    for row in ranked:
+        evidence = row.get("evidence") or []
+        first = evidence[0] if isinstance(evidence, list) and evidence else {}
+        quote = first.get("quote") if isinstance(first, dict) else str(first or "")
+        samples.append(
+            {
+                "checkpoint_id": row.get("checkpoint_id") or "unknown",
+                "severity": row.get("severity") or "unknown",
+                "verdict": row.get("verdict") or "na",
+                "confidence": row.get("confidence"),
+                "evidence": quote or "无可展示证据",
+            }
+        )
+        if len(samples) >= limit:
+            break
+    return samples
+
+
 def _run_job(job_id: str, config: dict[str, Any]) -> None:
     job_root = WEB_RUNS / job_id
     input_dir = job_root / "input"
@@ -121,6 +149,11 @@ def _run_job(job_id: str, config: dict[str, Any]) -> None:
         if proc.returncode != 0:
             raise RuntimeError(log or f"evalcall 退出码 {proc.returncode}")
         summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
+        public_summary = {
+            key: summary.get(key)
+            for key in ("gate", "total_runs", "avg_score", "blocked_runs", "fulfillment_rate", "review_queue_count", "attribution", "runtime")
+        }
+        public_summary["sample_judgments"] = _judgment_samples(output_dir)
         _job_update(
             job_id,
             status="completed",
@@ -128,10 +161,7 @@ def _run_job(job_id: str, config: dict[str, Any]) -> None:
             stage="评测与报告已完成",
             source=source_label,
             report_url=f"/job-report/{job_id}",
-            summary={
-                key: summary.get(key)
-                for key in ("gate", "total_runs", "avg_score", "blocked_runs", "fulfillment_rate", "review_queue_count", "attribution", "runtime")
-            },
+            summary=public_summary,
             log=log,
         )
     except Exception as exc:  # noqa: BLE001

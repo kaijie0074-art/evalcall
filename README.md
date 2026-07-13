@@ -11,17 +11,19 @@
 
 ## 先看产品，再看研究
 
-- 在线四步工作台：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
+- 在线六步流程工作台：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
 - 研究与历史证据：[项目证据首页](https://kaijie0074-art.github.io/evalcall/)
 - 本地启动：`python -m evalcall demo`，打开 `http://127.0.0.1:8765/`
 - 答辩数字索引：[`docs/EvalCall证据索引-20260712.md`](docs/EvalCall证据索引-20260712.md)
 
-四步产品主链：
+六步产品主链：
 
-1. 选择/上传任务 SOP；
-2. 导入 JSONL/JSON/CSV/TXT/MD 对话（默认本地 PII 遮罩）；
-3. 确认 L0 通用红线 + L1 业务检查尺及逐字来源；
-4. 执行评测，输出门禁、履约、证据、归因、成本和复核队列。
+1. 导入 SOP 和 JSONL/JSON/CSV/TXT/MD 对话，生成规范化任务包；
+2. 将 SOP 编译成带逐字来源的 L0 通用红线 + L1 业务检查尺；
+3. 对每通对话逐检查点判定，输出结论、证据和复核标记；
+4. 聚合门禁、履约、覆盖率和复核队列，生成上线决策；
+5. 将问题归因到外呼模型、SOP、裁判或测试数据；
+6. 生成修复与回归计划，并返回对应环节同口径复测。
 
 ```bash
 # 零依赖产品页 + 可选实时单通评测
