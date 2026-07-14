@@ -47,6 +47,41 @@
     .stage-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:17px}
     .stage-head h2{font-size:22px;margin:0;letter-spacing:-.025em}
     .run-label{font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#7d8796;white-space:nowrap;max-width:55%;overflow:hidden;text-overflow:ellipsis}
+    .flow-map{position:relative;margin:0 0 18px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#fbfcfd 0%,#f6f8fb 100%);overflow:hidden}
+    .flow-map::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 0 43%,rgba(255,209,0,.08) 50%,transparent 57%);transform:translateX(-120%)}
+    .flow-map.running::after{animation:scan 1.55s ease-in-out infinite}
+    .flow-map-head{height:35px;padding:0 13px;border-bottom:1px solid #e5eaf0;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,.76)}
+    .flow-map-title{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:950;letter-spacing:.08em;color:#4d5869}
+    .flow-map-title::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--signal);box-shadow:0 0 0 4px rgba(255,209,0,.16)}
+    .flow-state{font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8993a2}
+    .flow-map.done .flow-state{color:var(--output)}.flow-map.running .flow-state{color:var(--signal-dark)}
+    .flow-tree{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr) 62px minmax(0,1fr);align-items:center;gap:0;min-height:132px;padding:12px 16px}
+    .flow-column{position:relative;display:grid;align-content:center;gap:6px;min-width:0}
+    .flow-column::before{content:"";position:absolute;left:7px;top:14px;bottom:14px;width:1px;background:#cdd5df}
+    .flow-column-label{position:relative;padding-left:18px;margin-bottom:1px;font:850 8px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8b95a5;letter-spacing:.12em;text-transform:uppercase}
+    .flow-node{position:relative;min-height:26px;padding:6px 8px 6px 25px;border:1px solid #dce2e9;border-radius:8px;background:#fff;color:#647083;font-size:9px;font-weight:850;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 2px 5px rgba(20,32,57,.035);transition:border-color .25s,background .25s,color .25s,transform .25s,box-shadow .25s}
+    .flow-node::before{content:"";position:absolute;z-index:1;left:4px;top:50%;width:7px;height:7px;border:3px solid #f7f9fb;border-radius:50%;background:#c8d0db;transform:translateY(-50%)}
+    .flow-node small{margin-left:5px;color:#929baa;font:750 8px ui-monospace,SFMono-Regular,Menlo,monospace}
+    .flow-column.input .flow-node{border-color:#c9dced;background:var(--input-soft);color:var(--input)}
+    .flow-column.input .flow-node::before{background:var(--input)}
+    .flow-link{position:relative;height:2px;margin:0 9px;background:#d3dae3}
+    .flow-link::before,.flow-link::after{content:"";position:absolute;top:50%;transform:translateY(-50%)}
+    .flow-link::before{left:-3px;width:7px;height:7px;border-radius:50%;background:#d3dae3}
+    .flow-link::after{right:-1px;width:7px;height:7px;border-top:2px solid #bfc8d4;border-right:2px solid #bfc8d4;transform:translateY(-50%) rotate(45deg)}
+    .flow-pulse{position:absolute;z-index:2;left:-4px;top:50%;width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 5px rgba(255,209,0,.18);transform:translateY(-50%);opacity:0}
+    .flow-map.running .flow-pulse{opacity:1;animation:signalTravel 1.05s cubic-bezier(.45,0,.25,1) infinite}
+    .flow-map.running .flow-link.second .flow-pulse{animation-delay:.43s}
+    .flow-map.running .flow-column.process .flow-node{animation:nodeWake .9s .28s both}
+    .flow-map.running .flow-column.output .flow-node{animation:nodeWake .9s .72s both}
+    .flow-map.done .flow-link{background:linear-gradient(90deg,var(--input),var(--signal),var(--output))}
+    .flow-map.done .flow-link::before{background:var(--input)}.flow-map.done .flow-link::after{border-color:var(--output)}
+    .flow-map.done .flow-column.process .flow-node{border-color:#e1c242;background:#fff9d9;color:#574800}
+    .flow-map.done .flow-column.process .flow-node::before{background:var(--signal)}
+    .flow-map.done .flow-column.output .flow-node{border-color:#b9ddcf;background:var(--output-soft);color:var(--output);box-shadow:0 3px 9px rgba(8,117,93,.08)}
+    .flow-map.done .flow-column.output .flow-node::before{background:var(--output)}
+    @keyframes scan{50%,100%{transform:translateX(120%)}}
+    @keyframes signalTravel{0%{left:-4px}100%{left:calc(100% - 4px)}}
+    @keyframes nodeWake{0%{transform:translateY(3px);box-shadow:none}55%{border-color:var(--signal);background:#fff9d9;color:#574800}100%{transform:translateY(0)}}
     .io-grid{display:grid;grid-template-columns:minmax(0,1fr) 116px minmax(0,1fr);gap:16px;align-items:stretch;min-height:488px}
     .io-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--paper);min-width:0}
     .io-card.input{box-shadow:inset 0 4px 0 var(--input)}.io-card.output{box-shadow:inset 0 4px 0 var(--output)}
@@ -88,8 +123,9 @@
     .vote-row{display:flex;gap:8px}.vote{flex:1;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px;font-size:10px;font-weight:850}.vote.selected{border-color:#c49d00;background:#fff9dc}
     .footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:18px}.nav{border:1px solid var(--line);border-radius:10px;background:#f3f6f9;color:var(--ink);padding:10px 15px;font-size:11px;font-weight:900}.nav.primary{border-color:var(--ink);background:var(--ink);color:#fff}
     .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-size:11px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:30;max-width:min(560px,90vw);text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast.error{background:var(--danger)}
-    @media(max-width:920px){.io-grid{grid-template-columns:1fr;min-height:0}.relay{min-height:88px}.relay::before{left:50%;right:auto;top:0;bottom:0;width:3px;height:auto;background:repeating-linear-gradient(180deg,#dce2e9 0 11px,transparent 11px 17px)}.relay::after{right:auto;left:calc(50% - 6px);top:auto;bottom:1px;transform:rotate(135deg)}.io-body{height:auto;min-height:360px}.topbar{align-items:flex-start}.brand span{display:none}}
-    @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-label{max-width:100%}.preset-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}}
+    @media(max-width:920px){.flow-tree{grid-template-columns:1fr 36px 1fr 36px 1fr;padding:11px 9px}.flow-link{margin:0 4px}.flow-node{padding-left:20px}.flow-node::before{left:3px}.io-grid{grid-template-columns:1fr;min-height:0}.relay{min-height:88px}.relay::before{left:50%;right:auto;top:0;bottom:0;width:3px;height:auto;background:repeating-linear-gradient(180deg,#dce2e9 0 11px,transparent 11px 17px)}.relay::after{right:auto;left:calc(50% - 6px);top:auto;bottom:1px;transform:rotate(135deg)}.io-body{height:auto;min-height:360px}.topbar{align-items:flex-start}.brand span{display:none}}
+    @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-label{max-width:100%}.flow-tree{grid-template-columns:1fr;gap:8px;padding:12px}.flow-link{width:2px;height:24px;margin:0 auto;background:#d3dae3}.flow-link::before{left:50%;top:-2px;transform:translate(-50%,-50%)}.flow-link::after{right:auto;left:50%;top:auto;bottom:-1px;transform:translate(-50%,0) rotate(135deg)}.flow-pulse{left:50%;top:-3px;transform:translate(-50%,0)}.flow-map.running .flow-pulse{animation:signalTravelVertical 1.05s cubic-bezier(.45,0,.25,1) infinite}.preset-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}}
+    @keyframes signalTravelVertical{0%{top:-3px}100%{top:calc(100% - 3px)}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
   </style>
 </head>
@@ -110,6 +146,7 @@
       <nav id="steps" class="steps" aria-label="评测步骤"></nav>
       <div class="stage">
         <div class="stage-head"><h2 id="stageTitle"></h2><div id="runLabel" class="run-label">等待开始</div></div>
+        <section id="flowMap" class="flow-map" aria-label="当前步骤输入到输出动态流程"></section>
         <div class="io-grid">
           <section class="io-card input"><div class="io-head"><span class="io-title">输入</span><span id="inputType" class="io-type"></span></div><div id="inputBody" class="io-body"></div></section>
           <div id="relay" class="relay"><button id="execute" class="execute"></button></div>
@@ -133,6 +170,14 @@
       {name:"分析失败原因",input:"模型报告 + SOP / 裁判 / 数据信号",output:"模型 / SOP / 裁判 / 测试数据根因",action:"分析根因"},
       {name:"生成优化与回归计划",input:"根因 + 失败证据 + 固定版本",output:"对应优化 + 同尺回归请求",action:"生成计划"}
     ];
+    const FLOW=[
+      {input:["任务指令 / SOP","被测模型或已有对话"],process:["校验格式与隐私脱敏","冻结输入、版本与哈希"],output:["版本化测试任务包","统一测试批次"]},
+      {input:["SOP 原文","L0 通用安全红线"],process:["拆成原子检查点","校验来源、层级与严重度"],output:["L0 通用规则","L1 业务规则","Checklist 版本"]},
+      {input:["用户模拟器 / 已有日志","被测外呼模型","固定 Checklist"],process:["生成或读取测试对话","按检查点逐项 Judge"],output:["测试对话","逐项判定","覆盖率与未触达项"]},
+      {input:["模型版本","全部逐项判定","关键失败证据"],process:["聚合通话与检查点指标","执行 P0 与履约门禁"],output:["上线结论","履约率与 P0","可下载评测报告"]},
+      {input:["模型评测报告","SOP 健康度","裁判与测试数据信号"],process:["计算四类根因信号","按严重度与可信度排序"],output:["首要根因","责任人","可审计归因证据"]},
+      {input:["首要根因","失败证据","固定版本指纹"],process:["生成对应优化动作","保持评分尺同尺回归"],output:["优化对象与计划","回归入口","v1 / v2 对比证据"]}
+    ];
     const state={mode:"cache",preset:"t02",testMode:"simulation",targetModel:"delivery-baseline-v1",testCount:10,step:1,completed:new Set(),results:{},sessionId:"",running:false,server:false,backend:false,backendChecking:false,backendError:"",taskText:"",txText:"",taskName:"",txName:"",votes:1};
     const $=s=>document.querySelector(s), esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     const preset=()=>CACHE.presets[state.preset]||{};
@@ -153,6 +198,20 @@
       $("#steps").innerHTML=STEP.map((s,i)=>'<button class="step '+(i===3?'core ':'')+(state.step===i+1?'active ':'')+(state.completed.has(i+1)?'done':'')+'" data-step="'+(i+1)+'"><span class="step-index">'+String(i+1).padStart(2,'0')+'</span><span class="step-name">'+esc(s.name)+'</span></button>').join('');
       document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>go(Number(b.dataset.step)));
     }
+    function flowSpec(){
+      const base=FLOW[state.step-1],data=result(state.step),spec={input:[...base.input],process:[...base.process],output:[...base.output]};
+      if(!data)return spec;
+      if(state.step===1)spec.output=[{label:"任务包已生成",meta:data.task_name},{label:"测试批次",meta:(data.test_count||0)+" 通"}];
+      if(state.step===2)spec.output=[{label:"L0 通用规则",meta:data.l0_common_rules+" 项"},{label:"L1 业务规则",meta:data.l1_sop_rules+" 项"},{label:"Checklist",meta:data.checkpoints+" 项"}];
+      if(state.step===3)spec.output=[{label:"完成测试",meta:data.total_runs+" 通"},{label:"逐项判定",meta:data.judgment_count+" 条"},{label:"检查点覆盖",meta:data.coverage_rate+"%"}];
+      if(state.step===4)spec.output=[{label:"上线门禁",meta:data.gate},{label:"履约率",meta:(data.fulfillment_rate==null?"—":data.fulfillment_rate+"%")},{label:"P0 触发",meta:data.p0_triggered_calls+" 通"}];
+      if(state.step===5){const labels={target_model:"外呼模型",instruction:"SOP / 指令",judge:"裁判",test_data:"测试数据",uncertain:"证据不足"};spec.output=[{label:"首要根因",meta:labels[data.primary_category]||data.primary_label},{label:"归因置信度",meta:data.primary_confidence},{label:"责任对象",meta:((data.roots||[])[0]||{}).owner||"人工复核"}]}
+      if(state.step===6){const r=data.actual_regression,b=r&&r.baseline&&r.baseline.metrics,c=r&&r.candidate&&r.candidate.metrics;spec.output=r?[{label:"模型门禁",meta:b.gate+" → "+c.gate},{label:"P0 触发",meta:b.p0_triggered_runs+" → "+c.p0_triggered_runs},{label:"同尺回归",meta:"返回第 "+data.return_step+" 步"}]:[{label:"优化对象",meta:data.optimization_target},{label:"回归模型",meta:data.candidate_target_model_version||data.target_model_version},{label:"同尺回归",meta:"返回第 "+data.return_step+" 步"}]}
+      return spec;
+    }
+    function flowNode(node){const item=typeof node==='string'?{label:node}:node;return '<div class="flow-node"><span>'+esc(item.label)+'</span>'+(item.meta?'<small>'+esc(item.meta)+'</small>':'')+'</div>'}
+    function flowColumn(type,title,nodes){return '<div class="flow-column '+type+'"><div class="flow-column-label">'+esc(title)+'</div>'+nodes.map(flowNode).join('')+'</div>'}
+    function renderFlow(){const spec=flowSpec(),status=state.running?'running':state.completed.has(state.step)?'done':'ready',label={running:'信号传导中',done:'输出已生成',ready:'等待执行'}[status];const link=second=>'<div class="flow-link '+(second?'second':'')+'"><span class="flow-pulse"></span></div>';const map=$("#flowMap");map.className='flow-map '+status;map.innerHTML='<div class="flow-map-head"><div class="flow-map-title">动态审计信号树</div><div class="flow-state">'+label+'</div></div><div class="flow-tree">'+flowColumn('input','INPUT · 输入叶节点',spec.input)+link(false)+flowColumn('process','PROCESS · 处理主干',spec.process)+link(true)+flowColumn('output','OUTPUT · 输出分支',spec.output)+'</div>'}
     function renderHeader(){const meta=STEP[state.step-1];$("#stageTitle").textContent=String(state.step).padStart(2,'0')+' · '+meta.name;$("#inputType").textContent=meta.input;$("#outputType").textContent=meta.output;$("#execute").textContent=(state.mode==='cache'?'载入\n':'')+meta.action;$("#execute").style.whiteSpace='pre-line';$("#execute").disabled=state.running||!canExecute();$("#relay").classList.toggle('running',state.running);$("#prev").disabled=state.step===1||state.running;$("#next").disabled=!state.completed.has(state.step)||state.step===6||state.running;$("#runLabel").textContent=state.sessionId||result(3)?.run_id||preset().cache_run||'等待开始'}
     function canExecute(){if(state.step===1)return true;return Boolean(result(state.step-1))}
     function renderMode(){
@@ -161,7 +220,7 @@
     }
     function renderInput(){const fn=[input1,input2,input3,input4,input5,input6][state.step-1];$("#inputBody").innerHTML=fn()}
     function renderOutput(){const data=result(state.step);if(!data){$("#outputBody").innerHTML=empty('等待“'+STEP[state.step-1].action+'”');return}const fn=[output1,output2,output3,output4,output5,output6][state.step-1];$("#outputBody").innerHTML=fn(data)}
-    function render(){renderMode();renderSteps();renderHeader();renderInput();renderOutput();bindDynamic()}
+    function render(){renderMode();renderSteps();renderHeader();renderFlow();renderInput();renderOutput();bindDynamic()}
 
     function input1(){
       const choices=Object.entries(CACHE.presets||{}).map(([id,item])=>'<button class="preset '+(id===state.preset?'selected':'')+'" data-preset="'+esc(id)+'"><b>'+esc(item.label)+'</b><span>'+esc(item.tag)+'</span></button>').join('');
