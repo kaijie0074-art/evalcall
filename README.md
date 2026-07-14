@@ -20,7 +20,7 @@
 
 ## 决赛最终交付（2026-07-14）
 
-- 10 分钟路演 PPT：[`docs/EvalCall答辩稿-10分钟路演最终版-20260714.pptx`](docs/EvalCall答辩稿-10分钟路演最终版-20260714.pptx)
+- 10 分钟路演 PPT（最新六步代码 + Demo 版）：[`docs/EvalCall答辩稿-六步代码Demo版-20260714.pptx`](docs/EvalCall答辩稿-六步代码Demo版-20260714.pptx)
 - 10 分钟正式讲稿：[`docs/EvalCall答辩演示脚本-10分钟-20260714.md`](docs/EvalCall答辩演示脚本-10分钟-20260714.md)
 - 10 分钟问答预案：[`docs/EvalCall答辩问答预案-10分钟-20260714.md`](docs/EvalCall答辩问答预案-10分钟-20260714.md)
 - 最新方案设计：[`docs/EvalCall方案设计文档-最终版-20260714.md`](docs/EvalCall方案设计文档-最终版-20260714.md)
