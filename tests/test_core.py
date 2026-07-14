@@ -308,6 +308,33 @@ class TestJudgeForbiddenRule:
         assert res is None or res.get("verdict") == "pass"
 
 
+class TestJudgeOutcomeRule:
+    def test_explicit_completed_outcome_is_deterministic_pass(self):
+        turns = [
+            {"turn": 1, "role": "agent", "content": "当前可安排19:00–19:30，请确认。"},
+            {"turn": 2, "role": "user", "content": "确认，地址不变。"},
+            {"turn": 3, "role": "agent", "content": "已完成改约：配送时间为19:00–19:30，收货地址保持不变。"},
+        ]
+        res = judge._judge_outcome_rule({"id": "outcome_goal", "type": "outcome"}, turns)
+        assert res is not None
+        assert res["verdict"] == "pass"
+        assert res["method"] == "rule-outcome"
+        assert res["confidence"] == 1.0
+
+    def test_completion_without_user_confirmation_stays_on_llm_track(self):
+        turns = [
+            {"turn": 1, "role": "agent", "content": "已完成改约：配送时间为19:00–19:30，收货地址保持不变。"},
+        ]
+        assert judge._judge_outcome_rule({"id": "outcome_goal", "type": "outcome"}, turns) is None
+
+    def test_incomplete_outcome_stays_on_llm_track(self):
+        turns = [
+            {"turn": 1, "role": "user", "content": "确认，地址不变。"},
+            {"turn": 2, "role": "agent", "content": "已为您记录。"},
+        ]
+        assert judge._judge_outcome_rule({"id": "outcome_goal", "type": "outcome"}, turns) is None
+
+
 # =========================================================================== #
 # 6. passk.comb —— 组合数边界（r > n 返回 0）
 # =========================================================================== #

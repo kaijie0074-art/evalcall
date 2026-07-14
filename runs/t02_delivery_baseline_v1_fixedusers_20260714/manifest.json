@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "run_id": "t02_delivery_reschedule__offline_existing_transcripts__20260714T112312Z",
+  "task_id": "t02_delivery_reschedule",
+  "source_mode": "offline_existing_transcripts",
+  "started_at": "2026-07-14T11:23:12.410939+00:00",
+  "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/tasks/t02_delivery_reschedule.yaml",
+  "task_file_hash": "21359661d8123c30872e82b3acdfd06e7ff1569b47a19e81dd23da377069fda1",
+  "instruction_hash": "69a1b9a7a285b73c999b5fd340d02b4771c18ce02e179633dd2edeaa0723d513",
+  "checklist_hash": "e4aab7c17227b0deabe9b9ab08c071b6705a1bf0994a586c607cfb533c401892",
+  "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+  "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+  "judge_policy_hash": "edecdd05c1239147c753710c5e275c8fc52f1d1514b63d9ab7d3570f70b84db9",
+  "identity_policy": "default",
+  "target_model_fingerprint": {
+    "backend": "fixed-user-baseline-transcript",
+    "model": "delivery-baseline-v1"
+  },
+  "judge_models_config": {
+    "backend": "codex-cli",
+    "models": [
+      "gpt-5.6-sol"
+    ],
+    "n_votes": 1
+  },
+  "seed": null,
+  "code_commit": "8362b7628e775030279c1c4fd0db51a7f55f2fff",
+  "code_branch": "codex/evalcall-productization-20260712",
+  "code_dirty": true,
+  "transcript_source_hash": "84debb21d1406d3a7997de69ecf94957ef1a3d82d3296fb84c58fa066aa66381",
+  "completed_at": "2026-07-14T11:35:32.239665+00:00",
+  "runtime": {
+    "calls": 40,
+    "failed_calls": 0,
+    "latency_ms": 739611.2,
+    "input_tokens": 71786,
+    "output_tokens": 14578,
+    "total_tokens": 86364,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 40,
+    "provider_total_token_calls": 40,
+    "provider_total_tokens": 204683,
+    "wall_seconds": 739.829,
+    "n_trajectories": 10,
+    "calls_per_trajectory": 4.0,
+    "tokens_per_trajectory": 8636.4,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 40,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "f108bfa0eadb40609348e8fcecdab39fd2f693667176904ad04a4688a9aa0ea8",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 40,
+          "input_tokens": 71786,
+          "output_tokens": 14578,
+          "cost": null
+        }
+      }
+    }
+  }
+}

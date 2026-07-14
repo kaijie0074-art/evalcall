@@ -63,6 +63,12 @@ class TestIngest:
         assert result.report["redaction_counts"] == {"PHONE": 1}
         assert result.report["warnings"]
 
+    def test_address_status_question_is_not_misclassified_as_pii(self):
+        redactor = ingest._Redactor()
+        text = "请确认收货地址与联系方式是否都维持原信息？"
+        assert redactor.redact(text) == text
+        assert redactor.counts == {}
+
     def test_csv_groups_rows_by_run(self, tmp_path):
         path = tmp_path / "calls.csv"
         with path.open("w", encoding="utf-8", newline="") as fh:

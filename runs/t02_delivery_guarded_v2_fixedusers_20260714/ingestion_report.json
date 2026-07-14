@@ -1,0 +1,10 @@
+{
+  "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/regression/t02_delivery_fixedusers_guarded_v2.jsonl",
+  "source_format": "jsonl",
+  "task_id": "t02_delivery_reschedule",
+  "input_trajectories": 10,
+  "accepted_trajectories": 10,
+  "warnings": [],
+  "pii_redacted": false,
+  "redaction_counts": {}
+}

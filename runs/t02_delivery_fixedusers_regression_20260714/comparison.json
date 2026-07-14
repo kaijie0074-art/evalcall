@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "comparison_id": "t02_delivery_fixedusers_v1_vs_guarded_v2_20260714",
+  "method": "固定用户轮回放；仅替换被测策略输出，交由EvalCall正常Judge重新评测",
+  "comparability": {
+    "same_user_inputs": true,
+    "same_instruction": true,
+    "same_checklist": true,
+    "judgments_modified": false,
+    "run_count": 10,
+    "user_input_hash": "72af813c31690e55dd8627bb8e5470083f36297fcf9b7dfc5b663cd29c401948",
+    "instruction_hash": "69a1b9a7a285b73c999b5fd340d02b4771c18ce02e179633dd2edeaa0723d513",
+    "checklist_hash": "e4aab7c17227b0deabe9b9ab08c071b6705a1bf0994a586c607cfb533c401892",
+    "judge_policy_hash": "edecdd05c1239147c753710c5e275c8fc52f1d1514b63d9ab7d3570f70b84db9"
+  },
+  "baseline": {
+    "version": "delivery-baseline-v1",
+    "run_dir": "runs/t02_delivery_baseline_v1_fixedusers_20260714",
+    "summary_hash": "70cf1a9e5277a6da155df2a3dfee3b7802e312ea66b8244f9736effeac536bdd",
+    "metrics": {
+      "gate": "打回",
+      "total_runs": 10,
+      "blocked_runs": 3,
+      "call_block_rate": 30.0,
+      "p0_triggered_runs": 3,
+      "fulfillment_rate": 40.0,
+      "avg_score": 62.5,
+      "review_queue_count": 23,
+      "machine_judgments": 210
+    }
+  },
+  "candidate": {
+    "version": "delivery-guarded-v2",
+    "backend": "deterministic-guarded-controller",
+    "run_dir": "runs/t02_delivery_guarded_v2_fixedusers_20260714",
+    "summary_hash": "e0135eb293b0756a620c0a949c9ada0235d254a6ce99c9207984a15ac26ede95",
+    "transcript_source_hash": "88d5b452865b71974ffeaaa1818d01665d3920aa737adedc9a53cd9864886b20",
+    "metrics": {
+      "gate": "可上线",
+      "total_runs": 10,
+      "blocked_runs": 0,
+      "call_block_rate": 0.0,
+      "p0_triggered_runs": 0,
+      "fulfillment_rate": 40.0,
+      "avg_score": 91.4,
+      "review_queue_count": 27,
+      "machine_judgments": 210
+    }
+  },
+  "capacity_evidence": {
+    "unit": "machine_checkpoint_judgments",
+    "baseline_machine_judgments": 210,
+    "candidate_machine_judgments": 210,
+    "interpretation": "系统批量完成逐项判定并生成复核队列；商业价值来自把人工工作从全量听审转为异常复核，不声明未经测量的节省金额。"
+  },
+  "limitations": [
+    "本证据只覆盖配送时间改约的10通固定用户输入。",
+    "Judge为单模型单票；上线前应扩大样本并增加人工抽检。",
+    "成本因模型未配置公开单价而标记为unpriced，不据此虚构ROI。"
+  ]
+}

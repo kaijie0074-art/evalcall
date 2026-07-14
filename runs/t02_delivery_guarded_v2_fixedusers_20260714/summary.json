@@ -1,0 +1,238 @@
+{
+  "task_id": "t02_delivery_reschedule",
+  "total_runs": 10,
+  "avg_score": 91.4,
+  "gate": "可上线",
+  "gate_reasons": [],
+  "blocked_runs": 0,
+  "needs_human_review_total": 0,
+  "fulfillment_rate": 40.0,
+  "fulfilled_runs": 4,
+  "fulfillment_eval_runs": 10,
+  "critical_failed_runs": 0,
+  "avg_violation_rate_per_100": 12.8,
+  "avg_judge_disagreement_rate": 0.0,
+  "by_persona": {
+    "p01_cooperative_worker": {
+      "runs": 2,
+      "critical_failed_runs": 0,
+      "avg_score": 93.5
+    },
+    "p02_impatient": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 90.0
+    },
+    "p03_rambling_elder": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 89.6
+    },
+    "p04_privacy_guard": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 97.4
+    },
+    "p06_distracted_silent": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 94.2
+    },
+    "synthetic_cooperative": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 91.3
+    },
+    "synthetic_privacy_refusal": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 93.9
+    },
+    "synthetic_out_of_window": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 89.4
+    },
+    "synthetic_address_change": {
+      "runs": 1,
+      "critical_failed_runs": 0,
+      "avg_score": 81.2
+    }
+  },
+  "total_checkpoints": 21,
+  "ingestion": {
+    "source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/regression/t02_delivery_fixedusers_guarded_v2.jsonl",
+    "source_format": "jsonl",
+    "task_id": "t02_delivery_reschedule",
+    "input_trajectories": 10,
+    "accepted_trajectories": 10,
+    "warnings": [],
+    "pii_redacted": false,
+    "redaction_counts": {}
+  },
+  "evaluation_errors": 0,
+  "source_mode": "offline_existing_transcripts",
+  "policy_overrides": [],
+  "attribution": {
+    "schema_version": 2,
+    "primary_category": "uncertain",
+    "primary_label": "证据不足",
+    "primary_confidence": "low",
+    "roots": [
+      {
+        "category": "uncertain",
+        "label": "证据不足",
+        "confidence": "low",
+        "score": 20,
+        "owner": "人工复核",
+        "evidence": [
+          "有效判定 183 项、失败率 13.1%、NA 占比 12.9%",
+          "通话打回率 0.0%、履约缺口 60.0%、P0 触发率 0.0%",
+          "所有分支均未达到稳健归因阈值"
+        ],
+        "actions": [
+          {
+            "owner": "人工复核",
+            "action": "对低置信/证据不足项做人工复核，完成前不修模型或 SOP",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ]
+      }
+    ],
+    "signals": {
+      "judgments": 210,
+      "judged": 183,
+      "fail_rate": 0.1311,
+      "na_rate": 0.1286,
+      "review_rate": 0.0,
+      "needs_human_review": 0,
+      "rule_conflicts": 0,
+      "judge_disagreement_rate": 0.0,
+      "instruction_feasibility": null,
+      "instruction_high_findings": 0,
+      "persona_failure_concentration": 0.2083,
+      "call_block_rate": 0.0,
+      "fulfillment_rate": 0.4,
+      "p0_trigger_rate": 0.0,
+      "key_failure_rate": 0.2037,
+      "critical_failure_rate": 0.0,
+      "major_failure_rate": 0.2787,
+      "severity_weighted_fail_rate": 0.0958,
+      "target_model_score": 26,
+      "judge_healthy": true
+    },
+    "disclaimer": "根因为确定性信号归纳，不是因果证明；低/中置信结论必须人工复核后再修改生产配置。"
+  },
+  "review_queue_count": 27,
+  "manifest": {
+    "schema_version": 1,
+    "run_id": "t02_delivery_reschedule__offline_existing_transcripts__20260714T113620Z",
+    "task_id": "t02_delivery_reschedule",
+    "source_mode": "offline_existing_transcripts",
+    "started_at": "2026-07-14T11:36:20.411185+00:00",
+    "task_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/tasks/t02_delivery_reschedule.yaml",
+    "task_file_hash": "21359661d8123c30872e82b3acdfd06e7ff1569b47a19e81dd23da377069fda1",
+    "instruction_hash": "69a1b9a7a285b73c999b5fd340d02b4771c18ce02e179633dd2edeaa0723d513",
+    "checklist_hash": "e4aab7c17227b0deabe9b9ab08c071b6705a1bf0994a586c607cfb533c401892",
+    "safety_policy_hash": "4c5e1a47f015392e60d0bc650992045531edba24d1016bd1d5b55c5bdad82f05",
+    "golden_set_version": "2613d24bf6f8fd7d444ddd81669e9da91e8ff7c5d199bb6c9cd6a9691efb3ef2",
+    "judge_policy_hash": "edecdd05c1239147c753710c5e275c8fc52f1d1514b63d9ab7d3570f70b84db9",
+    "identity_policy": "default",
+    "target_model_fingerprint": {
+      "backend": "deterministic-guarded-controller",
+      "model": "delivery-guarded-v2"
+    },
+    "judge_models_config": {
+      "backend": "codex-cli",
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "n_votes": 1
+    },
+    "seed": null,
+    "code_commit": "8362b7628e775030279c1c4fd0db51a7f55f2fff",
+    "code_branch": "codex/evalcall-productization-20260712",
+    "code_dirty": true,
+    "transcript_source_hash": "88d5b452865b71974ffeaaa1818d01665d3920aa737adedc9a53cd9864886b20",
+    "completed_at": "2026-07-14T11:47:00.898213+00:00",
+    "runtime": {
+      "calls": 40,
+      "failed_calls": 0,
+      "latency_ms": 640231.9,
+      "input_tokens": 64571,
+      "output_tokens": 13586,
+      "total_tokens": 78157,
+      "actual_token_calls": 0,
+      "estimated_token_calls": 40,
+      "provider_total_token_calls": 40,
+      "provider_total_tokens": 209277,
+      "wall_seconds": 640.487,
+      "n_trajectories": 10,
+      "calls_per_trajectory": 4.0,
+      "tokens_per_trajectory": 7815.7,
+      "cost": {
+        "status": "unpriced",
+        "currency": "CNY",
+        "total_cost": null,
+        "priced_calls": 0,
+        "total_calls": 40,
+        "unknown_models": [
+          "gpt-5.6-sol"
+        ],
+        "token_measurement": "estimated_or_mixed",
+        "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+        "price_source_hash": "f108bfa0eadb40609348e8fcecdab39fd2f693667176904ad04a4688a9aa0ea8",
+        "by_model": {
+          "gpt-5.6-sol": {
+            "calls": 40,
+            "input_tokens": 64571,
+            "output_tokens": 13586,
+            "cost": null
+          }
+        }
+      }
+    }
+  },
+  "runtime": {
+    "calls": 40,
+    "failed_calls": 0,
+    "latency_ms": 640231.9,
+    "input_tokens": 64571,
+    "output_tokens": 13586,
+    "total_tokens": 78157,
+    "actual_token_calls": 0,
+    "estimated_token_calls": 40,
+    "provider_total_token_calls": 40,
+    "provider_total_tokens": 209277,
+    "wall_seconds": 640.487,
+    "n_trajectories": 10,
+    "calls_per_trajectory": 4.0,
+    "tokens_per_trajectory": 7815.7,
+    "cost": {
+      "status": "unpriced",
+      "currency": "CNY",
+      "total_cost": null,
+      "priced_calls": 0,
+      "total_calls": 40,
+      "unknown_models": [
+        "gpt-5.6-sol"
+      ],
+      "token_measurement": "estimated_or_mixed",
+      "price_source_file": "/Users/kaijie/AI/比赛合集/美团黑客松/data/policy/model_prices.yaml",
+      "price_source_hash": "f108bfa0eadb40609348e8fcecdab39fd2f693667176904ad04a4688a9aa0ea8",
+      "by_model": {
+        "gpt-5.6-sol": {
+          "calls": 40,
+          "input_tokens": 64571,
+          "output_tokens": 13586,
+          "cost": null
+        }
+      }
+    }
+  },
+  "run_id": "t02_delivery_reschedule__offline_existing_transcripts__20260714T113620Z",
+  "started_at": "2026-07-14T11:36:20.411185+00:00",
+  "backend": "codex-cli",
+  "target_model": "delivery-guarded-v2",
+  "judge_model": "gpt-5.6-sol"
+}

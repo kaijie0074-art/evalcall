@@ -56,11 +56,14 @@ PRESETS: dict[str, dict[str, str]] = {
         "demo_role": "模型评测主演示",
         "test_mode": "simulation",
         "model_version": "delivery-baseline-v1",
-        "task": "样例选择包/02_配送时间改约_SOP.yaml",
+        "task": "data/tasks/t02_delivery_reschedule.yaml",
         "transcripts": "样例选择包/02_配送时间改约_对话_10通.jsonl",
-        "verified_checklist": "runs/demo_main_t02_healthy_20260713/checklist.json",
-        "live_verified_run": "runs/demo_main_t02_healthy_20260713",
-        "cache_run": "runs/demo_main_t02_healthy_20260713",
+        "verified_checklist": "runs/demo_live_t02_codex_20260713/checklist.json",
+        "live_verified_run": "runs/t02_delivery_baseline_v1_fixedusers_20260714",
+        "cache_run": "runs/t02_delivery_baseline_v1_fixedusers_20260714",
+        "regression_evidence": "runs/t02_delivery_fixedusers_regression_20260714/comparison.json",
+        "regression_run": "runs/t02_delivery_guarded_v2_fixedusers_20260714",
+        "regression_report": "report-t02-v2.html",
         "cache_report": "report-t02-gated.html",
     },
     "real_recruit": {
@@ -716,6 +719,21 @@ def build_static_cache() -> dict[str, Any]:
             declared_model_version=config.get("model_version"),
             declared_test_mode=config.get("test_mode"),
         )
+        plan = _plan_payload(
+            attribution_result,
+            version=f"cache-{preset_id}-verified",
+            sop_sha256=package["hashes"]["sop_sha256"],
+            checklist_sha256=evaluation["hashes"]["checklist_sha256"],
+            target_model_version=config.get("model_version"),
+        )
+        regression_path = ROOT / config["regression_evidence"] if config.get("regression_evidence") else None
+        if regression_path and regression_path.is_file():
+            regression = _read_json(regression_path)
+            if config.get("regression_report"):
+                regression.setdefault("candidate", {})["report_url"] = config["regression_report"]
+            plan["actual_regression"] = regression
+            plan["status"] = "同尺回归已执行"
+            plan["candidate_target_model_version"] = (regression.get("candidate") or {}).get("version")
         presets[preset_id] = {
             "label": config["label"],
             "tag": config["tag"],
@@ -728,13 +746,7 @@ def build_static_cache() -> dict[str, Any]:
                 "3": evaluation,
                 "4": decision,
                 "5": attribution_result,
-                "6": _plan_payload(
-                    attribution_result,
-                    version=f"cache-{preset_id}-verified",
-                    sop_sha256=package["hashes"]["sop_sha256"],
-                    checklist_sha256=evaluation["hashes"]["checklist_sha256"],
-                    target_model_version=config.get("model_version"),
-                ),
+                "6": plan,
             },
         }
     return {

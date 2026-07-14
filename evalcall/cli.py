@@ -607,6 +607,7 @@ def cmd_evaluate(args: argparse.Namespace) -> None:
         n_votes=args.votes,
         model=args.model,
     )
+    candidate_manifest["transcript_source_hash"] = provenance.sha256_file(args.transcripts)
     if isinstance(previous_manifest, dict):
         compatibility = provenance.compare_manifests(previous_manifest, candidate_manifest)
         if not compatibility["comparable"]:

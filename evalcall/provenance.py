@@ -23,6 +23,7 @@ COMPARABILITY_FIELDS = (
     "checklist_hash",
     "safety_policy_hash",
     "golden_set_version",
+    "judge_policy_hash",
 )
 
 
@@ -69,8 +70,16 @@ def build_manifest(
     )
     target_backend = os.getenv("TARGET_BACKEND") or os.getenv("EVALCALL_BACKEND", "claude-cli")
     if source_mode.startswith("offline"):
-        target_backend = "existing-transcript"
-        target_model = "not_applicable"
+        # 已有日志默认不声称知道被测模型；但对“固定用户轮、预生成模型输出”的
+        # 回归夹具，调用方可以显式声明模型/策略版本。只有显式设置才写入，避免
+        # 把普通人工/生产日志误标成某个模型结果。
+        declared_offline_model = os.getenv("EVALCALL_OFFLINE_TARGET_MODEL", "").strip()
+        if declared_offline_model:
+            target_backend = os.getenv("EVALCALL_OFFLINE_TARGET_BACKEND", "replay").strip() or "replay"
+            target_model = declared_offline_model
+        else:
+            target_backend = "existing-transcript"
+            target_model = "not_applicable"
     else:
         target_model = os.getenv("TARGET_MODEL") or (
             "sonnet" if target_backend == "claude-cli" else "unknown"
@@ -88,6 +97,7 @@ def build_manifest(
         "checklist_hash": sha256_json(checklist),
         "safety_policy_hash": sha256_file(os.getenv("EVALCALL_SAFETY_POLICY") or _SAFETY),
         "golden_set_version": sha256_file(_GOLDEN),
+        "judge_policy_hash": sha256_file(_ROOT / "evalcall" / "judge.py"),
         "identity_policy": str(task.get("identity_policy") or "default"),
         "target_model_fingerprint": {"backend": target_backend, "model": target_model},
         "judge_models_config": {

@@ -93,11 +93,17 @@ class TestProvenance:
         )
         assert one["instruction_hash"] == two["instruction_hash"]
         assert one["checklist_hash"] == two["checklist_hash"]
+        assert one["judge_policy_hash"] == two["judge_policy_hash"]
         assert provenance.compare_manifests(one, two)["comparable"] is True
         two["checklist_hash"] = "changed"
         result = provenance.compare_manifests(one, two)
         assert result["comparable"] is False
         assert "checklist_hash 不一致" in result["reasons"]
+        two = dict(one)
+        two["judge_policy_hash"] = "changed"
+        result = provenance.compare_manifests(one, two)
+        assert result["comparable"] is False
+        assert "judge_policy_hash 不一致" in result["reasons"]
 
     def test_missing_manifest_is_not_comparable(self):
         out = provenance.compare_manifests(None, None)
@@ -118,6 +124,24 @@ class TestProvenance:
         assert manifest["target_model_fingerprint"] == {
             "backend": "existing-transcript",
             "model": "not_applicable",
+        }
+
+    def test_offline_replay_can_explicitly_declare_target_version(self, tmp_path, monkeypatch):
+        task_path = tmp_path / "task.yaml"
+        task_path.write_text("id: t\ninstruction: 必须问候\n", encoding="utf-8")
+        monkeypatch.setenv("EVALCALL_OFFLINE_TARGET_MODEL", "delivery-guarded-v2")
+        monkeypatch.setenv("EVALCALL_OFFLINE_TARGET_BACKEND", "deterministic-controller")
+        manifest = provenance.build_manifest(
+            task={"id": "t", "instruction": "必须问候"},
+            task_path=str(task_path),
+            checklist=[],
+            source_mode="offline_existing_transcripts",
+            n_votes=1,
+            model="judge-x",
+        )
+        assert manifest["target_model_fingerprint"] == {
+            "backend": "deterministic-controller",
+            "model": "delivery-guarded-v2",
         }
 
 

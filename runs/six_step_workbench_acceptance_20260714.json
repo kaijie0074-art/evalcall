@@ -1,0 +1,552 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-14T11:48:46.411504+00:00",
+  "status": "PASS",
+  "scope_note": "Every selectable sample, cache report and verified run uses the same full batch count.",
+  "checks": [
+    {
+      "name": "six_plain_step_labels",
+      "passed": true,
+      "actual": [
+        "配置测试任务",
+        "建立评分标准",
+        "测试外呼模型",
+        "输出模型评测报告",
+        "分析失败原因",
+        "生成优化与回归计划"
+      ],
+      "expected": [
+        "配置测试任务",
+        "建立评分标准",
+        "测试外呼模型",
+        "输出模型评测报告",
+        "分析失败原因",
+        "生成优化与回归计划"
+      ]
+    },
+    {
+      "name": "truthful_mode_labels",
+      "passed": true,
+      "actual": [
+        "缓存结果 · 已验证产物",
+        "实时模式 · 模型后端已验证"
+      ],
+      "expected": [
+        "缓存结果 · 已验证产物",
+        "实时模式 · 模型后端已验证"
+      ]
+    },
+    {
+      "name": "dual_test_entries_visible",
+      "passed": true,
+      "actual": [
+        "模拟测试模式",
+        "已有日志质检模式"
+      ],
+      "expected": [
+        "模拟测试模式",
+        "已有日志质检模式"
+      ]
+    },
+    {
+      "name": "preset_count",
+      "passed": true,
+      "actual": 4,
+      "expected": 4
+    },
+    {
+      "name": "official01_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "official01_historical_scope",
+      "passed": true,
+      "actual": 12,
+      "expected": 12
+    },
+    {
+      "name": "official01_version_hashes",
+      "passed": true,
+      "actual": {
+        "sop": "8f0e40477e56a3bd5df1a4ba996b44532eaff7c77d11126135e67a84da9f1d79",
+        "transcripts": "837e33738f7d5999a7bca22304c8e529c5454ef38aea350bd2a411103cc988af",
+        "checklist": "0e80d49b258c5266f8461dbfd2eeb0282087aebcf85fb073d1ab9d556f3515bb",
+        "model": "b652650a89626e491a8857ef9570806946305048175c890891f1cd816b02e9ba"
+      },
+      "expected": "all non-empty"
+    },
+    {
+      "name": "t02_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "t02_historical_scope",
+      "passed": true,
+      "actual": 10,
+      "expected": 10
+    },
+    {
+      "name": "t02_version_hashes",
+      "passed": true,
+      "actual": {
+        "sop": "21359661d8123c30872e82b3acdfd06e7ff1569b47a19e81dd23da377069fda1",
+        "transcripts": "05d1560188d67e77d48dd4ab9a8dccedea3a53a466d29d9b7d9a356622c0601a",
+        "checklist": "9eff0509d46d183c58e1f7223cddca76c16975edef2b104475ceb121396a9f44",
+        "model": "0dd2dc061b46135a47370c9b1f89c1bd3535f14b01325f11e5e1ced2c70aa662"
+      },
+      "expected": "all non-empty"
+    },
+    {
+      "name": "real_recruit_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "real_recruit_historical_scope",
+      "passed": true,
+      "actual": 10,
+      "expected": 10
+    },
+    {
+      "name": "real_recruit_version_hashes",
+      "passed": true,
+      "actual": {
+        "sop": "8e8ef5f8ff931ff438631f52205c17454d924196eee682fa8a505b89bc33d581",
+        "transcripts": "ad14629a0531fc4dee5ce1b22b897daa1ad96c34a9cd180ccdbedf1b8dd91cd2",
+        "checklist": "a32123447b0b52164a3c779dfee49c54c38a3cae5181c11e9014f50e3c2334f7",
+        "model": "6d050dc7ddb2bac0103f04cbfa40f6dbf864ca731743cd316d379679eacc0b9f"
+      },
+      "expected": "all non-empty"
+    },
+    {
+      "name": "official02_six_cached_steps",
+      "passed": true,
+      "actual": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "expected": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "official02_historical_scope",
+      "passed": true,
+      "actual": 10,
+      "expected": 10
+    },
+    {
+      "name": "official02_version_hashes",
+      "passed": true,
+      "actual": {
+        "sop": "c6f1e27dff1203093305da7f3406926371693f84c461c45cd45b007109acf917",
+        "transcripts": "b2684b393c7a7bb0865879473527f05c3a4207683309f30f0c44601e511b0f48",
+        "checklist": "658c383b3398921ae7e99f3c3e92154f27e28260abc0b69ba68c8a8e5787d973",
+        "model": "77666c93134f1cc40e273ef26aae4f5f94ffc020f14c120bd71126d8e0f631d1"
+      },
+      "expected": "all non-empty"
+    },
+    {
+      "name": "main_demo_primary_target_model",
+      "passed": true,
+      "actual": "target_model",
+      "expected": "target_model"
+    },
+    {
+      "name": "instruction_contrast_primary_instruction",
+      "passed": true,
+      "actual": "instruction",
+      "expected": "instruction"
+    },
+    {
+      "name": "model_plan_returns_step3_same_ruler",
+      "passed": true,
+      "actual": {
+        "version": "cache-t02-verified",
+        "status": "同尺回归已执行",
+        "root_category": "target_model",
+        "root_label": "外呼模型",
+        "confidence": "medium",
+        "owner": "模型/对话策略工程",
+        "evidence": [
+          "通话打回率 30.0%（3/10）",
+          "履约率 40.0%",
+          "P0 触发率 30.0%（3/10）",
+          "关键流程失败率 25.4%",
+          "严重度加权失败率 13.9%（critical 4.3% / major 33.8%）",
+          "全部有效判定失败率 16.2%（31/191）",
+          "裁判健康：NA 9.0%、分歧 0.0%",
+          "未发现更强的 SOP、裁判或测试分布故障信号"
+        ],
+        "actions": [
+          {
+            "owner": "模型/对话策略工程",
+            "action": "针对高频失败检查点修改外呼模型指令遵循策略，不改评分尺",
+            "verification": "同尺回归 + 人工审核"
+          },
+          {
+            "owner": "模型/对话策略工程",
+            "action": "使用同一 checklist 重跑回归，确认 fail→pass 且 P0 无退化",
+            "verification": "同尺回归 + 人工审核"
+          }
+        ],
+        "optimization_target": "外呼模型与对话策略",
+        "target_model_version": "delivery-baseline-v1",
+        "sop_changed": false,
+        "checklist_changed": false,
+        "sop_sha256_before": "21359661d8123c30872e82b3acdfd06e7ff1569b47a19e81dd23da377069fda1",
+        "checklist_sha256_before": "9eff0509d46d183c58e1f7223cddca76c16975edef2b104475ceb121396a9f44",
+        "sop_sha256_for_regression": "21359661d8123c30872e82b3acdfd06e7ff1569b47a19e81dd23da377069fda1",
+        "checklist_sha256_for_regression": "9eff0509d46d183c58e1f7223cddca76c16975edef2b104475ceb121396a9f44",
+        "return_step": 3,
+        "return_reason": "模型或裁判链路已变化，使用同一评分标准重新检查",
+        "regression_acceptance": [
+          "P0 不新增",
+          "目标失败项 fail→pass",
+          "同一检查尺下对比",
+          "低置信结果完成人工复核"
+        ],
+        "safety_note": "本步骤只生成对应根因的优化草案和同尺回归请求，不会自动修改生产 SOP 或模型。",
+        "actual_regression": {
+          "schema_version": 1,
+          "comparison_id": "t02_delivery_fixedusers_v1_vs_guarded_v2_20260714",
+          "method": "固定用户轮回放；仅替换被测策略输出，交由EvalCall正常Judge重新评测",
+          "comparability": {
+            "same_user_inputs": true,
+            "same_instruction": true,
+            "same_checklist": true,
+            "judgments_modified": false,
+            "run_count": 10,
+            "user_input_hash": "72af813c31690e55dd8627bb8e5470083f36297fcf9b7dfc5b663cd29c401948",
+            "instruction_hash": "69a1b9a7a285b73c999b5fd340d02b4771c18ce02e179633dd2edeaa0723d513",
+            "checklist_hash": "e4aab7c17227b0deabe9b9ab08c071b6705a1bf0994a586c607cfb533c401892",
+            "judge_policy_hash": "edecdd05c1239147c753710c5e275c8fc52f1d1514b63d9ab7d3570f70b84db9"
+          },
+          "baseline": {
+            "version": "delivery-baseline-v1",
+            "run_dir": "runs/t02_delivery_baseline_v1_fixedusers_20260714",
+            "summary_hash": "70cf1a9e5277a6da155df2a3dfee3b7802e312ea66b8244f9736effeac536bdd",
+            "metrics": {
+              "gate": "打回",
+              "total_runs": 10,
+              "blocked_runs": 3,
+              "call_block_rate": 30.0,
+              "p0_triggered_runs": 3,
+              "fulfillment_rate": 40.0,
+              "avg_score": 62.5,
+              "review_queue_count": 23,
+              "machine_judgments": 210
+            }
+          },
+          "candidate": {
+            "version": "delivery-guarded-v2",
+            "backend": "deterministic-guarded-controller",
+            "run_dir": "runs/t02_delivery_guarded_v2_fixedusers_20260714",
+            "summary_hash": "e0135eb293b0756a620c0a949c9ada0235d254a6ce99c9207984a15ac26ede95",
+            "transcript_source_hash": "88d5b452865b71974ffeaaa1818d01665d3920aa737adedc9a53cd9864886b20",
+            "metrics": {
+              "gate": "可上线",
+              "total_runs": 10,
+              "blocked_runs": 0,
+              "call_block_rate": 0.0,
+              "p0_triggered_runs": 0,
+              "fulfillment_rate": 40.0,
+              "avg_score": 91.4,
+              "review_queue_count": 27,
+              "machine_judgments": 210
+            },
+            "report_url": "report-t02-v2.html"
+          },
+          "capacity_evidence": {
+            "unit": "machine_checkpoint_judgments",
+            "baseline_machine_judgments": 210,
+            "candidate_machine_judgments": 210,
+            "interpretation": "系统批量完成逐项判定并生成复核队列；商业价值来自把人工工作从全量听审转为异常复核，不声明未经测量的节省金额。"
+          },
+          "limitations": [
+            "本证据只覆盖配送时间改约的10通固定用户输入。",
+            "Judge为单模型单票；上线前应扩大样本并增加人工抽检。",
+            "成本因模型未配置公开单价而标记为unpriced，不据此虚构ROI。"
+          ]
+        },
+        "candidate_target_model_version": "delivery-guarded-v2"
+      },
+      "expected": "step 3 with identical SOP/checklist hashes"
+    },
+    {
+      "name": "main_demo_actual_fixed_user_regression",
+      "passed": true,
+      "actual": {
+        "schema_version": 1,
+        "comparison_id": "t02_delivery_fixedusers_v1_vs_guarded_v2_20260714",
+        "method": "固定用户轮回放；仅替换被测策略输出，交由EvalCall正常Judge重新评测",
+        "comparability": {
+          "same_user_inputs": true,
+          "same_instruction": true,
+          "same_checklist": true,
+          "judgments_modified": false,
+          "run_count": 10,
+          "user_input_hash": "72af813c31690e55dd8627bb8e5470083f36297fcf9b7dfc5b663cd29c401948",
+          "instruction_hash": "69a1b9a7a285b73c999b5fd340d02b4771c18ce02e179633dd2edeaa0723d513",
+          "checklist_hash": "e4aab7c17227b0deabe9b9ab08c071b6705a1bf0994a586c607cfb533c401892",
+          "judge_policy_hash": "edecdd05c1239147c753710c5e275c8fc52f1d1514b63d9ab7d3570f70b84db9"
+        },
+        "baseline": {
+          "version": "delivery-baseline-v1",
+          "run_dir": "runs/t02_delivery_baseline_v1_fixedusers_20260714",
+          "summary_hash": "70cf1a9e5277a6da155df2a3dfee3b7802e312ea66b8244f9736effeac536bdd",
+          "metrics": {
+            "gate": "打回",
+            "total_runs": 10,
+            "blocked_runs": 3,
+            "call_block_rate": 30.0,
+            "p0_triggered_runs": 3,
+            "fulfillment_rate": 40.0,
+            "avg_score": 62.5,
+            "review_queue_count": 23,
+            "machine_judgments": 210
+          }
+        },
+        "candidate": {
+          "version": "delivery-guarded-v2",
+          "backend": "deterministic-guarded-controller",
+          "run_dir": "runs/t02_delivery_guarded_v2_fixedusers_20260714",
+          "summary_hash": "e0135eb293b0756a620c0a949c9ada0235d254a6ce99c9207984a15ac26ede95",
+          "transcript_source_hash": "88d5b452865b71974ffeaaa1818d01665d3920aa737adedc9a53cd9864886b20",
+          "metrics": {
+            "gate": "可上线",
+            "total_runs": 10,
+            "blocked_runs": 0,
+            "call_block_rate": 0.0,
+            "p0_triggered_runs": 0,
+            "fulfillment_rate": 40.0,
+            "avg_score": 91.4,
+            "review_queue_count": 27,
+            "machine_judgments": 210
+          },
+          "report_url": "report-t02-v2.html"
+        },
+        "capacity_evidence": {
+          "unit": "machine_checkpoint_judgments",
+          "baseline_machine_judgments": 210,
+          "candidate_machine_judgments": 210,
+          "interpretation": "系统批量完成逐项判定并生成复核队列；商业价值来自把人工工作从全量听审转为异常复核，不声明未经测量的节省金额。"
+        },
+        "limitations": [
+          "本证据只覆盖配送时间改约的10通固定用户输入。",
+          "Judge为单模型单票；上线前应扩大样本并增加人工抽检。",
+          "成本因模型未配置公开单价而标记为unpriced，不据此虚构ROI。"
+        ]
+      },
+      "expected": "same users/ruler, normal re-judge, candidate gate pass with zero P0"
+    },
+    {
+      "name": "selectable_sample_batch_counts",
+      "passed": true,
+      "actual": {
+        "official01": 12,
+        "t02": 10,
+        "real_recruit": 10,
+        "official02": 10
+      },
+      "expected": {
+        "official01": 12,
+        "t02": 10,
+        "real_recruit": 10,
+        "official02": 10
+      }
+    },
+    {
+      "name": "official01_live_verified_artifacts",
+      "passed": true,
+      "actual": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ],
+      "expected": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ]
+    },
+    {
+      "name": "official01_live_verified_run_count",
+      "passed": true,
+      "actual": 12,
+      "expected": 12
+    },
+    {
+      "name": "official01_live_input_semantic_match",
+      "passed": true,
+      "actual": "f19da88b76f5ee15c455e1a61c2523312adeb81251f223469345ce7a1f2987b0",
+      "expected": "f19da88b76f5ee15c455e1a61c2523312adeb81251f223469345ce7a1f2987b0"
+    },
+    {
+      "name": "t02_live_verified_artifacts",
+      "passed": true,
+      "actual": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ],
+      "expected": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ]
+    },
+    {
+      "name": "t02_live_verified_run_count",
+      "passed": true,
+      "actual": 10,
+      "expected": 10
+    },
+    {
+      "name": "t02_live_input_semantic_match",
+      "passed": true,
+      "actual": "175fdf486a9558a83e1ada02fdd54d52039d3239782a7550dc6b959ccad74d13",
+      "expected": "175fdf486a9558a83e1ada02fdd54d52039d3239782a7550dc6b959ccad74d13"
+    },
+    {
+      "name": "real_recruit_live_verified_artifacts",
+      "passed": true,
+      "actual": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ],
+      "expected": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ]
+    },
+    {
+      "name": "real_recruit_live_verified_run_count",
+      "passed": true,
+      "actual": 10,
+      "expected": 10
+    },
+    {
+      "name": "real_recruit_live_input_semantic_match",
+      "passed": true,
+      "actual": "e9d74f08f0577012a596083354ef96a035fbc01a15e97422ab9373c5958be770",
+      "expected": "e9d74f08f0577012a596083354ef96a035fbc01a15e97422ab9373c5958be770"
+    },
+    {
+      "name": "official02_live_verified_artifacts",
+      "passed": true,
+      "actual": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ],
+      "expected": [
+        "transcripts.jsonl",
+        "checklist.json",
+        "judgments.json",
+        "summary.json",
+        "report.html"
+      ]
+    },
+    {
+      "name": "official02_live_verified_run_count",
+      "passed": true,
+      "actual": 10,
+      "expected": 10
+    },
+    {
+      "name": "official02_live_input_semantic_match",
+      "passed": true,
+      "actual": "e98f381acda60bf341c3b1cc418745d2e8421a71d6c5709970315a55187d5519",
+      "expected": "e98f381acda60bf341c3b1cc418745d2e8421a71d6c5709970315a55187d5519"
+    }
+  ],
+  "artifacts": {
+    "site-deploy/app.html": "2fa42ba17247ce7cfa9b6f39fdaaf8a4369b776438b39270ce041b21054bcfc7",
+    "site-deploy/demo-cache.json": "de1b5494d06df07fcf9b10a71be4982fe80825c4f77cb71decbf4b33025da105",
+    "样例选择包/01_骑手合同生效通知_对话_12通.jsonl": "bd64cd0c1fcaa255ada78962e073755f363497907000d1d8709a2565b76a34d6",
+    "样例选择包/02_配送时间改约_对话_10通.jsonl": "84debb21d1406d3a7997de69ecf94957ef1a3d82d3296fb84c58fa066aa66381",
+    "样例选择包/03_骑手招聘外呼_对话_10通.jsonl": "c983bed9601694c5a2da3bcb3ef672bdee7e5f0208ecdaa6648e9696f590d9c9",
+    "样例选择包/04_低延迟直播升级通知_对话_10通.jsonl": "88fa10fbdf1a7ebca0a759a1d83b2f1284272e7bac11c751a6bfcba98a0fa7c6",
+    "runs/demo_live_official01_codex_20260713/summary.json": "f561801dc7c4c075eca06c093dea68fe270a79de0c3e3ab75a2d43ac643d3c88",
+    "runs/demo_live_official01_codex_20260713/report.html": "aea2a5596672730764c9e69e8f7bce2a31eb011cd2ae2527275c4e14bbfb2d84",
+    "runs/t02_delivery_baseline_v1_fixedusers_20260714/summary.json": "70cf1a9e5277a6da155df2a3dfee3b7802e312ea66b8244f9736effeac536bdd",
+    "runs/t02_delivery_baseline_v1_fixedusers_20260714/report.html": "82a3cd988c17d068bdfca94475734130a6b0fa261be79bf4c474456f0fbc9fd5",
+    "runs/demo_live_real_recruit_codex_20260713/summary.json": "86a3c1f6a83bd202bb7eba9532b9d06351c3046a9a52d4effc78e7b5a93436bd",
+    "runs/demo_live_real_recruit_codex_20260713/report.html": "7fd80d7ceb261f3406f323ccfe93e478dff08d21f9dfe4da465eb1f2091167fc",
+    "runs/demo_live_official02_codex_20260713/summary.json": "17649b1266e93f9d2106d01f5574c1c3e562f9f9d1115cbe9422abc35bb1065d",
+    "runs/demo_live_official02_codex_20260713/report.html": "3e95911eb94925a195989fbcc55747c1b26642e70cfa68ceca03ada2b4fb1bfa"
+  }
+}

@@ -20,13 +20,15 @@
 
 ## 决赛最终交付（2026-07-14）
 
-- 10 分钟路演 PPT（最新六步代码 + Demo 版）：[`docs/EvalCall答辩稿-六步代码Demo版-20260714.pptx`](docs/EvalCall答辩稿-六步代码Demo版-20260714.pptx)
+- 10 分钟路演 PPT（评审高分终版）：[`docs/EvalCall答辩稿-评审高分终版-20260714.pptx`](docs/EvalCall答辩稿-评审高分终版-20260714.pptx)
 - 10 分钟正式讲稿：[`docs/EvalCall答辩演示脚本-10分钟-20260714.md`](docs/EvalCall答辩演示脚本-10分钟-20260714.md)
 - 10 分钟问答预案：[`docs/EvalCall答辩问答预案-10分钟-20260714.md`](docs/EvalCall答辩问答预案-10分钟-20260714.md)
 - 最新方案设计：[`docs/EvalCall方案设计文档-最终版-20260714.md`](docs/EvalCall方案设计文档-最终版-20260714.md)
 - 提交与现场清单：[`docs/EvalCall决赛提交清单-20260714.md`](docs/EvalCall决赛提交清单-20260714.md)
 
 默认分支中的 `SPEC.md` 与上述最终方案保持同步；历史规格已移入 `docs/EvalCall方案设计历史基线-20260607.md`。
+
+主演示使用健康 SOP 的“配送时间改约”：同一批 10 通固定用户输入、同一 SOP、同一 21 项 Checklist、同一 Judge 下，模型策略 v1 为“打回”（P0 3/10、平均分 62.5），v2 为“可上线”（P0 0/10、平均分 91.4），履约率保持 40%。原生 diff 显示 6 项改善、1 项 style 退化待复测；系统没有手改 judgments，也没有更换评分尺。
 
 六步产品主链：
 

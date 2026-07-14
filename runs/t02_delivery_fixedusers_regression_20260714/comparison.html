@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>EvalCall 同尺回归证据</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#f3f5f8;color:#14213d;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif}
+.wrap{width:1400px;height:800px;padding:58px 64px} .eyebrow{font-size:18px;font-weight:800;color:#a77b00;letter-spacing:.08em}
+h1{margin:10px 0 12px;font-size:48px;line-height:1.1} .sub{font-size:21px;color:#667085}
+.grid{display:grid;grid-template-columns:1fr 92px 1fr;gap:22px;margin-top:38px;align-items:stretch}
+.card{background:white;border:1px solid #d8dee9;border-radius:24px;padding:30px;box-shadow:0 12px 38px rgba(20,33,61,.07)}
+.bad{border-top:10px solid #cf342b} .good{border-top:10px solid #138a69} .version{font-size:20px;color:#667085;font-weight:700}
+.gate{font-size:42px;font-weight:900;margin:8px 0 22px} .bad .gate{color:#cf342b} .good .gate{color:#138a69}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:14px} .metric{background:#f7f8fa;border-radius:16px;padding:15px 18px}
+.metric b{display:block;font-size:32px} .metric span{font-size:15px;color:#667085} .arrow{display:flex;align-items:center;justify-content:center;font-size:52px;color:#ffcc00;font-weight:900}
+.hash{margin-top:22px;padding:18px 22px;background:#14213d;color:white;border-radius:18px;font-family:Menlo,monospace;font-size:15px;line-height:1.8}
+.hash b{color:#ffcc00} .foot{margin-top:18px;display:flex;justify-content:space-between;color:#667085;font-size:14px}
+</style></head><body><main class="wrap">
+<div class="eyebrow">EVALCALL · FIXED-USER REGRESSION</div><h1>只改模型策略，不改评分尺：同一批用户输入的真实回归</h1>
+<div class="sub">10 通用户轮逐字一致 · 重新走正常 Judge · judgments_modified = false</div>
+<section class="grid">
+<article class="card bad"><div class="version">delivery-baseline-v1</div><div class="gate">打回</div><div class="metrics">
+<div class="metric"><b>3/10</b><span>通话打回</span></div><div class="metric"><b>3</b><span>P0 触发通话</span></div>
+<div class="metric"><b>40%</b><span>履约率</span></div><div class="metric"><b>62.5</b><span>平均分</span></div></div></article>
+<div class="arrow">→</div>
+<article class="card good"><div class="version">delivery-guarded-v2</div><div class="gate">可上线</div><div class="metrics">
+<div class="metric"><b>0/10</b><span>通话打回</span></div><div class="metric"><b>0</b><span>P0 触发通话</span></div>
+<div class="metric"><b>40%</b><span>履约率</span></div><div class="metric"><b>91.4</b><span>平均分</span></div></div></article>
+</section>
+<div class="hash"><b>USER</b> 72af813c3169… &nbsp; <b>SOP</b> 69a1b9a7a285… &nbsp; <b>CHECKLIST</b> e4aab7c17227… &nbsp; <b>JUDGE</b> edecdd05c123…<br>
+<b>AUDIT</b> 同一输入 / 同一指令 / 同一Checklist / 正常Judge重评 / 不手改judgments</div>
+<div class="foot"><span>证据：comparison.json + baseline/candidate summary.json + manifests</span><span>范围：T02 配送时间改约 · 2026-07-14</span></div>
+</main></body></html>

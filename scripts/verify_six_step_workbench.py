@@ -37,7 +37,7 @@ SELECTABLE_SAMPLE_FILES = {
 }
 LIVE_VERIFIED_RUNS = {
     "official01": ROOT / "runs" / "demo_live_official01_codex_20260713",
-    "t02": ROOT / "runs" / "demo_main_t02_healthy_20260713",
+    "t02": ROOT / "runs" / "t02_delivery_baseline_v1_fixedusers_20260714",
     "real_recruit": ROOT / "runs" / "demo_live_real_recruit_codex_20260713",
     "official02": ROOT / "runs" / "demo_live_official02_codex_20260713",
 }
@@ -167,6 +167,24 @@ def main() -> int:
         and main_plan.get("checklist_sha256_before") == main_plan.get("checklist_sha256_for_regression"),
         main_plan,
         "step 3 with identical SOP/checklist hashes",
+    )
+    actual_regression = main_plan.get("actual_regression") or {}
+    regression_comparability = actual_regression.get("comparability") or {}
+    regression_baseline = ((actual_regression.get("baseline") or {}).get("metrics") or {})
+    regression_candidate = ((actual_regression.get("candidate") or {}).get("metrics") or {})
+    record(
+        "main_demo_actual_fixed_user_regression",
+        regression_comparability.get("same_user_inputs") is True
+        and regression_comparability.get("same_instruction") is True
+        and regression_comparability.get("same_checklist") is True
+        and regression_comparability.get("judgments_modified") is False
+        and regression_baseline.get("gate") == "打回"
+        and regression_candidate.get("gate") == "可上线"
+        and regression_candidate.get("p0_triggered_runs") == 0
+        and float(regression_candidate.get("fulfillment_rate") or 0)
+        >= float(regression_baseline.get("fulfillment_rate") or 0),
+        actual_regression,
+        "same users/ruler, normal re-judge, candidate gate pass with zero P0",
     )
 
     selectable_counts = {key: jsonl_count(path) for key, path in SELECTABLE_SAMPLE_FILES.items()}

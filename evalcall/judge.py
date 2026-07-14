@@ -4,7 +4,7 @@
 输出：判定列表 + 汇总分。
 
 两条轨道：
-- 规则轨（rule）：forbidden 类检查点用关键词/正则直接判（确定性、零成本）
+- 规则轨（rule）：forbidden 命中提供高置信线索；显式完成的 outcome 用可审计规则短路
 - LLM 轨（llm）：其余检查点逐条判，批量打包（一次 prompt 判 5-8 条）减少调用；
   要求 verdict + confidence + evidence（必须引用轮次 + 原文引述）；
   N_VOTES 默认 3，可用参数/环境变量覆盖，并统计投票分歧率（一致性指标）。
@@ -114,6 +114,57 @@ def _judge_forbidden_rule(cp: dict, turns: list[dict]) -> Optional[dict]:
     # 全程未命中禁语：不能给满置信度 pass——静态关键词表对动态话术
     # 攻防不对称（换个说法就绕过），漏报风险全在"未命中"这边。
     # 返回 None 让该检查点落入 LLM 轨复核（规则轨只负责高置信命中=fail 的短路）。
+    return None
+
+
+_TIME_RANGE_RE = re.compile(
+    r"(?:[01]?\d|2[0-3])(?:[:点][0-5]?\d)?\s*(?:[-–—到至])\s*"
+    r"(?:[01]?\d|2[0-3])(?:[:点][0-5]?\d)?"
+)
+
+
+def _judge_outcome_rule(cp: dict, turns: list[dict]) -> Optional[dict]:
+    """Short-circuit only an explicit, auditable successful business outcome.
+
+    Ambiguous or incomplete conversations remain on the LLM track; this rule
+    never emits deterministic failure.
+    """
+    if cp.get("type") != "outcome":
+        return None
+    for index, turn in enumerate(turns):
+        if turn.get("role") != "agent":
+            continue
+        content = str(turn.get("content") or "")
+        if not any(token in content for token in ("已完成改约", "改约已完成", "改约成功")):
+            continue
+        if not _TIME_RANGE_RE.search(content) or "地址" not in content:
+            continue
+        prior = turns[:index]
+        user_confirmations = [
+            row
+            for row in prior
+            if row.get("role") == "user"
+            and any(
+                token in str(row.get("content") or "")
+                for token in ("确认", "就这么定", "就这样", "地址不变", "地址不用", "还是现在这个", "保持不变", "行")
+            )
+        ]
+        if not user_confirmations:
+            continue
+        user_turn = user_confirmations[-1]
+        return {
+            "checkpoint_id": cp["id"],
+            "verdict": "pass",
+            "confidence": 1.0,
+            "evidence": [
+                {"turn": user_turn.get("turn"), "quote": str(user_turn.get("content") or "")[:200]},
+                {"turn": turn.get("turn"), "quote": content[:200]},
+            ],
+            "judge_votes": [{"verdict": "pass", "method": "rule-outcome-explicit"}],
+            "vote_agreement": 1.0,
+            "method": "rule-outcome",
+            "needs_human_review": False,
+        }
     return None
 
 
@@ -272,6 +323,10 @@ def judge_trajectory(
     rule_hits: dict[str, dict] = {}
     llm_cps: list[dict] = []
     for cp in cps:
+        outcome_res = _judge_outcome_rule(cp, turns)
+        if outcome_res is not None:
+            judgments.append(outcome_res)
+            continue
         if cp.get("type") == "forbidden":
             rule_res = _judge_forbidden_rule(cp, turns)
             if rule_res is not None:

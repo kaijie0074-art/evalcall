@@ -83,6 +83,14 @@ class _Redactor:
                 def repl(match: re.Match[str], _kind: str = kind) -> str:
                     whole = match.group(0)
                     value = match.group(1)
+                    # “地址是否不变 / 地址与联系方式是否保持原样”描述的是操作状态，
+                    # 不是具体地址。把这类流程话术脱敏成 <ADDRESS_n> 会污染裁判证据，
+                    # 甚至被误判为擅自修改地址。
+                    if _kind == "ADDRESS" and re.match(
+                        r"^(?:与|和)?联系方式|^(?:是否|不变|不用改|保持|维持|还是)",
+                        value.strip(),
+                    ):
+                        return whole
                     return whole.replace(value, self._token(_kind, value))
             else:
                 def repl(match: re.Match[str], _kind: str = kind) -> str:

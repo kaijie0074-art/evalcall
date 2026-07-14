@@ -66,8 +66,8 @@ def rgb(value: str) -> RGBColor:
 
 
 def set_run_font(run, *, size=None, bold=None, color=None, italic=None, mono=False):
-    family = "Menlo" if mono else "Arial Unicode MS"
-    east_asia = "Arial Unicode MS"
+    family = "Menlo" if mono else "PingFang SC"
+    east_asia = "PingFang SC"
     run.font.name = family
     r_pr = run._element.get_or_add_rPr()
     r_pr.rFonts.set(qn("w:ascii"), family)
@@ -182,10 +182,10 @@ def configure_styles(doc: Document, preset: str):
     body_line = 1.25 if preset == "compact_reference_guide" else 1.10
     body_after = 6
     normal = doc.styles["Normal"]
-    normal.font.name = "Arial Unicode MS"
-    normal._element.rPr.rFonts.set(qn("w:ascii"), "Arial Unicode MS")
-    normal._element.rPr.rFonts.set(qn("w:hAnsi"), "Arial Unicode MS")
-    normal._element.rPr.rFonts.set(qn("w:eastAsia"), "Arial Unicode MS")
+    normal.font.name = "PingFang SC"
+    normal._element.rPr.rFonts.set(qn("w:ascii"), "PingFang SC")
+    normal._element.rPr.rFonts.set(qn("w:hAnsi"), "PingFang SC")
+    normal._element.rPr.rFonts.set(qn("w:eastAsia"), "PingFang SC")
     normal.font.size = Pt(11)
     normal.font.color.rgb = rgb(NAVY)
     normal.paragraph_format.space_after = Pt(body_after)
@@ -198,10 +198,10 @@ def configure_styles(doc: Document, preset: str):
     }
     for style_name, (size, color, before, after) in heading_tokens.items():
         style = doc.styles[style_name]
-        style.font.name = "Arial Unicode MS"
-        style._element.rPr.rFonts.set(qn("w:ascii"), "Arial Unicode MS")
-        style._element.rPr.rFonts.set(qn("w:hAnsi"), "Arial Unicode MS")
-        style._element.rPr.rFonts.set(qn("w:eastAsia"), "Arial Unicode MS")
+        style.font.name = "PingFang SC"
+        style._element.rPr.rFonts.set(qn("w:ascii"), "PingFang SC")
+        style._element.rPr.rFonts.set(qn("w:hAnsi"), "PingFang SC")
+        style._element.rPr.rFonts.set(qn("w:eastAsia"), "PingFang SC")
         style.font.size = Pt(size)
         style.font.bold = True
         style.font.color.rgb = rgb(color)
@@ -211,10 +211,10 @@ def configure_styles(doc: Document, preset: str):
 
     for style_name in ("List Bullet", "List Number"):
         style = doc.styles[style_name]
-        style.font.name = "Arial Unicode MS"
-        style._element.rPr.rFonts.set(qn("w:ascii"), "Arial Unicode MS")
-        style._element.rPr.rFonts.set(qn("w:hAnsi"), "Arial Unicode MS")
-        style._element.rPr.rFonts.set(qn("w:eastAsia"), "Arial Unicode MS")
+        style.font.name = "PingFang SC"
+        style._element.rPr.rFonts.set(qn("w:ascii"), "PingFang SC")
+        style._element.rPr.rFonts.set(qn("w:hAnsi"), "PingFang SC")
+        style._element.rPr.rFonts.set(qn("w:eastAsia"), "PingFang SC")
         style.font.size = Pt(11)
         style.font.color.rgb = rgb(NAVY)
         style.paragraph_format.left_indent = Inches(0.375 if preset == "compact_reference_guide" else 0.5)
