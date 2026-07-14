@@ -47,9 +47,10 @@
     .stage-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:17px}
     .stage-head h2{font-size:22px;margin:0;letter-spacing:-.025em}
     .run-label{font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#7d8796;white-space:nowrap;max-width:55%;overflow:hidden;text-overflow:ellipsis}
-    .flow-map{position:relative;margin:0 0 14px;border:1px solid #ccd5e0;border-radius:18px;background:linear-gradient(180deg,#fbfcfd 0%,#f4f7fa 100%);overflow:hidden;box-shadow:0 12px 30px rgba(20,32,57,.07)}
-    .flow-map::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 0 43%,rgba(255,209,0,.08) 50%,transparent 57%);transform:translateX(-120%)}
-    .flow-map.running::after{animation:scan 1.55s ease-in-out infinite}
+    .stage-layout{display:grid;grid-template-columns:minmax(380px,.78fr) minmax(0,1.22fr);gap:16px;align-items:stretch;min-height:650px}
+    .flow-map{position:relative;height:650px;border:1px solid #ccd5e0;border-radius:18px;background:linear-gradient(180deg,#fbfcfd 0%,#f4f7fa 100%);overflow:hidden;box-shadow:0 12px 30px rgba(20,32,57,.07);display:flex;flex-direction:column}
+    .flow-map::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 0 43%,rgba(255,209,0,.08) 50%,transparent 57%);transform:translateY(-120%)}
+    .flow-map.running::after{animation:scanVertical 1.55s ease-in-out infinite}
     .flow-map-head{height:46px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,.9)}
     .flow-map-title{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:950;letter-spacing:.07em;color:#3f4b5d}
     .flow-map-title::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--signal);box-shadow:0 0 0 5px rgba(255,209,0,.16)}
@@ -63,23 +64,24 @@
     .flow-progress-track>b{position:absolute;z-index:2;top:50%;width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#cbd3dd;transform:translate(-50%,-50%);box-shadow:0 0 0 1px #cbd3dd;transition:.28s}
     .flow-progress-track>b.done{background:var(--signal);box-shadow:0 0 0 1px #d4ad00}.flow-progress-track>b.active{background:#fff;box-shadow:0 0 0 3px rgba(255,209,0,.55);animation:markerPulse 1s ease-in-out infinite}
     .flow-map.done .flow-progress-track>i{background:linear-gradient(90deg,var(--input),var(--signal),var(--output));box-shadow:none}.flow-map.done .flow-progress-track>b{background:var(--output);box-shadow:0 0 0 1px var(--output)}
-    .flow-tree{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 92px minmax(0,1.08fr) 92px minmax(0,1fr);align-items:center;gap:0;min-height:250px;padding:20px 28px 24px}
-    .flow-column{position:relative;display:grid;align-content:center;gap:10px;min-width:0}
-    .flow-column::before{content:"";position:absolute;left:9px;top:18px;bottom:18px;width:2px;background:#cdd5df}
-    .flow-column-label{position:relative;padding-left:24px;margin-bottom:2px;font:900 9.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:#7e8999;letter-spacing:.13em;text-transform:uppercase}
-    .flow-node{position:relative;min-height:42px;padding:9px 56px 9px 38px;border:1px solid #d7dee7;border-radius:10px;background:#fff;color:#5b687b;font-size:11.5px;font-weight:900;line-height:1.35;overflow:hidden;box-shadow:0 4px 10px rgba(20,32,57,.045);transition:border-color .25s,background .25s,color .25s,transform .25s,box-shadow .25s,opacity .25s}
+    .flow-tree{position:relative;display:grid;grid-template-columns:1fr;grid-template-rows:auto 38px auto 38px auto;align-content:center;flex:1;min-height:0;padding:18px 24px 22px}
+    .flow-column{position:relative;min-width:0}
+    .flow-column-label{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 8px;font:900 9.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:#7e8999;letter-spacing:.13em;text-transform:uppercase}
+    .flow-column-label::before{content:"";width:18px;height:2px;background:currentColor;opacity:.45}
+    .flow-node-grid{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    .flow-node{position:relative;min-height:48px;padding:9px 58px 9px 38px;border:1px solid #d7dee7;border-radius:10px;background:#fff;color:#5b687b;font-size:11.5px;font-weight:900;line-height:1.35;overflow:hidden;box-shadow:0 4px 10px rgba(20,32,57,.045);transition:border-color .25s,background .25s,color .25s,transform .25s,box-shadow .25s,opacity .25s}
     .flow-node::before{content:"";position:absolute;z-index:1;left:4px;top:50%;width:10px;height:10px;border:4px solid #f7f9fb;border-radius:50%;background:#c8d0db;transform:translateY(-50%)}
     .flow-node small{display:block;margin-top:2px;color:#8792a2;font:800 8.5px ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .flow-node-index{position:absolute;left:18px;top:50%;transform:translateY(-50%);font:900 8px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8a95a4}
     .flow-node-state{position:absolute;right:9px;top:50%;transform:translateY(-50%);font:950 7.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:#939daa;letter-spacing:.02em}
     .flow-column.input .flow-node{border-color:#c9dced;background:var(--input-soft);color:var(--input)}
     .flow-column.input .flow-node::before{background:var(--input)}
-    .flow-link{position:relative;height:3px;margin:0 16px;background:#d3dae3}
-    .flow-link::before,.flow-link::after{content:"";position:absolute;top:50%;transform:translateY(-50%)}
-    .flow-link::before{left:-3px;width:7px;height:7px;border-radius:50%;background:#d3dae3}
-    .flow-link::after{right:-1px;width:7px;height:7px;border-top:2px solid #bfc8d4;border-right:2px solid #bfc8d4;transform:translateY(-50%) rotate(45deg)}
-    .flow-pulse{position:absolute;z-index:2;left:-4px;top:50%;width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 5px rgba(255,209,0,.18);transform:translateY(-50%);opacity:0}
-    .flow-map.running .flow-pulse{opacity:1;animation:signalTravel 1.05s cubic-bezier(.45,0,.25,1) infinite}
+    .flow-link{position:relative;width:3px;height:30px;margin:4px auto;background:#d3dae3}
+    .flow-link::before,.flow-link::after{content:"";position:absolute;left:50%;transform:translateX(-50%)}
+    .flow-link::before{top:-2px;width:7px;height:7px;border-radius:50%;background:#d3dae3}
+    .flow-link::after{bottom:-1px;width:7px;height:7px;border-right:2px solid #bfc8d4;border-bottom:2px solid #bfc8d4;transform:translateX(-50%) rotate(45deg)}
+    .flow-pulse{position:absolute;z-index:2;left:50%;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 5px rgba(255,209,0,.18);transform:translateX(-50%);opacity:0}
+    .flow-map.running .flow-pulse{opacity:1;animation:signalTravelVertical 1.05s cubic-bezier(.45,0,.25,1) infinite}
     .flow-map.running .flow-link.second .flow-pulse{animation-delay:.43s}
     .flow-map.running .flow-column.process .flow-node.active{border-color:#e1c242;background:#fff9d9;color:#574800;animation:nodeWake .9s both;box-shadow:0 0 0 4px rgba(255,209,0,.12)}
     .flow-map.running .flow-column.process .flow-node.active::before{background:var(--signal);animation:nodePulse 1s ease-in-out infinite}
@@ -90,31 +92,31 @@
     .flow-map.running .flow-column.output .flow-node.pending{opacity:.42;filter:saturate(.35)}
     .flow-map.running .flow-column.output .flow-node.active{border-color:#8fd0bb;background:#effaf6;color:var(--output);box-shadow:0 0 0 4px rgba(8,117,93,.08);animation:branchReveal .5s both}
     .flow-map.running .flow-column.output .flow-node.done{border-color:#b9ddcf;background:var(--output-soft);color:var(--output)}
-    .flow-map.done .flow-link{background:linear-gradient(90deg,var(--input),var(--signal),var(--output))}
+    .flow-map.done .flow-link{background:linear-gradient(180deg,var(--input),var(--signal),var(--output))}
     .flow-map.done .flow-link::before{background:var(--input)}.flow-map.done .flow-link::after{border-color:var(--output)}
     .flow-map.done .flow-column.process .flow-node{border-color:#e1c242;background:#fff9d9;color:#574800}
     .flow-map.done .flow-column.process .flow-node::before{background:var(--signal)}
     .flow-map.done .flow-column.output .flow-node{border-color:#b9ddcf;background:var(--output-soft);color:var(--output);box-shadow:0 3px 9px rgba(8,117,93,.08)}
     .flow-map.done .flow-column.output .flow-node::before{background:var(--output)}
-    @keyframes scan{50%,100%{transform:translateX(120%)}}
-    @keyframes signalTravel{0%{left:-4px}100%{left:calc(100% - 4px)}}
+    @keyframes scanVertical{50%,100%{transform:translateY(120%)}}
+    @keyframes signalTravelVertical{0%{top:-3px}100%{top:calc(100% - 3px)}}
     @keyframes nodeWake{0%{transform:translateY(3px);box-shadow:none}55%{border-color:var(--signal);background:#fff9d9;color:#574800}100%{transform:translateY(0)}}
     @keyframes nodePulse{50%{box-shadow:0 0 0 5px rgba(255,209,0,.25)}}
     @keyframes markerPulse{50%{box-shadow:0 0 0 5px rgba(255,209,0,.2)}}
     @keyframes branchReveal{0%{transform:translateX(-7px);opacity:.35}100%{transform:translateX(0);opacity:1}}
-    .io-grid{display:grid;grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr);gap:12px;align-items:stretch;min-height:236px}
+    .io-grid{display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 62px minmax(0,1fr);gap:10px;height:650px;min-width:0}
     .io-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--paper);min-width:0}
     .io-card.input{box-shadow:inset 0 4px 0 var(--input)}.io-card.output{box-shadow:inset 0 4px 0 var(--output)}
     .io-head{height:42px;padding:0 13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#fbfcfd}
     .io-title{font-size:11px;font-weight:950;letter-spacing:.14em}.input .io-title{color:var(--input)}.output .io-title{color:var(--output)}
     .io-type{font:750 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8b95a5;letter-spacing:.04em}
-    .io-body{height:194px;overflow:auto;padding:10px}
-    .relay{position:relative;display:grid;place-items:center;align-content:center;min-height:236px}
-    .relay::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;background:repeating-linear-gradient(90deg,#dce2e9 0 11px,transparent 11px 17px)}
-    .relay::after{content:"";position:absolute;right:1px;top:calc(50% - 7px);width:12px;height:12px;border-top:3px solid #dce2e9;border-right:3px solid #dce2e9;transform:rotate(45deg)}
-    .execute{z-index:2;width:62px;min-height:62px;padding:8px 5px;border:0;border-radius:50%;background:var(--signal);color:#211b00;font-size:9.5px;line-height:1.3;font-weight:950;box-shadow:0 8px 18px rgba(173,135,0,.20),inset 0 -3px 0 rgba(0,0,0,.08)}
-    .relay.running::before{background:linear-gradient(90deg,#dce2e9,var(--signal),#dce2e9);background-size:220% 100%;animation:flow 1s linear infinite}.relay.running::after{border-color:var(--signal)}
-    @keyframes flow{to{background-position:-220% 0}}
+    .io-body{height:calc(100% - 42px);overflow:auto;padding:10px}
+    .relay{position:relative;display:grid;place-items:center;min-height:62px}
+    .relay::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:3px;background:repeating-linear-gradient(180deg,#dce2e9 0 10px,transparent 10px 16px)}
+    .relay::after{content:"";position:absolute;left:calc(50% - 6px);bottom:1px;width:12px;height:12px;border-right:3px solid #dce2e9;border-bottom:3px solid #dce2e9;transform:rotate(45deg)}
+    .execute{z-index:2;min-width:126px;min-height:42px;padding:8px 18px;border:0;border-radius:12px;background:var(--signal);color:#211b00;font-size:10px;line-height:1.25;font-weight:950;box-shadow:0 8px 18px rgba(173,135,0,.20),inset 0 -3px 0 rgba(0,0,0,.08)}
+    .relay.running::before{background:linear-gradient(180deg,#dce2e9,var(--signal),#dce2e9);background-size:100% 220%;animation:flowVertical 1s linear infinite}.relay.running::after{border-color:var(--signal)}
+    @keyframes flowVertical{to{background-position:0 -220%}}
     .empty{height:100%;min-height:120px;border:1px dashed #ccd5e0;border-radius:11px;display:grid;place-items:center;text-align:center;color:#98a1ae;font-size:10px;padding:16px}
     .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
     .preset{border:1px solid var(--line);border-radius:11px;background:#fff;text-align:left;padding:11px;min-width:0}
@@ -148,9 +150,8 @@
     .vote-row{display:flex;gap:8px}.vote{flex:1;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px;font-size:10px;font-weight:850}.vote.selected{border-color:#c49d00;background:#fff9dc}
     .footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:18px}.nav{border:1px solid var(--line);border-radius:10px;background:#f3f6f9;color:var(--ink);padding:10px 15px;font-size:11px;font-weight:900}.nav.primary{border-color:var(--ink);background:var(--ink);color:#fff}
     .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-size:11px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:30;max-width:min(560px,90vw);text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast.error{background:var(--danger)}
-    @media(max-width:920px){.flow-tree{grid-template-columns:1fr 36px 1fr 36px 1fr;padding:11px 9px}.flow-link{margin:0 4px}.flow-node{padding-left:30px;padding-right:8px}.flow-node::before{left:3px}.flow-node-index{left:15px}.flow-node-state{display:none}.io-grid{grid-template-columns:1fr;min-height:0}.relay{min-height:88px}.relay::before{left:50%;right:auto;top:0;bottom:0;width:3px;height:auto;background:repeating-linear-gradient(180deg,#dce2e9 0 11px,transparent 11px 17px)}.relay::after{right:auto;left:calc(50% - 6px);top:auto;bottom:1px;transform:rotate(135deg)}.io-body{height:auto;min-height:360px}.topbar{align-items:flex-start}.brand span{display:none}}
-    @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-label{max-width:100%}.flow-tree{grid-template-columns:1fr;gap:8px;padding:12px}.flow-link{width:2px;height:24px;margin:0 auto;background:#d3dae3}.flow-link::before{left:50%;top:-2px;transform:translate(-50%,-50%)}.flow-link::after{right:auto;left:50%;top:auto;bottom:-1px;transform:translate(-50%,0) rotate(135deg)}.flow-pulse{left:50%;top:-3px;transform:translate(-50%,0)}.flow-map.running .flow-pulse{animation:signalTravelVertical 1.05s cubic-bezier(.45,0,.25,1) infinite}.preset-grid{grid-template-columns:1fr}.material-library-head{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}}
-    @keyframes signalTravelVertical{0%{top:-3px}100%{top:calc(100% - 3px)}}
+    @media(max-width:1060px){.stage-layout{grid-template-columns:1fr}.io-grid{height:620px}.flow-map{height:620px}.topbar{align-items:flex-start}.brand span{display:none}}
+    @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-label{max-width:100%}.io-grid{height:auto;grid-template-rows:auto 62px auto}.io-card{height:330px}.flow-map{height:auto;min-height:790px}.flow-tree{padding:16px 12px}.flow-node-grid{grid-template-columns:1fr}.flow-node{padding-left:36px;padding-right:8px}.flow-node-state{display:none}.preset-grid{grid-template-columns:1fr}.material-library-head{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
   </style>
 </head>
@@ -171,11 +172,13 @@
       <nav id="steps" class="steps" aria-label="评测步骤"></nav>
       <div class="stage">
         <div class="stage-head"><h2 id="stageTitle"></h2><div id="runLabel" class="run-label">等待开始</div></div>
-        <section id="flowMap" class="flow-map" aria-label="当前步骤输入到输出动态流程"></section>
-        <div class="io-grid">
-          <section class="io-card input"><div class="io-head"><span class="io-title">输入</span><span id="inputType" class="io-type"></span></div><div id="inputBody" class="io-body"></div></section>
-          <div id="relay" class="relay"><button id="execute" class="execute"></button></div>
-          <section class="io-card output"><div class="io-head"><span class="io-title">输出</span><span id="outputType" class="io-type"></span></div><div id="outputBody" class="io-body"></div></section>
+        <div class="stage-layout">
+          <div class="io-grid" aria-label="当前步骤的输入与输出">
+            <section class="io-card input"><div class="io-head"><span class="io-title">输入</span><span id="inputType" class="io-type"></span></div><div id="inputBody" class="io-body"></div></section>
+            <div id="relay" class="relay"><button id="execute" class="execute"></button></div>
+            <section class="io-card output"><div class="io-head"><span class="io-title">输出</span><span id="outputType" class="io-type"></span></div><div id="outputBody" class="io-body"></div></section>
+          </div>
+          <section id="flowMap" class="flow-map" aria-label="当前步骤输入到输出动态流程"></section>
         </div>
         <div class="footer"><button id="prev" class="nav">上一步</button><button id="next" class="nav primary">下一步</button></div>
       </div>
@@ -245,7 +248,7 @@
     }
     function flowColumn(type,title,nodes,status){
       const progress=Math.max(0,Math.min(100,state.flowProgress)),processActive=Math.min(nodes.length-1,Math.floor(Math.max(0,progress-.01)/72*nodes.length)),outputProgress=Math.max(0,(progress-72)/28),outputActive=Math.min(nodes.length-1,Math.floor(Math.max(0,outputProgress-.01)*nodes.length));
-      return '<div class="flow-column '+type+'"><div class="flow-column-label">'+esc(title)+'</div>'+nodes.map((node,index)=>{let nodeState='pending';if(status==='done'||type==='input'&&status==='running'||type==='process'&&status==='running'&&progress>=72)nodeState='done';else if(type==='process'&&status==='running')nodeState=index<processActive?'done':index===processActive?'active':'pending';else if(type==='output'&&status==='running'&&progress>=72)nodeState=index<outputActive?'done':index===outputActive?'active':'pending';return flowNode(node,nodeState,type,index)}).join('')+'</div>'
+      return '<div class="flow-column '+type+'"><div class="flow-column-label">'+esc(title)+'</div><div class="flow-node-grid">'+nodes.map((node,index)=>{let nodeState='pending';if(status==='done'||type==='input'&&status==='running'||type==='process'&&status==='running'&&progress>=72)nodeState='done';else if(type==='process'&&status==='running')nodeState=index<processActive?'done':index===processActive?'active':'pending';else if(type==='output'&&status==='running'&&progress>=72)nodeState=index<outputActive?'done':index===outputActive?'active':'pending';return flowNode(node,nodeState,type,index)}).join('')+'</div></div>'
     }
     function renderFlow(){
       const spec=flowSpec(),status=state.running?'running':state.completed.has(state.step)?'done':'ready',label=state.flowMessage||({running:'现场请求处理中',done:state.mode==='live'?'现场产物已生成':'已载入验证产物',ready:'等待执行'}[status]),progress=status==='done'?100:status==='ready'?0:Math.max(0,Math.min(100,state.flowProgress)),total=spec.process.length,processComplete=status==='done'||status==='running'&&progress>=72,current=processComplete?total:Math.min(total,Math.max(1,Math.floor(Math.max(0,progress-.01)/72*total)+1)),progressText=status==='done'?'全部子步骤已完成':status==='ready'?total+' 个子步骤已就绪':processComplete?'处理主干完成 · 正在生成输出分支':'当前子步骤 '+current+' / '+total;
