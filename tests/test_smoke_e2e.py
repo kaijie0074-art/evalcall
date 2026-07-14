@@ -52,6 +52,30 @@ def test_arena_emits_progress_only_after_real_model_events(tmp_path, monkeypatch
     assert trajectory["turns"][-1]["content"] == "外呼模型真实回复"
 
 
+def test_fast_live_judge_is_deterministic_and_does_not_call_llm(monkeypatch):
+    monkeypatch.setenv("EVALCALL_FAST_JUDGE", "1")
+    monkeypatch.setattr(
+        judge,
+        "_judge_batch_llm",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("现场规则 Judge 不应调用 LLM")),
+    )
+    checkpoints = [
+        {"id": "identity", "type": "flow", "text": "应表明美团客服身份", "source_quote": "表明身份", "severity": "major"},
+        {"id": "time", "type": "flow", "text": "确认改约时间", "source_quote": "时间段", "severity": "major"},
+        {"id": "forbid", "type": "forbidden", "text": "不得承诺", "source_quote": "不得承诺", "severity": "critical", "keywords": ["保证"]},
+    ]
+    trajectory = {
+        "turns": [
+            {"role": "agent", "turn": 0, "content": "您好，我是美团配送客服。"},
+            {"role": "user", "turn": 1, "content": "改到今晚可以吗？"},
+            {"role": "agent", "turn": 1, "content": "请先提供订单尾号，核实后再确认20:00—21:00时段。"},
+        ]
+    }
+    results = judge.judge_trajectory(checkpoints, trajectory, n_votes=1)
+    assert [row["verdict"] for row in results] == ["pass", "pass", "pass"]
+    assert all(row["method"] == "live_rule" for row in results)
+
+
 # =========================================================================== #
 # A1：grow 走真实 chat_json 签名（只桩传输层，签名不匹配会当场 TypeError）
 # =========================================================================== #

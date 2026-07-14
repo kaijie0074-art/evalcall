@@ -207,6 +207,63 @@ def compile_task(task: dict, model: Optional[str] = None) -> list[Checkpoint]:
     return checkpoints
 
 
+def compile_task_fast(task: dict, *, max_items: int = 14) -> list[Checkpoint]:
+    """在现场演示时用确定性路径快速生成一把可溯源检查尺。
+
+    优先消费任务文件内随 SOP 一起提交的候选检查点；自定义 SOP 没有候选时，
+    再按编号、项目符号和句号拆成原子条款。两条路径都重新执行枚举归一、唯一
+    ID 和原文溯源校验，因此这是对当前输入的现场编译，不读取历史评测结果。
+    完整正式批次仍使用 ``compile_task`` 的 LLM 编译与人工审核链路。
+    """
+    _, source_body = _task_to_text(task)
+    supplied = task.get("checkpoints")
+    raw_items: list[dict[str, Any]] = []
+    if isinstance(supplied, list):
+        raw_items = [dict(item) for item in supplied if isinstance(item, dict)]
+
+    if not raw_items:
+        clauses: list[str] = []
+        for raw_line in source_body.splitlines():
+            line = re.sub(r"^\s*(?:[-*•]|\d+[.、)])\s*", "", raw_line).strip()
+            if not line or (line.startswith("【") and line.endswith("】")):
+                continue
+            clauses.extend(part.strip() for part in re.split(r"[。；;]", line) if part.strip())
+        counters = {"flow": 0, "constraint": 0, "forbidden": 0, "style": 0}
+        for clause in clauses[:max_items]:
+            if any(token in clause for token in ("不得", "禁止", "严禁", "不可", "不要")):
+                cp_type = "forbidden"
+            elif any(token in clause for token in ("礼貌", "敬语", "语气", "表达清晰", "有条理")):
+                cp_type = "style"
+            elif any(token in clause for token in ("必须", "须", "需要", "确保", "至少", "仅限")):
+                cp_type = "constraint"
+            else:
+                cp_type = "flow"
+            counters[cp_type] += 1
+            severity = "critical" if cp_type == "forbidden" or any(
+                token in clause for token in ("核实身份", "用户确认", "安全", "隐私")
+            ) else "major"
+            raw_items.append(
+                {
+                    "id": f"{cp_type}_{counters[cp_type]}",
+                    "type": cp_type,
+                    "text": clause,
+                    "source_quote": clause,
+                    "severity": severity,
+                    "keywords": [],
+                }
+            )
+
+    checkpoints: list[Checkpoint] = []
+    seen_ids: set[str] = set()
+    for index, raw in enumerate(raw_items[:max_items], start=1):
+        cp = _coerce_checkpoint(raw, index, source_body)
+        if cp.id in seen_ids:
+            cp.id = f"{cp.id}_{index}"
+        seen_ids.add(cp.id)
+        checkpoints.append(cp)
+    return checkpoints
+
+
 def checkpoints_to_dicts(checkpoints: list[Checkpoint]) -> list[dict[str, Any]]:
     """便捷：把 Checkpoint 列表转成可 JSON 序列化的 dict 列表。"""
     return [cp.to_dict() for cp in checkpoints]

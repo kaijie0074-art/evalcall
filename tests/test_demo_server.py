@@ -261,6 +261,23 @@ def test_force_live_preset_never_reuses_verified_artifacts(tmp_path, monkeypatch
     assert demo_server._verified_evaluation(package["session_id"], session, votes=1) is None
 
 
+def test_force_live_compiles_current_sop_without_llm_or_verified_checklist(tmp_path, monkeypatch):
+    monkeypatch.setattr(demo_server, "WEB_RUNS", tmp_path / "web_live")
+    demo_server._sessions.clear()
+    package = demo_server._create_intake(
+        {"preset": "t02", "test_mode": "simulation", "test_count": 1, "force_live": True}
+    )
+
+    def fail_if_llm_compile_is_used(*args, **kwargs):
+        raise AssertionError("20秒现场编译不得调用慢速 LLM 编译器")
+
+    monkeypatch.setattr(demo_server.compiler, "compile_task", fail_if_llm_compile_is_used)
+    result = demo_server._compile_session(package["session_id"])
+    assert result["checkpoints"] >= 10
+    assert result["generation_method"].startswith("20 秒现场编译")
+    assert result["checklist_sha256"]
+
+
 def test_force_live_logs_respects_requested_subset(tmp_path, monkeypatch):
     monkeypatch.setattr(demo_server, "WEB_RUNS", tmp_path / "web_live")
     demo_server._sessions.clear()

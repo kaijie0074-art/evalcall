@@ -289,6 +289,72 @@ def _majority_vote(votes: list[dict]) -> tuple[str, float]:
     return final, agreement
 
 
+def _fast_rule_judgments(cps: list[dict[str, Any]], turns: list[dict]) -> list[dict[str, Any]]:
+    """20 秒现场探针使用的确定性 Judge；正式批次仍走双轨 LLM 裁判。"""
+    agent_turns = [turn for turn in turns if turn.get("role") == "agent"]
+    semantic_groups = (
+        (("身份", "本人", "订单尾号", "手机号尾号"), ("订单尾号", "手机号", "身份", "本人")),
+        (("时间", "时段", "改约"), ("时间", "时段", "改约", "点", ":")),
+        (("地址", "收货信息"), ("地址", "收货")),
+        (("联系方式",), ("联系方式", "手机号")),
+        (("礼貌", "敬语", "结束"), ("请", "感谢", "您好", "再见")),
+        (("身份", "美团配送客服", "说明来意"), ("美团", "客服", "配送")),
+    )
+
+    def evidence_for(tokens: tuple[str, ...]) -> list[dict[str, Any]]:
+        for turn in agent_turns:
+            content = str(turn.get("content") or "")
+            if any(token in content for token in tokens):
+                return [{"turn": turn.get("turn"), "quote": content[:200]}]
+        return []
+
+    results: list[dict[str, Any]] = []
+    for cp in cps:
+        cp_type = str(cp.get("type") or "")
+        if cp_type == "outcome":
+            outcome = _judge_outcome_rule(cp, turns)
+            if outcome is not None:
+                outcome["method"] = "live_rule"
+                outcome["vote_agreement"] = 1.0
+                outcome["needs_human_review"] = False
+                results.append(outcome)
+                continue
+            verdict, confidence, evidence = "na", 0.82, []
+        elif cp_type == "forbidden":
+            hit = _judge_forbidden_rule(cp, turns)
+            if hit is not None:
+                verdict, confidence, evidence = "fail", 1.0, hit.get("evidence") or []
+            else:
+                verdict, confidence = "pass", 0.9
+                evidence = ([{"turn": agent_turns[-1].get("turn"), "quote": str(agent_turns[-1].get("content") or "")[:200]}]
+                            if agent_turns else [])
+        else:
+            descriptor = f"{cp.get('text', '')} {cp.get('source_quote', '')}"
+            evidence = []
+            for descriptor_tokens, transcript_tokens in semantic_groups:
+                if any(token in descriptor for token in descriptor_tokens):
+                    evidence = evidence_for(transcript_tokens)
+                    if evidence:
+                        break
+            if not evidence and cp_type == "style" and agent_turns:
+                evidence = [{"turn": agent_turns[-1].get("turn"), "quote": str(agent_turns[-1].get("content") or "")[:200]}]
+            verdict = "pass" if evidence else "na"
+            confidence = 0.92 if evidence else 0.78
+        results.append(
+            {
+                "checkpoint_id": cp["id"],
+                "verdict": verdict,
+                "confidence": confidence,
+                "evidence": evidence,
+                "judge_votes": [{"verdict": verdict, "confidence": confidence, "method": "live_rule"}],
+                "vote_agreement": 1.0,
+                "method": "live_rule",
+                "needs_human_review": False,
+            }
+        )
+    return results
+
+
 # ----------------------------------------------------------------------------- #
 # 主入口
 # ----------------------------------------------------------------------------- #
@@ -312,6 +378,9 @@ def judge_trajectory(
     cps = [_cp_to_dict(cp) for cp in checkpoints]
     turns = _turns_of(trajectory)
     transcript_text = _format_transcript(turns)
+
+    if os.getenv("EVALCALL_FAST_JUDGE") == "1":
+        return _fast_rule_judgments(cps, turns)
 
     judgments: list[dict[str, Any]] = []
 

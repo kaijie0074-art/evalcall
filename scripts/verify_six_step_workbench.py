@@ -107,9 +107,9 @@ def main() -> int:
     )
     record(
         "truthful_mode_labels",
-        "完整结果（已验证）" in app_text and "现场真跑（动态）" in app_text and "禁止缓存" in app_text,
-        [label for label in ("完整结果（已验证）", "现场真跑（动态）", "禁止缓存") if label in app_text],
-        ["完整结果（已验证）", "现场真跑（动态）", "禁止缓存"],
+        "完整结果（已验证）" in app_text and "20秒现场探针" in app_text and "禁止缓存" in app_text,
+        [label for label in ("完整结果（已验证）", "20秒现场探针", "禁止缓存") if label in app_text],
+        ["完整结果（已验证）", "20秒现场探针", "禁止缓存"],
     )
     record(
         "dual_test_entries_visible",

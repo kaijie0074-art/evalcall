@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-14T15:20:55.413213+00:00",
+  "generated_at": "2026-07-14T16:02:32.737914+00:00",
   "status": "PASS",
   "scope_note": "Every selectable sample, cache report and verified run uses the same full batch count.",
   "checks": [
@@ -29,12 +29,12 @@
       "passed": true,
       "actual": [
         "完整结果（已验证）",
-        "现场真跑（动态）",
+        "20秒现场探针",
         "禁止缓存"
       ],
       "expected": [
         "完整结果（已验证）",
-        "现场真跑（动态）",
+        "20秒现场探针",
         "禁止缓存"
       ]
     },
@@ -536,7 +536,7 @@
     }
   ],
   "artifacts": {
-    "site-deploy/app.html": "19b175e78aa18bc0e852f4cad96660bb6c73f544c05d36ebc1f72ef4e68d35bf",
+    "site-deploy/app.html": "16de666a6f6c3adf454ba653aafd5bca540640076f050eaa968d1f28ac9adbd4",
     "site-deploy/demo-cache.json": "de1b5494d06df07fcf9b10a71be4982fe80825c4f77cb71decbf4b33025da105",
     "样例选择包/01_骑手合同生效通知_对话_12通.jsonl": "bd64cd0c1fcaa255ada78962e073755f363497907000d1d8709a2565b76a34d6",
     "样例选择包/02_配送时间改约_对话_10通.jsonl": "84debb21d1406d3a7997de69ecf94957ef1a3d82d3296fb84c58fa066aa66381",
