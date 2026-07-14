@@ -13,14 +13,17 @@
 
 ## 先看产品，再看研究
 
+- 决赛固定公网入口：[EvalCall 决赛演示入口](https://kaijie0074-art.github.io/evalcall/live.html)
 - 在线六步流程工作台：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
 - 研究与历史证据：[项目证据首页](https://kaijie0074-art.github.io/evalcall/)
 - 本地启动：`python3 -m evalcall demo`，打开 `http://127.0.0.1:8765/`
+- 决赛公网启动（自己的 Mac）：双击 `scripts/启动决赛公网Demo.command`
 - 答辩数字索引：[`docs/EvalCall证据索引-20260712.md`](docs/EvalCall证据索引-20260712.md)
 
-## 决赛最终交付（2026-07-14）
+## 决赛最终交付（2026-07-15）
 
-- 10 分钟路演 PPT（评审高分终版）：[`docs/EvalCall答辩稿-评审高分终版-20260714.pptx`](docs/EvalCall答辩稿-评审高分终版-20260714.pptx)
+- 统一 PPT + 公网 Demo + U 盘兜底包：[`submission/EvalCall决赛提交包-20260715/`](submission/EvalCall决赛提交包-20260715/)
+- 公网决赛验收记录：[`docs/acceptance/EvalCall公网决赛验收记录-20260715.md`](docs/acceptance/EvalCall公网决赛验收记录-20260715.md)
 - 10 分钟正式讲稿：[`docs/EvalCall答辩演示脚本-10分钟-20260714.md`](docs/EvalCall答辩演示脚本-10分钟-20260714.md)
 - 10 分钟问答预案：[`docs/EvalCall答辩问答预案-10分钟-20260714.md`](docs/EvalCall答辩问答预案-10分钟-20260714.md)
 - 最新方案设计：[`docs/EvalCall方案设计文档-最终版-20260714.md`](docs/EvalCall方案设计文档-最终版-20260714.md)

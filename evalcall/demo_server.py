@@ -9,9 +9,11 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import mimetypes
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -21,10 +23,11 @@ import uuid
 from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
+from http.cookies import SimpleCookie
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qsl, urlencode, unquote, urlparse
 
 import yaml
 
@@ -97,6 +100,7 @@ PRESETS: dict[str, dict[str, str]] = {
 
 _jobs: dict[str, dict[str, Any]] = {}
 _sessions: dict[str, dict[str, Any]] = {}
+_public_rate_buckets: dict[str, dict[str, float | int]] = {}
 _lock = threading.Lock()
 _backend_status: dict[str, Any] = {
     "checked": False,
@@ -1406,8 +1410,94 @@ _ARTIFACTS = {
 
 
 class DemoHandler(SimpleHTTPRequestHandler):
+    _ACCESS_COOKIE = "evalcall_demo_access"
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, directory=str(SITE), **kwargs)
+
+    @staticmethod
+    def _public_access_token() -> str:
+        return os.getenv("EVALCALL_PUBLIC_ACCESS_TOKEN", "").strip()
+
+    def _provided_access_token(self) -> str:
+        header_token = self.headers.get("X-EvalCall-Access", "").strip()
+        if header_token:
+            return header_token
+        cookie = SimpleCookie()
+        try:
+            cookie.load(self.headers.get("Cookie", ""))
+        except Exception:  # noqa: BLE001 - malformed cookies must fail closed
+            return ""
+        morsel = cookie.get(self._ACCESS_COOKIE)
+        return morsel.value if morsel else ""
+
+    def _is_public_authorized(self) -> bool:
+        expected = self._public_access_token()
+        if not expected:
+            return True
+        provided = self._provided_access_token()
+        return bool(provided) and hmac.compare_digest(provided, expected)
+
+    def _set_access_cookie_and_redirect(self, parsed: Any, token: str) -> bool:
+        expected = self._public_access_token()
+        if not expected or not token or not hmac.compare_digest(token, expected):
+            return False
+        query = urlencode([(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True) if key != "access"])
+        location = parsed.path or "/"
+        if query:
+            location += "?" + query
+        cookie = f"{self._ACCESS_COOKIE}={token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=43200"
+        if self.headers.get("X-Forwarded-Proto", "").lower() == "https":
+            cookie += "; Secure"
+        self.send_response(HTTPStatus.FOUND)
+        self.send_header("Location", location)
+        self.send_header("Set-Cookie", cookie)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.end_headers()
+        return True
+
+    def _deny_public_access(self) -> None:
+        if self.path.startswith("/api/"):
+            self._json({"ok": False, "error": "public_access_required"}, HTTPStatus.FORBIDDEN)
+            return
+        body = (
+            "<!doctype html><html lang='zh-CN'><meta charset='utf-8'>"
+            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+            "<title>EvalCall · 访问受保护</title>"
+            "<body style='font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;"
+            "max-width:720px;margin:15vh auto;padding:32px;color:#111827'>"
+            "<h1>该实时演示入口受保护</h1>"
+            "<p>请从比赛 PPT 的“打开在线 Demo”按钮进入，或使用公网已验证结果。</p>"
+            "</body></html>"
+        ).encode("utf-8")
+        self.send_response(HTTPStatus.FORBIDDEN)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _public_rate_limit_ok(self) -> bool:
+        if not self._public_access_token():
+            return True
+        try:
+            maximum = max(6, int(os.getenv("EVALCALL_PUBLIC_POSTS_PER_15M", "90")))
+        except ValueError:
+            maximum = 90
+        forwarded = self.headers.get("CF-Connecting-IP") or self.headers.get("X-Forwarded-For") or ""
+        client = forwarded.split(",", 1)[0].strip() or self.client_address[0]
+        now = time.time()
+        with _lock:
+            bucket = _public_rate_buckets.get(client)
+            if not bucket or now - float(bucket["started_at"]) >= 900:
+                _public_rate_buckets[client] = {"started_at": now, "count": 1}
+                return True
+            if int(bucket["count"]) >= maximum:
+                return False
+            bucket["count"] = int(bucket["count"]) + 1
+        return True
 
     def _json(self, data: Any, status: int = 200) -> None:
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
@@ -1455,8 +1545,15 @@ class DemoHandler(SimpleHTTPRequestHandler):
                         (ROOT / config["live_verified_run"] / "summary.json").is_file()
                         for config in PRESETS.values()
                     ),
+                    "public_access_protected": bool(self._public_access_token()),
                 }
             )
+            return
+        query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        if "access" in query and self._set_access_cookie_and_redirect(parsed, query["access"]):
+            return
+        if not self._is_public_authorized():
+            self._deny_public_access()
             return
         if parsed.path.startswith("/api/jobs/"):
             job_id = parsed.path.rsplit("/", 1)[-1]
@@ -1507,6 +1604,12 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
+        if not self._is_public_authorized():
+            self._deny_public_access()
+            return
+        if not self._public_rate_limit_ok():
+            self._json({"ok": False, "error": "public_rate_limit_exceeded"}, HTTPStatus.TOO_MANY_REQUESTS)
+            return
         handlers = {
             "/api/intake": _create_intake,
             "/api/compile": lambda data: _compile_session(str(data.get("session_id") or "")),
@@ -1544,7 +1647,8 @@ class DemoHandler(SimpleHTTPRequestHandler):
             self._json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
 
     def log_message(self, fmt: str, *args: Any) -> None:
-        print(f"[demo] {self.address_string()} {fmt % args}")
+        message = re.sub(r"([?&]access=)[^&\s]+", r"\1[redacted]", fmt % args)
+        print(f"[demo] {self.address_string()} {message}")
 
 
 def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
