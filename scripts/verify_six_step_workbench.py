@@ -107,9 +107,9 @@ def main() -> int:
     )
     record(
         "truthful_mode_labels",
-        "缓存结果 · 已验证产物" in app_text and "实时模式 · 模型后端已验证" in app_text,
-        ["缓存结果 · 已验证产物", "实时模式 · 模型后端已验证"],
-        ["缓存结果 · 已验证产物", "实时模式 · 模型后端已验证"],
+        "完整结果（已验证）" in app_text and "现场真跑（动态）" in app_text and "禁止缓存" in app_text,
+        [label for label in ("完整结果（已验证）", "现场真跑（动态）", "禁止缓存") if label in app_text],
+        ["完整结果（已验证）", "现场真跑（动态）", "禁止缓存"],
     )
     record(
         "dual_test_entries_visible",

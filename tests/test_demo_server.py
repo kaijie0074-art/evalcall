@@ -235,6 +235,53 @@ def test_custom_simulation_accepts_sop_without_transcripts(tmp_path, monkeypatch
     assert session["simulator_n"] * len(session["personas"].split(",")) == 6
 
 
+def test_force_live_preset_never_reuses_verified_artifacts(tmp_path, monkeypatch):
+    monkeypatch.setattr(demo_server, "WEB_RUNS", tmp_path / "web_live")
+    demo_server._sessions.clear()
+    package = demo_server._create_intake(
+        {
+            "preset": "t02",
+            "test_mode": "simulation",
+            "target_model": "gpt-5.6-sol",
+            "test_count": 1,
+            "force_live": True,
+        }
+    )
+    assert package["evaluation_strategy"] == "现场重新计算（禁止复用缓存）"
+    assert package["conversations"] == 1
+    assert package["turns"] == 0
+    assert package["target_model_version"] == "gpt-5.6-sol"
+    assert package["live_max_turns"] == 1
+    session = demo_server._sessions[package["session_id"]]
+    assert session["force_live"] is True
+    assert session["live_max_turns"] == 1
+    assert session["verified_checklist"] is None
+    assert session["verified_run"] is None
+    assert session["transcripts_path"] is None
+    assert demo_server._verified_evaluation(package["session_id"], session, votes=1) is None
+
+
+def test_force_live_logs_respects_requested_subset(tmp_path, monkeypatch):
+    monkeypatch.setattr(demo_server, "WEB_RUNS", tmp_path / "web_live")
+    demo_server._sessions.clear()
+    package = demo_server._create_intake(
+        {
+            "preset": "real_recruit",
+            "test_mode": "logs",
+            "target_model": "recruit-live-v1",
+            "test_count": 2,
+            "force_live": True,
+        }
+    )
+    assert package["test_count"] == 2
+    assert package["conversations"] == 2
+    assert package["evaluation_strategy"] == "现场重新计算（禁止复用缓存）"
+    session = demo_server._sessions[package["session_id"]]
+    assert session["verified_checklist"] is None
+    assert session["verified_run"] is None
+    assert len(Path(session["transcripts_path"]).read_text(encoding="utf-8").splitlines()) == 2
+
+
 def test_logs_mode_requires_both_sop_and_transcripts(tmp_path, monkeypatch):
     monkeypatch.setattr(demo_server, "WEB_RUNS", tmp_path / "web_live")
     demo_server._sessions.clear()

@@ -16,7 +16,10 @@ LLM 调用统一走 evalcall.llm，本模块不实现具体后端。
 
 from __future__ import annotations
 
+import json
+import os
 import uuid
+from pathlib import Path
 from typing import Any, Optional
 
 from evalcall.llm import target_chat
@@ -24,6 +27,36 @@ from evalcall.simulator import UserSimulator
 
 # 外呼第一句：当被测模型生成开场白失败时的兜底，避免空轨迹。
 _FALLBACK_OPENING = "您好，这里是美团客服，请问现在方便接听电话吗？"
+
+
+def _emit_live_progress(
+    stage: str,
+    *,
+    completed_steps: int,
+    total_steps: int,
+    turn: int,
+    detail: str,
+) -> None:
+    """把真实对话调用进度写给本地演示服务；未配置时完全无副作用。"""
+    raw_path = os.getenv("EVALCALL_PROGRESS_FILE", "").strip()
+    if not raw_path:
+        return
+    path = Path(raw_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "stage": stage,
+        "completed_steps": completed_steps,
+        "total_steps": max(1, total_steps),
+        "turn": turn,
+        "detail": detail,
+    }
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp, path)
+    except OSError:
+        # 进度展示不得影响正式评测本身。
+        pass
 
 
 def _extract_checkpoint_texts(checkpoints: Optional[list[dict[str, Any]]]) -> list[str]:
@@ -136,12 +169,27 @@ def run_dialogue(
     if not opening:
         opening = _FALLBACK_OPENING
     turns.append({"role": "agent", "content": opening, "turn": turn_idx})
+    total_live_steps = 1 + max_turns * 2
+    _emit_live_progress(
+        "target_opening",
+        completed_steps=1,
+        total_steps=total_live_steps,
+        turn=0,
+        detail="外呼模型已生成开场白",
+    )
 
     # ---- 轮替对话 ----
     for turn_idx in range(1, max_turns + 1):
         # 用户回应
         user_reply, hung_up = simulator.next_reply(turns)
         turns.append({"role": "user", "content": user_reply, "turn": turn_idx})
+        _emit_live_progress(
+            "simulator_reply",
+            completed_steps=turn_idx * 2,
+            total_steps=total_live_steps,
+            turn=turn_idx,
+            detail=f"用户模拟器已生成第 {turn_idx} 轮回应",
+        )
         if hung_up:
             end_reason = "user_hangup"
             break
@@ -157,6 +205,13 @@ def run_dialogue(
             # 被测模型异常给空，记录占位但不中断，交给 judge 评判。
             agent_reply = "（系统无回复）"
         turns.append({"role": "agent", "content": agent_reply, "turn": turn_idx})
+        _emit_live_progress(
+            "target_reply",
+            completed_steps=turn_idx * 2 + 1,
+            total_steps=total_live_steps,
+            turn=turn_idx,
+            detail=f"外呼模型已生成第 {turn_idx} 轮回复",
+        )
     else:
         # for 正常跑满未 break：达到 max_turns
         end_reason = "max_turns"

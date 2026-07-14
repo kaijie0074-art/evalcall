@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import threading
+import time
 import uuid
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -788,6 +789,7 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
     task_text = str(config.get("task_text") or "")
     transcripts_text = str(config.get("transcripts_text") or "")
     requested_mode = str(config.get("test_mode") or "").strip().lower()
+    force_live = bool(config.get("force_live"))
     test_mode = requested_mode or ("logs" if transcripts_text else "simulation")
     if test_mode not in {"simulation", "logs"}:
         raise ValueError("测试入口仅支持 simulation（模拟测试）或 logs（已有日志质检）")
@@ -832,10 +834,18 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
             raise ValueError(f"未知样例：{preset_id}")
         preset = PRESETS[preset_id]
         shutil.copyfile(ROOT / preset["task"], task_path)
-        raw_transcripts = ROOT / preset["transcripts"]
-        verified_checklist = ROOT / preset["verified_checklist"]
-        verified_run = ROOT / preset["live_verified_run"]
-        source = "内置用户模拟器样例" if test_mode == "simulation" else "内置已有日志样例"
+        raw_transcripts = None if force_live and test_mode == "simulation" else ROOT / preset["transcripts"]
+        verified_checklist = None if force_live else ROOT / preset["verified_checklist"]
+        verified_run = None if force_live else ROOT / preset["live_verified_run"]
+        source = (
+            "内置任务 · 现场用户模拟器真跑"
+            if force_live and test_mode == "simulation"
+            else "内置日志 · 现场重新评测"
+            if force_live
+            else "内置用户模拟器样例"
+            if test_mode == "simulation"
+            else "内置已有日志样例"
+        )
         preset_value = preset_id
         target_model = str(config.get("target_model") or preset.get("model_version") or "待测模型-未命名")
 
@@ -849,7 +859,7 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
         loaded = ingest.load_transcripts(str(raw_transcripts), str(task["task_id"]), redact=True)
     if task_text and raw_transcripts is not None:
         matched_preset = _match_verified_preset(task, raw_transcripts)
-        if matched_preset:
+        if matched_preset and not force_live:
             preset = PRESETS[matched_preset]
             verified_checklist = ROOT / preset["verified_checklist"]
             verified_run = ROOT / preset["live_verified_run"]
@@ -863,6 +873,12 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
 
     normalized_path: Path | None = None
     if loaded is not None:
+        if force_live and requested_count < len(loaded.trajectories):
+            loaded.trajectories = loaded.trajectories[:requested_count]
+            loaded.report = dict(loaded.report)
+            loaded.report["accepted"] = len(loaded.trajectories)
+            loaded.report["live_subset"] = True
+            loaded.report["live_subset_note"] = f"现场真跑仅取前 {requested_count} 通；完整批次请查看已验证结果"
         normalized_path = input_dir / "normalized_transcripts.jsonl"
         _write_jsonl(normalized_path, loaded.trajectories)
         ingestion_report = loaded.report
@@ -896,7 +912,13 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
         source=source,
         preset=preset_value,
         recognized_sample=bool(preset_value),
-        evaluation_strategy="复用同输入已验证结果" if verified_run else "调用当前模型现场评测",
+        evaluation_strategy=(
+            "现场重新计算（禁止复用缓存）"
+            if force_live
+            else "复用同输入已验证结果"
+            if verified_run
+            else "调用当前模型现场评测"
+        ),
         test_mode=test_mode,
         test_mode_label="用户模拟器生成测试对话" if test_mode == "simulation" else "评估已有对话日志",
         target_model_version=target_model,
@@ -905,6 +927,7 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
         personas=profile["personas"],
         simulator_generated_calls=profile["simulator_generated_calls"],
         synthetic_branch_calls=profile["synthetic_branch_calls"],
+        live_max_turns=(1 if force_live and test_mode == "simulation" else None),
         hashes={
             "sop_sha256": task_hash,
             "transcripts_sha256": transcript_hash,
@@ -930,6 +953,8 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
             "personas": simulator_personas,
             "simulator_n": simulator_n,
             "target_model": target_model,
+            "force_live": force_live,
+            "live_max_turns": 1 if force_live and test_mode == "simulation" else 12,
             "sop_sha256": task_hash,
             "transcripts_sha256": transcript_hash,
             "created_at": _now(),
@@ -987,6 +1012,8 @@ def _compile_session(session_id: str) -> dict[str, Any]:
 
 def _verified_evaluation(session_id: str, session: dict[str, Any], votes: int) -> dict[str, Any] | None:
     """仅在任务、完整对话和评分标准全部一致时复用已验证评测产物。"""
+    if session.get("force_live"):
+        return None
     source_value = session.get("verified_run")
     if not source_value:
         return None
@@ -1073,13 +1100,16 @@ def _run_evaluation(job_id: str, session_id: str, votes: int) -> None:
                 "--checklist", session["checklist_path"],
                 "--out", str(output_dir),
                 "--votes", str(votes),
-                "--max-turns", "12",
+                "--max-turns", str(session.get("live_max_turns") or 12),
                 "--seed", "20260713",
                 "--no-mix",
             ]
             env.setdefault("TARGET_BACKEND", env.get("EVALCALL_BACKEND", "codex-cli"))
             env["TARGET_MODEL"] = str(session.get("target_model") or env.get("EVALCALL_MODEL") or "")
             env.setdefault("TARGET_REASONING_EFFORT", env.get("EVALCALL_REASONING_EFFORT", "xhigh"))
+            progress_path = Path(session["root"]) / "live-progress.json"
+            progress_path.unlink(missing_ok=True)
+            env["EVALCALL_PROGRESS_FILE"] = str(progress_path)
             stage = "用户模拟器正在按 persona 生成对话并测试外呼模型"
             execution_note = "已现场运行用户模拟器，生成测试对话并用同一评分标准评估外呼模型"
         else:
@@ -1097,8 +1127,38 @@ def _run_evaluation(job_id: str, session_id: str, votes: int) -> None:
             stage = "正在用同一评分标准质检已有对话"
             execution_note = "已调用当前模型完成已有日志的现场质检"
         _job_update(job_id, status="running", progress=18, stage=stage)
-        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=3600, env=env)
-        log = ((proc.stdout or "") + "\n" + (proc.stderr or "")).strip()[-16000:]
+        proc = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+        started = time.monotonic()
+        try:
+            while proc.poll() is None:
+                if time.monotonic() - started > 3600:
+                    raise TimeoutError("现场评测超过 60 分钟，已终止")
+                transcripts_file = output_dir / "transcripts.jsonl"
+                judgments_file = output_dir / "judgments.json"
+                if judgments_file.is_file():
+                    _job_update(job_id, progress=92, stage="裁判判定完成，正在汇总报告")
+                elif transcripts_file.is_file() and transcripts_file.stat().st_size > 0:
+                    _job_update(job_id, progress=76, stage="新对话已落盘，裁判正在逐项评分")
+                elif session.get("test_mode") == "simulation":
+                    progress_file = Path(session["root"]) / "live-progress.json"
+                    progress = _read_json(progress_file) if progress_file.is_file() else {}
+                    completed = int(progress.get("completed_steps") or 0)
+                    total = max(1, int(progress.get("total_steps") or 1))
+                    if completed:
+                        percent = 18 + round(min(1.0, completed / total) * 52)
+                        _job_update(job_id, progress=percent, stage=str(progress.get("detail") or stage))
+                time.sleep(0.35)
+            stdout, stderr = proc.communicate()
+        except Exception:
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait(timeout=2)
+            raise
+        log = ((stdout or "") + "\n" + (stderr or "")).strip()[-16000:]
         if proc.returncode != 0:
             backend = env.get("EVALCALL_BACKEND", "unknown")
             model = env.get("EVALCALL_MODEL", "unknown")

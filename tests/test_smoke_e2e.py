@@ -26,6 +26,32 @@ if _PROJECT_ROOT not in sys.path:
 from evalcall import arena, cli, compiler, grow, judge, lint, llm, report  # noqa: E402
 
 
+def test_arena_emits_progress_only_after_real_model_events(tmp_path, monkeypatch):
+    progress_path = tmp_path / "live-progress.json"
+    monkeypatch.setenv("EVALCALL_PROGRESS_FILE", str(progress_path))
+    monkeypatch.setattr(arena, "target_chat", lambda messages: "外呼模型真实回复")
+
+    class _Simulator:
+        strategy_log = []
+
+        def __init__(self, **kwargs):
+            pass
+
+        def next_reply(self, turns):
+            return "用户模拟器真实回应", False
+
+    monkeypatch.setattr(arena, "UserSimulator", _Simulator)
+    trajectory = arena.run_dialogue(
+        {"task_id": "t", "instruction": "完成外呼任务"},
+        {"persona_id": "p"},
+        max_turns=1,
+    )
+    payload = json.loads(progress_path.read_text(encoding="utf-8"))
+    assert payload["stage"] == "target_reply"
+    assert payload["completed_steps"] == payload["total_steps"] == 3
+    assert trajectory["turns"][-1]["content"] == "外呼模型真实回复"
+
+
 # =========================================================================== #
 # A1：grow 走真实 chat_json 签名（只桩传输层，签名不匹配会当场 TypeError）
 # =========================================================================== #
