@@ -12,7 +12,9 @@
         .then(response => response.json())
         .then(endpoint => {
           const base = String(endpoint.live_url || '').replace(/\/$/, '');
-          if (base) location.replace(base + '/app.html' + location.search + location.hash);
+          if (!base) return;
+          return fetch(base + '/api/health?ts=' + Date.now(), {mode: 'no-cors', cache: 'no-store'})
+            .then(() => location.replace(base + '/app.html' + location.search + location.hash));
         })
         .catch(() => {});
     }
@@ -179,13 +181,12 @@
     @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.formula{text-align:left}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-context{max-width:100%;text-align:left}.io-grid{height:auto;grid-template-rows:auto 62px auto}.io-card{height:350px}.flow-map{height:auto;min-height:790px}.flow-tree{padding:16px 12px}.flow-node-grid{grid-template-columns:1fr}.flow-node{padding-left:36px;padding-right:8px}.flow-node-state{display:none}.preset-grid{grid-template-columns:1fr}.material-library-head{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}.detail-head{display:none}.detail-row{grid-template-columns:1fr auto}.detail-id{grid-column:1/-1}.detail-action{align-self:start}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
   </style>
+  <link rel="stylesheet" href="./component-library/evalcall-selected-theme.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand"><div class="brand-mark">E</div><div><strong>EvalCall</strong><span>外呼模型评测工作台</span></div></div>
     <div class="top-controls">
-      <a class="library-link" href="./evalcall-style-configurator.html">子元素选型台</a>
-      <a class="library-link" href="./design-library.html">界面审美图鉴</a>
       <div class="mode-switch" aria-label="运行模式">
         <button id="cacheMode" class="active">完整结果（已验证）</button>
         <button id="liveMode">20秒现场探针</button>
