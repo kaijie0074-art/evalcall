@@ -19,8 +19,15 @@
       .then(endpoint => {
         const base=String(endpoint.live_url||'').replace(/\/$/,'');
         if(!base) throw new Error('暂无实时地址');
-        return fetch(base + '/api/health?ts=' + Date.now(), {mode:'no-cors',cache:'no-store'})
-          .then(() => location.replace(base + '/app.html'));
+        return fetch(base + '/api/health?ts=' + Date.now(), {mode:'cors',cache:'no-store'})
+          .then(response => {
+            if(!response.ok) throw new Error('实时地址不可用');
+            return response.json();
+          })
+          .then(health => {
+            if(!health.ok || health.public_access !== 'open') throw new Error('实时服务未就绪');
+            location.replace(base + '/app.html');
+          });
       })
       .catch(() => {
         document.querySelector('#status').textContent='实时地址暂未刷新，可先打开已验证完整结果。';
