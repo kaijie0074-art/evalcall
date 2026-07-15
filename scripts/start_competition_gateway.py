@@ -14,7 +14,6 @@ import sys
 import tempfile
 import time
 import urllib.error
-import urllib.parse
 import urllib.request
 import webbrowser
 from pathlib import Path
@@ -25,7 +24,7 @@ TOKEN_FILE = Path.home() / ".evalcall" / "public-access-token"
 SITE = ROOT / "site-deploy"
 PORT = 8766
 PUBLIC_ENDPOINT = "https://kaijie0074-art.github.io/evalcall/live-endpoint.json"
-PUBLIC_ENTRY = "https://kaijie0074-art.github.io/evalcall/live.html"
+PUBLIC_ENTRY = "https://kaijie0074-art.github.io/evalcall/app.html"
 TUNNEL_PATTERN = re.compile(r"https://[a-z0-9-]+\.trycloudflare\.com")
 
 
@@ -187,19 +186,38 @@ def main() -> int:
         if not health.get("backend_available") or not health.get("public_access_protected"):
             raise RuntimeError("公网服务存在，但模型后端或访问保护未就绪")
         print("[4/4] 公网真实后端验收通过")
-        webbrowser.open(PUBLIC_ENTRY + "?access=" + urllib.parse.quote(token))
+        if not os.environ.get("EVALCALL_NO_BROWSER"):
+            webbrowser.open(PUBLIC_ENTRY)
         if shutil.which("caffeinate"):
             caffeinate = subprocess.Popen(["caffeinate", "-dimsu"])  # noqa: S603,S607 - macOS system utility
         print("\n比赛入口已打开。请保持本窗口、电脑和网络在线；按 Ctrl+C 才会停止实时通道。")
+        health_failures = 0
+        next_public_probe = 0.0
         while tunnel.poll() is None:
             time.sleep(5)
+            if not local_public_server_ready():
+                health_failures += 1
+            elif time.time() >= next_public_probe:
+                next_public_probe = time.time() + 30
+                try:
+                    public_health = request_json(live_url + "/api/health", timeout=12)
+                    if public_health.get("backend_available") and public_health.get("public_access_protected"):
+                        health_failures = 0
+                    else:
+                        health_failures += 1
+                except Exception:  # noqa: BLE001 - watchdog restarts the entire gateway
+                    health_failures += 1
+            else:
+                health_failures = 0
+            if health_failures >= 3:
+                raise RuntimeError("实时服务连续三次健康检查失败，交由系统自动重启")
         raise RuntimeError("HTTPS 隧道意外退出")
     except KeyboardInterrupt:
         print("\n正在关闭比赛实时通道……")
         return 0
     except Exception as exc:  # noqa: BLE001 - concise operator-facing failure
         print(f"\n启动失败：{exc}", file=sys.stderr)
-        print(f"兜底入口：{PUBLIC_ENTRY.replace('live.html', 'app.html')}", file=sys.stderr)
+        print(f"统一 Demo 入口：{PUBLIC_ENTRY}", file=sys.stderr)
         return 1
     finally:
         for process in (caffeinate, tunnel, server):

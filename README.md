@@ -13,8 +13,9 @@
 
 ## 先看产品，再看研究
 
-- 决赛固定公网入口：[EvalCall 决赛演示入口](https://kaijie0074-art.github.io/evalcall/live.html)
-- 在线六步流程工作台：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
+- 决赛固定公网入口与在线六步流程工作台统一为：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
+- 最小子元素设计与效果演示库：本地服务打开 `/design-library.html`。库内包含 16 个参考产品、47 个可运行原子和“产品 → 子元素 / 子元素 → 效果、代码、步骤”的双向索引。
+- 旧入口 `live.html` 会自动跳转到 `app.html`，兼容已经提交的 PPT 与历史链接。
 - 研究与历史证据：[项目证据首页](https://kaijie0074-art.github.io/evalcall/)
 - 本地启动：`python3 -m evalcall demo`，打开 `http://127.0.0.1:8765/`
 - 决赛公网启动（自己的 Mac）：双击 `scripts/启动决赛公网Demo.command`
