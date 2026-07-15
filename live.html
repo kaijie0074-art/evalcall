@@ -4,15 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="refresh" content="0;url=app.html">
-  <link rel="canonical" href="app.html">
-  <title>EvalCall · 正在打开在线 Demo</title>
-  <script>
-    // 兼容已经提交的 PPT 和历史链接：旧入口统一跳到正式 Demo。
-    location.replace(new URL('app.html', location.href).href);
-  </script>
+  <title>EvalCall · 正在进入实时 Demo</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#eef2f6;color:#142039;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",sans-serif}
+    main{width:min(560px,calc(100vw - 40px));border:1px solid #d6dee8;border-radius:20px;background:#fff;padding:34px;box-shadow:0 20px 54px rgba(20,32,57,.09)}
+    i{display:block;width:44px;height:44px;border-radius:12px;background:#ffd100;margin-bottom:24px}h1{margin:0;font-size:28px;letter-spacing:-.04em}p{color:#687386;line-height:1.7}a{display:inline-flex;margin-top:10px;border-radius:10px;background:#142039;color:#fff;padding:11px 15px;text-decoration:none;font-weight:800}
+  </style>
 </head>
 <body>
-  <p>正在打开 EvalCall 在线 Demo。若未自动跳转，请<a href="app.html">点击这里</a>。</p>
+  <main><i></i><h1>正在连接 EvalCall 实时 Demo</h1><p id="status">正在读取当前公开服务地址，无需访问令牌或本地命令。</p><a id="fallback" href="app.html" hidden>打开已验证结果</a></main>
+  <script>
+    fetch('./live-endpoint.json?ts=' + Date.now(), {cache:'no-store'})
+      .then(response => response.json())
+      .then(endpoint => {
+        const base=String(endpoint.live_url||'').replace(/\/$/,'');
+        if(!base) throw new Error('暂无实时地址');
+        location.replace(base + '/app.html');
+      })
+      .catch(() => {
+        document.querySelector('#status').textContent='实时地址暂未刷新，可先打开已验证完整结果。';
+        document.querySelector('#fallback').hidden=false;
+      });
+  </script>
 </body>
 </html>
