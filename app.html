@@ -100,11 +100,13 @@
     .flow-column-label{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 9px;font:900 10.5px var(--font-data);color:#7e8999;letter-spacing:.12em;text-transform:uppercase}
     .flow-column-label::before{content:"";width:18px;height:2px;background:currentColor;opacity:.45}
     .flow-node-grid{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-    .flow-node{position:relative;min-height:52px;padding:10px 66px 10px 40px;border:1px solid #d7dee7;border-radius:10px;background:#fff;color:#5b687b;font-size:12.5px;font-weight:900;line-height:1.35;overflow:hidden;box-shadow:0 3px 9px rgba(20,32,57,.04);transition:border-color .25s,background .25s,color .25s,transform .25s,box-shadow .25s,opacity .25s}
+    .flow-node{position:relative;width:100%;min-height:52px;padding:10px 66px 10px 40px;border:1px solid #d7dee7;border-radius:10px;appearance:none;text-align:left;font-family:inherit;font-size:12.5px;font-weight:900;line-height:1.35;background:#fff;color:#5b687b;overflow:hidden;cursor:pointer;box-shadow:0 3px 9px rgba(20,32,57,.04);transition:border-color .25s,background .25s,color .25s,transform .25s,box-shadow .25s,opacity .25s}
     .flow-node::before{content:"";position:absolute;z-index:1;left:4px;top:50%;width:10px;height:10px;border:4px solid #f7f9fb;border-radius:50%;background:#c8d0db;transform:translateY(-50%)}
     .flow-node small{display:block;margin-top:2px;color:#8792a2;font:800 9.5px var(--font-data);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .flow-node-index{position:absolute;left:19px;top:50%;transform:translateY(-50%);font:900 9px var(--font-data);color:#8a95a4}
     .flow-node-state{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:950 8.5px var(--font-data);color:#939daa;letter-spacing:.02em}
+    .flow-node:hover{z-index:3;transform:translateY(-2px);box-shadow:0 8px 18px rgba(20,32,57,.12)}.flow-node:focus-visible{outline:3px solid rgba(255,209,0,.48);outline-offset:2px}.flow-node.is-inspected{box-shadow:0 0 0 3px rgba(255,209,0,.28)}
+    .flow-inspect-hint{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid #d7dee7;border-radius:999px;background:#fff;color:#647084;font-size:9px;font-weight:900;white-space:nowrap}.flow-inspect-hint::before{content:"↗";color:var(--signal-dark)}
     .flow-column.input .flow-node{border-color:#c9dced;background:var(--input-soft);color:var(--input)}
     .flow-column.input .flow-node::before{background:var(--input)}
     .flow-link{position:relative;width:3px;height:30px;margin:4px auto;background:#d3dae3}
@@ -172,7 +174,7 @@
     .status-line{margin-top:9px;padding:9px 10px;border-radius:9px;background:var(--output-soft);color:var(--output);font-size:10.5px;font-weight:850;line-height:1.45;display:flex;align-items:center;gap:7px}.status-line.error{background:var(--danger-soft);color:var(--danger)}
     .dot{width:6px;height:6px;background:currentColor;border-radius:50%;flex:0 0 auto}
     .excerpt{margin-top:9px;border-left:3px solid var(--input);border-radius:0 8px 8px 0;background:var(--input-soft);padding:10px;font:10.5px/1.55 var(--font-data);max-height:92px;overflow:auto;white-space:pre-wrap}
-    .artifact-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.artifact{display:inline-flex;align-items:center;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-size:10.5px;font-weight:850;background:#fff}.artifact:hover{border-color:var(--output);color:var(--output);background:var(--output-soft)}
+    .artifact-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.artifact{display:inline-flex;align-items:center;gap:8px;appearance:none;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-family:inherit;font-size:10.5px;font-weight:850;background:#fff;cursor:pointer}.artifact:hover{border-color:var(--output);color:var(--output);background:var(--output-soft)}.artifact span{color:#8792a2;font:800 8px var(--font-data)}.artifact:focus-visible{outline:3px solid rgba(255,209,0,.42);outline-offset:2px}
     .list{display:grid;gap:8px;margin-top:10px}.item{border-bottom:1px solid #e4e9ef;padding:10px 2px;background:#fff}.item:last-child{border-bottom:0}.item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}.item-id{font:750 10px var(--font-data);color:#748093}.chip{font-size:9px;font-weight:950;border-radius:6px;padding:4px 7px;background:#eef1f5;color:#526073}.chip.fail,.chip.critical{background:var(--danger-soft);color:var(--danger)}.chip.pass{background:var(--output-soft);color:var(--output)}
     .item b{display:block;font-size:12px;line-height:1.45}.item p{font-size:10.5px;line-height:1.55;color:var(--muted);margin:5px 0 0}
     .progress{border:1px solid var(--line);border-radius:12px;background:#fafbfc;padding:12px}.progress-top{display:flex;justify-content:space-between;gap:10px;font-size:10px;font-weight:850}.bar{height:8px;border-radius:99px;background:#e3e8ed;overflow:hidden;margin-top:9px}.bar i{height:100%;display:block;background:var(--signal);transition:width .3s}
@@ -180,33 +182,225 @@
     .problem-table{margin-top:8px;border-top:1px solid #e1e6ed}.problem{padding:10px 2px;border-bottom:1px solid #e1e6ed}.problem-head{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:8px;font-size:11px}.problem-rank{font:900 10px var(--font-data);color:#929baa}.problem-name{font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.problem-rate{font:900 12px var(--font-data);color:var(--danger)}.problem .bar{height:5px;margin:7px 0 0 32px}.problem .bar i{background:var(--danger)}
     .root{border-left:4px solid var(--signal);background:#fff9dd;border-radius:0 11px 11px 0;padding:13px 14px;margin-bottom:10px}.root-head{display:flex;justify-content:space-between;gap:10px}.root b{font-size:15px}.root p{margin:6px 0 0;color:#685a25;font-size:11px;line-height:1.55}
     .loop{display:grid;grid-template-columns:28px 1fr;gap:8px 10px;align-items:center;margin-top:12px}.loop-num{width:28px;height:28px;border-radius:8px;background:var(--signal);display:grid;place-items:center;font:950 11px var(--font-data)}.loop-text{font-size:11px;font-weight:850}
+    .regression-panel{margin-top:22px;border:1px solid #cbd5df;border-radius:18px;background:#f6f8fa;overflow:hidden;box-shadow:0 16px 42px rgba(20,32,57,.08)}.regression-panel[hidden]{display:none}.regression-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;padding:24px 26px;background:var(--ink);color:#fff}.regression-hero .eyebrow{color:var(--signal)}.regression-hero h3{margin:5px 0 8px;font-size:27px;letter-spacing:-.035em}.regression-hero p{margin:0;color:#b7c0cf;font-size:12px;line-height:1.65}.regression-verdict{align-self:center;border:1px solid #4e5b72;border-radius:12px;padding:12px 15px;text-align:right}.regression-verdict span{display:block;color:#9ca8bb;font:850 8.5px var(--font-data);letter-spacing:.1em}.regression-verdict b{display:block;margin-top:5px;color:var(--signal);font-size:15px}.regression-body{padding:22px}.version-bridge{display:grid;grid-template-columns:1fr 72px 1fr;gap:12px;align-items:stretch}.version-card{position:relative;border:1px solid #dde3ea;border-radius:13px;background:#fff;padding:16px 18px;overflow:hidden}.version-card::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--danger)}.version-card.after::before{background:var(--output)}.version-card span{display:block;color:#7c8798;font:850 9px var(--font-data)}.version-card b{display:block;margin-top:5px;font-size:15px}.version-card strong{display:block;margin-top:9px;color:var(--danger);font-size:25px}.version-card.after strong{color:var(--output)}.version-card small{display:block;margin-top:7px;color:#7a8595;font-size:10px}.bridge-action{display:grid;place-items:center;text-align:center;color:#776300;font-size:9px;font-weight:900}.bridge-action i{width:42px;height:42px;border-radius:50%;background:var(--signal);display:grid;place-items:center;color:#2d2500;font:950 19px var(--font-data);font-style:normal;box-shadow:0 0 0 7px rgba(255,209,0,.14)}.bridge-action span{display:block;margin-top:7px}.lock-proof{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.lock-item{border:1px solid #dce2e9;border-radius:10px;background:#fff;padding:10px 11px;min-width:0}.lock-item span{display:block;color:#7f8998;font-size:8.5px;font-weight:850}.lock-item b{display:block;margin-top:4px;color:var(--output);font:900 10px var(--font-data);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric-migrations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.metric-migration{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid #dce2e9;border-radius:11px;background:#fff;padding:11px 12px}.metric-migration>span{color:#637084;font-size:10px;font-weight:850}.metric-values{display:flex;align-items:center;gap:7px;font:900 12px var(--font-data)}.metric-values .old{color:var(--danger)}.metric-values .new{color:var(--output)}.metric-values i{color:#b28f00;font-style:normal}.metric-delta{border-radius:7px;background:var(--output-soft);color:var(--output);padding:5px 7px;font:900 9px var(--font-data)}.metric-delta.neutral{background:#eef1f5;color:#687589}.regression-conclusion{margin-top:10px;border-left:5px solid var(--signal);border-radius:0 10px 10px 0;background:#fff9d9;padding:12px 14px;color:#51440d;font-size:11px;font-weight:850;line-height:1.6}.case-tabs{display:flex;gap:7px;overflow:auto;padding-bottom:4px}.case-tab{flex:0 0 auto;border:1px solid #d7dee7;border-radius:9px;background:#fff;color:#536075;padding:8px 10px;font-size:9.5px;font-weight:900}.case-tab.selected{border-color:#c5a200;background:var(--signal);color:#261f00}.case-tab.regressed{border-color:#ecc1bc;color:var(--danger)}.case-tab.regressed.selected{background:var(--danger-soft);border-color:var(--danger)}.case-stage{margin-top:9px;border:1px solid #dce2e9;border-radius:13px;background:#fff;overflow:hidden}.same-input{padding:12px 14px;border-bottom:1px solid #e2e7ed;background:#f7f9fb}.same-input span{display:block;color:#7c8797;font:900 8.5px var(--font-data);letter-spacing:.1em}.same-input p{margin:6px 0 0;color:#29364a;font-size:11px;line-height:1.6}.reply-compare{display:grid;grid-template-columns:1fr 1fr}.reply-card{padding:14px;min-width:0}.reply-card+ .reply-card{border-left:1px solid #e0e5eb}.reply-card header{display:flex;justify-content:space-between;gap:8px;align-items:center}.reply-card header b{font-size:10.5px}.verdict-pill{border-radius:7px;background:var(--danger-soft);color:var(--danger);padding:4px 6px;font:900 8.5px var(--font-data)}.reply-card.after .verdict-pill{background:var(--output-soft);color:var(--output)}.reply-card blockquote{margin:10px 0 0;border-left:3px solid var(--danger);padding:8px 10px;background:#fff8f7;color:#4e3b3a;font-size:10.5px;line-height:1.65}.reply-card.after blockquote{border-left-color:var(--output);background:#f3fbf8;color:#294c42}.strategy-change{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:11px 14px;border-top:1px solid #e2e7ed;background:#fffbea}.strategy-change span{width:27px;height:27px;border-radius:8px;background:var(--signal);display:grid;place-items:center;font:950 10px var(--font-data)}.strategy-change b{font-size:10.5px;line-height:1.55}.transition-table{border:1px solid #dce2e9;border-radius:11px;overflow:hidden;background:#fff}.transition-row{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,70px) 84px;gap:8px;align-items:center;padding:10px 12px;border-top:1px solid #e5e9ef}.transition-row:first-child{border-top:0}.transition-row>div{min-width:0}.transition-row b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.transition-row small{display:block;margin-top:3px;color:#7e8999;font:800 8px var(--font-data)}.transition-count{text-align:center;font:900 10px var(--font-data)}.transition-status{justify-self:end;border-radius:7px;padding:5px 7px;font-size:8.5px;font-weight:900;background:#eef1f5;color:#667286}.transition-status.improved{background:var(--output-soft);color:var(--output)}.transition-status.regressed{background:var(--danger-soft);color:var(--danger)}.transition-status.mixed,.transition-status.remaining{background:#fff5c7;color:#766000}.limitations{display:grid;gap:6px;margin:0;padding:0;list-style:none}.limitations li{border-left:3px solid #b7c0cc;padding:5px 8px;color:#687487;font-size:9.5px;line-height:1.55}.regression-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.regression-action{display:inline-flex;align-items:center;border:1px solid var(--ink);border-radius:9px;background:var(--ink);color:#fff;text-decoration:none;padding:9px 11px;font-size:9.5px;font-weight:900}.regression-action.secondary{background:#fff;color:var(--ink)}
     .vote-row{display:flex;gap:8px}.vote{flex:1;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px;font-size:10px;font-weight:850}.vote.selected{border-color:#c49d00;background:#fff9dc}
     .footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:18px}.nav{border:1px solid var(--line);border-radius:10px;background:#f3f6f9;color:var(--ink);padding:10px 16px;font-size:12px;font-weight:900}.nav.primary{border-color:var(--ink);background:var(--ink);color:#fff}
     .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:40;max-width:min(560px,90vw);text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast.error{background:var(--danger)}
     .detail-table{margin-top:10px;border:1px solid #e1e6ed;border-radius:10px;overflow:hidden}.detail-head,.detail-row{display:grid;grid-template-columns:minmax(88px,.8fr) minmax(0,1.6fr) auto;gap:10px;align-items:center}.detail-head{padding:8px 10px;background:#f5f7fa;color:#7b8696;font:850 9px var(--font-data);letter-spacing:.08em;text-transform:uppercase}.detail-row{padding:10px;border-top:1px solid #e5e9ef;background:#fff}.detail-main{min-width:0}.detail-main b{display:block;font-size:11px;line-height:1.4}.detail-main span{display:block;margin-top:3px;color:var(--muted);font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.detail-id{font:750 9.5px var(--font-data);color:#6f7b8e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.detail-action{display:flex;align-items:center;gap:7px}.evidence-trigger{border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:var(--input);padding:5px 7px;font-size:9.5px;font-weight:900;white-space:nowrap}.evidence-trigger:hover{border-color:var(--input);background:var(--input-soft)}
-    .drawer-backdrop{position:fixed;inset:0;background:rgba(20,32,57,.28);opacity:0;pointer-events:none;transition:opacity .22s;z-index:50}.drawer-backdrop.open{opacity:1;pointer-events:auto}.evidence-drawer{position:fixed;z-index:51;top:0;right:0;width:min(460px,92vw);height:100vh;background:#fff;box-shadow:-24px 0 64px rgba(20,32,57,.18);transform:translateX(102%);transition:transform .26s cubic-bezier(.2,.75,.2,1);display:flex;flex-direction:column}.evidence-drawer.open{transform:translateX(0)}.drawer-head{padding:22px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.drawer-head .eyebrow{margin-bottom:7px}.drawer-head h3{margin:0;font-size:20px;line-height:1.3}.drawer-close{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:#f7f9fb;color:var(--ink);font-size:20px;line-height:1}.drawer-body{padding:22px;overflow:auto}.drawer-meta{padding:10px 11px;border-radius:9px;background:#f5f7fa;color:#647084;font:750 11px/1.5 var(--font-data)}.drawer-section{margin-top:20px}.drawer-section h4{margin:0 0 8px;font-size:12px}.drawer-evidence{margin:0;border-left:4px solid var(--input);background:var(--input-soft);border-radius:0 10px 10px 0;padding:13px;color:#33445b;font-size:13px;line-height:1.7;white-space:pre-wrap}.drawer-hint{margin:16px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
-    @media(max-width:1060px){.stage-layout{grid-template-columns:1fr}.io-grid{height:660px}.flow-map{height:660px}.topbar{align-items:flex-start}.brand span{display:none}.run-context{max-width:70%}}
-    @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.formula{text-align:left}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-context{max-width:100%;text-align:left}.io-grid{height:auto;grid-template-rows:auto 62px auto}.io-card{height:350px}.flow-map{height:auto;min-height:790px}.flow-tree{padding:16px 12px}.flow-node-grid{grid-template-columns:1fr}.flow-node{padding-left:36px;padding-right:8px}.flow-node-state{display:none}.preset-grid{grid-template-columns:1fr}.material-library-head{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}.detail-head{display:none}.detail-row{grid-template-columns:1fr auto}.detail-id{grid-column:1/-1}.detail-action{align-self:start}}
+    .drawer-backdrop{position:fixed;inset:0;background:rgba(20,32,57,.28);opacity:0;pointer-events:none;transition:opacity .22s;z-index:50}.drawer-backdrop.open{opacity:1;pointer-events:auto}.evidence-drawer{position:fixed;z-index:51;top:0;right:0;width:min(760px,96vw);height:100vh;background:#fff;box-shadow:-24px 0 64px rgba(20,32,57,.18);transform:translateX(102%);transition:transform .26s cubic-bezier(.2,.75,.2,1);display:flex;flex-direction:column}.evidence-drawer.open{transform:translateX(0)}.drawer-head{padding:22px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.drawer-head .eyebrow{margin-bottom:7px}.drawer-head h3{margin:0;font-size:22px;line-height:1.3}.drawer-close{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:#f7f9fb;color:var(--ink);font-size:20px;line-height:1;cursor:pointer}.drawer-body{padding:22px;overflow:auto}.drawer-meta{padding:10px 11px;border-radius:9px;background:#f5f7fa;color:#647084;font:750 11px/1.5 var(--font-data)}.drawer-section{margin-top:20px}.drawer-section h4{margin:0 0 8px;font-size:12px}.drawer-evidence{margin:0;border-left:4px solid var(--input);background:var(--input-soft);border-radius:0 10px 10px 0;padding:13px;color:#33445b;font-size:13px;line-height:1.7;white-space:pre-wrap}.drawer-hint{margin:16px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
+    .node-chain{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center;margin-top:15px}.node-chain-card{min-width:0;border:1px solid #d8dfe7;border-radius:9px;background:#fff;padding:9px}.node-chain-card span{display:block;color:#8792a2;font:850 8.5px var(--font-data);letter-spacing:.08em}.node-chain-card b{display:block;margin-top:4px;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.node-chain-arrow{color:var(--signal-dark);font-weight:950}.node-explainer{display:grid;gap:10px}.node-explainer-card{border:1px solid #dfe4ea;border-radius:10px;background:#fff;padding:12px 13px}.node-explainer-card b{display:block;font-size:11px}.node-explainer-card p{margin:6px 0 0;color:#5f6c80;font-size:11.5px;line-height:1.65}.node-explainer-card.logic{border-left:4px solid var(--signal);background:#fffdf2}.node-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.node-fact{border:1px solid #dfe4ea;border-radius:9px;background:#f8fafb;padding:10px;min-width:0}.node-fact span{display:block;color:#7d8898;font-size:9px;font-weight:850}.node-fact b{display:block;margin-top:4px;font:900 11px/1.45 var(--font-data);overflow-wrap:anywhere}.node-fact.good{border-color:#b9ddcf;background:var(--output-soft)}.node-fact.warn{border-color:#ead77b;background:#fffdf0}.node-fact.danger{border-color:#f0bbb6;background:var(--danger-soft)}
+    .implementation-shell{margin-top:18px;border:1px solid #cbd5e1;border-radius:14px;overflow:hidden;background:#f8fafc;box-shadow:0 10px 26px rgba(20,32,57,.06)}.implementation-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:15px 16px;background:var(--ink);color:#fff}.implementation-head span{display:block;color:#aab6c9;font:850 8.5px var(--font-data);letter-spacing:.12em;text-transform:uppercase}.implementation-head b{display:block;margin-top:5px;font:900 13px/1.5 var(--font-data);overflow-wrap:anywhere}.implementation-code-link{border:1px solid #5d6980;border-radius:8px;padding:7px 9px;color:var(--signal);text-decoration:none;font-size:9px;font-weight:950;white-space:nowrap}.implementation-code-link:hover{border-color:var(--signal);background:rgba(255,209,0,.08)}.implementation-purpose{margin:0;padding:12px 16px;border-bottom:1px solid #dce2ea;background:#fffdf2;color:#50451b;font-size:11.5px;line-height:1.65}.implementation-contract{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #dce2ea}.contract-card{padding:14px 16px;background:#fff}.contract-card+ .contract-card{border-left:1px solid #dce2ea}.contract-card h5{margin:0 0 9px;color:#79869a;font:900 9px var(--font-data);letter-spacing:.11em}.contract-card ul{display:grid;gap:6px;margin:0;padding:0;list-style:none}.contract-card li{position:relative;padding:6px 8px 6px 20px;border-radius:7px;background:#f5f7fa;color:#334157;font:750 9.5px/1.5 var(--font-data);overflow-wrap:anywhere}.contract-card li::before{content:"";position:absolute;left:8px;top:12px;width:5px;height:5px;border-radius:50%;background:var(--input)}.contract-card.output li::before{background:var(--output)}.implementation-route{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:14px 16px}.route-step{display:grid;grid-template-columns:25px minmax(0,1fr);gap:8px;align-items:start;border:1px solid #dfe4eb;border-radius:9px;background:#fff;padding:10px}.route-step em{width:25px;height:25px;border-radius:7px;background:var(--signal);display:grid;place-items:center;color:#302800;font:950 9px var(--font-data);font-style:normal}.route-step span{color:#445166;font-size:10.5px;line-height:1.55}.implementation-guard{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px}.guard-card{border-left:4px solid var(--danger);border-radius:0 8px 8px 0;background:var(--danger-soft);padding:10px 11px}.guard-card.test{border-left-color:var(--output);background:var(--output-soft)}.guard-card span{display:block;color:#8b4d47;font:900 8.5px var(--font-data);letter-spacing:.08em}.guard-card.test span{color:var(--output)}.guard-card b{display:block;margin-top:5px;color:#4b3432;font-size:10px;line-height:1.55}.guard-card.test b{color:#235747}@media(max-width:620px){.implementation-head{grid-template-columns:1fr}.implementation-code-link{justify-self:start}.implementation-contract,.implementation-route,.implementation-guard{grid-template-columns:1fr}.contract-card+ .contract-card{border-left:0;border-top:1px solid #dce2ea}}
+    .root-branches{display:grid;gap:9px}.root-branch{position:relative;border:1px solid #dce2e9;border-left:5px solid #aab4c1;border-radius:9px;background:#fff;padding:11px 12px}.root-branch.selected{border-color:#dfbd1d;border-left-color:var(--signal);background:#fffbed}.root-branch-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.root-branch-head b{font-size:12px}.root-branch-head span{font:850 9px var(--font-data);color:#778396}.root-branch ul{margin:8px 0 0;padding-left:16px;color:#5d697b;font-size:10.5px;line-height:1.6}.root-branch li+li{margin-top:3px}.node-mini-list{display:grid;gap:7px}.node-mini{border:1px solid #dfe4ea;border-radius:9px;padding:10px;background:#fff}.node-mini b{font-size:10.5px}.node-mini p{margin:4px 0 0;color:#6d7889;font-size:10px;line-height:1.55}
+    .artifact-loading{display:grid;place-items:center;min-height:260px;text-align:center;color:#697589}.artifact-loading i{display:block;width:34px;height:34px;margin:0 auto 12px;border:4px solid #e3e8ed;border-top-color:var(--signal);border-radius:50%;animation:spin .8s linear infinite}.artifact-loading b{display:block;color:var(--ink);font-size:13px}.artifact-loading span{display:block;margin-top:5px;font-size:10px}.artifact-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:10px 12px;border:1px solid #dce2e9;border-radius:10px;background:#f8fafb}.artifact-toolbar div{min-width:0}.artifact-toolbar b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.artifact-toolbar span{display:block;margin-top:3px;color:#7d8898;font:800 8.5px var(--font-data)}.artifact-download{flex:none;border:1px solid var(--ink);border-radius:8px;padding:7px 9px;background:var(--ink);color:#fff;text-decoration:none;font-size:9px;font-weight:900}.artifact-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}.artifact-summary>div{border:1px solid #dfe4ea;border-radius:9px;background:#fff;padding:9px}.artifact-summary span{display:block;color:#8792a2;font-size:8.5px;font-weight:850}.artifact-summary b{display:block;margin-top:4px;font:900 10.5px var(--font-data);overflow-wrap:anywhere}.artifact-tree{display:grid;gap:7px}.artifact-field{display:grid;grid-template-columns:minmax(108px,.7fr) minmax(0,1.7fr);gap:10px;padding:9px 10px;border:1px solid #e0e5eb;border-radius:9px;background:#fff}.artifact-key{color:#687589;font-size:9.5px;font-weight:900;overflow-wrap:anywhere}.artifact-value{min-width:0;color:#253248;font-size:10.5px;line-height:1.6;overflow-wrap:anywhere}.artifact-nested{display:grid;gap:6px}.artifact-list-item{border-left:3px solid var(--signal);padding:7px 8px;background:#fffdf2;border-radius:0 7px 7px 0}.artifact-list-index{display:block;margin-bottom:5px;color:#9b8414;font:850 8px var(--font-data)}.artifact-raw{margin-top:14px;border:1px solid #dfe4ea;border-radius:9px;overflow:hidden}.artifact-raw summary{padding:10px 12px;background:#f5f7fa;cursor:pointer;font-size:10px;font-weight:900}.artifact-raw pre{max-height:360px;margin:0;padding:12px;overflow:auto;background:#101a2d;color:#dfe7f3;font:500 9px/1.65 var(--font-data);white-space:pre-wrap;overflow-wrap:anywhere}.artifact-error{margin-top:18px;border-left:5px solid var(--danger);border-radius:0 10px 10px 0;background:var(--danger-soft);padding:14px}.artifact-error b{display:block;color:var(--danger);font-size:12px}.artifact-error p{margin:6px 0 0;color:#6d3430;font-size:10.5px;line-height:1.6}@keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:1060px){.stage-layout{grid-template-columns:1fr}.io-grid{height:660px}.flow-map{height:660px}.topbar{align-items:flex-start}.brand span{display:none}.run-context{max-width:70%}.lock-proof{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.topbar{position:static;display:block}.top-controls{justify-content:flex-start;margin-top:12px}.mode-switch{width:100%}.mode-switch button{flex:1}.title-row{align-items:flex-start;flex-direction:column}.formula{text-align:left}.stage{padding:17px}.stage-head{align-items:flex-start;flex-direction:column}.run-context{max-width:100%;text-align:left}.io-grid{height:auto;grid-template-rows:auto 62px auto}.io-card{height:350px}.flow-map{height:auto;min-height:790px}.flow-tree{padding:16px 12px}.flow-node-grid{grid-template-columns:1fr}.flow-node{padding-left:36px;padding-right:8px}.flow-node-state,.flow-inspect-hint{display:none}.preset-grid{grid-template-columns:1fr}.material-library-head{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr}.metric.wide{grid-column:auto}.io-body{padding:13px}.footer{padding-top:14px}.detail-head{display:none}.detail-row{grid-template-columns:1fr auto}.detail-id{grid-column:1/-1}.detail-action{align-self:start}.artifact-summary{grid-template-columns:1fr}.artifact-field{grid-template-columns:1fr;gap:4px}.regression-hero,.version-bridge,.metric-migrations,.reply-compare{grid-template-columns:1fr}.regression-verdict{text-align:left}.bridge-action{padding:8px}.reply-card+ .reply-card{border-left:0;border-top:1px solid #e0e5eb}.transition-row{grid-template-columns:minmax(0,1fr) repeat(2,52px)}.transition-row .remaining-col,.transition-status{display:none}.regression-body{padding:14px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-  </style>
+    .regression-panel{scroll-margin-top:92px}.metric-delta.negative{background:var(--danger-soft);color:var(--danger)}
+</style>
   <link rel="stylesheet" href="./component-library/evalcall-selected-theme.css">
+  <link rel="stylesheet" href="./product-shell.css?v=20260716.4">
 </head>
-<body data-stage-layout="layout-process" data-io-arrangement="io-compact" data-flow-orientation="flow-swimlane" data-style-selection="49a071ee701c">
-  <header class="topbar">
-    <div class="brand"><div class="brand-mark">E</div><div><strong>EvalCall</strong><span>外呼模型评测工作台</span></div></div>
-    <div class="top-controls">
-      <div class="mode-switch" aria-label="运行模式">
-        <button id="cacheMode" class="active">完整结果（已验证）</button>
-        <button id="liveMode">20秒现场探针</button>
+<body data-stage-layout="layout-process" data-io-arrangement="io-compact" data-flow-orientation="flow-swimlane" data-style-selection="49a071ee701c" data-product-current="dashboard" data-ui-layout="linear" data-ui-density="dense" data-ui-color="yellow" data-ui-summary="shown" data-ui-aside="shown" data-ui-lock="shown">
+  <div class="ops-app-shell">
+    <nav class="ops-global-rail" aria-label="全局功能">
+      <button class="ops-rail-logo" type="button" data-product-nav="dashboard" aria-label="EvalCall 评测任务">E</button>
+      <button class="ops-rail-button active" type="button" data-product-nav="dashboard" aria-label="评测任务">▤</button>
+      <button class="ops-rail-button" type="button" data-product-nav="review" aria-label="待复核">◫</button>
+      <button class="ops-rail-button" type="button" data-product-nav="assets" aria-label="评测资产">◇</button>
+      <button class="ops-rail-button" type="button" data-product-nav="reports" aria-label="报告">▥</button>
+      <a class="ops-rail-button ops-rail-workbench" id="uiGlobalWorkbenchLink" href="./b2b-pattern-workbench.html" aria-label="界面方案">◈</a>
+      <span class="ops-rail-avatar" aria-label="评测运营陈澄">陈</span>
+    </nav>
+    <aside class="ops-sidebar" aria-label="产品主导航">
+      <button class="ops-brand" type="button" data-product-nav="dashboard" aria-label="EvalCall 评测任务">
+        <span class="ops-brand-mark">E</span><span><strong>EvalCall</strong><small>模型评测平台</small></span>
+      </button>
+      <nav class="ops-nav">
+        <span class="ops-nav-label">工作区</span>
+        <button class="product-nav-button active" type="button" data-product-nav="dashboard"><span class="ops-nav-icon">▤</span><span>评测任务</span></button>
+        <button class="product-nav-button" type="button" data-product-nav="review"><span class="ops-nav-icon">◫</span><span>待复核</span><b class="ops-nav-count" data-review-count>18</b></button>
+        <span class="ops-nav-label">资源</span>
+        <button class="product-nav-button" type="button" data-product-nav="assets"><span class="ops-nav-icon">◇</span><span>评测资产</span></button>
+        <button class="product-nav-button" type="button" data-product-nav="reports"><span class="ops-nav-icon">▥</span><span>报告</span></button>
+      </nav>
+      <div class="ops-sidebar-footer">
+        <a class="ops-nav-link" id="uiWorkbenchLink" href="./b2b-pattern-workbench.html"><span class="ops-nav-icon">◈</span><span>界面方案</span></a>
+        <button class="ops-account" type="button"><span class="user-avatar">陈</span><span><b>陈澄</b><small>评测运营</small></span><span>···</span></button>
       </div>
-      <div id="truthBadge" class="truth-badge">历史产物 · 非现场调用</div>
-    </div>
-  </header>
-  <main>
-    <div class="title-row">
-      <div class="title-copy"><span class="eyebrow">Model evaluation control plane</span><h1>外呼模型评测</h1><p>把指令、执行、判定与同尺回归串成一条可审计证据链</p></div>
-      <div class="formula"><span>可审计闭环</span>输入 → 执行 → 输出</div>
-    </div>
+    </aside>
+    <div class="ops-workspace">
+      <header class="topbar product-topbar">
+        <button class="ops-sidebar-toggle" type="button" aria-label="展开主导航">☰</button>
+        <div class="ops-workspace-context"><b>模型质量中心</b><span>／</span><span>生产环境</span></div>
+        <a class="ops-theme-status" data-theme-apply-status href="./b2b-pattern-workbench.html" hidden><span>界面方案</span><b>列表优先 · 紧凑</b></a>
+        <label class="ops-global-search"><span>⌕</span><input type="search" placeholder="搜索任务、报告或资产" aria-label="全局搜索"><kbd>⌘ K</kbd></label>
+        <div class="top-actions">
+          <div class="engine-controls" data-engine-only>
+            <div class="mode-switch" aria-label="运行模式"><button id="cacheMode" class="active">完整结果</button><button id="liveMode">现场探针</button></div>
+            <div id="truthBadge" class="truth-badge">历史产物</div>
+          </div>
+          <button class="icon-button" type="button" data-product-nav="review" aria-label="5 条高风险争议待复核"><span>●</span></button>
+          <div class="top-avatar" title="评测负责人 · 陈澄">陈</div>
+        </div>
+      </header>
+      <main class="product-main">
+    <section class="active" data-product-view="dashboard" aria-labelledby="dashboardTitle">
+      <div class="product-page-head ops-page-header">
+        <div><div class="ops-breadcrumb">评测管理</div><h1 id="dashboardTitle">评测任务</h1><p>24 个任务 · 1 个运行中 · <b data-review-count>18</b> 条待复核</p></div>
+        <div class="page-actions"><button class="product-button primary" type="button" data-product-nav="create">＋ 新建评测</button></div>
+      </div>
+      <div class="ops-summary-strip" aria-label="任务摘要">
+        <button class="active" type="button" data-task-status="all"><span>全部任务</span><b>24</b></button>
+        <button type="button" data-task-status="running"><i class="summary-dot running"></i><span>运行中</span><b>1</b></button>
+        <button type="button" data-task-status="review"><i class="summary-dot warn"></i><span>待复核</span><b>3</b></button>
+        <button type="button" data-task-status="done"><i class="summary-dot good"></i><span>已完成</span><b>18</b></button>
+        <button type="button" data-task-status="blocked"><i class="summary-dot danger"></i><span>已打回</span><b>2</b></button>
+      </div>
+      <section class="product-panel ops-task-panel">
+        <div class="ops-toolbar">
+          <label class="product-search"><span>⌕</span><input id="taskSearch" type="search" aria-label="搜索评测任务" placeholder="搜索任务名称或编号"></label>
+          <select id="taskScenarioFilter" aria-label="筛选履约场景"><option value="">全部场景</option><option>配送时间改约</option><option>骑手招聘</option><option>合同通知</option><option>营销通知</option></select>
+          <select aria-label="筛选负责人"><option>全部负责人</option><option>陈澄</option><option>林然</option><option>王越</option></select>
+          <button class="product-button" type="button">更新时间 ↓</button>
+          <button class="product-button icon-only" type="button" aria-label="配置表格列">▥</button>
+        </div>
+        <div class="task-table-wrap">
+          <table class="task-table ops-work-table">
+            <thead><tr><th>任务</th><th>履约场景</th><th>模型版本</th><th>数据集</th><th>运行状态</th><th>门禁结论</th><th class="numeric">待复核</th><th>负责人</th><th>更新时间</th><th aria-label="操作"></th></tr></thead>
+            <tbody id="taskTableBody">
+              <tr data-task-row data-task-status-value="review" data-scenario="配送时间改约"><td><button class="task-link" type="button" data-product-nav="results"><b>配送时间改约 · V2 回归评测</b><span>EV-20260716-024</span></button></td><td>配送时间改约</td><td><span class="model-pair">baseline-v1 → guarded-v2</span></td><td><b>固定输入 v4</b><span class="cell-meta">10 通</span></td><td><span class="status-pill complete">已完成</span></td><td><span class="status-pill warn">条件通过</span></td><td class="numeric"><button class="count-link" type="button" data-product-nav="review" data-current-review-count>8</button></td><td><span class="owner-cell"><i>陈</i>陈澄</span></td><td><span>今天 10:16</span><small>耗时 14 分钟</small></td><td><button class="row-menu" type="button" data-product-nav="results" aria-label="打开配送时间改约任务">›</button></td></tr>
+              <tr data-task-row data-task-status-value="done" data-scenario="合同通知"><td><button class="task-link" type="button" data-product-nav="engine"><b>骑手合同生效通知</b><span>EV-20260715-021</span></button></td><td>合同通知</td><td><span class="model-pair">contract-agent-v3</span></td><td><b>合同回归集</b><span class="cell-meta">12 通</span></td><td><span class="status-pill complete">已完成</span></td><td><span class="status-pill good">通过</span></td><td class="numeric">0</td><td><span class="owner-cell"><i>林</i>林然</span></td><td><span>昨天 18:42</span><small>耗时 11 分钟</small></td><td><button class="row-menu" type="button" data-product-nav="engine" aria-label="打开骑手合同任务">›</button></td></tr>
+              <tr data-task-row data-task-status-value="running" data-scenario="骑手招聘"><td><button class="task-link" type="button" data-product-nav="engine"><b>骑手招聘外呼月度评测</b><span>EV-20260715-019</span></button></td><td>骑手招聘</td><td><span class="model-pair">recruit-gpt56</span></td><td><b>招聘压力集</b><span class="cell-meta">120 通</span></td><td><span class="status-pill running">运行中 · 64%</span></td><td><span class="muted-value">待生成</span></td><td class="numeric">—</td><td><span class="owner-cell"><i>王</i>王越</span></td><td><span>今天 11:08</span><small>已运行 8 分钟</small></td><td><button class="row-menu" type="button" data-product-nav="engine" aria-label="打开骑手招聘任务">›</button></td></tr>
+              <tr data-task-row data-task-status-value="blocked" data-scenario="营销通知"><td><button class="task-link" type="button" data-product-nav="results"><b>低延迟直播升级通知</b><span>EV-20260714-016</span></button></td><td>营销通知</td><td><span class="model-pair">notify-v2.4</span></td><td><b>直播通知集</b><span class="cell-meta">40 通</span></td><td><span class="status-pill complete">已完成</span></td><td><span class="status-pill danger">打回</span></td><td class="numeric">3</td><td><span class="owner-cell"><i>周</i>周研</span></td><td><span>07/14 16:21</span><small>耗时 9 分钟</small></td><td><button class="row-menu" type="button" data-product-nav="results" aria-label="打开直播升级任务">›</button></td></tr>
+              <tr data-task-row data-task-status-value="done" data-scenario="配送时间改约"><td><button class="task-link" type="button" data-product-nav="results"><b>大促配送改约边界回归</b><span>EV-20260714-013</span></button></td><td>配送时间改约</td><td><span class="model-pair">delivery-v1.8</span></td><td><b>大促边界集</b><span class="cell-meta">80 通</span></td><td><span class="status-pill complete">已完成</span></td><td><span class="status-pill good">通过</span></td><td class="numeric">0</td><td><span class="owner-cell"><i>陈</i>陈澄</span></td><td><span>07/14 14:05</span><small>耗时 17 分钟</small></td><td><button class="row-menu" type="button" data-product-nav="results" aria-label="打开大促配送任务">›</button></td></tr>
+              <tr data-task-row data-task-status-value="review" data-scenario="骑手招聘"><td><button class="task-link" type="button" data-product-nav="review"><b>招聘资格问答安全复测</b><span>EV-20260713-009</span></button></td><td>骑手招聘</td><td><span class="model-pair">recruit-safe-v2</span></td><td><b>招聘合规集</b><span class="cell-meta">60 通</span></td><td><span class="status-pill complete">已完成</span></td><td><span class="status-pill warn">待判定</span></td><td class="numeric">6</td><td><span class="owner-cell"><i>林</i>林然</span></td><td><span>07/13 20:32</span><small>耗时 15 分钟</small></td><td><button class="row-menu" type="button" data-product-nav="review" aria-label="打开招聘资格复核">›</button></td></tr>
+              <tr data-task-row data-task-status-value="done" data-scenario="合同通知"><td><button class="task-link" type="button" data-product-nav="results"><b>合同条款变更通知抽检</b><span>EV-20260713-006</span></button></td><td>合同通知</td><td><span class="model-pair">contract-agent-v2.7</span></td><td><b>合同标准集</b><span class="cell-meta">30 通</span></td><td><span class="status-pill complete">已完成</span></td><td><span class="status-pill good">通过</span></td><td class="numeric">1</td><td><span class="owner-cell"><i>何</i>何寻</span></td><td><span>07/13 17:48</span><small>耗时 7 分钟</small></td><td><button class="row-menu" type="button" data-product-nav="results" aria-label="打开合同条款任务">›</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ops-pagination"><span>显示 1–7，共 24 个任务</span><div><button type="button" disabled>‹</button><button type="button" class="active">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><button type="button">›</button></div></div>
+      </section>
+    </section>
+
+    <section data-product-view="create" aria-labelledby="createTitle">
+      <div class="product-page-head ops-page-header">
+        <div><div class="ops-breadcrumb"><button type="button" data-product-nav="dashboard">评测任务</button><span>／</span>新建评测</div><h1 id="createTitle">新建评测</h1><p id="draftStatus">未保存草稿</p></div>
+        <div class="page-actions"><button id="saveDraft" class="product-button" type="button">保存草稿</button><button class="product-button" type="button" data-product-nav="dashboard">取消</button></div>
+      </div>
+      <section class="creation-shell">
+        <aside class="creation-steps" aria-label="创建步骤">
+          <div class="create-step-nav">
+            <button class="create-step-button active" type="button" data-create-step="1"><em>1</em><div><b>基本信息</b><span>名称、场景、负责人</span></div></button>
+            <button class="create-step-button" type="button" data-create-step="2"><em>2</em><div><b>模型版本</b><span>基准与候选版本</span></div></button>
+            <button class="create-step-button" type="button" data-create-step="3"><em>3</em><div><b>评测配置</b><span>数据、标准、裁判</span></div></button>
+            <button class="create-step-button" type="button" data-create-step="4"><em>4</em><div><b>确认配置</b><span>条件校验与运行</span></div></button>
+          </div>
+        </aside>
+        <div class="creation-main">
+          <div class="creation-form-head"><span id="createStepEyebrow">步骤 1 / 4</span><h2 id="createStepTitle">基本信息</h2><p id="createStepDescription">任务名称、履约场景与负责人</p></div>
+          <div class="creation-stage active" data-create-panel="1">
+            <div class="form-grid">
+              <div class="form-field full"><label for="evaluationName">任务名称 <i>*</i></label><input id="evaluationName" class="form-control" required value="配送时间改约 · V2 回归评测"><span class="field-error" data-error-for="evaluationName"></span></div>
+              <div class="form-field"><label for="evaluationScenario">履约场景 <i>*</i></label><select id="evaluationScenario" class="form-control"><option>配送时间改约</option><option>骑手招聘外呼</option><option>合同生效通知</option><option>低延迟直播升级通知</option></select></div>
+              <div class="form-field"><label for="evaluationOwner">负责人 <i>*</i></label><select id="evaluationOwner" class="form-control"><option>陈澄 · 模型评测</option><option>林然 · 业务运营</option><option>王越 · 模型工程</option></select></div>
+              <div class="form-field full"><label for="evaluationGoal">评测目标 <i>*</i><small>显示在任务详情和报告中</small></label><textarea id="evaluationGoal" class="form-control" required>验证 delivery-guarded-v2 是否满足配送时间改约场景的灰度上线门禁。</textarea><span class="field-error" data-error-for="evaluationGoal"></span></div>
+            </div>
+          </div>
+          <div class="creation-stage" data-create-panel="2">
+            <div class="form-grid">
+              <div class="form-field"><label for="baselineModel">基准模型 <i>*</i></label><select id="baselineModel" class="form-control"><option>delivery-baseline-v1</option><option>delivery-v1.8</option><option>delivery-guarded-v2</option></select></div>
+              <div class="form-field"><label for="candidateModel">候选模型 <i>*</i></label><select id="candidateModel" class="form-control"><option>delivery-guarded-v2</option><option>delivery-v2.1-rc</option><option>delivery-baseline-v1</option></select><span class="field-error" data-error-for="candidateModel"></span></div>
+              <div class="form-field full"><label>测试方式</label><div class="choice-grid"><label class="choice-card"><input type="radio" name="createMode" value="固定用户输入回放" checked><b>固定输入回放</b><span>复用同一批用户输入</span></label><label class="choice-card"><input type="radio" name="createMode" value="用户模拟器压力测试"><b>模拟器压力测试</b><span>生成边界与压力样本</span></label></div></div>
+              <div class="form-field full"><div class="condition-lock" aria-label="模型版本对比条件"><span>对比变量</span><b>仅模型版本</b><span>用户输入</span><b>锁定</b><span>评分标准</span><b>锁定</b><span>裁判策略</span><b>锁定</b></div></div>
+            </div>
+          </div>
+          <div class="creation-stage" data-create-panel="3">
+            <div class="form-grid">
+              <div class="form-field"><label for="datasetSelect">测试数据集 <i>*</i></label><select id="datasetSelect" class="form-control"><option>配送改约固定输入 v4 · 10 通</option><option>配送改约完整回归集 · 120 通</option></select></div>
+              <div class="form-field"><label for="sampleCount">测试数量 <i>*</i></label><input id="sampleCount" class="form-control" type="number" min="1" max="1000" value="10"><span class="field-error" data-error-for="sampleCount"></span></div>
+              <div class="form-field"><label for="checklistSelect">评分标准 <i>*</i></label><select id="checklistSelect" class="form-control"><option>配送改约 Checklist v4 · 21 项</option><option>配送改约 Checklist v3 · 18 项</option></select></div>
+              <div class="form-field"><label for="judgeSelect">裁判策略 <i>*</i></label><select id="judgeSelect" class="form-control"><option>规则 Judge + 模型 Judge · 双裁判</option><option>模型 Judge · 三票复核</option><option>单 Judge 快速评测</option></select></div>
+              <div class="form-field full"><label for="createAttachment">补充材料 <small>可选，YAML / JSONL / CSV</small></label><input id="createAttachment" class="file-input" type="file" accept=".yaml,.yml,.json,.jsonl,.csv"><label class="upload-box" for="createAttachment"><span>＋</span><div><b id="attachmentName">选择本地文件</b><small>文件仅用于当前评测任务</small></div></label></div>
+            </div>
+          </div>
+          <div class="creation-stage" data-create-panel="4">
+            <div class="confirm-card">
+              <div class="confirm-head"><div><b id="confirmTaskName">配送时间改约 · V2 回归评测</b><span id="confirmScenario">配送时间改约</span></div><span class="status-pill good">配置校验通过</span></div>
+              <div class="confirm-grid">
+                <div class="confirm-item"><span>负责人</span><b id="confirmOwner">陈澄 · 模型评测</b></div><div class="confirm-item"><span>测试规模</span><b id="confirmCount">10 通固定输入</b></div>
+                <div class="confirm-item"><span>基准模型</span><b id="confirmBaseline">delivery-baseline-v1</b></div><div class="confirm-item"><span>候选模型</span><b id="confirmCandidate">delivery-guarded-v2</b></div>
+                <div class="confirm-item"><span>数据集</span><b id="confirmDataset">配送改约固定输入 v4 · 10 通</b></div><div class="confirm-item"><span>裁判策略</span><b id="confirmJudge">规则 Judge + 模型 Judge · 双裁判</b></div>
+              </div>
+            </div>
+            <div class="config-check-table"><div class="config-check-head"><b>对比条件校验</b><span>4 项一致</span></div><table><thead><tr><th>条件</th><th>基准版本</th><th>候选版本</th><th>校验</th></tr></thead><tbody><tr><td>用户输入</td><td>dataset-v4</td><td>dataset-v4</td><td><span class="check-ok">✓ 一致</span></td></tr><tr><td>任务 SOP</td><td>4f7a…c21d</td><td>4f7a…c21d</td><td><span class="check-ok">✓ 一致</span></td></tr><tr><td>Checklist</td><td id="confirmChecklistA">v4 · 21 项</td><td id="confirmChecklistB">v4 · 21 项</td><td><span class="check-ok">✓ 一致</span></td></tr><tr><td>Judge</td><td>judge-v3</td><td>judge-v3</td><td><span class="check-ok">✓ 一致</span></td></tr></tbody></table></div>
+          </div>
+          <div class="creation-footer"><p id="createFooterHint">完成必填字段后继续</p><div><button id="createPrev" class="product-button" type="button" disabled>上一步</button><button id="createNext" class="product-button primary" type="button">下一步</button></div></div>
+          <div id="launchOverlay" class="launch-overlay" aria-live="polite"><div class="launch-animation"><span class="launch-badge">EV-20260716-025</span><h3 id="launchTitle">校验输入材料</h3><p id="launchDescription">正在创建评测任务</p><div class="launch-track"><i id="launchProgress"></i></div><div class="launch-status"><span>输入校验</span><span>条件锁定</span><span>进入队列</span></div></div></div>
+        </div>
+        <aside class="creation-summary"><h2>配置摘要</h2><dl><div><dt>任务</dt><dd id="summaryTaskName">配送时间改约 · V2 回归评测</dd></div><div><dt>负责人</dt><dd id="summaryOwner">陈澄 · 模型评测</dd></div><div><dt>模型</dt><dd id="summaryModels">baseline-v1 → guarded-v2</dd></div><div><dt>数据集</dt><dd id="summaryDataset">配送改约固定输入 v4 · 10 通</dd></div><div><dt>评分标准</dt><dd id="summaryChecklist">Checklist v4 · 21 项</dd></div><div><dt>裁判</dt><dd id="summaryJudge">规则 + 模型双裁判</dd></div></dl><div class="summary-lock"><span>●</span><b>4 项对比条件一致</b></div></aside>
+      </section>
+    </section>
+
+    <section data-product-view="results" aria-labelledby="resultsTitle">
+      <div class="product-page-head ops-page-header task-object-header">
+        <div><div class="ops-breadcrumb"><button type="button" data-product-nav="dashboard">评测任务</button><span>／</span>EV-20260716-024</div><h1 id="resultsTitle">配送时间改约 · V2 回归评测</h1><p><span class="status-pill warn">待复核</span><span>负责人 陈澄</span><span>今天 10:16 更新</span></p></div>
+        <div class="page-actions"><button class="product-button" type="button" data-product-nav="engine">重新运行</button><button class="product-button" type="button" data-open-report>导出报告</button><button class="product-button primary" type="button" data-product-nav="review">处理 5 条高风险争议</button></div>
+      </div>
+      <nav class="task-context-tabs" aria-label="任务详情导航"><button class="active" type="button" data-product-nav="results">概览</button><button type="button">版本对比</button><button type="button">样本与判定</button><button type="button" data-product-nav="review">争议复核 <b data-current-review-count>8</b></button><button type="button" data-product-nav="engine">运行记录</button><button type="button" data-open-report>报告</button></nav>
+      <section class="decision-banner pending"><div><span class="label">上线门禁</span><h2>条件通过，待完成 5 条高风险复核</h2><p>P0 触发 3 → 0；业务履约 40 → 40；当前任务待复核 8 条。</p></div><div class="decision-score"><b>91.4</b><span>候选模型综合得分</span></div></section>
+      <div class="comparison-grid">
+        <div class="compare-card"><span>综合得分</span><div class="compare-value"><del>62.5</del><b>91.4</b></div><small>↑ 28.9 分</small></div>
+        <div class="compare-card warn"><span>上线门禁</span><div class="compare-value"><del>打回</del><b>条件通过</b></div><small>5 条高风险阻塞提交</small></div>
+        <div class="compare-card"><span>P0 触发通话</span><div class="compare-value"><del>3</del><b>0</b></div><small>高风险问题已消除</small></div>
+        <div class="compare-card"><span>人工复核队列</span><div class="compare-value"><del>23</del><b data-current-review-count>8</b></div><small>其中 5 条为高风险</small></div>
+      </div>
+      <div class="result-grid">
+        <section class="product-panel"><div class="panel-head"><div><h2>场景表现</h2><p>基准模型 / 候选模型</p></div><span class="status-pill good">4 项条件一致</span></div><div class="scenario-list">
+          <div class="scenario-row"><div class="scenario-name"><b>身份核实</b><span>2 个检查点</span></div><div class="dual-bar"><div class="bar-line"><i style="width:70%"></i></div><div class="bar-line candidate"><i style="width:96%"></i></div></div><span class="scenario-number">70 → 96</span><span class="scenario-delta">+26</span></div>
+          <div class="scenario-row"><div class="scenario-name"><b>时间改约</b><span>5 个检查点</span></div><div class="dual-bar"><div class="bar-line"><i style="width:64%"></i></div><div class="bar-line candidate"><i style="width:93%"></i></div></div><span class="scenario-number">64 → 93</span><span class="scenario-delta">+29</span></div>
+          <div class="scenario-row"><div class="scenario-name"><b>地址与联系信息</b><span>4 个检查点</span></div><div class="dual-bar"><div class="bar-line"><i style="width:48%"></i></div><div class="bar-line candidate"><i style="width:81%"></i></div></div><span class="scenario-number">48 → 81</span><span class="scenario-delta">+33</span></div>
+          <div class="scenario-row"><div class="scenario-name"><b>合规与安全</b><span>7 个检查点</span></div><div class="dual-bar"><div class="bar-line"><i style="width:75%"></i></div><div class="bar-line candidate"><i style="width:100%"></i></div></div><span class="scenario-number">75 → 100</span><span class="scenario-delta">+25</span></div>
+          <div class="scenario-row"><div class="scenario-name"><b>业务履约</b><span>3 个检查点</span></div><div class="dual-bar"><div class="bar-line"><i style="width:40%"></i></div><div class="bar-line candidate"><i style="width:40%"></i></div></div><span class="scenario-number">40 → 40</span><span class="scenario-delta down">持平</span></div>
+        </div></section>
+        <section class="product-panel"><div class="panel-head"><div><h2>评测质量</h2><p>条件、覆盖与裁判一致率</p></div><span class="status-pill warn">5 条阻塞</span></div><div class="trust-stack">
+          <div class="trust-item"><div class="trust-top"><b>测试条件一致性</b><span>100%</span></div><div class="trust-bar"><i style="width:100%"></i></div><p>4 项版本指纹全部一致，仅模型版本变化。</p></div>
+          <div class="trust-item"><div class="trust-top"><b>检查点覆盖率</b><span>91%</span></div><div class="trust-bar"><i style="width:91%"></i></div><p>21 项规则中 19 项被有效触达。</p></div>
+          <div class="trust-item"><div class="trust-top"><b>裁判一致率</b><span>87%</span></div><div class="trust-bar"><i style="width:87%"></i></div><p>27 条进入复核，其中 5 条可能影响上线结论。</p></div>
+          <div class="risk-callout"><b>5 条高风险争议未处理</b><p>配送时限 2 条 · 地址确认 2 条 · 业务履约 1 条</p><button class="product-button primary small" type="button" data-product-nav="review">处理争议</button></div>
+        </div></section>
+      </div>
+    </section>
+
+    <section data-product-view="review" aria-labelledby="reviewTitle">
+      <div class="product-page-head ops-page-header task-object-header"><div><div class="ops-breadcrumb"><button type="button" data-product-nav="dashboard">评测任务</button><span>／</span><button type="button" data-product-nav="results">EV-20260716-024</button><span>／</span>争议复核</div><h1 id="reviewTitle">配送时间改约 · 争议复核</h1><p><span class="status-pill danger"><b data-high-risk-count>5</b>&nbsp;条高风险</span><span>当前任务 <b data-current-review-count>8</b> 条待处理</span><span>负责人 陈澄</span></p></div><div class="page-actions"><button class="product-button" type="button" data-product-nav="results">返回概览</button></div></div>
+      <nav class="task-context-tabs" aria-label="任务详情导航"><button type="button" data-product-nav="results">概览</button><button type="button">版本对比</button><button type="button">样本与判定</button><button class="active" type="button" data-product-nav="review">争议复核 <b data-current-review-count>8</b></button><button type="button" data-product-nav="engine">运行记录</button><button type="button" data-open-report>报告</button></nav>
+      <section class="review-shell">
+        <aside class="review-list-column"><div class="review-column-head"><h2>待处理样本</h2><p>按业务影响排序</p><div class="review-filters"><button class="review-filter active" type="button" data-review-filter="all">待处理 <b data-current-review-count>8</b></button><button class="review-filter" type="button" data-review-filter="high">高风险 <b data-high-risk-count>5</b></button><button class="review-filter" type="button" data-review-filter="resolved">已处理 <b data-resolved-review-count>0</b></button></div></div><div id="reviewCaseList" class="review-list"></div></aside>
+        <div class="review-main-column"><div class="review-detail-head"><div><span id="reviewCaseMeta">CASE / EV-024-001</span><h2 id="reviewCaseTitle">配送时限规则判定相反</h2></div><span id="reviewCaseStatus" class="status-pill danger">高风险争议</span></div><div id="reviewCaseBody" class="review-body"></div></div>
+        <aside class="review-analysis-column"><div class="review-column-head"><h2>复核表单</h2><p>最终判定 · 问题归属 · 复核说明</p></div><div id="reviewAnalysisBody" class="analysis-body"></div></aside>
+      </section>
+    </section>
+
+    <section data-product-view="assets" aria-labelledby="assetsTitle">
+      <div class="product-page-head ops-page-header"><div><div class="ops-breadcrumb">资源</div><h1 id="assetsTitle">评测资产</h1><p>18 个数据集 · 9 套评分标准 · 12 个模型版本</p></div><div class="page-actions"><button class="product-button primary" type="button" data-demo-action="import-asset">＋ 导入资产</button></div></div>
+      <nav class="asset-tabs" aria-label="资产类型"><button class="active" type="button" data-asset-tab="datasets">数据集 <b>18</b></button><button type="button" data-asset-tab="checklists">评分标准 <b>9</b></button><button type="button" data-asset-tab="models">模型与裁判 <b>12</b></button></nav>
+      <section class="product-panel asset-panel active" data-asset-panel="datasets">
+        <div class="ops-toolbar"><label class="product-search"><span>⌕</span><input type="search" aria-label="搜索数据集" placeholder="搜索数据集"></label><select><option>全部履约场景</option><option>配送时间改约</option><option>骑手招聘</option></select><select><option>全部状态</option><option>可用</option><option>校验中</option></select></div>
+        <div class="task-table-wrap"><table class="asset-table"><thead><tr><th>数据集</th><th>履约场景</th><th class="numeric">样本</th><th>数据类型</th><th>版本指纹</th><th>状态</th><th>更新时间</th><th></th></tr></thead><tbody><tr><td><button class="task-link" type="button"><b>配送改约固定输入</b><span>dataset-delivery-replay</span></button></td><td>配送时间改约</td><td class="numeric">10</td><td>固定对话输入</td><td><code>18f2…d4c1</code></td><td><span class="status-pill good">可用</span></td><td>今天 09:48</td><td><button class="row-menu">···</button></td></tr><tr><td><button class="task-link" type="button"><b>配送改约完整回归集</b><span>dataset-delivery-full</span></button></td><td>配送时间改约</td><td class="numeric">120</td><td>对话 + Persona</td><td><code>9aa6…2b70</code></td><td><span class="status-pill good">可用</span></td><td>07/15 18:22</td><td><button class="row-menu">···</button></td></tr><tr><td><button class="task-link" type="button"><b>骑手招聘合规压力集</b><span>dataset-recruit-safety</span></button></td><td>骑手招聘</td><td class="numeric">60</td><td>边界样本</td><td><code>704c…8ee2</code></td><td><span class="status-pill good">可用</span></td><td>07/14 11:30</td><td><button class="row-menu">···</button></td></tr><tr><td><button class="task-link" type="button"><b>合同通知抽检集</b><span>dataset-contract-qa</span></button></td><td>合同通知</td><td class="numeric">30</td><td>固定对话输入</td><td><code>c115…0ae9</code></td><td><span class="status-pill warn">校验中</span></td><td>07/13 17:05</td><td><button class="row-menu">···</button></td></tr></tbody></table></div>
+      </section>
+      <section class="product-panel asset-panel" data-asset-panel="checklists"><div class="ops-toolbar"><label class="product-search"><span>⌕</span><input type="search" aria-label="搜索评分标准" placeholder="搜索评分标准"></label></div><div class="task-table-wrap"><table class="asset-table"><thead><tr><th>评分标准</th><th>场景</th><th class="numeric">检查点</th><th>P0 / P1</th><th>审核状态</th><th>更新时间</th><th></th></tr></thead><tbody><tr><td><button class="task-link"><b>配送改约 Checklist v4</b><span>checklist-delivery-v4</span></button></td><td>配送时间改约</td><td class="numeric">21</td><td>4 / 9</td><td><span class="status-pill good">已审核</span></td><td>07/15 16:20</td><td><button class="row-menu">···</button></td></tr><tr><td><button class="task-link"><b>招聘外呼 Checklist v3</b><span>checklist-recruit-v3</span></button></td><td>骑手招聘</td><td class="numeric">18</td><td>5 / 7</td><td><span class="status-pill good">已审核</span></td><td>07/14 09:42</td><td><button class="row-menu">···</button></td></tr></tbody></table></div></section>
+      <section class="product-panel asset-panel" data-asset-panel="models"><div class="ops-toolbar"><label class="product-search"><span>⌕</span><input type="search" aria-label="搜索模型版本" placeholder="搜索模型版本"></label></div><div class="task-table-wrap"><table class="asset-table"><thead><tr><th>模型</th><th>类型</th><th>环境</th><th>最近评测</th><th>门禁</th><th>更新时间</th><th></th></tr></thead><tbody><tr><td><button class="task-link"><b>delivery-guarded-v2</b><span>model-delivery-guarded</span></button></td><td>业务模型</td><td>预发布</td><td>EV-20260716-024</td><td><span class="status-pill warn">条件通过</span></td><td>今天 10:16</td><td><button class="row-menu">···</button></td></tr><tr><td><button class="task-link"><b>judge-policy-v3</b><span>judge-dual-v3</span></button></td><td>裁判策略</td><td>生产</td><td>38 个任务</td><td><span class="status-pill good">可用</span></td><td>07/12 14:30</td><td><button class="row-menu">···</button></td></tr></tbody></table></div></section>
+    </section>
+
+    <section data-product-view="reports" aria-labelledby="reportsTitle">
+      <div class="product-page-head ops-page-header"><div><div class="ops-breadcrumb">交付</div><h1 id="reportsTitle">报告</h1><p>本月 18 份 · 3 份待审批 · 11 份已归档</p></div><div class="page-actions"><button class="product-button primary" type="button" data-open-report>导出当前报告</button></div></div>
+      <div class="report-status-strip"><button class="active">全部 18</button><button>待审批 3</button><button>已通过 4</button><button>已归档 11</button></div>
+      <section class="product-panel"><div class="ops-toolbar"><label class="product-search"><span>⌕</span><input type="search" aria-label="搜索报告" placeholder="搜索报告或任务编号"></label><select><option>本月</option><option>最近 7 天</option><option>本季度</option></select><select><option>全部负责人</option><option>陈澄</option><option>林然</option></select></div><div class="task-table-wrap"><table class="report-table"><thead><tr><th>报告</th><th>任务编号</th><th>模型版本</th><th>门禁结论</th><th>审批状态</th><th>负责人</th><th>生成时间</th><th></th></tr></thead><tbody><tr><td><button class="task-link" type="button" data-open-report><b>配送时间改约 · V2 回归评测</b><span>模型版本对比报告</span></button></td><td>EV-20260716-024</td><td>baseline-v1 → guarded-v2</td><td><span class="status-pill warn">条件通过</span></td><td><span class="status-pill warn">待复核</span></td><td>陈澄</td><td>今天 10:18</td><td><button class="row-menu" type="button" data-open-report aria-label="打开报告">›</button></td></tr><tr><td><button class="task-link"><b>骑手合同生效通知</b><span>上线评测报告</span></button></td><td>EV-20260715-021</td><td>contract-agent-v3</td><td><span class="status-pill good">通过</span></td><td><span class="status-pill good">已通过</span></td><td>林然</td><td>昨天 18:45</td><td><button class="row-menu">›</button></td></tr><tr><td><button class="task-link"><b>低延迟直播升级通知</b><span>上线评测报告</span></button></td><td>EV-20260714-016</td><td>notify-v2.4</td><td><span class="status-pill danger">打回</span></td><td><span class="status-pill complete">已归档</span></td><td>周研</td><td>07/14 16:25</td><td><button class="row-menu">›</button></td></tr></tbody></table></div></section>
+    </section>
+
+    <section class="engine-view" data-product-view="engine" aria-labelledby="engineTitle">
+    <div class="product-page-head ops-page-header task-object-header"><div><div class="ops-breadcrumb"><button type="button" data-product-nav="dashboard">评测任务</button><span>／</span><button type="button" data-product-nav="results">EV-20260716-024</button><span>／</span>运行记录</div><h1 id="engineTitle">配送时间改约 · 运行记录</h1><p><span class="status-pill complete">已完成</span><span>RUN / t02_delivery_guarded_v2</span><span>耗时 14 分钟</span></p></div><div class="page-actions"><button class="product-button" type="button" data-product-nav="results">返回概览</button></div></div>
+    <nav class="task-context-tabs" aria-label="任务详情导航"><button type="button" data-product-nav="results">概览</button><button type="button">版本对比</button><button type="button">样本与判定</button><button type="button" data-product-nav="review">争议复核 <b data-current-review-count>8</b></button><button class="active" type="button" data-product-nav="engine">运行记录</button><button type="button" data-open-report>报告</button></nav>
     <section class="workbench">
       <nav id="steps" class="steps" aria-label="评测步骤"></nav>
       <div class="stage">
@@ -222,22 +416,22 @@
           </div>
           <section id="flowMap" class="flow-map" aria-label="当前步骤输入到输出动态流程"></section>
         </div>
+        <section id="regressionPanel" class="regression-panel" aria-label="优化前后同尺回归证据" hidden></section>
         <div class="footer"><button id="prev" class="nav">上一步</button><button id="next" class="nav primary">下一步</button></div>
       </div>
     </section>
-  </main>
+    </section>
+      </main>
+    </div>
+  </div>
   <div id="toast" class="toast" role="status"></div>
   <div id="drawerBackdrop" class="drawer-backdrop"></div>
-  <aside id="evidenceDrawer" class="evidence-drawer" aria-hidden="true" aria-labelledby="drawerTitle">
+  <aside id="evidenceDrawer" class="evidence-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="drawerTitle">
     <div class="drawer-head">
-      <div><span class="eyebrow">Judgment evidence</span><h3 id="drawerTitle">判定证据</h3></div>
-      <button id="drawerClose" class="drawer-close" aria-label="关闭证据详情">×</button>
+      <div><span id="drawerEyebrow" class="eyebrow">Node inspector</span><h3 id="drawerTitle">节点详情</h3></div>
+      <button id="drawerClose" class="drawer-close" aria-label="关闭节点详情">×</button>
     </div>
-    <div class="drawer-body">
-      <div id="drawerMeta" class="drawer-meta"></div>
-      <div class="drawer-section"><h4>原文证据</h4><p id="drawerEvidence" class="drawer-evidence"></p></div>
-      <p class="drawer-hint">该内容来自本次评测产物，用于复核 Judge 判定；关闭后不会改变当前步骤或结果。</p>
-    </div>
+    <div id="drawerContent" class="drawer-body"></div>
   </aside>
   <script src="./demo-cache.js"></script>
   <script>
@@ -266,25 +460,262 @@
       {input:["模型评测报告","SOP 健康度","裁判与测试数据信号"],process:["计算四类根因信号","按严重度与可信度排序"],output:["首要根因","责任人","可审计归因证据"]},
       {input:["首要根因","失败证据","固定版本指纹"],process:["生成对应优化动作","保持评分尺同尺回归"],output:["优化对象与计划","回归入口","v1 / v2 对比证据"]}
     ];
-    const state={mode:"cache",modeChosen:false,forceLive:true,preset:"t02",testMode:"simulation",targetModel:"delivery-baseline-v1",backendModel:"",testCount:10,step:1,completed:new Set(),results:{},sessionId:"",running:false,flowMessage:"",flowProgress:0,server:false,backend:false,backendChecking:false,backendError:"",taskText:"",txText:"",taskName:"",txName:"",votes:1};
+    const G=(purpose,logic,produces)=>({purpose,logic,produces});
+    const NODE_GUIDE={
+      1:{
+        input:[G("定义模型必须完成的任务、顺序和约束。","读取自然语言任务，识别场景、目标、必做动作与禁区。","标准化任务指令与可追踪的 SOP 指纹。"),G("确定本轮到底评哪个模型，或评哪批已有对话。","把模型调用名、日志入口和测试数量封装成统一输入。","明确的被测对象与测试入口。")],
+        process:[G("防止坏文件、敏感信息或缺字段进入评测链路。","依次做格式校验、字段归一化与隐私脱敏。","可安全进入后续步骤的规范化材料。"),G("避免比较时偷偷改变测试条件。","锁定模型、SOP、Persona、批次并为每个对象生成哈希。","可复现、可比较的版本化测试包。")],
+        output:[G("把分散材料变成后续六步共同使用的唯一任务包。","写入任务名、模型版本、测试模式、数量和版本指纹。","版本化测试任务包。"),G("让多轮测试共享同一批次上下文。","生成批次 ID，并记录计划通数与 Persona 配置。","统一测试批次与执行计划。")]
+      },
+      2:{
+        input:[G("提供业务任务的原始判断依据。","保留 SOP 原文与段落来源，不先改写事实。","可逐条溯源的业务规则来源。"),G("把所有业务都必须遵守的安全底线带入评分。","注入隐私、身份、承诺等通用红线。","跨任务复用的 L0 安全策略。")],
+        process:[G("让自然语言要求可以被逐条执行和判断。","Checklist Agent 将复合句拆为单一、可观察的检查点。","原子化评分项。"),G("防止模型凭空生成规则或把轻微问题当成 P0。","逐项绑定原文、L0/L1 层级和 critical/major/minor 严重度。","有来源、有层级、有严重度的评分契约。")],
+        output:[G("形成一票否决的通用安全门槛。","抽取并校验身份、隐私、承诺等 L0 规则。","可执行的 L0 安全规则。"),G("形成场景专属的业务履约判断。","把 SOP 的流程、约束和收尾要求编译为 L1。","可执行的 L1 业务规则。"),G("冻结本轮 Judge 使用的评分尺。","汇总 L0/L1，写入来源、严重度与版本哈希。","版本化 Checklist。")]
+      },
+      3:{
+        input:[G("提供主动测试的用户侧压力，或接入已有日志。","模拟模式读取 Persona；日志模式读取真实对话。","可复用的用户输入或对话样本。"),G("指定本轮真正被测试的外呼模型。","按任务包中的模型版本调用并记录每轮回复。","带版本号的模型输出。"),G("保证每一轮都用同一把评分尺。","加载第 2 步冻结的 Checklist 哈希。","固定的逐项判定标准。")],
+        process:[G("主动覆盖拒绝、打断、质疑和反复追问等高风险场景。","用户模拟器依据 Persona 与当前对话状态生成压力回应。","高风险用户输入。"),G("观察模型在压力下是否仍遵循任务指令。","被测模型根据上下文生成关键回复，并保留轮次链。","真实模型对话。"),G("把主观听感变成逐项、可引用证据的判断。","Judge 对每个检查点给出 pass/fail/NA，并引用原文。","逐项 judgments 与证据。"),G("让结果能被下载、复核和继续归因。","固化对话、判定、覆盖率、异常与版本指纹。","测试运行产物与报告。")],
+        output:[G("证明测试实际发生了多少轮。","汇总完成通数、Persona 与执行异常。","测试对话批次。"),G("展示每个检查点为什么通过或失败。","保留运行 ID、检查点、结论与原文证据。","逐项判定明细。"),G("指出测试覆盖了什么、还没测到什么。","统计已触达检查点和未触达盲区。","覆盖率与盲区清单。")]
+      },
+      4:{
+        input:[G("把结论明确绑定到一个模型版本。","读取任务包中的目标模型版本与哈希。","可追溯的被测版本。"),G("提供门禁计算所需的全量判断。","汇总所有通话、所有检查点的 pass/fail/NA。","完整判定矩阵。"),G("让每个关键失败都能回到原对话复核。","关联失败检查点、严重度与原文片段。","失败证据链。")],
+        process:[G("避免只看一个平均分掩盖结构性风险。","同时计算履约、P0、打回、关键流程与覆盖率。","多维模型质量指标。"),G("把评测结果转成可以执行的上线决定。","先执行 P0 一票否决，再结合履约和关键流程门槛。","可上线或打回的确定结论。")],
+        output:[G("直接回答当前模型能不能上线。","输出门禁状态并绑定模型版本与正式测试数量。","上线结论。"),G("解释门禁由哪些核心指标共同决定。","同时呈现履约率、P0、打回与关键失败。","关键指标摘要。"),G("让评委或审核者拿到完整可复核产物。","导出报告数据、失败列表、覆盖盲区和证据。","可下载模型评测报告。")]
+      },
+      5:{
+        input:[G("提供模型已经出现了什么问题。","读取门禁、履约、P0、关键失败和原文证据。","模型侧风险信号。"),G("判断低分是不是规则本身不健康。","读取高严重度指令问题、可行性与规则冲突。","SOP 健康信号。"),G("排除裁判不稳或样本分布不足造成的假问题。","读取 NA、分歧、人工复核、覆盖和 Persona 集中度。","裁判与测试数据健康信号。")],
+        process:[G("不把低分简单等同于模型问题。","分别计算外呼模型、SOP、裁判和测试数据四条根因分支。","四类候选根因及底层信号。"),G("让最值得先处理的对象排在第一位。","按严重度、证据强度、健康度排除项与置信度排序。","首要根因与候选根因顺序。")],
+        output:[G("指出这次应该先修改谁，而不是只报一个低分。","比较四类候选根因并选择证据最强的一项。","首要根因、其他候选和排除理由。"),G("把问题交给真正能处理它的人。","按根因类别映射模型工程、业务、评测或数据负责人。","责任对象。"),G("让归因过程可以被质疑和复核。","保留每个信号、阈值、候选排序与证据文本。","可审计归因证据。")]
+      },
+      6:{
+        input:[G("明确本轮只应该修改哪个责任对象。","读取第 5 步首要根因、置信度与负责人。","单一优化目标。"),G("让优化动作针对真实失败，而不是泛泛调参。","读取失败检查点、原文证据与根因信号。","可验证的失败依据。"),G("防止回归时同时改变多个变量。","锁定 SOP、Checklist、用户输入与 Judge 指纹。","同尺回归基线。")],
+        process:[G("把归因结论转成可执行修复。","只针对首要责任对象生成动作、负责人和验收方式。","对应根因的优化计划。"),G("证明提升来自这次修改，而不是评分尺变化。","保持其余版本不变，返回对应步骤重新运行。","同尺回归请求。")],
+        output:[G("说明具体改什么、谁负责、如何验收。","汇总优化对象、动作、负责人和验证条件。","优化对象与计划。"),G("把闭环接回真正需要重跑的步骤。","根据根因选择第 2、3 或 5 步作为回归入口。","明确回归路径。"),G("用同一批用户和同一评分尺比较优化前后。","并排展示 v1/v2 门禁、P0、履约与哈希一致性。","可审计版本提升证据。")]
+      }
+    };
+    const P=(module,entry,api,reads,writes,steps,guard,test)=>({module,entry,api,reads,writes,steps,guard,test});
+    const NODE_IMPLEMENTATION={
+      1:{
+        input:[
+          P('evalcall/demo_server.py','_create_intake()','POST /api/intake',['task_id','scenario','goal','instruction / system_prompt'],['标准化 task.json','sop_sha256'],['解析 YAML/JSON 任务对象','校验 task_id 与指令正文非空','统一 instruction 字段并保留原文','对标准化任务计算 SHA-256'],'缺字段直接返回可读错误；不进入评分链路','tests/test_demo_server.py'),
+          P('evalcall/demo_server.py + evalcall/ingest.py','_create_intake() / load_transcripts()','POST /api/intake',['test_mode: simulation | logs','target_model_version','transcripts: JSONL/JSON/CSV/TXT/MD','test_count'],['session.target_model','normalized trajectories[]','测试入口与批次数量'],['根据 test_mode 选择用户模拟器或日志入口','日志模式解析文件并统一 role/turn/run_id','模拟模式绑定目标模型与计划通数','把入口配置写入 session'],'未知模式、空模型名或不可解析日志立即阻断；错误精确返回到输入区','tests/test_ingest_evaluate.py'),
+        ],
+        process:[
+          P('evalcall/ingest.py','load_transcripts()','intake 内部调用',['原始文件字节','task_id','redact=true'],['trajectories[]','ingestion_report.json','pii_redacted / warnings'],['按扩展名选择读取器','把 customer/assistant 等角色映射为 user/agent','补齐可确定的 run_id、turn 等缺省值','用 PHONE/ID_CARD/EMAIL/BANK_CARD/ADDRESS 规则脱敏'],'无法确定的结构不静默修复；抛出 IngestError 并保留文件级警告','tests/test_ingest_evaluate.py'),
+          P('evalcall/provenance.py + evalcall/demo_server.py','build_manifest() / _sha256_path()','intake 完成阶段',['任务对象','模型版本','Persona 配置','标准化对话与批次'],['model/sop/transcripts/persona/batch 指纹','manifest.json'],['对 JSON 使用稳定排序序列化','对文件流式计算 SHA-256','记录 Git commit 与生成时间','把指纹写入任务包，供六步共同引用'],'任一必需指纹缺失则标记任务包不可比较，不允许声称同尺回归','tests/test_provenance_telemetry.py'),
+        ],
+        output:[
+          P('evalcall/demo_server.py','_package_preview()','POST /api/intake response',['task + ingestion_report','trajectory profile','版本指纹'],['task-package.json','任务名称/模式/模型/数量','artifact URL'],['聚合任务与数据健康摘要','加入模型、SOP、对话哈希','写入 session 产物目录','返回可在站内打开的产物链接'],'采用原子写入，生成失败不留下半包产物','tests/test_demo_server.py'),
+          P('evalcall/demo_server.py','_simulation_schedule()','intake session plan',['test_count','data/personas/*.yaml','persona mix'],['persona_ids','n_per_persona','batch_id'],['枚举可用 Persona','按总数量寻找可整除组合','确定每类 Persona 的执行次数','保存 batch_id 与计划规模'],'Persona 不足时给出明确错误；不会把计划 10 通显示成实际 1 通','tests/test_demo_server.py'),
+        ]
+      },
+      2:{
+        input:[
+          P('evalcall/compiler.py','_task_to_text()','POST /api/compile',['task.instruction / system_prompt','task_id'],['source_text','task_identity_quote'],['读取任务包中的冻结指令','选择唯一正文来源','规范化空白但不改写事实','保留全文用于 source_quote 校验'],'正文为空则拒绝编译；多来源冲突时按显式字段优先并记录警告','tests/test_core.py'),
+          P('evalcall/safety.py','load_safety_checkpoints()','compile 前置注入',['data/policies/l0_safety.yaml'],['Checkpoint[] safety=true','policy_source','P0 business level'],['读取通用安全策略','校验规则 id/type/severity','转换为统一 Checkpoint','标记 safety 与政策来源'],'L0 策略加载失败时停止评分尺生成，禁止只生成业务规则继续运行','tests/test_core.py'),
+        ],
+        process:[
+          P('evalcall/compiler.py','compile_task() / compile_task_fast()','POST /api/compile',['任务正文','编译模型配置','max_items'],['原子 Checkpoint[]'],['提示编译器把复合要求拆为单一可观察行为','解析 checkpoints JSON','补齐类型、严重度与判断提示','去重并限制现场探针条目数'],'模型后端失败时自定义材料返回准确错误；现场探针仅使用明确标注的 fast 编译','tests/test_compiler_calibration.py'),
+          P('evalcall/compiler.py','_coerce_checkpoint() / _is_substring_fuzzy()','compile 校验阶段',['raw checkpoint','完整 SOP source_text'],['id/type/severity/text/source_quote','needs_review'],['校验枚举字段','确认 source_quote 可在原文中模糊匹配','把 safety 映射为 L0，其余映射 L1','标记需要人工审核的来源异常'],'找不到原文、严重度非法或文本不可判断时不伪造来源，进入 review 状态','tests/test_compiler_calibration.py'),
+        ],
+        output:[
+          P('evalcall/safety.py','business_level()','compile 输出分层',['Checkpoint.safety','severity'],['L0 rule list','P0/P1/P2 level'],['筛选 safety=true 条目','按单一映射函数计算业务等级','保留 policy_source','输出给 Judge 与门禁共用'],'业务等级只允许由 safety.business_level 产生，避免页面和后端口径漂移','tests/test_core.py'),
+          P('evalcall/compiler.py','checkpoints_to_dicts()','compile 输出分层',['非 safety Checkpoint[]'],['L1 business rules[]'],['筛选业务检查点','序列化可观察行为与来源','保留 flow/constraint/outcome 类型','按稳定 id 顺序输出'],'任何无 source_quote 的 L1 条目保持 needs_review，不进入已审核状态','tests/test_compiler_calibration.py'),
+          P('evalcall/demo_server.py','_compile_session()','POST /api/compile response',['L0 + L1 checkpoints','session task_id'],['checklist.json','checklist_sha256','approved / samples'],['合并 L0 与 L1','写入 checklist.json','对最终字节计算 SHA-256','返回检查点样例和站内产物地址'],'仅当来源校验通过且无 needs_review 才标记 approved','tests/test_demo_server.py'),
+        ]
+      },
+      3:{
+        input:[
+          P('evalcall/simulator.py + evalcall/ingest.py','UserSimulator / load_transcripts()','POST /api/evaluate',['Persona YAML 或 trajectories[]','task scenario'],['用户侧输入流','persona_id / strategy / seed'],['模拟模式实例化 UserSimulator','日志模式直接读取标准化轨迹','统一成相同 turns 数据结构','把来源模式写入 meta'],'两种入口共用下游 Judge；不会把已有日志伪装成模拟器生成','tests/test_ingest_evaluate.py'),
+          P('evalcall/llm.py','get_target_backend() / target_chat()','evaluate target lane',['target_model_version','system instruction','conversation history'],['agent reply','LLM telemetry event'],['按 is_target=true 构造独立后端','组装系统指令与历史轮次','调用指定被测模型','记录模型名、耗时与 token 估算'],'目标模型与裁判后端隔离；调用失败记录 evaluation_error 而非伪造回复','tests/test_codex_backend.py'),
+          P('evalcall/demo_server.py','_run_evaluation()','POST /api/evaluate',['checklist_path','checklist_sha256','votes'],['固定 Checkpoint[]','evaluation job'],['验证 Checklist 已生成','校验 session 与 checklist 指纹一致','创建异步 job','把票数与模式传入 CLI'],'缺 Checklist 时接口返回 409；不会在第 3 步临时重编评分尺','tests/test_demo_server.py'),
+        ],
+        process:[
+          P('evalcall/simulator.py','UserSimulator.next_reply()','arena dialogue loop',['persona profile','strategy_weights','history','seed'],['user reply','should_end','strategy trace'],['按权重抽取拒绝/打断/质疑/追问策略','构造包含 Persona 与对抗目标的 prompt','生成用户回复','解析是否结束并写入策略轨迹'],'每个 Persona 使用派生随机种子；失败时保留已完成轮次和异常','tests/test_core.py'),
+          P('evalcall/arena.py','run_dialogue() / _build_target_messages()','arena target turn',['task instruction','turn history','target model'],['agent turn','trajectory meta'],['构造被测模型消息','调用 target_chat','追加 agent turn 与轮次号','达到结束条件或 max_turns 后封口'],'限制最大轮次；空回复或后端错误写入 meta，不吞掉异常','tests/test_ingest_evaluate.py'),
+          P('evalcall/judge.py','judge_trajectory()','evaluation judge lane',['Checkpoint[]','trajectory.turns','votes'],['judgments[]: pass/fail/na','evidence','vote_agreement'],['先跑 forbidden/outcome 确定性规则','剩余检查点分批调用 LLM Judge','多票时多数表决','绑定原文证据并标记分歧/规则冲突'],'无证据不得判 fail；低一致率与规则冲突自动进入人工复核','tests/test_core.py'),
+          P('evalcall/cli.py + evalcall/report.py','_persist_runtime_artifacts() / build_report()','evaluate 完成阶段',['trajectories','judgments','summary','telemetry'],['transcripts.jsonl','judgments.json','summary.json','report.html'],['原子写入对话与判定','生成 review_queue','聚合 summary','渲染 HTML 报告并完成 manifest'],'任一落盘失败保留 job 错误；不会把部分结果标成已完成','tests/test_smoke_e2e.py'),
+        ],
+        output:[
+          P('evalcall/demo_server.py','_evaluation_preview()','GET /api/jobs/:id result',['transcripts.jsonl','summary.json'],['total_runs','personas','evaluation_errors'],['读取真实轨迹数','按 persona 分组计数','读取异常数量与执行模式','返回本批真实完成规模'],'页面数量直接来自产物，不使用输入框里的计划数冒充结果','tests/test_demo_server.py'),
+          P('evalcall/demo_server.py','_judgment_samples()','evaluation preview',['judgments.json','checklist.json'],['run_id/checkpoint/verdict/evidence 样例'],['建立检查点文本索引','读取逐项判定','关联严重度与原文证据','截取可展示样例'],'原文证据为空时明确显示无证据，不用摘要替代原话','tests/test_demo_server.py'),
+          P('evalcall/demo_server.py','_evaluation_preview() coverage','evaluation preview',['全部 checklist ids','judgments checkpoint_ids'],['coverage_rate','blind_spot_count','未触达 ids'],['取实际出现过的检查点集合','与固定 Checklist 做集合差','计算覆盖率','输出未触达数量与清单'],'分母始终是本轮 Checklist；NA 不等于未触达','tests/test_demo_server.py'),
+        ]
+      },
+      4:{
+        input:[
+          P('evalcall/demo_server.py','_decision_payload()','POST /api/decision',['session.target_model_version','manifest model hash'],['报告模型版本'],['从 session 读取模型版本','与评测 manifest 对齐','附加到门禁和报告','禁止页面自行填写结果版本'],'版本缺失或与产物不一致时标记结果不可发布','tests/test_demo_server.py'),
+          P('evalcall/judge.py','summarize()','decision aggregation',['全部 judgments','Checkpoint index'],['counts/by_severity/by_business_level','score/fulfillment'],['按 checkpoint_id 关联规则','跳过 NA 分母','按严重度加权 pass/fail','汇总 P0/P1/P2 与履约项'],'未知 verdict 归入显式异常；不静默计为通过','tests/test_core.py'),
+          P('evalcall/report.py','_build_case_studies()','report evidence join',['失败 judgment','transcript index','checkpoint source_quote'],['原对话片段','失败检查点','run_id 证据链'],['以 run_id 作为主键找原对话','定位失败判定','关联检查点原文','生成可复核案例'],'同 Persona 多通时仍以 run_id 区分，避免证据串线','tests/test_evidence_index.py'),
+        ],
+        process:[
+          P('evalcall/judge.py + evalcall/report.py','summarize() / _aggregate()','decision pipeline',['judgments','checkpoints','transcripts'],['履约率/P0/打回/关键失败/覆盖率'],['同时按通话、检查点、严重度聚合','计算 outcome 履约','统计 P0 触发与打回通话','生成 Persona/维度切片'],'平均分只作为辅助指标，不能覆盖 P0 与关键流程失败','tests/test_core.py'),
+          P('evalcall/judge.py','summarize() gate rules','decision pipeline',['P0 gate_reasons','critical_failed','fulfillment'],['gate: 可上线|打回','gate_reasons[]'],['先执行任一 P0 fail 一票否决','再检查 critical 与业务履约门槛','记录触发检查点与政策来源','输出门禁而非只输出分数'],'门禁规则确定性执行；无法判定时进入复核而非默认上线','tests/test_core.py'),
+        ],
+        output:[
+          P('evalcall/demo_server.py','_decision_payload()','POST /api/decision response',['summary gate','model version','total_runs'],['上线结论','模型版本与正式通数'],['读取后端门禁结论','绑定被测版本','绑定实际通话数量','生成报告入口'],'页面不二次计算门禁，避免前后端结论不一致','tests/test_demo_server.py'),
+          P('evalcall/demo_server.py','_decision_payload() metrics','decision response',['summary metrics'],['fulfillment_rate','p0_triggered_calls','blocked_runs'],['映射核心指标','保留 0 与 null 的区别','加入覆盖率','返回失败信号列表'],'缺失履约值显示“—”，不把未知伪装成 0%','tests/test_demo_server.py'),
+          P('evalcall/report.py','build_report()','report artifact',['run directory','summary/judgments/checklist/transcripts'],['report.html','可下载/可跳转章节'],['加载同批四类产物','构建总览与证据索引','渲染 Jinja 模板','输出独立 HTML'],'报告生成失败不影响原始 JSON 证据；错误可重试','tests/test_smoke_e2e.py'),
+        ]
+      },
+      5:{
+        input:[
+          P('evalcall/attribution.py','analyze() model signals','POST /api/attribution',['blocked_runs/total_runs','fulfillment_rate','P0','key failures'],['call_block_rate','fulfillment_gap','p0_trigger_rate','weighted_fail_rate'],['按通话而非全部 judgment 计算打回率','计算履约缺口','按严重度加权失败','合成 target_model_score'],'样本不足时降低置信度，不能只凭平均失败率归因模型','tests/test_attribution_review.py'),
+          P('evalcall/lint.py + evalcall/attribution.py','lint_instruction() / _load_lint()','attribution instruction lane',['任务 SOP','lint findings','feasibility_score'],['instruction_high_findings','instruction root signal'],['检查矛盾/缺失/不可执行要求','计算可行性分','统计 high 严重度问题','形成 SOP 候选根因'],'找不到 lint 产物时保持未知，不默认 SOP 健康或异常','tests/test_attribution_review.py'),
+          P('evalcall/attribution.py','analyze() trust/data signals','attribution trust lane',['NA/分歧/复核/规则冲突','persona failure distribution','coverage'],['judge_score','test_data_score','judge_healthy'],['统计 NA 与投票分歧','计算规则冲突和人工复核率','计算 Persona 失败集中度','判断裁判与数据分支是否越过阈值'],'低覆盖或高分歧优先提示证据风险，避免错误归责模型','tests/test_attribution_review.py'),
+        ],
+        process:[
+          P('evalcall/attribution.py','analyze()','POST /api/attribution',['四类信号向量','阈值与健康排除项'],['roots[]','signals snapshot'],['独立计算 instruction/judge/test_data/target_model 分支','应用最低样本与强信号阈值','用健康信号排除混杂','为每个候选保留证据数组'],'所有分支未达阈值时输出 uncertain，而非强行选择模型','tests/test_attribution_review.py'),
+          P('evalcall/attribution.py','roots.sort()','attribution ranking',['root.score','confidence rank','severity evidence'],['primary root','候选根因顺序'],['先按信号分排序','同分按 high/medium/low 排序','检查更强混杂信号并降级模型置信度','选择首要根因'],'排序使用确定性规则；低/中置信结论明确要求人工复核','tests/test_attribution_review.py'),
+        ],
+        output:[
+          P('evalcall/attribution.py','analyze() result','attribution response',['sorted roots','signals'],['primary_category/label/confidence','排除理由'],['取排序第一项','映射中文标签','保留其余候选','附加免责声明'],'首要根因不是因果证明；证据不足时明确返回 uncertain','tests/test_attribution_review.py'),
+          P('evalcall/attribution.py','_root() owner mapping','attribution response',['primary_category'],['owner','actions[]'],['target_model→模型工程','instruction→业务/SOP Owner','judge→评测工程','test_data→数据/测试负责人'],'未知类别回退人工复核，不自动修改任何生产配置','tests/test_attribution_review.py'),
+          P('evalcall/demo_server.py','_attribution_session()','POST /api/attribution response',['attribution result'],['attribution.json','artifact URL'],['写入完整 signals/roots','保留阈值计算结果','返回站内查看地址','记录 attributed_at'],'原子写入；页面展示结果与下载产物使用同一对象','tests/test_demo_server.py'),
+        ]
+      },
+      6:{
+        input:[
+          P('evalcall/demo_server.py','_plan_payload()','POST /api/plan',['primary root','confidence','owner'],['optimization_target','single owner'],['读取排序第一根因','映射唯一优化对象','继承责任人与置信度','决定回归入口'],'uncertain 不生成生产修改，改为补齐证据与人工复核','tests/test_improve.py'),
+          P('evalcall/demo_server.py','_plan_payload() evidence','plan generation',['root.evidence','root.actions'],['可验证 actions[]','verification 条件'],['逐条继承失败证据','把建议绑定责任对象','为动作附验收方式','加入 P0 不新增等统一标准'],'无证据动作不能进入自动回归计划','tests/test_improve.py'),
+          P('evalcall/provenance.py','compare_manifests()','regression baseline',['sop_sha256','checklist_sha256','user/transcript hash','judge config'],['锁定项差异','comparable flag'],['读取基线 manifest','读取候选 manifest','逐项比较固定变量','生成可比性结论'],'非责任对象发生变化立即标记不可同尺比较','tests/test_provenance_telemetry.py'),
+        ],
+        process:[
+          P('evalcall/demo_server.py','_plan_payload()','POST /api/plan',['root category','evidence','owner'],['repair-plan.json','revision-draft.md'],['按根因选择动作模板','只修改首要责任对象','写明负责人/动作/验收','生成可人工确认的草案'],'仅生成草案，不自动修改生产 SOP、模型或裁判配置','tests/test_improve.py'),
+          P('evalcall/demo_server.py + evalcall/replay.py','_plan_session() / replay_trajectory()','regression request',['固定 hashes','return_step','candidate model'],['regression-request.json','same-scale replay plan'],['按根因映射回到第 1/2/3/5 步','锁定未修改变量','对模型问题复用同一用户话术','要求正常 Judge 重新判定'],'发现 SOP/Checklist 指纹变化时中止模型 v1/v2 直接对比','tests/test_t02_guarded_replay.py'),
+        ],
+        output:[
+          P('evalcall/demo_server.py','_plan_payload() result','plan response',['optimization_target','actions','owner'],['优化对象与计划'],['汇总唯一优化对象','列出动作与负责人','附逐条验收条件','提供站内产物链接'],'低置信动作保持待人工确认状态','tests/test_improve.py'),
+          P('evalcall/demo_server.py','_plan_payload() return mapping','plan response',['root_category'],['return_step','return_reason'],['instruction→第2步','model/judge→第3步','test_data→第1步','uncertain→第5步'],'回归入口由后端映射，不由页面临时猜测','tests/test_improve.py'),
+          P('evalcall/replay.py + evalcall/provenance.py','replay_trajectory() / compare_manifests()','同尺回归执行',['baseline/candidate results','固定用户输入与评分尺'],['v1/v2 gate/P0/fulfillment/score','hash equality evidence'],['固定用户脚本重放候选模型','使用原 Checklist 正常重评','比较门禁和核心指标','同时展示固定哈希一致性'],'只要用户、SOP、Checklist 或 Judge 尺度变化，就不宣称提升来自模型修改','tests/test_t02_guarded_replay.py'),
+        ]
+      }
+    };
+    const state={mode:"cache",modeChosen:false,forceLive:true,preset:"t02",testMode:"simulation",targetModel:"delivery-baseline-v1",backendModel:"",testCount:10,step:1,completed:new Set(),results:{},sessionId:"",running:false,flowMessage:"",flowProgress:0,server:false,backend:false,backendChecking:false,backendError:"",taskText:"",txText:"",taskName:"",txName:"",votes:1,regressionCase:0};
     const $=s=>document.querySelector(s), esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     const preset=()=>CACHE.presets[state.preset]||{};
     const result=n=>state.results[n];
     const empty=text=>'<div class="empty">'+esc(text)+'</div>';
     const metric=(value,label,wide=false,text=false)=>'<div class="metric '+(wide?'wide':'')+'"><b class="'+(text?'text':'')+'">'+esc(value==null?'—':value)+'</b><span>'+esc(label)+'</span></div>';
     const sectionLabel=text=>'<div class="section-label">'+esc(text)+'</div>';
-    const artifacts=items=>items?'<div class="artifact-row">'+Object.entries(items).map(([key,url])=>'<a class="artifact" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc({task_package:'测试任务包',ingestion_report:'输入校验记录',normalized_transcripts:'测试对话',checklist:'完整评分标准',decision:'模型评测报告数据',attribution:'根因分析',repair_plan:'优化计划',regression_request:'同尺回归请求',revision_draft:'优化草案'}[key]||key)+'</a>').join('')+'</div>':'';
+    const ARTIFACT_LABELS={task_package:'测试任务包',ingestion_report:'输入校验记录',normalized_transcripts:'测试对话',checklist:'完整评分标准',decision:'模型评测报告数据',attribution:'根因分析',repair_plan:'优化计划',regression_request:'同尺回归请求',revision_draft:'优化草案'};
+    const artifacts=items=>items?'<div class="artifact-row">'+Object.entries(items).map(([key,url])=>'<button type="button" class="artifact" data-artifact-url="'+esc(url)+'" data-artifact-label="'+esc(ARTIFACT_LABELS[key]||key)+'">'+esc(ARTIFACT_LABELS[key]||key)+'<span>站内查看 ↗</span></button>').join('')+'</div>':'';
     const toast=(text,error=false)=>{const el=$("#toast");el.textContent=text;el.className="toast show"+(error?' error':'');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.className="toast",2800)};
     const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
-    function openEvidence(payload){
-      const data=typeof payload==='string'?JSON.parse(decodeURIComponent(payload)):payload,drawer=$("#evidenceDrawer"),backdrop=$("#drawerBackdrop");
-      $("#drawerTitle").textContent=data.title||'判定证据';$("#drawerMeta").textContent=data.meta||'当前评测产物';$("#drawerEvidence").textContent=data.evidence||'该判定没有可展示的原文证据。';
+    let drawerReturnFocus=null;
+    function openDrawer({eyebrow='Node inspector',title='节点详情',meta='当前评测链路',html=''}){
+      const drawer=$("#evidenceDrawer"),backdrop=$("#drawerBackdrop");if(!drawer.classList.contains('open'))drawerReturnFocus=document.activeElement;
+      $("#drawerEyebrow").textContent=eyebrow;$("#drawerTitle").textContent=title;$("#drawerContent").innerHTML='<div class="drawer-meta">'+esc(meta)+'</div>'+html;
       drawer.classList.add('open');backdrop.classList.add('open');drawer.setAttribute('aria-hidden','false');document.body.classList.add('drawer-open');$("#drawerClose").focus()
     }
-    function closeEvidence(){const drawer=$("#evidenceDrawer"),backdrop=$("#drawerBackdrop");drawer.classList.remove('open');backdrop.classList.remove('open');drawer.setAttribute('aria-hidden','true');document.body.classList.remove('drawer-open')}
+    function openEvidence(payload){
+      const data=typeof payload==='string'?JSON.parse(decodeURIComponent(payload)):payload;
+      openDrawer({eyebrow:'Judgment evidence',title:data.title||'判定证据',meta:data.meta||'当前评测产物',html:'<div class="drawer-section"><h4>原文证据</h4><p class="drawer-evidence">'+esc(data.evidence||'该判定没有可展示的原文证据。')+'</p></div><p class="drawer-hint">该内容来自本次评测产物，用于复核 Judge 判定；关闭后不会改变当前步骤或结果。</p>'})
+    }
+    const FIELD_LABELS={task_id:'任务 ID',task_name:'任务名称',name:'名称',scenario:'业务场景',goal:'任务目标',instruction:'任务指令',prompt:'系统提示词',model:'模型',target_model_version:'被测模型版本',test_count:'测试数量',test_mode:'测试模式',checkpoints:'检查点',id:'编号',type:'规则类型',severity:'严重度',text:'具体规则',source_quote:'原文来源',policy_source:'规则来源',category:'根因类别',label:'根因名称',confidence:'置信度',score:'信号分',owner:'负责人',evidence:'证据',actions:'优化动作',action:'优化动作',verification:'验收方式',primary_category:'首要根因类别',primary_label:'首要根因',primary_confidence:'归因置信度',roots:'候选根因',signals:'底层信号',optimization_target:'优化对象',return_step:'回归步骤',return_reason:'回归原因',regression_acceptance:'回归验收标准',sop_changed:'SOP 是否变化',checklist_changed:'Checklist 是否变化',hashes:'版本指纹',warnings:'警告',pii_redacted:'隐私脱敏',redaction_counts:'脱敏统计',conversations:'对话数量',turns:'对话轮次',scope:'数据范围',run_id:'运行 ID',verdict:'判定结果',checkpoint_id:'检查点 ID',checkpoint_text:'检查点内容',created_at:'生成时间',version:'版本',status:'状态'};
+    const humanField=key=>FIELD_LABELS[key]||String(key).replaceAll('_',' ');
+    function artifactPrimitive(value){
+      if(value===null||value===undefined)return '<span class="artifact-value">—</span>';
+      if(typeof value==='boolean')return '<span class="artifact-value">'+(value?'是':'否')+'</span>';
+      return '<span class="artifact-value">'+esc(value)+'</span>'
+    }
+    function artifactTree(value,depth=0){
+      if(value===null||typeof value!=='object')return artifactPrimitive(value);
+      if(depth>4)return '<span class="artifact-value">内容层级较深，请在下方“原始内容”中查看</span>';
+      if(Array.isArray(value)){
+        const visible=value.slice(0,40),rest=value.length-visible.length;
+        return '<div class="artifact-nested">'+visible.map((item,index)=>'<div class="artifact-list-item"><span class="artifact-list-index">ITEM '+String(index+1).padStart(2,'0')+'</span>'+artifactTree(item,depth+1)+'</div>').join('')+(rest?'<span class="artifact-value">其余 '+rest+' 项请在原始内容中查看</span>':'')+'</div>'
+      }
+      const entries=Object.entries(value),visible=entries.slice(0,60),rest=entries.length-visible.length;
+      return '<div class="artifact-tree">'+visible.map(([key,item])=>'<div class="artifact-field"><span class="artifact-key">'+esc(humanField(key))+'</span><div>'+artifactTree(item,depth+1)+'</div></div>').join('')+(rest?'<div class="artifact-field"><span class="artifact-key">更多字段</span><span class="artifact-value">其余 '+rest+' 个字段请在原始内容中查看</span></div>':'')+'</div>'
+    }
+    function artifactCount(value){return Array.isArray(value)?value.length:value&&typeof value==='object'?Object.keys(value).length:1}
+    async function openArtifact(url,label){
+      const filename=decodeURIComponent(String(url).split('/').pop().split('?')[0]||label),ext=(filename.split('.').pop()||'').toLowerCase();
+      openDrawer({eyebrow:'Artifact viewer · 站内产物查看器',title:label,meta:filename+' · 正在读取',html:'<div class="artifact-loading"><div><i></i><b>正在打开产物</b><span>无需下载，也不依赖现场电脑的软件</span></div></div>'});
+      try{
+        const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('服务器返回 '+response.status);
+        const source=await response.text(),bytes=new TextEncoder().encode(source).length;let data,format;
+        if(ext==='jsonl'){data=source.split(/\r?\n/).filter(Boolean).map((line,index)=>{try{return JSON.parse(line)}catch(error){return {line:index+1,content:line}}});format='JSONL'}
+        else if(ext==='json'){data=JSON.parse(source);format='JSON'}
+        else{data={content:source};format=ext==='md'?'Markdown':'文本'}
+        const raw=format==='JSON'?JSON.stringify(data,null,2):source,itemCount=artifactCount(data),kind=Array.isArray(data)?'列表':data&&typeof data==='object'?'对象':'文本';
+        const html='<div class="artifact-toolbar"><div><b>'+esc(filename)+'</b><span>'+format+' · '+bytes.toLocaleString()+' bytes · '+itemCount+' 个顶层条目</span></div><a class="artifact-download" href="'+esc(url)+'" download>备用：下载原文件</a></div><div class="artifact-summary"><div><span>查看方式</span><b>站内直接打开</b></div><div><span>数据格式</span><b>'+esc(format)+'</b></div><div><span>内容结构</span><b>'+esc(kind)+' · '+itemCount+' 项</b></div></div><div class="drawer-section"><h4>可读内容</h4>'+artifactTree(data)+'</div><details class="artifact-raw"><summary>查看原始内容</summary><pre>'+esc(raw)+'</pre></details><p class="drawer-hint">现场演示优先使用站内查看；只有需要带走原始数据时才使用下载按钮。</p>';
+        openDrawer({eyebrow:'Artifact viewer · 站内产物查看器',title:label,meta:'已打开 · '+filename,html})
+      }catch(error){
+        openDrawer({eyebrow:'Artifact viewer · 站内产物查看器',title:label,meta:filename+' · 打开失败',html:'<div class="artifact-error"><b>这个产物暂时无法读取</b><p>'+esc(error.message||String(error))+'。请确认本地服务仍处于连接状态，然后重新执行该步骤。</p></div><div class="artifact-toolbar"><div><b>'+esc(filename)+'</b><span>仍可尝试下载原文件</span></div><a class="artifact-download" href="'+esc(url)+'" download>下载原文件</a></div>'})
+      }
+    }
+    function closeEvidence(){const drawer=$("#evidenceDrawer"),backdrop=$("#drawerBackdrop");drawer.classList.remove('open');backdrop.classList.remove('open');drawer.setAttribute('aria-hidden','true');document.body.classList.remove('drawer-open');document.querySelectorAll('[data-flow-node]').forEach(node=>{node.classList.remove('is-inspected');node.setAttribute('aria-expanded','false')});if(drawerReturnFocus&&document.contains(drawerReturnFocus))drawerReturnFocus.focus();drawerReturnFocus=null}
 
-    function reset(){state.step=1;state.completed.clear();state.results={};state.sessionId="";state.running=false;state.flowMessage="";state.flowProgress=0;render()}
+    const itemLabel=item=>typeof item==='string'?item:item&&item.label||'未命名节点';
+    const shortHash=value=>value?String(value).slice(0,12):'待生成';
+    const pct=value=>value==null?'—':(Number(value)*100).toFixed(1)+'%';
+    const fact=(label,value,tone='')=>({label,value:value==null?'—':value,tone});
+    function nodeFacts(step,type,index){
+      const d=result(step),p1=result(1)||{},p2=result(2)||{},p3=result(3)||{},p4=result(4)||{},p5=result(5)||{},p6=result(6)||{};
+      if(!d)return [fact('运行状态','等待执行本步骤','warn'),fact('可查看内容','设计逻辑与上下游关系')];
+      const byStep={
+        1:[fact('任务',p1.task_name),fact('被测对象',p1.target_model_version),fact('测试规模',(p1.test_count||0)+' 通'),fact('SOP 指纹',shortHash((p1.hashes||{}).sop_sha256),'good')],
+        2:[fact('L0',p2.l0_common_rules+' 项'),fact('L1',p2.l1_sop_rules+' 项'),fact('检查点',p2.checkpoints+' 项'),fact('Checklist 指纹',shortHash(p2.checklist_sha256),'good')],
+        3:[fact('完成测试',p3.total_runs+' 通'),fact('逐项判定',p3.judgment_count+' 条'),fact('覆盖率',p3.coverage_rate+'%',Number(p3.coverage_rate)>=80?'good':'warn'),fact('执行异常',p3.evaluation_errors,Number(p3.evaluation_errors)?'danger':'good')],
+        4:[fact('上线门禁',p4.gate,p4.gate==='可上线'?'good':'danger'),fact('履约率',p4.fulfillment_rate==null?'—':p4.fulfillment_rate+'%'),fact('P0 触发',p4.p0_triggered_calls+' 通',Number(p4.p0_triggered_calls)?'danger':'good'),fact('打回',p4.blocked_runs+' 通',Number(p4.blocked_runs)?'danger':'good')],
+        5:[fact('首要根因',p5.primary_label||p5.primary_category),fact('置信度',p5.primary_confidence,'warn'),fact('候选分支','4 类'),fact('责任对象',((p5.roots||[])[0]||{}).owner||'人工复核')],
+        6:[fact('优化对象',p6.optimization_target),fact('回归入口','第 '+p6.return_step+' 步'),fact('SOP',p6.sop_changed?'已变化':'哈希不变',p6.sop_changed?'danger':'good'),fact('Checklist',p6.checklist_changed?'已变化':'哈希不变',p6.checklist_changed?'danger':'good')]
+      };
+      const extras={
+        '1:process:1':[fact('SOP SHA',shortHash((p1.hashes||{}).sop_sha256)),fact('对话 SHA',shortHash((p1.hashes||{}).transcripts_sha256))],
+        '2:output:2':[fact('审核状态',p2.approved?'已审核':'待审核',p2.approved?'good':'warn')],
+        '3:output:2':[fact('未触达',p3.blind_spot_count+' 项',Number(p3.blind_spot_count)?'warn':'good')],
+        '4:output:0':[fact('模型版本',p4.target_model_version)],
+        '5:process:0':[fact('模型信号分',((p5.signals||{}).target_model_score)==null?'—':(p5.signals||{}).target_model_score),fact('裁判健康',(p5.signals||{}).judge_healthy?'健康':'异常',(p5.signals||{}).judge_healthy?'good':'danger')],
+        '6:process:1':[fact('回归状态',p6.status||'计划已生成','good')]
+      };
+      return (byStep[step]||[]).concat(extras[step+':'+type+':'+index]||[])
+    }
+    function factsHtml(items){return '<div class="node-facts">'+items.map(x=>'<div class="node-fact '+esc(x.tone||'')+'"><span>'+esc(x.label)+'</span><b>'+esc(x.value)+'</b></div>').join('')+'</div>'}
+    function rootBranchesHtml(a){
+      const signals=a&&a.signals||{},roots=a&&a.roots||[],rootMap=Object.fromEntries(roots.map(root=>[root.category,root])),report=result(4)||{},labels={target_model:'外呼模型',instruction:'SOP / 任务指令',judge:'裁判',test_data:'测试数据'};
+      const derived={
+        target_model:['模型信号分 '+(signals.target_model_score==null?'—':signals.target_model_score),'打回率 '+pct(signals.call_block_rate)+' · P0 率 '+pct(signals.p0_trigger_rate),'关键流程失败率 '+pct(signals.key_failure_rate)],
+        instruction:['高严重度 SOP 问题 '+(signals.instruction_high_findings==null?'—':signals.instruction_high_findings)+' 项','指令可行性 '+(signals.instruction_feasibility==null?'未单独标记':signals.instruction_feasibility)],
+        judge:['裁判健康 '+(signals.judge_healthy?'是':'否'),'分歧率 '+pct(signals.judge_disagreement_rate)+' · 规则冲突 '+(signals.rule_conflicts==null?'—':signals.rule_conflicts)],
+        test_data:['检查点覆盖率 '+(report.coverage_rate==null?'—':report.coverage_rate+'%'),'Persona 失败集中度 '+pct(signals.persona_failure_concentration),'待人工复核 '+(signals.needs_human_review==null?'—':signals.needs_human_review)+' 项']
+      };
+      return '<div class="root-branches">'+Object.keys(labels).map(category=>{const root=rootMap[category],selected=a&&a.primary_category===category,reasons=root&&root.evidence&&root.evidence.length?root.evidence.slice(0,5):derived[category],status=selected?'首要根因 · '+(root&&root.confidence||a.primary_confidence||''):(root?'候选 · '+(root.confidence||''):'证据较弱 / 已排除');return '<div class="root-branch '+(selected?'selected':'')+'"><div class="root-branch-head"><b>'+esc(labels[category])+'</b><span>'+esc(status)+'</span></div><ul>'+reasons.map(reason=>'<li>'+esc(reason)+'</li>').join('')+'</ul></div>'}).join('')+'</div>'
+    }
+    function nodeSpecialHtml(step,type,index){
+      const d=result(step);
+      if(!d)return '';
+      if(step===2&&type==='output'&&index===2){const rows=(d.samples||[]).slice(0,4);return '<div class="drawer-section"><h4>本次生成的检查点样例</h4><div class="node-mini-list">'+rows.map(x=>'<div class="node-mini"><b>'+esc(x.layer)+' · '+esc(x.id)+' · '+esc(x.severity)+'</b><p>'+esc(x.text)+'</p><p>来源：'+esc(x.source_quote)+'</p></div>').join('')+'</div></div>'}
+      if(step===3&&type==='output'&&index===1){const rows=(d.sample_judgments||[]).slice(0,4);return '<div class="drawer-section"><h4>本次逐项判定样例</h4><div class="node-mini-list">'+rows.map(x=>'<div class="node-mini"><b>'+esc(x.checkpoint_id)+' · '+esc(x.verdict)+'</b><p>'+esc(x.checkpoint_text||'')+'</p><p>证据：'+esc(x.evidence||'无')+'</p></div>').join('')+'</div></div>'}
+      if(step===5&&(type==='output'&&index===0||type==='process'))return '<div class="drawer-section"><h4>四类根因分支与底层原因</h4>'+rootBranchesHtml(d)+'</div>';
+      if(step===6&&type==='output'&&index===0)return '<div class="drawer-section"><h4>本次生成的优化动作</h4><div class="node-mini-list">'+(d.actions||[]).map(x=>'<div class="node-mini"><b>'+esc(x.owner)+'</b><p>'+esc(x.action)+'</p><p>验收：'+esc(x.verification)+'</p></div>').join('')+'</div></div>';
+      if(step===6&&type==='output'&&index===2&&d.actual_regression){const r=d.actual_regression,b=r.baseline.metrics,c=r.candidate.metrics;return '<div class="drawer-section"><h4>同尺回归对比</h4>'+factsHtml([fact('模型',r.baseline.version+' → '+r.candidate.version),fact('门禁',b.gate+' → '+c.gate,c.gate==='可上线'?'good':''),fact('P0',b.p0_triggered_runs+' → '+c.p0_triggered_runs,c.p0_triggered_runs===0?'good':'danger'),fact('平均分',b.avg_score+' → '+c.avg_score,'good')])+'</div>'}
+      return ''
+    }
+    function implementationHtml(step,type,index,guide){
+      const impl=(((NODE_IMPLEMENTATION[step]||{})[type]||[])[index]);
+      if(!impl)return '<div class="implementation-shell"><p class="implementation-purpose">'+esc(guide.logic)+'</p></div>';
+      const list=items=>'<ul>'+items.map(item=>'<li>'+esc(item)+'</li>').join('')+'</ul>';
+      const route=impl.steps.map((item,routeIndex)=>'<div class="route-step"><em>'+String(routeIndex+1).padStart(2,'0')+'</em><span>'+esc(item)+'</span></div>').join('');
+      const sourceUrl='https://github.com/kaijie0074-art/evalcall/blob/main/'+impl.module.split(' + ')[0];
+      return '<div class="implementation-shell"><div class="implementation-head"><div><span>CODE ENTRY · 真实代码落点</span><b>'+esc(impl.module)+'<br>'+esc(impl.entry)+(impl.api?' · '+esc(impl.api):'')+'</b></div><a class="implementation-code-link" href="'+esc(sourceUrl)+'" target="_blank" rel="noopener">查看源代码 ↗</a></div><p class="implementation-purpose"><b>实现目标：</b>'+esc(guide.purpose)+'</p><div class="implementation-contract"><div class="contract-card"><h5>READS · 输入字段</h5>'+list(impl.reads)+'</div><div class="contract-card output"><h5>WRITES · 输出字段 / 产物</h5>'+list(impl.writes)+'</div></div><div class="implementation-route">'+route+'</div><div class="implementation-guard"><div class="guard-card"><span>FAILURE GUARD · 失败兜底</span><b>'+esc(impl.guard)+'</b></div><div class="guard-card test"><span>AUTOMATED ACCEPTANCE · 自动验收</span><b>'+esc(impl.test)+'</b></div></div></div>'
+    }
+    function openNodeDetail(key){
+      const [stepRaw,type,indexRaw]=String(key).split(':');
+      const step=Number(stepRaw),index=Number(indexRaw),spec=flowSpec(),item=(spec[type]||[])[index];
+      const guide=(((NODE_GUIDE[step]||{})[type]||[])[index])||G('承接当前步骤的一部分。','按既定流程处理并保留运行痕迹。','向下游输出可追踪结果。');
+      const current=itemLabel(item);
+      const before=type==='input'?(step===1?'任务材料':STEP[step-2].name):(type==='process'?(index?itemLabel(spec.process[index-1]):spec.input.map(itemLabel).join(' + ')):spec.process.map(itemLabel).join(' + '));
+      const after=type==='output'?(step===6?'闭环完成':STEP[step].name):(type==='process'?(index<spec.process.length-1?itemLabel(spec.process[index+1]):spec.output.map(itemLabel).join(' + ')):(spec.process[0]?itemLabel(spec.process[0]):'下一处理节点'));
+      const status=state.completed.has(step)?'本次运行已完成':state.running&&state.step===step?'本次运行中':'等待执行 · 以下先展示设计逻辑';
+      const html='<div class="node-chain"><div class="node-chain-card"><span>上游</span><b>'+esc(before)+'</b></div><span class="node-chain-arrow">→</span><div class="node-chain-card"><span>下游</span><b>'+esc(after)+'</b></div></div>'+implementationHtml(step,type,index,guide)+'<div class="drawer-section"><h4>本次运行的实际痕迹</h4>'+factsHtml(nodeFacts(step,type,index))+'</div>'+nodeSpecialHtml(step,type,index)+'<p class="drawer-hint">实现方案来自仓库真实模块与接口；运行痕迹只读取当前产物，不会修改任务、评分尺或评测结果。</p>';
+      openDrawer({eyebrow:'Implementation inspector · Step '+String(step).padStart(2,'0')+' · '+({input:'输入叶节点',process:'处理主干',output:'输出分支'}[type]||'流程节点'),title:current,meta:status+' · 实现方案 / 数据契约 / 代码入口 / 失败兜底',html})
+    }
+
+    function reset(){state.step=1;state.completed.clear();state.results={};state.sessionId="";state.running=false;state.flowMessage="";state.flowProgress=0;state.regressionCase=0;render()}
     function canOpen(index){return index<=1||state.completed.has(index-1)||state.completed.has(index)}
     function go(index){if(index<1||index>6)return;if(!canOpen(index)){toast("请先完成上一步",true);return}state.step=index;render();window.scrollTo({top:0,behavior:"smooth"})}
     function complete(index,data){state.results[index]=data;state.completed.add(index);state.flowProgress=100;render()}
@@ -306,7 +737,8 @@
     }
     function flowNode(node,nodeState='pending',type='process',index=0){
       const item=typeof node==='string'?{label:node}:node,statusText=type==='input'?(nodeState==='done'?'✓ 已接入':'输入'):type==='output'?(nodeState==='active'?'生成中':nodeState==='done'?'✓ 已生成':'待输出'):(nodeState==='active'?'执行中':nodeState==='done'?'✓ 已完成':'待执行');
-      return '<div class="flow-node '+nodeState+'"><span class="flow-node-index">'+String(index+1).padStart(2,'0')+'</span><span>'+esc(item.label)+(item.meta?'<small>'+esc(item.meta)+'</small>':'')+'</span><em class="flow-node-state">'+statusText+'</em></div>'
+      const key=state.step+':'+type+':'+index;
+      return '<button type="button" class="flow-node '+nodeState+'" data-flow-node="'+key+'" aria-haspopup="dialog" aria-expanded="false" aria-label="查看'+esc(item.label)+'具体实现方案"><span class="flow-node-index">'+String(index+1).padStart(2,'0')+'</span><span>'+esc(item.label)+(item.meta?'<small>'+esc(item.meta)+'</small>':'')+'</span><em class="flow-node-state">'+statusText+' · 实现</em></button>'
     }
     function flowColumn(type,title,nodes,status){
       const progress=Math.max(0,Math.min(100,state.flowProgress)),processActive=Math.min(nodes.length-1,Math.floor(Math.max(0,progress-.01)/72*nodes.length)),outputProgress=Math.max(0,(progress-72)/28),outputActive=Math.min(nodes.length-1,Math.floor(Math.max(0,outputProgress-.01)*nodes.length));
@@ -315,7 +747,7 @@
     function renderFlow(){
       const spec=flowSpec(),status=state.running?'running':state.completed.has(state.step)?'done':'ready',label=state.flowMessage||({running:'现场请求处理中',done:state.mode==='live'?'现场产物已生成':'已载入验证产物',ready:'等待执行'}[status]),progress=status==='done'?100:status==='ready'?0:Math.max(0,Math.min(100,state.flowProgress)),total=spec.process.length,processComplete=status==='done'||status==='running'&&progress>=72,current=processComplete?total:Math.min(total,Math.max(1,Math.floor(Math.max(0,progress-.01)/72*total)+1)),progressText=status==='done'?'全部子步骤已完成':status==='ready'?total+' 个子步骤已就绪':processComplete?'处理主干完成 · 正在生成输出分支':'当前子步骤 '+current+' / '+total;
       const markers=spec.process.map((_,index)=>{const markerState=status==='done'||processComplete||index<current-1?'done':status==='running'&&index===current-1?'active':'pending';return '<b class="'+markerState+'" style="left:'+((index+1)/total*72)+'%" title="'+esc(spec.process[index])+'"></b>'}).join(''),link=second=>'<div class="flow-link '+(second?'second':'')+'"><span class="flow-pulse"></span></div>',map=$("#flowMap");
-      map.className='flow-map '+status;map.innerHTML='<div class="flow-map-head"><div class="flow-map-title">动态审计信号树</div><div class="flow-state">'+esc(label)+'</div></div><div class="flow-progress"><div class="flow-progress-copy"><span>'+esc(progressText)+'</span><strong>'+Math.round(progress)+'%</strong></div><div class="flow-progress-track"><i style="width:'+progress+'%"></i>'+markers+'</div></div><div class="flow-tree">'+flowColumn('input','INPUT · 输入叶节点',spec.input,status)+link(false)+flowColumn('process','PROCESS · 处理主干',spec.process,status)+link(true)+flowColumn('output','OUTPUT · 输出分支',spec.output,status)+'</div>'
+      map.className='flow-map '+status;map.innerHTML='<div class="flow-map-head"><div class="flow-map-title">动态审计信号树</div><span class="flow-inspect-hint">点击任一节点查看详情</span><div class="flow-state">'+esc(label)+'</div></div><div class="flow-progress"><div class="flow-progress-copy"><span>'+esc(progressText)+'</span><strong>'+Math.round(progress)+'%</strong></div><div class="flow-progress-track"><i style="width:'+progress+'%"></i>'+markers+'</div></div><div class="flow-tree">'+flowColumn('input','INPUT · 输入叶节点',spec.input,status)+link(false)+flowColumn('process','PROCESS · 处理主干',spec.process,status)+link(true)+flowColumn('output','OUTPUT · 输出分支',spec.output,status)+'</div>';bindFlowNodes()
     }
     function setFlowMessage(message,progress){state.flowMessage=message;if(progress!=null)state.flowProgress=Math.max(0,Math.min(99,Number(progress)||0));renderFlow()}
     function renderHeader(){const meta=STEP[state.step-1];$("#stageTitle").textContent=String(state.step).padStart(2,'0')+' · '+meta.name;$("#inputType").textContent=meta.input;$("#outputType").textContent=meta.output;$("#execute").textContent=(state.mode==='cache'?'载入\n':'')+meta.action;$("#execute").style.whiteSpace='pre-line';$("#execute").disabled=state.running||!canExecute();$("#relay").classList.toggle('running',state.running);$("#prev").disabled=state.step===1||state.running;$("#next").disabled=!state.completed.has(state.step)||state.step===6||state.running;$("#runLabel").textContent=state.sessionId||result(3)?.run_id||preset().cache_run||'等待开始'}
@@ -326,7 +758,22 @@
     }
     function renderInput(){const fn=[input1,input2,input3,input4,input5,input6][state.step-1];$("#inputBody").innerHTML=fn()}
     function renderOutput(){const data=result(state.step);if(!data){$("#outputBody").innerHTML=empty('等待“'+STEP[state.step-1].action+'”');return}const fn=[output1,output2,output3,output4,output5,output6][state.step-1];$("#outputBody").innerHTML=fn(data)}
-    function render(){renderMode();renderSteps();renderHeader();renderFlow();renderInput();renderOutput();bindDynamic()}
+    function regressionMetric(label,before,after,format='number',direction='up'){
+      const display=value=>format==='percent'?esc(value)+'%':esc(value),numeric=Number(after)-Number(before),neutral=Number.isFinite(numeric)&&numeric===0,improved=format==='gate'?true:direction==='down'?numeric<0:numeric>0,tone=neutral?'neutral':improved?'':'negative',delta=format==='gate'?'门禁变化':neutral?'未提升':Number.isFinite(numeric)?(numeric>0?'+':'')+numeric.toFixed(Number.isInteger(numeric)?0:1):'已变化';
+      return '<div class="metric-migration"><span>'+esc(label)+'</span><div class="metric-values"><b class="old">'+display(before)+'</b><i>→</i><b class="new">'+display(after)+'</b></div><b class="metric-delta '+tone+'">'+esc(delta)+'</b></div>'
+    }
+    function regressionLock(label,hash,locked){return '<div class="lock-item"><span>🔒 '+esc(label)+'</span><b>'+(locked?'一致 · '+esc(shortHash(hash)):'发生变化')+'</b></div>'}
+    function renderRegressionPanel(){
+      const panel=$("#regressionPanel"),plan=result(6),r=plan&&plan.actual_regression;
+      if(state.step!==6||!r){panel.hidden=true;panel.innerHTML='';return}
+      const b=(r.baseline||{}).metrics||{},c=(r.candidate||{}).metrics||{},proof=r.comparability||{},cases=r.case_diffs||[],selected=cases[Math.min(state.regressionCase,Math.max(0,cases.length-1))],transitions=(r.checkpoint_transitions||[]).filter(row=>row.status!=='stable').slice(0,12),summary=r.transition_summary||{},report=(r.candidate||{}).report_url;
+      const fulfillmentChanged=Number(c.fulfillment_rate)>Number(b.fulfillment_rate),conclusion=Number(c.p0_triggered_runs)===0&&Number(c.blocked_runs)===0?(fulfillmentChanged?'门禁风险与业务履约均获得提升。':'门禁风险已清零，但履约率未提升；下一轮应继续优化业务达成。'):'当前版本仍未完全消除上线风险，需要继续回归。';
+      const caseTabs=cases.map((item,index)=>'<button type="button" class="case-tab '+(item.case_type==='regressed'?'regressed ':'')+(index===state.regressionCase?'selected':'')+'" data-regression-case="'+index+'">'+(item.case_type==='fixed'?'修复':'退化')+' · '+esc(item.checkpoint_id)+'</button>').join('');
+      const caseHtml=selected?'<div class="case-stage"><div class="same-input"><span>SAME USER INPUT · 同一用户输入</span><p>'+esc(selected.user_input)+'</p></div><div class="reply-compare"><article class="reply-card"><header><b>'+esc((r.baseline||{}).version)+'</b><span class="verdict-pill">'+esc(selected.before_verdict)+'</span></header><blockquote>'+esc(selected.baseline_reply)+'</blockquote></article><article class="reply-card after"><header><b>'+esc((r.candidate||{}).version)+'</b><span class="verdict-pill">'+esc(selected.after_verdict)+'</span></header><blockquote>'+esc(selected.candidate_reply)+'</blockquote></article></div><div class="strategy-change"><span>Δ</span><b>'+esc(selected.changed_strategy)+'<br><small>'+esc(selected.checkpoint_id)+' · '+esc(selected.checkpoint_text)+'</small></b></div></div>':'<div class="status-line"><span class="dot"></span>当前回归产物暂未生成对话级差异</div>';
+      const transitionRows=transitions.map(row=>'<div class="transition-row"><div><b>'+esc(row.checkpoint_text)+'</b><small>'+esc(row.checkpoint_id)+' · '+esc(row.severity)+'</small></div><span class="transition-count">修复 '+esc(row.fail_to_pass)+'</span><span class="transition-count">退化 '+esc(row.pass_to_fail)+'</span><span class="transition-count remaining-col">未解 '+esc(row.fail_to_fail)+'</span><span class="transition-status '+esc(row.status)+'">'+esc({improved:'整体改善',regressed:'出现退化',mixed:'有修有退',remaining:'仍未解决'}[row.status]||row.status)+'</span></div>').join('');
+      panel.hidden=false;panel.innerHTML='<div class="regression-hero"><div><span class="eyebrow">FIXED-USER REGRESSION · 优化效果证据</span><h3>只改责任对象，再用同一把尺重测</h3><p>'+esc(r.method||'固定用户输入，同一评分标准重新评测')+'</p></div><div class="regression-verdict"><span>REGRESSION VERDICT</span><b>'+esc((r.baseline||{}).version)+' → '+esc((r.candidate||{}).version)+'</b></div></div><div class="regression-body"><div class="version-bridge"><article class="version-card"><span>BEFORE · 优化前</span><b>'+esc((r.baseline||{}).version)+'</b><strong>'+esc(b.gate)+'</strong><small>'+esc(b.blocked_runs)+' / '+esc(b.total_runs)+' 通被打回</small></article><div class="bridge-action"><div><i>→</i><span>只修改<br>模型策略</span></div></div><article class="version-card after"><span>AFTER · 优化后</span><b>'+esc((r.candidate||{}).version)+'</b><strong>'+esc(c.gate)+'</strong><small>'+esc(c.blocked_runs)+' / '+esc(c.total_runs)+' 通被打回</small></article></div><div class="lock-proof">'+regressionLock('用户输入',proof.user_input_hash,proof.same_user_inputs)+regressionLock('任务 SOP',proof.instruction_hash,proof.same_instruction)+regressionLock('Checklist',proof.checklist_hash,proof.same_checklist)+regressionLock('Judge',proof.judge_policy_hash,proof.judgments_modified===false)+'</div>'+sectionLabel('Metric migration · 核心指标状态迁移')+'<div class="metric-migrations">'+regressionMetric('上线门禁',b.gate,c.gate,'gate')+regressionMetric('通话打回',b.blocked_runs,c.blocked_runs,'number','down')+regressionMetric('P0 触发',b.p0_triggered_runs,c.p0_triggered_runs,'number','down')+regressionMetric('平均分',b.avg_score,c.avg_score)+regressionMetric('履约率',b.fulfillment_rate,c.fulfillment_rate,'percent')+regressionMetric('人工复核',b.review_queue_count,c.review_queue_count,'number','down')+'</div><div class="regression-conclusion">可信结论：'+esc(conclusion)+' 本轮逐项判定共修复 '+esc(summary.fixed_judgments||0)+' 项、退化 '+esc(summary.regressed_judgments||0)+' 项、仍失败 '+esc(summary.remaining_failed_judgments||0)+' 项，所有变化均保留证据。</div>'+sectionLabel('Same-input dialogue diff · 同一输入的回复对照')+'<div class="case-tabs">'+caseTabs+'</div>'+caseHtml+sectionLabel('Checkpoint migration · 检查点状态迁移')+'<div class="transition-table">'+transitionRows+'</div>'+sectionLabel('Limitations · 证据边界')+'<ul class="limitations">'+(r.limitations||[]).map(item=>'<li>'+esc(item)+'</li>').join('')+'</ul><div class="regression-actions">'+(report?'<a class="regression-action" href="'+esc(report)+'" target="_blank" rel="noopener">打开 v2 完整报告 ↗</a>':'')+(r.artifact_url?'<button type="button" class="regression-action secondary" data-artifact-url="'+esc(r.artifact_url)+'" data-artifact-label="优化前后对比证据">站内查看 comparison.json</button>':'')+'</div></div>';
+    }
+    function render(){renderMode();renderSteps();renderHeader();renderFlow();renderInput();renderOutput();renderRegressionPanel();bindDynamic()}
 
     function input1(){
       const choices=Object.entries(CACHE.presets||{}).map(([id,item])=>'<button class="preset '+(id===state.preset?'selected':'')+'" data-preset="'+esc(id)+'"><b>'+esc(item.label)+'</b><span>'+esc(item.tag)+'</span></button>').join('');
@@ -349,11 +796,15 @@
     function output3(e){const people=(e.personas||[]).map(x=>x.id+'×'+x.calls).join('、');return sectionLabel('Run summary · 执行结果')+'<div class="metrics">'+metric(e.target_model_version,'被测模型版本',true,true)+metric(e.total_runs,'完成测试')+metric(e.persona_count,'Persona')+metric(e.coverage_rate+'%','检查点覆盖')+metric(e.blind_spot_count,'未触达检查点')+metric(e.evaluation_errors,'执行异常')+'</div><div class="excerpt">'+esc(people||'已有日志')+'</div>'+(e.execution_note?'<div class="status-line"><span class="dot"></span>'+esc(e.execution_note)+'</div>':'')+sectionLabel('Judgment evidence · 判定证据')+judgmentList(e.sample_judgments||[],5)}
     function output4(d){return '<div class="gate '+(d.gate==='可上线'?'pass':'')+'"><b>'+esc(d.gate)+'</b><span>模型 '+esc(d.target_model_version)+' · '+esc(d.total_runs)+(state.mode==='live'?' 通现场探针':' 通正式结果')+'</span></div>'+sectionLabel('Key metrics · 关键指标')+'<div class="metrics">'+metric(d.fulfillment_rate==null?'—':d.fulfillment_rate+'%','履约率')+metric(d.p0_triggered_calls,'P0 触发电话')+metric(d.key_failed_judgments,'关键失败项')+metric(d.coverage_rate+'%','检查点覆盖')+metric(d.blocked_runs,'打回电话')+metric(d.review_queue_count,'人工复核')+'</div>'+sectionLabel('Failure signals · 主要失败信号')+problemList(d.top_problems||[],8)+(d.report_url?'<div class="artifact-row"><a class="artifact" href="'+esc(d.report_url)+'" target="_blank" rel="noopener">下载 / 打开模型评测报告</a></div>':'')+artifacts(d.artifacts)}
     function output5(a){const labels={target_model:'外呼模型',instruction:'SOP / 任务指令',judge:'裁判',test_data:'测试数据',uncertain:'证据不足'};return sectionLabel('Attribution ranking · 根因排序')+(a.roots||[]).slice(0,4).map((root,i)=>'<div class="root"><div class="root-head"><b>'+(i===0?'首要根因 · ':'候选根因 · ')+esc(labels[root.category]||root.label)+'</b><span class="chip">'+esc(root.confidence)+'</span></div><p>'+esc((root.evidence||[]).join('；'))+'</p><p>负责人：'+esc(root.owner)+'</p></div>').join('')+artifacts(a.artifacts)}
-    function output6(p){const same=!p.sop_changed&&!p.checklist_changed,r=p.actual_regression,b=r&&r.baseline&&r.baseline.metrics,c=r&&r.candidate&&r.candidate.metrics,report=r&&r.candidate&&r.candidate.report_url,cmp=r?'<div class="root"><div class="root-head"><b>实际同尺回归 · '+esc(r.baseline.version)+' → '+esc(r.candidate.version)+'</b><span class="chip">已执行</span></div><p>门禁：'+esc(b.gate)+' → '+esc(c.gate)+'；P0：'+esc(b.p0_triggered_runs)+' → '+esc(c.p0_triggered_runs)+'；履约率：'+esc(b.fulfillment_rate)+'% → '+esc(c.fulfillment_rate)+'%；平均分：'+esc(b.avg_score)+' → '+esc(c.avg_score)+'</p><p>用户输入 / SOP / Checklist 哈希均保持不变；正常 Judge 重评，未手改 judgments。</p>'+(report?'<div class="artifact-row"><a class="artifact" href="'+esc(report)+'" target="_blank" rel="noopener">打开 v2 回归报告</a></div>':'')+'</div>':'';return sectionLabel('Regression verdict · 同尺回归结论')+cmp+sectionLabel('Plan summary · 优化计划')+'<div class="metrics">'+metric(p.optimization_target,'优化对象',true,true)+metric(p.candidate_target_model_version||p.target_model_version,'回归模型版本',true,true)+metric(p.actions.length,'优化动作')+metric('第 '+p.return_step+' 步','回归入口',false,true)+metric(p.sop_changed?'变化':'不变','SOP',false,true)+metric(p.checklist_changed?'变化':'不变','Checklist',false,true)+'</div><div class="list">'+p.actions.map(x=>'<div class="item"><b>'+esc(x.owner)+'</b><p>'+esc(x.action)+'</p><p>验收：'+esc(x.verification)+'</p></div>').join('')+'</div>'+(same?'<div class="status-line"><span class="dot"></span>同尺回归：SOP 与 Checklist 哈希保持不变</div>':'')+'<div class="loop"><span class="loop-num">1</span><span class="loop-text">执行对应根因的优化</span><span class="loop-num">2</span><span class="loop-text">返回第 '+esc(p.return_step)+' 步</span><span class="loop-num">3</span><span class="loop-text">固定版本与评分尺完成回归</span></div>'+artifacts(p.artifacts)}
+    function output6(p){
+      const same=!p.sop_changed&&!p.checklist_changed,r=p.actual_regression,b=r&&r.baseline&&r.baseline.metrics,c=r&&r.candidate&&r.candidate.metrics,cmp=r?'<div class="root"><div class="root-head"><b>实际同尺回归已完成</b><span class="chip">'+esc(b.gate)+' → '+esc(c.gate)+'</span></div><p>P0：'+esc(b.p0_triggered_runs)+' → '+esc(c.p0_triggered_runs)+'；打回：'+esc(b.blocked_runs)+' → '+esc(c.blocked_runs)+'；平均分：'+esc(b.avg_score)+' → '+esc(c.avg_score)+'</p><button type="button" class="artifact" data-open-regression>查看完整优化前后对比 ↓</button></div>':'';
+      return sectionLabel('Regression verdict · 同尺回归结论')+cmp+sectionLabel('Plan summary · 优化计划')+'<div class="metrics">'+metric(p.optimization_target,'优化对象',true,true)+metric(p.candidate_target_model_version||p.target_model_version,'回归模型版本',true,true)+metric(p.actions.length,'优化动作')+metric('第 '+p.return_step+' 步','回归入口',false,true)+metric(p.sop_changed?'变化':'不变','SOP',false,true)+metric(p.checklist_changed?'变化':'不变','Checklist',false,true)+'</div><div class="list">'+p.actions.map(x=>'<div class="item"><b>'+esc(x.owner)+'</b><p>'+esc(x.action)+'</p><p>验收：'+esc(x.verification)+'</p></div>').join('')+'</div>'+(same?'<div class="status-line"><span class="dot"></span>同尺回归：用户、SOP、Checklist 与 Judge 均保持不变</div>':'')+'<div class="loop"><span class="loop-num">1</span><span class="loop-text">执行对应根因的优化</span><span class="loop-num">2</span><span class="loop-text">返回第 '+esc(p.return_step)+' 步</span><span class="loop-num">3</span><span class="loop-text">固定版本与评分尺完成回归</span></div>'+artifacts(p.artifacts)
+    }
     function checkpointList(rows){return '<div class="list">'+rows.map(x=>'<div class="item"><div class="item-top"><span class="item-id">'+esc(x.layer)+' · '+esc(x.id)+'</span><span class="chip '+(x.severity==='critical'?'critical':'')+'">'+esc(x.severity)+'</span></div><b>'+esc(x.text)+'</b><p>原文：'+esc(x.source_quote)+'</p></div>').join('')+'</div>'}
     function judgmentList(rows,limit){const items=rows.slice(0,limit);if(!items.length)return '<div class="status-line"><span class="dot"></span>当前结果没有需要展示的判定明细</div>';return '<div class="detail-table" role="table" aria-label="逐项判定明细"><div class="detail-head" role="row"><span>运行 / 检查点</span><span>判定内容</span><span>状态 / 证据</span></div>'+items.map(x=>{const verdict={fail:'未通过',pass:'通过',na:'不适用'}[x.verdict]||x.verdict,payload=encodeURIComponent(JSON.stringify({title:x.checkpoint_text||x.checkpoint_id,meta:(x.run_id||'未知运行')+' · '+(x.checkpoint_id||'未知检查点')+' · '+verdict,evidence:x.evidence||'无可展示证据'}));return '<div class="detail-row" role="row"><span class="detail-id">'+esc(x.run_id)+'<br>'+esc(x.checkpoint_id)+'</span><div class="detail-main"><b>'+esc(x.checkpoint_text||x.checkpoint_id)+'</b><span>'+esc(x.evidence||'无可展示证据')+'</span></div><div class="detail-action"><span class="chip '+esc(x.verdict)+'">'+esc(verdict)+'</span><button class="evidence-trigger" data-evidence="'+payload+'">查看证据</button></div></div>'}).join('')+'</div>'}
     function problemList(rows,limit){const items=rows.slice(0,limit);if(!items.length)return '<div class="status-line"><span class="dot"></span>当前结果没有主要失败信号</div>';return '<div class="problem-table">'+items.map((x,index)=>{const rate=x.failure_rate==null?0:x.failure_rate;return '<div class="problem"><div class="problem-head"><span class="problem-rank">'+String(index+1).padStart(2,'0')+'</span><span class="problem-name">'+esc(x.text)+'</span><span class="problem-rate">'+(x.failure_rate==null?'未触达':rate+'%')+'</span></div><div class="bar"><i style="width:'+rate+'%"></i></div></div>'}).join('')+'</div>'}
 
+    function bindFlowNodes(){document.querySelectorAll('[data-flow-node]').forEach(button=>button.onclick=()=>{document.querySelectorAll('[data-flow-node]').forEach(node=>{node.classList.remove('is-inspected');node.setAttribute('aria-expanded','false')});button.classList.add('is-inspected');button.setAttribute('aria-expanded','true');openNodeDetail(button.dataset.flowNode)})}
     function bindDynamic(){
       document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{state.preset=b.dataset.preset;const item=preset(),p=item.steps&&item.steps['1']||{};state.testMode=item.test_mode||p.test_mode||'simulation';state.targetModel=state.mode==='live'?(state.backendModel||state.targetModel):(p.target_model_version||state.targetModel);state.testCount=state.mode==='live'?Math.min(state.testCount,1):(p.test_count||p.conversations||state.testCount);state.taskText='';state.txText='';state.taskName='';state.txName='';reset();toast(preset().label+' 已选择')});
       document.querySelectorAll('[data-test-mode]').forEach(b=>b.onclick=()=>{if(state.mode==='cache')return;state.testMode=b.dataset.testMode;state.txText='';state.txName='';reset()});
@@ -366,6 +817,10 @@
       if(tm)tm.onchange=e=>{state.targetModel=e.target.value.trim()||state.targetModel};
       if(tc)tc.onchange=e=>{state.testCount=Math.max(1,Math.min(24,Number(e.target.value)||6))};
       document.querySelectorAll('[data-evidence]').forEach(button=>button.onclick=()=>openEvidence(button.dataset.evidence));
+      document.querySelectorAll('[data-artifact-url]').forEach(button=>button.onclick=()=>openArtifact(button.dataset.artifactUrl,button.dataset.artifactLabel));
+      document.querySelectorAll('[data-regression-case]').forEach(button=>button.onclick=()=>{state.regressionCase=Number(button.dataset.regressionCase)||0;renderRegressionPanel();bindDynamic()});
+      document.querySelectorAll('[data-open-regression]').forEach(button=>button.onclick=()=>$("#regressionPanel").scrollIntoView({behavior:'smooth',block:'start'}));
+      bindFlowNodes();
     }
     async function post(path,body){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json().catch(()=>({ok:false,error:'服务返回无法解析'}));if(!response.ok||!data.ok)throw new Error(data.error||'执行失败');return data.result||data}
     function processLabel(progress){const nodes=FLOW[state.step-1].process,index=Math.min(nodes.length-1,Math.floor(Math.max(0,Number(progress)||0)/72*nodes.length));return nodes[index]}
@@ -403,5 +858,6 @@
     boot();
   })();
   </script>
+  <script src="./product-shell.js?v=20260716.4"></script>
 </body>
 </html>
