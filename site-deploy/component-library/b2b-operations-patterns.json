@@ -1,0 +1,417 @@
+{
+  "schema": "b2b-operations-design/v1",
+  "version": "2026-07-16.4",
+  "subject": {
+    "product": "EvalCall",
+    "audiences": ["模型评测运营", "模型工程师", "业务规则负责人"],
+    "dashboard_job": "定位需要处理的评测任务并立即执行下一步动作",
+    "interaction_model": "对象 → 状态 → 证据 → 动作 → 审计记录"
+  },
+  "design_principles": [
+    {
+      "id": "work_before_explanation",
+      "name": "工作优先",
+      "rule": "首页首屏直接展示状态、筛选、工作队列和下一步动作，不展示品牌宣言或方法论说理。",
+      "test": "用户进入页面后无需滚动即可创建任务、继续运行或处理待办。"
+    },
+    {
+      "id": "one_object_one_status_one_action",
+      "name": "对象—状态—动作",
+      "rule": "每一行只描述一个业务对象；状态靠近对象；主动作固定在行尾或详情面板底部。",
+      "test": "扫读一行即可回答这是什么、现在怎样、下一步做什么。"
+    },
+    {
+      "id": "queue_is_primary",
+      "name": "队列是首页主体",
+      "rule": "任务表或待办列表占据最大可用面积，摘要指标只能作为工具栏或紧凑状态条。",
+      "test": "主列表面积不低于首页有效内容面积的 55%。"
+    },
+    {
+      "id": "progressive_disclosure",
+      "name": "渐进披露",
+      "rule": "列表只保留识别和决策字段；证据、日志、版本指纹进入抽屉、详情或二级页。",
+      "test": "默认任务表保持 6–8 列，单行高度 44–56px。"
+    },
+    {
+      "id": "single_primary_action",
+      "name": "单一主动作",
+      "rule": "同一视口只保留一个视觉上最强的主按钮，重复入口使用链接、行点击或次级按钮。",
+      "test": "页面首屏不出现两个同文案、同权重的主按钮。"
+    },
+    {
+      "id": "semantic_color_only",
+      "name": "颜色只表达状态",
+      "rule": "品牌黄只用于主动作、选中态和同尺锁定；红绿仅用于风险和通过，不用于装饰。",
+      "test": "去除状态后页面主体仍以中性色为主。"
+    },
+    {
+      "id": "stable_shell",
+      "name": "稳定产品壳",
+      "rule": "主导航、工作区上下文和用户入口位置稳定；页面切换只替换主内容。",
+      "test": "用户从任务列表进入复核后，仍能一键返回原任务和原筛选。"
+    },
+    {
+      "id": "audit_is_context",
+      "name": "证据贴近判断",
+      "rule": "证据与裁判结论在同一工作上下文展示，不通过大段解释代替原始证据。",
+      "test": "复核页无需跳出即可看到样本、分歧、证据和最终动作。"
+    }
+  ],
+  "anti_patterns": [
+    {
+      "id": "marketing_hero",
+      "name": "营销式 Hero",
+      "examples": ["先统一测试条件，再讨论模型是否真的提升", "大标题 + 价值解释 + 两个 CTA"],
+      "replacement": "24px 页面标题 + 运行状态/更新时间 + 单一主动作"
+    },
+    {
+      "id": "decorative_eyebrow",
+      "name": "装饰性英文眉题",
+      "examples": ["EVALUATION COMMAND CENTER", "MODEL EVALUATION CONTROL PLANE"],
+      "replacement": "面包屑、任务编号或工作区名称；没有导航意义时直接删除"
+    },
+    {
+      "id": "duplicate_cta",
+      "name": "重复主动作",
+      "examples": ["导航、页头、Hero、表格工具栏同时出现创建评测"],
+      "replacement": "页头保留创建按钮，其他位置使用空状态或快捷键提示"
+    },
+    {
+      "id": "kpi_card_wall",
+      "name": "指标卡墙",
+      "examples": ["四张等权大卡占据列表上方"],
+      "replacement": "紧凑摘要条或与筛选工具栏合并"
+    },
+    {
+      "id": "process_as_homepage",
+      "name": "流程图占据首页",
+      "examples": ["在任务中心展示完整评测方法论或技术架构"],
+      "replacement": "流程只出现在具体任务的运行详情"
+    }
+  ],
+  "reference_sources": [
+    {
+      "id": "linear_my_issues",
+      "product": "Linear",
+      "page": "My issues / Assigned",
+      "reference_kind": "authenticated_product_ui",
+      "operator_applicability": 0.96,
+      "evidence_confidence": "high",
+      "source_url": "https://linear.app/docs/my-issues",
+      "image_url": "https://webassets.linear.app/images/ornj730p/production/70c22a56e776bfbffa920091b64a28845ca8eaeb-1864x842.png?auto=format&dpr=2&q=95&w=1440",
+      "local_reference": "../../design-reference/product-ui/linear-my-issues.png",
+      "deploy_reference": "../reference-assets/linear-my-issues.png",
+      "marketing_artifacts_to_exclude": ["官网 Hero", "注册 CTA", "品牌口号"],
+      "captured_size": [1920, 868],
+      "best_for": ["任务中心", "待办队列", "低噪声导航", "按状态分组列表"],
+      "not_for": ["风险审计表", "复杂配置表单"],
+      "geometry": {
+        "outer_stage": "渐变背景承载产品窗口，仅用于复刻展示，不移植到 EvalCall",
+        "window_inset": {"top": 87, "left": 160, "right": 0, "bottom": 0},
+        "sidebar_width_ratio": 0.29,
+        "content_width_ratio": 0.71,
+        "top_context_height": 86,
+        "tab_height": 88,
+        "group_header_height": 86,
+        "row_height": 92
+      },
+      "tokens": {
+        "surface": "#101012",
+        "surface_raised": "#17181a",
+        "surface_selected": "#232326",
+        "line": "#292a2d",
+        "text": "#f0f0f1",
+        "muted": "#8d8e93",
+        "success": "#31bd64",
+        "warning": "#f1c40f",
+        "radius": 8,
+        "spacing_unit": 8,
+        "body_size": 14,
+        "density": "compact"
+      },
+      "composition": ["workspace_sidebar", "context_bar", "view_tabs", "filter_row", "grouped_work_list"],
+      "logic": ["个人工作集合优先", "按状态分组而非指标卡分类", "导航选中态面积明确", "行内状态图标先于文字"]
+    },
+    {
+      "id": "vanta_risk_register",
+      "product": "Vanta",
+      "page": "Risk management / Register",
+      "reference_kind": "authenticated_product_ui",
+      "operator_applicability": 0.97,
+      "evidence_confidence": "high",
+      "source_url": "https://www.vanta.com/resources/introducing-risk-management-customization",
+      "image_url": "https://cdn.prod.website-files.com/64009032676f244c7bf002fd/6491d0f725fa6525807bac1b_Customize%20Risk%20Register.png",
+      "local_reference": "../../design-reference/product-ui/vanta-risk-register.png",
+      "deploy_reference": "../reference-assets/vanta-risk-register.png",
+      "marketing_artifacts_to_exclude": ["官网 Hero", "预约演示", "客户 Logo 墙"],
+      "captured_size": [1888, 980],
+      "best_for": ["争议复核", "风险队列", "规则治理", "责任人与处理状态"],
+      "not_for": ["营销首页", "模型运行进度"],
+      "geometry": {
+        "global_sidebar_width": 210,
+        "module_sidebar_width": 224,
+        "toolbar_height": 80,
+        "table_header_height": 57,
+        "table_row_height": 92,
+        "column_count": 9
+      },
+      "tokens": {
+        "sidebar": "#151516",
+        "module_surface": "#ffffff",
+        "surface": "#ffffff",
+        "surface_selected": "#f5eafa",
+        "line": "#dedee1",
+        "text": "#161618",
+        "muted": "#6e6e73",
+        "accent": "#8b2ac7",
+        "critical": "#151516",
+        "warning": "#f4b81b",
+        "success": "#22ad66",
+        "radius": 6,
+        "spacing_unit": 8,
+        "body_size": 14,
+        "density": "dense"
+      },
+      "composition": ["global_sidebar", "module_sidebar", "filter_toolbar", "dense_risk_table", "column_preferences"],
+      "logic": ["风险对象是首列且拥有最多宽度", "责任人、风险、处理、状态并列", "筛选紧贴表格", "列配置在右上角而非单独设置页"]
+    },
+    {
+      "id": "retool_admin_panel",
+      "product": "Retool",
+      "page": "Admin panel / App builder",
+      "reference_kind": "authenticated_product_ui",
+      "operator_applicability": 0.94,
+      "evidence_confidence": "high",
+      "source_url": "https://retool.com/use-case/admin-panel-template",
+      "image_url": "https://dqpcjghenxt8u.cloudfront.net/contentful-data/images/3zhMDz9ruOgiVlWUOwyqfZ/8602169a8890bc819dbdea30193e6665/Frame_520.png",
+      "local_reference": "../../design-reference/product-ui/retool-admin-panel.png",
+      "deploy_reference": "../reference-assets/retool-admin-panel.png",
+      "marketing_artifacts_to_exclude": ["官网 Hero", "候补名单 CTA", "客户 Logo 墙"],
+      "captured_size": [1920, 1148],
+      "best_for": ["创建评测", "复杂配置", "数据预览", "可视化配置工作台"],
+      "not_for": ["任务中心首页", "简易结果报告"],
+      "geometry": {
+        "top_utility_height": 60,
+        "canvas_width_ratio": 0.76,
+        "inspector_width_ratio": 0.24,
+        "upper_canvas_height_ratio": 0.58,
+        "lower_query_height_ratio": 0.42,
+        "form_label_width": 180,
+        "input_height": 50,
+        "table_row_height": 45
+      },
+      "tokens": {
+        "surface": "#ffffff",
+        "canvas": "#fafafa",
+        "surface_subtle": "#f5f5f5",
+        "line": "#dedfe1",
+        "text": "#3e3e40",
+        "muted": "#929295",
+        "accent": "#3f9bec",
+        "selected": "#eaf4fd",
+        "success": "#5dbf91",
+        "radius": 4,
+        "spacing_unit": 8,
+        "body_size": 14,
+        "density": "dense"
+      },
+      "composition": ["top_utility", "configuration_form", "live_preview", "right_inspector", "bottom_execution_panel"],
+      "logic": ["配置与预览同屏", "高级选项进入底部或检查器", "保存与预览动作固定", "每个面板拥有明确边界和标题栏"]
+    }
+  ],
+  "component_patterns": [
+    {
+      "id": "shell_navigation",
+      "name": "产品壳导航",
+      "selector_target": ".product-shell",
+      "variants": [
+        {"id": "linear_compact", "source": "linear_my_issues", "structure": "216px 左侧栏 + 单主工作区", "use_for": ["任务中心", "评测结果"]},
+        {"id": "vanta_governance", "source": "vanta_risk_register", "structure": "64px 全局栏 + 190px 模块栏 + 主工作区", "use_for": ["争议复核", "规则管理"]},
+        {"id": "retool_builder", "source": "retool_admin_panel", "structure": "顶部工具栏 + 主画布 + 右侧检查器", "use_for": ["创建评测", "高级配置"]}
+      ]
+    },
+    {
+      "id": "page_header",
+      "name": "页面头",
+      "selector_target": ".ops-page-header",
+      "variants": [
+        {"id": "compact_title_action", "height": 64, "content": ["面包屑或任务编号", "20–24px 标题", "单一主动作"]},
+        {"id": "tabs_title_action", "height": 96, "content": ["标题", "视图标签", "筛选", "主动作"]},
+        {"id": "object_context", "height": 72, "content": ["返回", "对象名称", "状态", "更多动作"]}
+      ]
+    },
+    {
+      "id": "summary_strip",
+      "name": "紧凑摘要条",
+      "selector_target": ".ops-summary-strip",
+      "variants": [
+        {"id": "inline_counts", "height": 44, "format": "标签 数值 · 标签 数值", "max_items": 4},
+        {"id": "segmented_status", "height": 52, "format": "图标 + 状态 + 数值", "max_items": 5},
+        {"id": "same_scale_lock", "height": 40, "format": "四段锁定条件 + 版本指纹", "max_items": 4}
+      ]
+    },
+    {
+      "id": "work_queue",
+      "name": "工作队列",
+      "selector_target": ".ops-work-table",
+      "variants": [
+        {"id": "grouped_list", "source": "linear_my_issues", "row_height": 48, "columns": ["状态", "任务", "编号", "更新时间"]},
+        {"id": "dense_table", "source": "vanta_risk_register", "row_height": 52, "columns": ["对象", "版本", "场景", "负责人", "风险", "状态", "更新时间", "动作"]},
+        {"id": "master_detail", "source": "retool_admin_panel", "row_height": 44, "columns": ["对象", "状态", "更新时间"], "detail": "右侧固定详情"}
+      ]
+    },
+    {
+      "id": "filter_toolbar",
+      "name": "筛选工具栏",
+      "selector_target": ".ops-toolbar",
+      "variants": [
+        {"id": "search_chips", "source": "vanta_risk_register", "controls": ["搜索", "状态", "场景", "负责人", "更多筛选", "列配置"]},
+        {"id": "view_tabs_filter", "source": "linear_my_issues", "controls": ["视图标签", "筛选", "显示选项"]},
+        {"id": "form_preview", "source": "retool_admin_panel", "controls": ["表单字段", "预览", "保存"]}
+      ]
+    },
+    {
+      "id": "status_language",
+      "name": "状态语言",
+      "selector_target": ".ops-status",
+      "rules": {
+        "neutral": ["草稿", "排队中", "未开始"],
+        "active": ["运行中", "待复核", "灰度中"],
+        "success": ["已完成", "通过门禁", "可上线"],
+        "danger": ["运行失败", "P0 触发", "已打回"],
+        "copy_rule": "状态只描述当前事实，不使用‘运行正常’等泛化判断"
+      }
+    },
+    {
+      "id": "review_layout",
+      "name": "复核布局",
+      "selector_target": ".ops-review",
+      "variants": [
+        {"id": "queue_detail_evidence", "tracks": [24, 46, 30], "regions": ["争议队列", "样本与裁判结论", "证据与动作"]},
+        {"id": "table_drawer", "tracks": [100], "regions": ["风险表", "右侧抽屉按需打开"]}
+      ]
+    }
+  ],
+  "page_compositions": [
+    {
+      "id": "evalcall_task_center",
+      "name": "EvalCall 任务中心",
+      "job": "找任务并继续处理",
+      "structure": ["shell_navigation.linear_compact", "page_header.tabs_title_action", "summary_strip.inline_counts", "filter_toolbar.search_chips", "work_queue.dense_table", "right_aside.my_actions"],
+      "primary_action": "创建评测",
+      "remove": ["营销 Hero", "英文装饰眉题", "四张大 KPI 卡", "重复创建入口", "方法论说明"]
+    },
+    {
+      "id": "evalcall_create_evaluation",
+      "name": "EvalCall 创建评测",
+      "job": "配置并启动一轮可比较评测",
+      "structure": ["shell_navigation.linear_compact", "page_header.object_context", "configuration_form", "live_configuration_summary", "bottom_action_bar"],
+      "primary_action": "创建并运行",
+      "signature": "同尺条件锁：用户输入 / SOP / Checklist / Judge"
+    },
+    {
+      "id": "evalcall_result",
+      "name": "EvalCall 评测结果",
+      "job": "决定是否上线以及下一步处理什么",
+      "structure": ["page_header.object_context", "gate_status_bar", "version_comparison_table", "risk_queue", "evidence_drawer"],
+      "primary_action": "提交灰度上线",
+      "signature": "基准与候选逐项对照，不使用大数字 Hero"
+    },
+    {
+      "id": "evalcall_review",
+      "name": "EvalCall 争议复核",
+      "job": "处理裁判分歧并保存最终结论",
+      "structure": ["shell_navigation.linear_compact", "page_header.object_context", "review_layout.queue_detail_evidence", "sticky_review_actions"],
+      "primary_action": "保存最终结论",
+      "signature": "证据排序紧贴裁判结论"
+    }
+  ],
+  "evalcall_target_tokens": {
+    "color": {
+      "canvas": "#f6f7f8",
+      "surface": "#ffffff",
+      "surface_subtle": "#f3f4f6",
+      "sidebar": "#17191d",
+      "text": "#202124",
+      "muted": "#6f737b",
+      "line": "#dfe2e6",
+      "brand": "#ffd100",
+      "info": "#2f6ea6",
+      "success": "#168a65",
+      "warning": "#b77900",
+      "danger": "#c23b32"
+    },
+    "type": {
+      "ui": "Inter, PingFang SC, Microsoft YaHei, sans-serif",
+      "data": "SFMono-Regular, Menlo, Consolas, monospace",
+      "page_title": 22,
+      "section_title": 14,
+      "body": 12,
+      "caption": 10,
+      "line_height": 1.45
+    },
+    "space": {"unit": 4, "page": 20, "section": 16, "control_gap": 8, "row_padding": 12},
+    "radius": {"control": 6, "panel": 8, "pill": 999},
+    "shadow": {"panel": "none", "drawer": "0 16px 42px rgba(20,24,31,.14)"},
+    "density": {"header": 52, "toolbar": 48, "table_row": 50, "input": 34, "button": 34}
+  },
+  "default_selection": {
+    "task_center": {"shell": "linear_compact", "queue": "dense_table", "toolbar": "search_chips", "summary": "inline_counts"},
+    "create": {"shell": "linear_compact", "summary": "same_scale_lock"},
+    "result": {"shell": "linear_compact", "queue": "dense_table"},
+    "review": {"shell": "linear_compact", "layout": "queue_detail_evidence"}
+  },
+  "application_contract": {
+    "schema": "evalcall-b2b-theme/v3",
+    "allowed_shell_layouts": ["linear"],
+    "page_route_mapping": {"task_center": "dashboard", "create": "create", "result": "results", "review": "review"},
+    "apply_behavior": "保存一套全局外壳方案，通过 URL bootstrap 打开所选页面，并写入目标 origin 的 localStorage；页面切换不改变外壳",
+    "consumer_priority": ["URL bootstrap", "当前 origin localStorage", "产品默认值"],
+    "consumed_fields": ["active_page", "shell_layout", "color", "density", "display", "reference"],
+    "visible_confirmation": "正式 Demo 顶栏显示全局布局与密度",
+    "migration": "v1/v2 页面级布局在读取时统一迁移为 linear；v3 使用 shell_layout 作为全部页面的唯一外壳",
+    "responsive_rule": "列表优先在 1024px 桌面视口保持完整单侧栏；900px 以下才进入紧凑导航"
+  },
+  "visual_validation": {
+    "viewport_policy": "复刻页面使用 captured_size；EvalCall 使用 1440×900 与 390×844",
+    "automated_checks": ["主要分区位置误差 ≤ 4%", "侧栏宽度误差 ≤ 12px", "行高误差 ≤ 8px", "主色平均色差 ΔE ≤ 12", "文字与控件数量差异 ≤ 15%"],
+    "human_checks": ["第一眼视觉重心一致", "信息密度一致", "导航与主工作区层级一致", "状态颜色没有被装饰性使用", "内容替换后仍符合 EvalCall 业务语义"],
+    "replica_status": {
+      "linear_my_issues": "validated",
+      "vanta_risk_register": "validated",
+      "retool_admin_panel": "validated"
+    },
+    "replica_metrics": {
+      "linear_my_issues": {
+        "structural_score": 0.9576,
+        "landmark_mean_error_percent": 0.07,
+        "landmark_max_error_percent": 0.21,
+        "vertical_edge_projection": 0.9172,
+        "horizontal_edge_projection": 0.9506,
+        "screenshot": "../../runs/reference-replica-validation/linear-my-issues.png"
+      },
+      "vanta_risk_register": {
+        "structural_score": 0.958,
+        "landmark_mean_error_percent": 0.14,
+        "landmark_max_error_percent": 0.43,
+        "vertical_edge_projection": 0.9142,
+        "horizontal_edge_projection": 0.7842,
+        "screenshot": "../../runs/reference-replica-validation/vanta-risk-register.png"
+      },
+      "retool_admin_panel": {
+        "structural_score": 0.8974,
+        "landmark_mean_error_percent": 0.09,
+        "landmark_max_error_percent": 0.18,
+        "vertical_edge_projection": 0.6067,
+        "horizontal_edge_projection": 0.5587,
+        "screenshot": "../../runs/reference-replica-validation/retool-admin-panel.png"
+      }
+    },
+    "validation_summary": {
+      "mean_structural_score": 0.9377,
+      "all_dimensions_match": true,
+      "validated_at": "2026-07-16",
+      "method": "spatial grids + region masks + edge density + axis projections + named landmarks + manual review"
+    }
+  }
+}

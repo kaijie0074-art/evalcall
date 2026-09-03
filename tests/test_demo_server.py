@@ -5,11 +5,10 @@ from __future__ import annotations
 import json
 import threading
 import time
-from http.cookiejar import CookieJar
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError
-from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
+from urllib.request import Request, urlopen
 
 import pytest
 
@@ -34,7 +33,6 @@ def demo_http(tmp_path, monkeypatch):
     )
     demo_server._jobs.clear()
     demo_server._sessions.clear()
-    demo_server._public_rate_buckets.clear()
     server = ThreadingHTTPServer(("127.0.0.1", 0), demo_server.DemoHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -118,7 +116,8 @@ def test_health_root_and_missing_job(demo_http):
     with urlopen(f"{demo_http}/", timeout=3) as response:  # noqa: S310 - localhost fixture only
         html = response.read().decode("utf-8")
     assert "外呼模型评测工作台" in html
-    assert "输入 → 执行 → 输出" in html
+    assert "评测任务" in html
+    assert "运行记录" in html
     assert "生成优化与回归计划" in html
     assert "模拟测试模式" in html
     assert "已有日志质检模式" in html
@@ -131,31 +130,24 @@ def test_health_root_and_missing_job(demo_http):
     assert error.value.code == 404
 
 
-def test_public_access_guard_sets_cookie_and_keeps_health_open(tmp_path, monkeypatch):
+def test_public_access_is_open_for_pages_and_api_routes(tmp_path, monkeypatch):
     monkeypatch.setattr(demo_server, "WEB_RUNS", tmp_path / "web_live")
-    monkeypatch.setenv("EVALCALL_PUBLIC_ACCESS_TOKEN", "competition-secret")
     demo_server._jobs.clear()
     demo_server._sessions.clear()
-    demo_server._public_rate_buckets.clear()
     server = ThreadingHTTPServer(("127.0.0.1", 0), demo_server.DemoHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     base = f"http://127.0.0.1:{server.server_port}"
     try:
-        assert _get_json(f"{base}/api/health")["public_access_protected"] is True
-        with pytest.raises(HTTPError) as error:
-            urlopen(f"{base}/", timeout=3)  # noqa: S310 - localhost fixture only
-        assert error.value.code == 403
-
-        opener = build_opener(HTTPCookieProcessor(CookieJar()))
-        with opener.open(f"{base}/?access=competition-secret", timeout=3) as response:  # noqa: S310
+        assert _get_json(f"{base}/api/health")["public_access"] == "open"
+        with urlopen(f"{base}/", timeout=3) as response:  # noqa: S310 - localhost fixture only
             html = response.read().decode("utf-8")
         assert "外呼模型评测工作台" in html
 
         request = Request(
             f"{base}/api/nope",
             data=b"{}",
-            headers={"Content-Type": "application/json", "X-EvalCall-Access": "competition-secret"},
+            headers={"Content-Type": "application/json"},
             method="POST",
         )
         with pytest.raises(HTTPError) as error:

@@ -1,0 +1,102 @@
+{
+  "schema": "design-composition/v1",
+  "id": "my-project",
+  "name": "我的项目工作台",
+  "page": {
+    "context": "PROJECT · WORKSPACE",
+    "title": "页面主要任务",
+    "status": "结构已生成"
+  },
+  "navigation": [
+    "步骤一",
+    "步骤二",
+    "步骤三"
+  ],
+  "layout": {
+    "direction": "columns",
+    "tracks": [
+      40,
+      60
+    ],
+    "gap": 12
+  },
+  "regions": [
+    {
+      "id": "context",
+      "label": "项目信息",
+      "type": "stack",
+      "role": "supporting",
+      "items": [
+        {
+          "type": "panel",
+          "tone": "input",
+          "label": "输入",
+          "meta": "SOURCE",
+          "items": [
+            {
+              "type": "field",
+              "label": "对象",
+              "value": "待处理内容"
+            },
+            {
+              "type": "field",
+              "label": "约束",
+              "value": "业务规则"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "tone": "output",
+          "label": "输出",
+          "meta": "RESULT",
+          "items": [
+            {
+              "type": "metric",
+              "label": "完成数量",
+              "value": "12"
+            },
+            {
+              "type": "status",
+              "label": "结果已生成"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "process",
+      "label": "业务流程",
+      "type": "flow",
+      "role": "primary",
+      "orientation": "vertical",
+      "meta": "STEP 1 / 3",
+      "stages": [
+        {
+          "label": "INPUT",
+          "tone": "input",
+          "nodes": [
+            "数据 A",
+            "数据 B"
+          ]
+        },
+        {
+          "label": "PROCESS",
+          "tone": "process",
+          "nodes": [
+            "处理动作一",
+            "处理动作二"
+          ]
+        },
+        {
+          "label": "OUTPUT",
+          "tone": "output",
+          "nodes": [
+            "产物 A",
+            "产物 B"
+          ]
+        }
+      ]
+    }
+  ]
+}

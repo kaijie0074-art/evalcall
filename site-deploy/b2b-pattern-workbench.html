@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>EvalCall · B 端界面方案</title>
+  <link rel="stylesheet" href="./component-library/b2b-pattern-workbench.css?v=20260716.4">
+</head>
+<body>
+  <div class="workbench" id="workbench">
+    <header class="workbench-toolbar">
+      <a class="workbench-brand" href="./app.html" aria-label="返回 EvalCall">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <strong>EvalCall</strong>
+        <span>界面方案</span>
+      </a>
+
+      <div class="toolbar-controls" role="group" aria-label="预览选项">
+        <label class="toolbar-field">
+          <span>页面</span>
+          <select id="pageSelect" aria-label="选择页面">
+            <option value="task_center">评测任务</option>
+            <option value="create">创建评测</option>
+            <option value="result">评测结果</option>
+            <option value="review">争议复核</option>
+          </select>
+        </label>
+        <label class="toolbar-field">
+          <span>参考</span>
+          <select id="referenceSelect" aria-label="选择参考方案">
+            <option value="linear">Linear · My issues</option>
+            <option value="vanta">Vanta · Risk register</option>
+            <option value="retool">Retool · Admin panel</option>
+          </select>
+        </label>
+        <label class="toolbar-field toolbar-field-short">
+          <span>密度</span>
+          <select id="densitySelect" aria-label="选择信息密度">
+            <option value="dense">紧凑</option>
+            <option value="compact">标准</option>
+            <option value="comfortable">宽松</option>
+          </select>
+        </label>
+        <label class="toolbar-field toolbar-field-short">
+          <span>视口</span>
+          <select id="viewportSelect" aria-label="选择预览视口">
+            <option value="desktop">桌面 1440</option>
+            <option value="tablet">平板 1024</option>
+            <option value="mobile">手机 390</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="button button-secondary properties-toggle" id="propertiesToggle" type="button" aria-expanded="false">界面属性</button>
+        <button class="button button-secondary" id="replicaToggle" type="button" aria-pressed="false">查看参考复刻</button>
+        <button class="button button-secondary" id="exportButton" type="button">导出 JSON</button>
+        <button class="button button-primary" id="applyButton" type="button">应用并打开 Demo</button>
+      </div>
+    </header>
+
+    <div class="workbench-body">
+      <aside class="page-directory" aria-label="工作台目录">
+        <section class="directory-section">
+          <h2>页面</h2>
+          <nav id="pageDirectory">
+            <button class="directory-item is-active" type="button" data-page="task_center"><span class="directory-icon">▤</span><span>评测任务</span></button>
+            <button class="directory-item" type="button" data-page="create"><span class="directory-icon">＋</span><span>创建评测</span></button>
+            <button class="directory-item" type="button" data-page="result"><span class="directory-icon">◫</span><span>评测结果</span></button>
+            <button class="directory-item" type="button" data-page="review"><span class="directory-icon">◇</span><span>争议复核</span><em>18</em></button>
+          </nav>
+        </section>
+        <section class="directory-section directory-references">
+          <h2>参考复刻</h2>
+          <button class="reference-item" type="button" data-reference="linear"><span class="reference-swatch linear"></span><span><b>Linear</b><small>任务队列</small></span></button>
+          <button class="reference-item" type="button" data-reference="vanta"><span class="reference-swatch vanta"></span><span><b>Vanta</b><small>风险复核</small></span></button>
+          <button class="reference-item" type="button" data-reference="retool"><span class="reference-swatch retool"></span><span><b>Retool</b><small>复杂配置</small></span></button>
+        </section>
+        <a class="json-entry" href="./component-library/b2b-operations-patterns.json" target="_blank" rel="noreferrer"><span>{ }</span> 设计规则 JSON</a>
+      </aside>
+
+      <main class="preview-region">
+        <div class="preview-bar">
+          <div>
+            <strong id="previewTitle">评测任务</strong>
+            <span id="previewMeta">列表优先 · 中性黄 · 紧凑</span>
+          </div>
+          <div class="preview-mode" role="group" aria-label="预览模式">
+            <button class="is-active" type="button" data-mode="design">EvalCall</button>
+            <button type="button" data-mode="reference">参考复刻</button>
+          </div>
+          <span class="preview-scale" id="previewScale">100%</span>
+        </div>
+        <div class="canvas-stage" id="canvasStage">
+          <div class="canvas-viewport viewport-desktop" id="canvasViewport">
+            <div class="evalcall-preview" id="evalcallPreview" aria-live="polite"></div>
+            <iframe class="reference-frame" id="referenceFrame" title="参考界面复刻" loading="eager"></iframe>
+          </div>
+        </div>
+      </main>
+
+      <aside class="properties-panel" aria-label="界面属性">
+        <div class="properties-head">
+          <h2>界面属性</h2>
+          <button class="icon-button" id="resetButton" type="button" title="恢复默认" aria-label="恢复默认">↺</button>
+        </div>
+
+        <fieldset class="property-group">
+          <legend>全局导航布局</legend>
+          <label class="option-card">
+            <input type="radio" name="layout" value="linear" checked>
+            <span class="layout-thumb layout-linear"><i></i><b></b></span>
+            <span><b>列表优先</b><small>单侧栏 + 主队列</small></span>
+          </label>
+        </fieldset>
+
+        <fieldset class="property-group">
+          <legend>颜色</legend>
+          <label class="color-option"><input type="radio" name="color" value="yellow" checked><i class="yellow"></i><span>中性黄</span><code>#FFD100</code></label>
+          <label class="color-option"><input type="radio" name="color" value="blue"><i class="blue"></i><span>安静蓝</span><code>#2F6EA6</code></label>
+          <label class="color-option"><input type="radio" name="color" value="purple"><i class="purple"></i><span>治理紫</span><code>#7C3FA0</code></label>
+        </fieldset>
+
+        <fieldset class="property-group">
+          <legend>密度</legend>
+          <div class="density-segment" id="densitySegment">
+            <button type="button" data-density="dense" class="is-active">紧凑</button>
+            <button type="button" data-density="compact">标准</button>
+            <button type="button" data-density="comfortable">宽松</button>
+          </div>
+          <dl class="density-readout">
+            <div><dt>表格行高</dt><dd id="rowHeightReadout">44 px</dd></div>
+            <div><dt>控件高度</dt><dd id="controlHeightReadout">32 px</dd></div>
+            <div><dt>页面边距</dt><dd id="pagePaddingReadout">16 px</dd></div>
+          </dl>
+        </fieldset>
+
+        <fieldset class="property-group property-switches">
+          <legend>显示</legend>
+          <label><span>摘要状态条</span><input type="checkbox" id="summaryToggle" checked></label>
+          <label><span>右侧待办</span><input type="checkbox" id="asideToggle" checked></label>
+          <label><span>同尺条件锁</span><input type="checkbox" id="lockToggle" checked></label>
+        </fieldset>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./component-library/b2b-pattern-workbench.js?v=20260716.4"></script>
+</body>
+</html>

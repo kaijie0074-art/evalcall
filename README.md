@@ -14,7 +14,9 @@
 ## 先看产品，再看研究
 
 - 决赛固定公网入口与在线六步流程工作台统一为：[EvalCall 产品演示](https://kaijie0074-art.github.io/evalcall/app.html)
-- 最小子元素设计与效果演示库：本地服务打开 `/design-library.html`。库内包含 16 个参考产品、47 个可运行原子和“产品 → 子元素 / 子元素 → 效果、代码、步骤”的双向索引。
+- 本地与公网实时入口均为开放访问，不需要令牌、Cookie、特殊请求头或带参数链接。
+- 通用界面审美图鉴：本地服务打开 `/design-library.html`。图鉴与 EvalCall 业务解耦，按基础语言、操作输入、内容数据、状态反馈、流程关系五个页面沉淀最小子元素，并横向比较多种呈现类型。
+- 通用编排蓝图解释器：子元素选型台不再写死 EvalCall 页面。可选择 EvalCall、企业审批、经营分析三种内置蓝图，也可导入 `design-composition/v1` JSON，声明 `columns/rows`、区域比例及 `stack/cards/table/flow/form/timeline` 区域，页面会即时生成。编排逻辑与视觉系统相互独立，生成后仍可套用 Linear、Incident.io、Retool 并细调全部 52 项子元素；导出的 v3 JSON 同时保留 `composition_blueprint` 和视觉选型。使用说明见 `docs/编排蓝图使用说明.md`，模板见 `site-deploy/sample-assets/编排蓝图_通用模板.json`。
 - 旧入口 `live.html` 会自动跳转到 `app.html`，兼容已经提交的 PPT 与历史链接。
 - 研究与历史证据：[项目证据首页](https://kaijie0074-art.github.io/evalcall/)
 - 本地启动：`python3 -m evalcall demo`，打开 `http://127.0.0.1:8765/`

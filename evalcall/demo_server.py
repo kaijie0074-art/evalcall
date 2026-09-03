@@ -9,11 +9,9 @@
 from __future__ import annotations
 
 import hashlib
-import hmac
 import json
 import mimetypes
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -23,11 +21,10 @@ import uuid
 from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
-from http.cookies import SimpleCookie
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qsl, urlencode, unquote, urlparse
+from urllib.parse import unquote, urlparse
 
 import yaml
 
@@ -100,7 +97,6 @@ PRESETS: dict[str, dict[str, str]] = {
 
 _jobs: dict[str, dict[str, Any]] = {}
 _sessions: dict[str, dict[str, Any]] = {}
-_public_rate_buckets: dict[str, dict[str, float | int]] = {}
 _lock = threading.Lock()
 _backend_status: dict[str, Any] = {
     "checked": False,
@@ -163,6 +159,9 @@ def _probe_backend(*, force: bool = False) -> dict[str, Any]:
     backend = os.getenv("EVALCALL_BACKEND", "claude-cli")
     model = os.getenv("EVALCALL_MODEL", "default")
     try:
+        backend_client = llm.get_backend()
+        if hasattr(backend_client, "timeout"):
+            backend_client.timeout = min(60, int(getattr(backend_client, "timeout") or 60))
         answer = llm.chat(
             [
                 {"role": "system", "content": "这是健康检查。"},
@@ -196,6 +195,28 @@ def _probe_backend(*, force: bool = False) -> dict[str, Any]:
     with _lock:
         _backend_status = result
         return dict(_backend_status)
+
+
+def _probe_backend_safely() -> None:
+    """后台探测永远收口为明确状态，避免健康页永久停在“探测中”。"""
+    global _backend_status
+    try:
+        result = _probe_backend(force=True)
+        state = "可用" if result.get("available") else f"不可用：{result.get('error') or '未知原因'}"
+        print(f"[evalcall] 模型后端探测完成：{state}")
+    except BaseException as exc:  # noqa: BLE001 - daemon thread must always publish a terminal state
+        with _lock:
+            _backend_status = {
+                "checked": True,
+                "checking": False,
+                "available": False,
+                "checked_at": _now(),
+                "backend": os.getenv("EVALCALL_BACKEND", "claude-cli"),
+                "model": os.getenv("EVALCALL_MODEL", "default"),
+                "response": None,
+                "error": f"{type(exc).__name__}: {exc}"[:500],
+            }
+        print(f"[evalcall] 模型后端探测失败：{type(exc).__name__}: {exc}")
 
 
 def _read_json(path: Path) -> Any:
@@ -734,6 +755,7 @@ def build_static_cache() -> dict[str, Any]:
         regression_path = ROOT / config["regression_evidence"] if config.get("regression_evidence") else None
         if regression_path and regression_path.is_file():
             regression = _read_json(regression_path)
+            regression["artifact_url"] = f"regression-{preset_id}.json"
             if config.get("regression_report"):
                 regression.setdefault("candidate", {})["report_url"] = config["regression_report"]
             plan["actual_regression"] = regression
@@ -854,6 +876,17 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
         target_model = str(config.get("target_model") or preset.get("model_version") or "待测模型-未命名")
 
     task = _load_task(task_path)
+    runtime_model = str(
+        config.get("runtime_model")
+        or (
+            config.get("target_model")
+            if str(config.get("target_model") or "").startswith(("gpt-", "claude-", "o1", "o3", "o4"))
+            else ""
+        )
+        or os.getenv("TARGET_MODEL")
+        or os.getenv("EVALCALL_MODEL")
+        or "gpt-5.6-sol"
+    )
     if verified_run and not _verified_run_matches_instruction(task, Path(verified_run)):
         verified_checklist = None
         verified_run = None
@@ -957,6 +990,7 @@ def _create_intake(config: dict[str, Any]) -> dict[str, Any]:
             "personas": simulator_personas,
             "simulator_n": simulator_n,
             "target_model": target_model,
+            "target_runtime_model": runtime_model,
             "force_live": force_live,
             "live_max_turns": 1 if force_live and test_mode == "simulation" else 12,
             "sop_sha256": task_hash,
@@ -1118,8 +1152,8 @@ def _generate_live_probe(
     _job_update(job_id, status="running", progress=35, stage="用户模拟器已按 persona 生成压力回应")
 
     backend_name = os.getenv("TARGET_BACKEND") or os.getenv("EVALCALL_BACKEND", "codex-cli")
-    target_model = str(session.get("target_model") or os.getenv("EVALCALL_MODEL") or "gpt-5.6-sol")
-    backend = llm._build_backend(backend_name, target_model, is_target=True)
+    runtime_model = str(session.get("target_runtime_model") or os.getenv("EVALCALL_MODEL") or "gpt-5.6-sol")
+    backend = llm._build_backend(backend_name, runtime_model, is_target=True)
     if hasattr(backend, "reasoning_effort"):
         backend.reasoning_effort = "none"
     if hasattr(backend, "timeout"):
@@ -1135,7 +1169,7 @@ def _generate_live_probe(
             {"role": "assistant", "content": opening},
             {"role": "user", "content": user_reply},
         ],
-        model=target_model,
+        model=runtime_model,
     ).strip()
     if not reply:
         raise RuntimeError("被测模型在 12 秒内未返回有效回复")
@@ -1155,7 +1189,8 @@ def _generate_live_probe(
             "task_id": str(task.get("task_id") or "task"),
             "persona_id": "live_adversarial_probe",
             "source": "20-second-live-probe",
-            "target_model": target_model,
+            "target_model": str(session.get("target_model") or runtime_model),
+            "target_runtime_model": runtime_model,
             "freshly_generated": True,
         },
     }
@@ -1219,7 +1254,9 @@ def _run_evaluation(job_id: str, session_id: str, votes: int) -> None:
                 "--no-mix",
             ]
             env.setdefault("TARGET_BACKEND", env.get("EVALCALL_BACKEND", "codex-cli"))
-            env["TARGET_MODEL"] = str(session.get("target_model") or env.get("EVALCALL_MODEL") or "")
+            env["TARGET_MODEL"] = str(
+                session.get("target_runtime_model") or env.get("EVALCALL_MODEL") or "gpt-5.6-sol"
+            )
             env.setdefault("TARGET_REASONING_EFFORT", env.get("EVALCALL_REASONING_EFFORT", "xhigh"))
             progress_path = Path(session["root"]) / "live-progress.json"
             progress_path.unlink(missing_ok=True)
@@ -1410,94 +1447,20 @@ _ARTIFACTS = {
 
 
 class DemoHandler(SimpleHTTPRequestHandler):
-    _ACCESS_COOKIE = "evalcall_demo_access"
-
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, directory=str(SITE), **kwargs)
 
-    @staticmethod
-    def _public_access_token() -> str:
-        return os.getenv("EVALCALL_PUBLIC_ACCESS_TOKEN", "").strip()
-
-    def _provided_access_token(self) -> str:
-        header_token = self.headers.get("X-EvalCall-Access", "").strip()
-        if header_token:
-            return header_token
-        cookie = SimpleCookie()
-        try:
-            cookie.load(self.headers.get("Cookie", ""))
-        except Exception:  # noqa: BLE001 - malformed cookies must fail closed
-            return ""
-        morsel = cookie.get(self._ACCESS_COOKIE)
-        return morsel.value if morsel else ""
-
-    def _is_public_authorized(self) -> bool:
-        expected = self._public_access_token()
-        if not expected:
-            return True
-        provided = self._provided_access_token()
-        return bool(provided) and hmac.compare_digest(provided, expected)
-
-    def _set_access_cookie_and_redirect(self, parsed: Any, token: str) -> bool:
-        expected = self._public_access_token()
-        if not expected or not token or not hmac.compare_digest(token, expected):
-            return False
-        query = urlencode([(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True) if key != "access"])
-        location = parsed.path or "/"
-        if query:
-            location += "?" + query
-        cookie = f"{self._ACCESS_COOKIE}={token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=43200"
-        if self.headers.get("X-Forwarded-Proto", "").lower() == "https":
-            cookie += "; Secure"
-        self.send_response(HTTPStatus.FOUND)
-        self.send_header("Location", location)
-        self.send_header("Set-Cookie", cookie)
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Referrer-Policy", "no-referrer")
-        self.end_headers()
-        return True
-
-    def _deny_public_access(self) -> None:
-        if self.path.startswith("/api/"):
-            self._json({"ok": False, "error": "public_access_required"}, HTTPStatus.FORBIDDEN)
-            return
-        body = (
-            "<!doctype html><html lang='zh-CN'><meta charset='utf-8'>"
-            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-            "<title>EvalCall · 访问受保护</title>"
-            "<body style='font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;"
-            "max-width:720px;margin:15vh auto;padding:32px;color:#111827'>"
-            "<h1>该实时演示入口受保护</h1>"
-            "<p>请从比赛 PPT 的“打开在线 Demo”按钮进入，或使用公网已验证结果。</p>"
-            "</body></html>"
-        ).encode("utf-8")
-        self.send_response(HTTPStatus.FORBIDDEN)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Referrer-Policy", "no-referrer")
-        self.end_headers()
-        self.wfile.write(body)
-
-    def _public_rate_limit_ok(self) -> bool:
-        if not self._public_access_token():
-            return True
-        try:
-            maximum = max(6, int(os.getenv("EVALCALL_PUBLIC_POSTS_PER_15M", "90")))
-        except ValueError:
-            maximum = 90
-        forwarded = self.headers.get("CF-Connecting-IP") or self.headers.get("X-Forwarded-For") or ""
-        client = forwarded.split(",", 1)[0].strip() or self.client_address[0]
-        now = time.time()
-        with _lock:
-            bucket = _public_rate_buckets.get(client)
-            if not bucket or now - float(bucket["started_at"]) >= 900:
-                _public_rate_buckets[client] = {"started_at": now, "count": 1}
-                return True
-            if int(bucket["count"]) >= maximum:
-                return False
-            bucket["count"] = int(bucket["count"]) + 1
-        return True
+    def end_headers(self) -> None:
+        """演示入口禁止复用旧 HTML/JS，避免浏览器继续执行历史页面逻辑。"""
+        buffered = b"".join(getattr(self, "_headers_buffer", [])).lower()
+        if b"cache-control:" not in buffered:
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        if b"pragma:" not in buffered:
+            self.send_header("Pragma", "no-cache")
+        if b"expires:" not in buffered:
+            self.send_header("Expires", "0")
+        self.send_header("X-EvalCall-Build", "20260715-live-v3")
+        super().end_headers()
 
     def _json(self, data: Any, status: int = 200) -> None:
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
@@ -1505,6 +1468,9 @@ class DemoHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        # 固定 GitHub Pages 入口会先跨域探测临时隧道。只有健康接口
+        # 真正返回 200 才允许跳转，避免 Cloudflare 1033 页面被当成成功。
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(body)
 
@@ -1545,15 +1511,9 @@ class DemoHandler(SimpleHTTPRequestHandler):
                         (ROOT / config["live_verified_run"] / "summary.json").is_file()
                         for config in PRESETS.values()
                     ),
-                    "public_access_protected": bool(self._public_access_token()),
+                    "public_access": "open",
                 }
             )
-            return
-        query = dict(parse_qsl(parsed.query, keep_blank_values=True))
-        if "access" in query and self._set_access_cookie_and_redirect(parsed, query["access"]):
-            return
-        if not self._is_public_authorized():
-            self._deny_public_access()
             return
         if parsed.path.startswith("/api/jobs/"):
             job_id = parsed.path.rsplit("/", 1)[-1]
@@ -1604,12 +1564,6 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
-        if not self._is_public_authorized():
-            self._deny_public_access()
-            return
-        if not self._public_rate_limit_ok():
-            self._json({"ok": False, "error": "public_rate_limit_exceeded"}, HTTPStatus.TOO_MANY_REQUESTS)
-            return
         handlers = {
             "/api/intake": _create_intake,
             "/api/compile": lambda data: _compile_session(str(data.get("session_id") or "")),
@@ -1647,15 +1601,14 @@ class DemoHandler(SimpleHTTPRequestHandler):
             self._json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
 
     def log_message(self, fmt: str, *args: Any) -> None:
-        message = re.sub(r"([?&]access=)[^&\s]+", r"\1[redacted]", fmt % args)
-        print(f"[demo] {self.address_string()} {message}")
+        print(f"[demo] {self.address_string()} {fmt % args}")
 
 
 def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
     _configure_demo_backend()
     WEB_RUNS.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer((host, port), DemoHandler)
-    threading.Thread(target=_probe_backend, kwargs={"force": True}, daemon=True).start()
+    threading.Thread(target=_probe_backend_safely, name="backend-health-probe", daemon=True).start()
     print(f"[evalcall] 六步产品工作台：http://{host}:{port}/")
     print(
         "[evalcall] 工作台已先启动，正在后台真实探测模型后端："

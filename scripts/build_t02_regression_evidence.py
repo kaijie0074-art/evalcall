@@ -7,11 +7,16 @@ import argparse
 import hashlib
 import html
 import json
+from collections import Counter, defaultdict
 from pathlib import Path
 
 
 def _load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _load_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 def _sha256(path: Path) -> str:
@@ -35,6 +40,146 @@ def _metrics(summary: dict) -> dict:
         "avg_score": float(summary["avg_score"]),
         "review_queue_count": int(summary.get("review_queue_count") or 0),
         "machine_judgments": int((summary.get("attribution") or {}).get("signals", {}).get("judgments") or 0),
+    }
+
+
+def _evidence_agent_reply(judgment: dict, transcript: dict) -> tuple[str, int | None]:
+    roles = {int(turn.get("turn") or 0): str(turn.get("role") or "") for turn in transcript.get("turns") or []}
+    candidates = []
+    for item in judgment.get("evidence") or []:
+        turn = int(item.get("turn") or 0)
+        if roles.get(turn) == "agent" and item.get("quote"):
+            candidates.append((turn, str(item["quote"])))
+    if candidates:
+        turn, quote = candidates[-1]
+        return quote, turn
+    return "未找到可展示的模型原文", None
+
+
+def _preceding_user_input(transcript: dict, agent_turn: int | None) -> str:
+    turns = transcript.get("turns") or []
+    before = [turn for turn in turns if turn.get("role") == "user" and (agent_turn is None or int(turn.get("turn") or 0) < agent_turn)]
+    return str(before[-1].get("content") or "") if before else "未找到对应用户输入"
+
+
+def _strategy_for(checkpoint_id: str, text: str) -> str:
+    explicit = {
+        "safety_ai_disclosure": "加入 AI 身份真实性守卫：不得冒充真人，并提供 App 服务记录核验路径",
+        "authenticity_identity": "把身份质疑识别为独立分支，先真实回应身份，再引导回改约任务",
+        "constraint_2": "加入营业时间边界校验，超过 21:00 时拒绝提交并给出合法候选时段",
+        "forbid_2": "把越界承诺升级为生成前硬约束，违规时改为解释限制并重新询问",
+        "flow_2": "加入身份核验前置门：尾号未核验前禁止读取、透露或修改订单信息",
+        "flow_5": "把地址与联系方式拆成必须显式确认的收尾状态",
+        "flow_6": "统一收尾模板：复述时间、地址和联系方式后再结束通话",
+    }
+    return explicit.get(checkpoint_id, f"围绕“{text}”增加可观察的流程守卫与回复约束")
+
+
+def _build_regression_detail(baseline_dir: Path, candidate_dir: Path) -> dict:
+    baseline_judgments = _load(baseline_dir / "judgments.json")
+    candidate_judgments = _load(candidate_dir / "judgments.json")
+    baseline_transcripts = {row["run_id"]: row for row in _load_jsonl(baseline_dir / "transcripts.jsonl")}
+    candidate_transcripts = {row["run_id"]: row for row in _load_jsonl(candidate_dir / "transcripts.jsonl")}
+    baseline_index = {(row["run_id"], row["checkpoint_id"]): row for row in baseline_judgments}
+    candidate_index = {(row["run_id"], row["checkpoint_id"]): row for row in candidate_judgments}
+    transitions: dict[str, Counter] = defaultdict(Counter)
+    checkpoint_meta: dict[str, dict] = {}
+    case_candidates: list[dict] = []
+    severity_rank = {"critical": 0, "major": 1, "minor": 2}
+
+    for key, baseline in baseline_index.items():
+        candidate = candidate_index.get(key)
+        if not candidate:
+            continue
+        run_id, checkpoint_id = key
+        before = str(baseline.get("verdict") or "na")
+        after = str(candidate.get("verdict") or "na")
+        transition = f"{before}_to_{after}"
+        transitions[checkpoint_id][transition] += 1
+        checkpoint_meta[checkpoint_id] = {
+            "checkpoint_id": checkpoint_id,
+            "text": baseline.get("text") or candidate.get("text") or checkpoint_id,
+            "severity": baseline.get("severity") or candidate.get("severity") or "minor",
+        }
+        if transition not in {"fail_to_pass", "pass_to_fail"}:
+            continue
+        baseline_tx = baseline_transcripts.get(run_id, {})
+        candidate_tx = candidate_transcripts.get(run_id, {})
+        baseline_reply, baseline_turn = _evidence_agent_reply(baseline, baseline_tx)
+        candidate_reply, candidate_turn = _evidence_agent_reply(candidate, candidate_tx)
+        user_input = _preceding_user_input(candidate_tx, candidate_turn)
+        if user_input == "未找到对应用户输入":
+            user_input = _preceding_user_input(baseline_tx, baseline_turn)
+        case_candidates.append({
+            "case_id": f"{run_id}::{checkpoint_id}",
+            "case_type": "fixed" if transition == "fail_to_pass" else "regressed",
+            "run_id": run_id,
+            "persona_id": baseline.get("persona_id") or candidate.get("persona_id"),
+            "checkpoint_id": checkpoint_id,
+            "checkpoint_text": checkpoint_meta[checkpoint_id]["text"],
+            "severity": checkpoint_meta[checkpoint_id]["severity"],
+            "user_input": user_input,
+            "baseline_reply": baseline_reply,
+            "candidate_reply": candidate_reply,
+            "before_verdict": before,
+            "after_verdict": after,
+            "changed_strategy": _strategy_for(checkpoint_id, checkpoint_meta[checkpoint_id]["text"]),
+        })
+
+    checkpoint_transitions = []
+    for checkpoint_id, counts in transitions.items():
+        meta = checkpoint_meta[checkpoint_id]
+        fixed = counts.get("fail_to_pass", 0)
+        regressed = counts.get("pass_to_fail", 0)
+        remaining = counts.get("fail_to_fail", 0)
+        if fixed and regressed:
+            status = "mixed"
+        elif regressed:
+            status = "regressed"
+        elif fixed:
+            status = "improved"
+        elif remaining:
+            status = "remaining"
+        else:
+            status = "stable"
+        checkpoint_transitions.append({
+            **meta,
+            "status": status,
+            "fail_to_pass": fixed,
+            "pass_to_fail": regressed,
+            "fail_to_fail": remaining,
+            "pass_to_pass": counts.get("pass_to_pass", 0),
+            "na_transitions": sum(value for key, value in counts.items() if key.startswith("na_") or key.endswith("_to_na")),
+        })
+    status_rank = {"improved": 0, "regressed": 1, "mixed": 2, "remaining": 3, "stable": 4}
+    checkpoint_transitions.sort(key=lambda row: (status_rank[row["status"]], severity_rank.get(row["severity"], 9), row["checkpoint_id"]))
+    case_candidates.sort(key=lambda row: (0 if row["case_type"] == "fixed" else 1, severity_rank.get(row["severity"], 9), row["checkpoint_id"], row["run_id"]))
+    def unique_cases(kind: str, limit: int) -> list[dict]:
+        selected: list[dict] = []
+        seen: set[str] = set()
+        for row in case_candidates:
+            if row["case_type"] != kind or row["checkpoint_id"] in seen:
+                continue
+            selected.append(row)
+            seen.add(row["checkpoint_id"])
+            if len(selected) >= limit:
+                break
+        return selected
+
+    fixed_cases = unique_cases("fixed", 5)
+    regressed_cases = unique_cases("regressed", 2)
+    transition_summary = {
+        "fixed_judgments": sum(row["fail_to_pass"] for row in checkpoint_transitions),
+        "regressed_judgments": sum(row["pass_to_fail"] for row in checkpoint_transitions),
+        "remaining_failed_judgments": sum(row["fail_to_fail"] for row in checkpoint_transitions),
+        "improved_checkpoints": sum(row["status"] == "improved" for row in checkpoint_transitions),
+        "regressed_checkpoints": sum(row["status"] == "regressed" for row in checkpoint_transitions),
+        "mixed_checkpoints": sum(row["status"] == "mixed" for row in checkpoint_transitions),
+    }
+    return {
+        "case_diffs": fixed_cases + regressed_cases,
+        "checkpoint_transitions": checkpoint_transitions,
+        "transition_summary": transition_summary,
     }
 
 
@@ -67,8 +212,9 @@ def main() -> None:
     assert candidate_metrics["p0_triggered_runs"] == 0
     assert candidate_metrics["fulfillment_rate"] >= baseline_metrics["fulfillment_rate"]
 
+    regression_detail = _build_regression_detail(baseline_dir, candidate_dir)
     comparison = {
-        "schema_version": 1,
+        "schema_version": 2,
         "comparison_id": "t02_delivery_fixedusers_v1_vs_guarded_v2_20260714",
         "method": comparability["method"],
         "comparability": {
@@ -102,6 +248,7 @@ def main() -> None:
             "candidate_machine_judgments": _metrics(candidate_summary)["machine_judgments"],
             "interpretation": "系统批量完成逐项判定并生成复核队列；商业价值来自把人工工作从全量听审转为异常复核，不声明未经测量的节省金额。",
         },
+        **regression_detail,
         "limitations": [
             "本证据只覆盖配送时间改约的10通固定用户输入。",
             "Judge为单模型单票；上线前应扩大样本并增加人工抽检。",

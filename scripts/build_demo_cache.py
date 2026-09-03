@@ -31,6 +31,12 @@ def main() -> None:
             regression_target = ROOT / "site-deploy" / config["regression_report"]
             if regression_source.is_file():
                 shutil.copyfile(regression_source, regression_target)
+    for preset_id, config in PRESETS.items():
+        if config.get("regression_evidence"):
+            regression_source = ROOT / config["regression_evidence"]
+            regression_target = ROOT / "site-deploy" / f"regression-{preset_id}.json"
+            if regression_source.is_file():
+                shutil.copyfile(regression_source, regression_target)
     print(f"[evalcall] 静态演示数据已生成：{destination}")
     print(f"[evalcall] 样例 {len(payload['presets'])} 组，步骤 {sum(len(x['steps']) for x in payload['presets'].values())} 个")
 
